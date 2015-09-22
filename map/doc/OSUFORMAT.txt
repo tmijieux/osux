@@ -1,0 +1,15 @@
+HITSOUNDS:
+
+NOTHING: 0
+WHISTLE: 2
+FINISH:  4 
+CLAP:    8
+
+
+
+
+SLIDER TYPE:
+L simple line
+P simple 3 point line
+B bezier curve (4 points and more)
+

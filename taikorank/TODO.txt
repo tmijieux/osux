@@ -1,0 +1,8 @@
+Modifications:
+- changer la projection des petits BPM, -> exp ou ²...
+- vérifier proportions dans reading.c
+- superosed/hidding/hidden à revoir
+
+Projet:
+- pattern !
+- accu !
