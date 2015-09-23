@@ -17,7 +17,7 @@
 #ifndef HIT_OBJECT_H
 #define HIT_OBJECT_H
 
-#include <python2.7/Python.h>
+
 // HitObject '~~ TYPE'
 #define HO_CIRCLE   1
 #define HO_SLIDER   2
@@ -33,7 +33,6 @@
   but the formulas for the L and P types are simpler than
   the general case.
  */
-
 #define TYPE_OF(ho_ptr)    ((ho_ptr)->type & (~HO_NEWCOMBO) & 0x0F)
 // this get rid of the 'new_combo' flag to get the hit object's type
 // more easily
@@ -89,7 +88,6 @@ struct hit_object {
     struct hitsound hs;
 };
 
-void ho_parse(struct hit_object *ho, PyObject *ho_dict);
 void ho_print(struct hit_object *ho, int version);
 void ho_free(struct hit_object *ho);
 

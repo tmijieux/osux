@@ -21,6 +21,7 @@
 #include "map.h"
 #include <tp/timing_point.h>
 #include <ho/hit_object.h>
+#include <ho/ho_py.h>
 #include <combocolor/combocolor.h>
 
 static PyObject *omp_python_parse(const char *filename)
@@ -218,7 +219,7 @@ static void map_parse_HitObjects(PyObject *d, struct map *m)
     m->hoc = (uint32_t) PyList_Size(d);
     m->HitObjects = malloc(sizeof (*m->HitObjects) * m->hoc);
     for (int i = 0; i < m->hoc; ++i)
-	ho_parse(&m->HitObjects[i], PyList_GetItem(d, i));
+	ho_py_parse(&m->HitObjects[i], PyList_GetItem(d, i));
 }
 
 static void map_parse_Events(PyObject *d, struct map *m)

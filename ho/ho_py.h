@@ -14,23 +14,11 @@
  *  limitations under the License.
  */
 
-#include <stdio.h>
-#include "timing_point.h"
+#ifndef HO_PY_H
+#define HO_PY_H
 
-void tp_print(struct timing_point *tp)
-{
-    printf("%.15g,%.15g,%d,%d,%d,%d,%d,%d\r\n",
-	   tp->offset,
-	   tp->mpb,
-	   tp->time_signature,
-	   tp->sample_type,
-	   tp->sample_set,
-	   tp->volume,
-	   tp->uninherited,
-	   tp->kiai);
-}
+#include <python2.7/Python.h>
 
-void tp_free(struct timing_point *tp)
-{
-    // nothing !
-}
+void ho_py_parse(struct hit_object *ho, PyObject *ho_dict);
+
+#endif //HO_PY_H
