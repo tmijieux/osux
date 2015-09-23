@@ -17,12 +17,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <combocolor/combocolor.h>
-#include <ho/hit_object.h>
-#include <tp/timing_point.h>
-#include <sb/storyboard.h>
-
 #include "map.h"
+
+#include "hitobject/hit_object.h"
+#include "timingpoint/timing_point.h"
+#include "storyboard/storyboard.h"
+#include "combocolor/combocolor.h"
 
 struct map DEFAULT_MAP = {
     .TimelineZoom = 1.
