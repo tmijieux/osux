@@ -209,12 +209,12 @@ static void parse_difficulty(struct hash_table *ht, struct map *m)
     struct hash_table *d = NULL;
     ht_get_entry(ht, "Difficulty", &d);
     
-    READ_DOUBLE(m, hp_drain_rate,      d,  "HPDrainRate");
-    READ_DOUBLE(m, circle_size,        d,  "CircleSize");
-    READ_DOUBLE(m, overall_difficulty, d,  "OverallDifficulty");
-    READ_DOUBLE(m, approach_rate,      d,  "ApproachRate");
-    READ_DOUBLE(m, slider_multiplier,  d, "SliderMultiplier");
-    READ_DOUBLE(m, slider_tick_rate,   d,  "SliderTickRate");
+    READ_DOUBLE(m, d,  HPDrainRate);
+    READ_DOUBLE(m, d,  CircleSize);
+    READ_DOUBLE(m, d,  OverallDifficulty);
+    READ_DOUBLE(m, d,  ApproachRate);
+    READ_DOUBLE(m, d,  SliderMultiplier);
+    READ_DOUBLE(m, d,  SliderTickRate);
 
     ht_free(d);
 }

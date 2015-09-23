@@ -16,7 +16,16 @@
 
 #include "parser_py.h"
 
-struct map *osu_map_parser(const char *filename) // COMPATIBILITY
+struct map *osux_parse_beatmap(const char *filename)
 {
     return osux_py_parse_beatmap(filename);
+
+    // TODO
+    // get function pointer of any loaded module that provides this function
+    // (either c or python)
+}
+
+struct map *osu_map_parser(const char *filename) // COMPATIBILITY
+{
+    return osux_parse_beatmap(filename);
 }
