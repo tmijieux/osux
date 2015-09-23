@@ -75,7 +75,7 @@
   TRO_COMPARE(FIELD)				\
   TRM_SORT(FIELD)				\
   TRM_MEDIAN(FIELD)				\
-  TRM_MEAN(FILED)				\
+  TRM_MEAN(FIELD)				\
   TRM_STATS(FIELD)
 
 //-----------------------------------------------------
