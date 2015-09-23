@@ -85,7 +85,7 @@ void *list_get(struct list *list, unsigned int n)
 void list_add(struct list *list, void *element)
 {
     struct list_node *tmp = node_new(element, DATA_NODE);
-    if (list->size = 0)
+    if (list->size == 0)
 	list->last_node = tmp;
     node_set_next(tmp, node_get_next(list->front_sentinel));
     node_set_next(list->front_sentinel, tmp);

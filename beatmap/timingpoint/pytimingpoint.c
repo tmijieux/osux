@@ -16,6 +16,7 @@
 
 #include <python2.7/Python.h>
 #include "timing_point.h"
+#include "pytimingpoint.h"
 
 #define READ_DOUBLE(tp, dict, str)		\
     {						\

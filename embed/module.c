@@ -14,27 +14,19 @@
  *  limitations under the License.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
 
-#include <beatmap/hitobject/hit_object.h>
-#include <beatmap/timingpoint/timing_point.h>
+// TODO we need a strong modular system here that takes care
+// of the whole code space of the executable
+// --> does work of a dynamic linker
+// --> manage dependency
+// --> use_count
 
-#include "parser.h"
-#include "beatmap/beatmap.h"
-
-int main(int argc, char *argv[])
+void module_inc_usecount(const char *module_name, const char *dependency)
 {
-    if (argc != 2) {
-	fprintf(stderr, "usage: %s map\n", argv[0]);
-	exit(EXIT_FAILURE);
-    }
 
-    struct map *m = osu_map_parser(argv[1]);
-    if (m) {
-    	map_print(m, stdout);
-    	map_free(m);
-    }
-    return EXIT_SUCCESS;
 }
 
+void module_dec_usecount(const char *module_name, const char *dependency)
+{
+
+}

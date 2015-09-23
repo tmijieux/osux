@@ -1,3 +1,5 @@
+#ifndef MODULE_H
+#define MODULE_H
 /*
  *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
  *
@@ -14,12 +16,9 @@
  *  limitations under the License.
  */
 
-#ifndef TP_PY_H
-#define TP_PY_H
 
-#include <python2.7/Python.h>
+void module_inc_usecount(const char *module_name, const char *dependency);
+void module_dec_usecount(const char *module_name, const char *dependency);
 
-// parse one timing point
-void tp_py_parse(struct timing_point *tp, PyObject *tp_dict); 
 
-#endif //TP_PY_H
+#endif //MODULE_H

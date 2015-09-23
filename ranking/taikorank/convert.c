@@ -19,11 +19,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "map/map.h"
-#include "map/parser.h"
-#include "ho/hit_object.h"
-#include "tp/timing_point.h"
-#include "hs/hitsound.h"
+#include "beatmap/beatmap.h"
+#include "beatmap/parser/parser.h"
+#include "beatmap/hitobject/hit_object.h"
+#include "beatmap/timingpoint/timing_point.h"
+#include "beatmap/hitsound/hitsound.h"
 
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"

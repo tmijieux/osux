@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-#include "parser_py.h"
+#include "pyparser/pyparser.h"
 
 struct map *osux_parse_beatmap(const char *filename)
 {

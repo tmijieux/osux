@@ -14,73 +14,41 @@
  *  limitations under the License.
  */
 
-#include <python2.7/Python.h>
 #include <string.h>
 #include <stdint.h>
 
-#include "map.h"
-#include <tp/timing_point.h>
-#include <tp/tp_py.h>
-#include <ho/hit_object.h>
-#include <ho/ho_py.h>
-#include <combocolor/combocolor.h>
+#include "beatmap/beatmap.h"
 
-#include "parser_py.h"
+#include <beatmap/timingpoint/timing_point.h>
+#include <beatmap/timingpoint/pytimingpoint.h>
 
-static PyObject *omp_py_parse_osu_file(const char *filename)
+#include <beatmap/hitobject/hit_object.h>
+#include <beatmap/hitobject/pyhitobject.h>
+
+#include <beatmap/combocolor/combocolor.h>
+
+#include "pyparser.h"
+
+#include <embed/python.h>
+#include <python2.7/Python.h>
+
+#include <embed/module.h>
+
+
+__attribute__((constructor))
+static void pyparser_init(void)
 {
-    const char *fun = "parse";
-    const char *module = "omp";
+    module_inc_usecount("py_parser", "parser");
+    module_inc_usecount("py_parser", "embed_python");
     
-    PyObject *pName, *pModule, *pFunc;
-    PyObject *pArgs, *pValue;
-    PyObject *sysPath = PySys_GetObject((char*)"path");
-    PyObject *path= PyString_FromString("./scripts/python/");
+}
 
-    PyList_Append(sysPath, path);
-    Py_DECREF(path);
-    
-    pName = PyString_FromString(module);
-    pModule = PyImport_Import(pName);
-    Py_DECREF(pName);
+__attribute__((destructor))
+static void pyparser_exit(void)
+{
 
-    if (pModule != NULL) {
-        pFunc = PyObject_GetAttrString(pModule, fun);
-        /* pFunc is a new reference */
-
-        if (pFunc && PyCallable_Check(pFunc)) {
-            pArgs = PyTuple_New(1);
-	    pValue = PyString_FromString(filename);
-	    if (!pValue) {
-		Py_DECREF(pArgs);
-		Py_DECREF(pModule);
-		fprintf(stderr, "Cannot convert argument\n");
-		return NULL;
-	    }
-	    /* pValue reference stolen here: */
-	    PyTuple_SetItem(pArgs, 0, pValue);
-	    pValue = PyObject_CallObject(pFunc, pArgs);
-	    Py_DECREF(pArgs);
-	    
-	    if (!pValue) {
-                Py_DECREF(pFunc);
-                Py_DECREF(pModule);
-                PyErr_Print();
-                fprintf(stderr,"Call failed\n");
-		return NULL;
-            }
-        } else {
-            if (PyErr_Occurred())
-                PyErr_Print();
-            fprintf(stderr, "Cannot find function \"%s\"\n", fun);
-        }
-        Py_XDECREF(pFunc);
-        Py_DECREF(pModule);
-    } else {
-        PyErr_Print();
-	return NULL;
-    }
-    return pValue;
+    module_dec_usecount("py_parser", "embed_python");
+    module_dec_usecount("py_parser", "parser");
 }
 
 
@@ -237,11 +205,12 @@ static void map_parse_Events(PyObject *d, struct map *m)
 
 struct map *osux_py_parse_beatmap(const char *filename)
 {
-    Py_Initialize();
-    PyObject *data = omp_py_parse_osu_file(filename);
+    
+    PyObject *data =
+	embed_python_funcall("./scripts/python", "omp", "parse",
+			     1 ,(const char*[]) { filename });
     if (!data) {
 	fprintf(stderr, "Error parsing with omp python module");
-	Py_Finalize();
 	return NULL;
     }
     struct map *m = calloc(sizeof(*m), 1);
@@ -259,7 +228,6 @@ struct map *osux_py_parse_beatmap(const char *filename)
     PARSE_SECTION( HitObjects,   data, m);
 
     Py_XDECREF(data);
-	
-    Py_Finalize();
+
     return  m;
 }

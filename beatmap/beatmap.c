@@ -17,7 +17,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "map.h"
+#include "beatmap.h"
 
 #include "hitobject/hit_object.h"
 #include "timingpoint/timing_point.h"

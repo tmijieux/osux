@@ -14,27 +14,13 @@
  *  limitations under the License.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
+#ifndef PYTIMINGPOINT_H
+#define PYTIMINGPOINT_H
 
-#include <beatmap/hitobject/hit_object.h>
-#include <beatmap/timingpoint/timing_point.h>
+#include <python2.7/Python.h>
 
-#include "parser.h"
-#include "beatmap/beatmap.h"
+// parse one timing point
+void tp_py_parse(struct timing_point *tp, PyObject *tp_dict); 
 
-int main(int argc, char *argv[])
-{
-    if (argc != 2) {
-	fprintf(stderr, "usage: %s map\n", argv[0]);
-	exit(EXIT_FAILURE);
-    }
 
-    struct map *m = osu_map_parser(argv[1]);
-    if (m) {
-    	map_print(m, stdout);
-    	map_free(m);
-    }
-    return EXIT_SUCCESS;
-}
-
+#endif //PYTIMINGPOINT_H

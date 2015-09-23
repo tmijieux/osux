@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include <map/map.h> // game modes
+#include <beatmap/beatmap.h> // game modes
 #include <unistd.h>
 #include <util/uleb128/uleb128.h>
 #include <util/list/list.h>

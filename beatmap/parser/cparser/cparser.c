@@ -27,14 +27,14 @@
 #include "util/list/list.h"
 #include "util/hashtable/hashtable.h"
 
-#include "hs/hitsound.h"
-#include "map/map.h"
-#include "combocolor/combocolor.h"
-#include "ho/hit_object.h"
-#include "tp/timing_point.h"
+#include "beatmap/hitsound/hitsound.h"
+#include "beatmap/beatmap.h"
+#include "beatmap/combocolor/combocolor.h"
+#include "beatmap/hitobject/hit_object.h"
+#include "beatmap/timingpoint/timing_point.h"
 
-#include "parser_c.h"
-#include "c/omp.h"
+#include "cparser.h"
+#include "omp.h"
 
 
 #define LINE_SIZE  512

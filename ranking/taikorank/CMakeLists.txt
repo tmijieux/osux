@@ -1,18 +1,19 @@
 
 set(tr_src
-	main.c
-	load.c
-	mods.c
-	convert.c
-	print.c
-	taiko_ranking_map.c
-	taiko_ranking_object.c
-	treatment.c
-	stats.c
-	compute_star/density.c
-	compute_star/reading.c
-	compute_star/accuracy.c
-	)
+  main.c
+  load.c
+  mods.c
+  convert.c
+  print.c
+  taiko_ranking_map.c
+  taiko_ranking_object.c
+  treatment.c
+  stats.c
+  compute_star/density.c
+  compute_star/reading.c
+  compute_star/accuracy.c
+  $<TARGET_OBJECTS:module>
+  )
 
 add_executable(taiko_ranking ${tr_src})
 
