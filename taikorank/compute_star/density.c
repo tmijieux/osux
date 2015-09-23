@@ -19,6 +19,7 @@
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"
 #include "sum.h"
+#include "stats.h"
 
 #include "density.h"
 
@@ -114,20 +115,21 @@ void trm_compute_density_color (struct tr_map * map)
 
 void trm_compute_density_star (struct tr_map * map)
 {
-  void * sum = sum_new(map->nb_object, PERF);
   for (int i = 0; i < map->nb_object; i++)
     {
       map->object[i].density_star =
 	(DENSITY_STAR_COEFF_COLOR * map->object[i].density_color +
 	 DENSITY_STAR_COEFF_RAW   * map->object[i].density_raw);
-      sum_add(sum, map->object[i].density_star);
     }
   // weighted
   //double true_sum = sum_compute(sum) / 20000;
 
+  struct stats * stats = trm_stats_density_star(map);
+  
   // average
-  double true_sum = sum_compute(sum) / (map->nb_object * DENSITY_STAR_SCALING); 
+  double true_sum = stats->mean / (map->nb_object * DENSITY_STAR_SCALING); 
 
+  free(stats);
   map->density_star = true_sum; 
 }
 

@@ -25,7 +25,6 @@
 #include "print.h"
 
 #include "mods.h"
-#include "stats.h"
 #include "treatment.h"
 
 #include "density.h"
@@ -40,15 +39,13 @@ void trm_compute_taiko_stars(struct tr_map * map, int mods)
 {
   map->mods = mods;
   
-  // compuatation
+  // computation
   trm_apply_mods(map);
   trm_treatment(map);
   trm_compute_density(map);
   trm_compute_reading(map);
   trm_compute_accuracy(map);
 
-  trm_sort_density_star(map);
-  
   // printing
   print_all_tr_object(map, FILTER_APPLY);
   print_map_star(map);

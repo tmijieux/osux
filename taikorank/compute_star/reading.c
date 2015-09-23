@@ -19,6 +19,7 @@
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"
 #include "sum.h"
+#include "stats.h"
 
 #include "reading.h"
 
@@ -211,7 +212,6 @@ void trm_compute_reading_speed_change (struct tr_map * map)
 
 void trm_compute_reading_star (struct tr_map * map)
 {
-  void * sum = sum_new(map->nb_object, PERF);
   for (int i = 0; i < map->nb_object; i++)
     {
       map->object[i].reading_star =
@@ -219,11 +219,14 @@ void trm_compute_reading_star (struct tr_map * map)
 	 READING_STAR_COEFF_HIDE       * map->object[i].hide +
 	 READING_STAR_COEFF_HIDDEN     * map->object[i].hidden +
 	 READING_STAR_COEFF_SPEED_CH   * map->object[i].speed_change+
-	 READING_STAR_COEFF_SPEED       * map->object[i].speed);
-      sum_add(sum, map->object[i].reading_star);
+	 READING_STAR_COEFF_SPEED      * map->object[i].speed);
     }
-  double true_sum = (sum_compute(sum) /
+  struct stats * stats = trm_stats_reading_star(map);
+  
+  double true_sum = (stats->mean /
 		     (map->nb_object / READING_STAR_SCALING));
+
+  free(stats);
   map->reading_star = true_sum;
 }
 

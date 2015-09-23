@@ -18,15 +18,17 @@
 #define STATS_H
 
 #define TRM_STATS_HEADER(FIELD)					\
-  void trm_sort_##FIELD (struct tr_map * map);			\
-  struct stats * trm_stats_##FIELD (struct tr_map * map);	  
+  struct stats * trm_stats_##FIELD (struct tr_map * map);	\
+  //void trm_sort_##FIELD (struct tr_map * map);
 
 //-----------------------------------------------------
 
 struct stats
 {
-  double median;
   double mean;
+  double q1;
+  double median;
+  double q3;
 };
 
 //-----------------------------------------------------

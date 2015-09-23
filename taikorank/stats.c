@@ -21,7 +21,7 @@
 #include "taiko_ranking_object.h"
 
 #include "stats.h"
-#include "sum.h"
+#include "sum/sum.h"
 
 //-----------------------------------------------------
 
@@ -29,25 +29,26 @@
   int tro_compare_##FIELD (const struct tr_object * obj1,	\
 			   const struct tr_object * obj2)	\
  {								\
-    return (obj1->FIELD - obj2->FIELD);				\
-  }
+    return obj1->FIELD - obj2->FIELD;				\
+ }
 
 #define TRM_SORT(FIELD)						\
   void trm_sort_##FIELD (struct tr_map * map)			\
   {								\
     qsort(map->object, map->nb_object,				\
 	  sizeof(struct tr_object),				\
-	  (int (*) (const void *, const void *))		\
+	  (int (*)(const void *, const void *))			\
 	  tro_compare_##FIELD);					\
   }
 
-#define TRM_MEDIAN(FIELD)					\
-  double trm_median_##FIELD (struct tr_map * map)		\
+#define TRM_QUARTILE(FIELD, NUM, DEN)  /* set min DEN !*/	\
+  double trm_q_##NUM##_##DEN##_##FIELD (struct tr_map * map)	\
   {								\
-    if ((map->nb_object % 2) == 0)				\
-      return (map->object[map->nb_object / 2 - 1].FIELD +	\
-	      map->object[map->nb_object / 2].FIELD) / 2.;	\
-    return map->object[map->nb_object / 2].FIELD;		\
+    if ((map->nb_object % DEN) == 0)				\
+      return							\
+	(map->object[map->nb_object * (NUM / DEN) - 1].FIELD +	\
+	 map->object[map->nb_object * (NUM / DEN)].FIELD) / 2.;	\
+    return map->object[map->nb_object * (NUM / DEN)].FIELD;	\
   }
 
 #define TRM_MEAN(FIELD)					\
@@ -66,15 +67,20 @@
   {								\
     trm_sort_##FIELD (map);					\
     struct stats * stats = malloc(sizeof(struct stats));	\
-    stats->median = trm_median_##FIELD (map);			\
     stats->mean   = trm_mean_##FIELD (map);			\
+    stats->q1     = trm_q_1_4_##FIELD (map);			\
+    stats->median = trm_q_1_2_##FIELD (map);			\
+    stats->q3     = trm_q_3_4_##FIELD (map);			\
+    trm_sort_offset (map);					\
     return stats;						\
   }
 
 #define TRM_STATS_MACRO(FIELD)			\
   TRO_COMPARE(FIELD)				\
   TRM_SORT(FIELD)				\
-  TRM_MEDIAN(FIELD)				\
+  TRM_QUARTILE(FIELD, 1, 4) /* Q1 */		\
+  TRM_QUARTILE(FIELD, 1, 2) /* median */	\
+  TRM_QUARTILE(FIELD, 3, 4) /* Q3 */		\
   TRM_MEAN(FIELD)				\
   TRM_STATS(FIELD)
 
