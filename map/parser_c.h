@@ -19,6 +19,6 @@
 
 #include "util/hashtable/hashtable.h"
 
-struct map *osu_map_parser(const char*);
+struct map *osux_c_parse_beatmap(const char *filename);
 
 #endif //PARSER_H

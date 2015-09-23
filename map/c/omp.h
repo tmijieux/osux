@@ -14,14 +14,13 @@
  *  limitations under the License.
  */
 
-#ifndef PARSER1_H
-#define PARSER1_H
+#ifndef OMP_H
+#define OMP_H
 
 #include <visibility.h>
 #include "hashtable/hashtable.h"
 
 __internal
-struct hash_table *read_osu_file(FILE *f, int version);
+struct hash_table *omp_c_parse_osu_file(FILE *f, int version);
 
-
-#endif //PARSER1_H
+#endif //OMP_H

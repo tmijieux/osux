@@ -33,8 +33,9 @@
 #include "ho/hit_object.h"
 #include "tp/timing_point.h"
 
-#include "parser.h"
-#include "parser1.h"
+#include "parser_c.h"
+#include "c/omp.h"
+
 
 #define LINE_SIZE  512
 
@@ -193,10 +194,10 @@ static void parse_hit_objects(struct hash_table *ht, struct map *m)
     struct list *HO = NULL;
     ht_get_entry(ht, "HitObjects", &HO);
     m->hoc = list_size(HO);
-    m->hov = malloc(sizeof(*m->hov) * m->hoc);
+    m->HitObjects = malloc(sizeof(*m->HitObjects) * m->hoc);
     for (int i = 1 ; i <= m->hoc; ++i) { 
 		void * v = list_get(HO, i);
-		m->hov[m->hoc - i] = *(struct hit_object*) v;
+		m->HitObjects[m->hoc - i] = *(struct hit_object*) v;
 		free(v); // no ho_free: transferring malloc'd content
     }
     list_free(HO);
@@ -223,10 +224,10 @@ static void parse_timing_points(struct hash_table *ht, struct map *m)
     struct list *TP;
     ht_get_entry(ht, "TimingPoints", &TP);
     m->tpc = list_size(TP);
-    m->tpv = malloc(sizeof(*m->tpv) * m->tpc);
+    m->TimingPoints = malloc(sizeof(*m->TimingPoints) * m->tpc);
     for (int i = 1 ; i <= m->tpc; ++i) {
 	void * v = list_get(TP, i);
-	m->tpv[m->tpc - i] = *(struct timing_point*) v;
+	m->TimingPoints[m->tpc - i] = *(struct timing_point*) v;
 	free(v); // no ho_free: transferring malloc'd content
     }
     list_free(TP);
@@ -244,7 +245,7 @@ static void parse(struct hash_table *ht, struct map *m)
     parse_hit_objects(ht, m);
 }
 
-struct map *osu_map_parser(const char *filename)
+struct map *osux_c_parse_beatmap(const char *filename)
 {
     FILE *f = fopen(filename, "r");
     if (!f) {
@@ -265,7 +266,7 @@ struct map *osu_map_parser(const char *filename)
 	return NULL;
     }
 
-    struct hash_table *sect = osux_read_osu_file(f, v);
+    struct hash_table *sect = omp_c_parse_osu_file(f, v);
     fclose(f);
     
     struct map *m = malloc(sizeof(*m));

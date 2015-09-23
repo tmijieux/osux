@@ -25,31 +25,31 @@
 
 #include <visibility.h>
 
-#include "hs/hitsound.h"
-#include "list/list.h"
-#include "hashtable/hashtable.h"
+#include "util/list/list.h"
+#include "util/hashtable/hashtable.h"
 
+#include "hs/hitsound.h"
 #include "map/map.h"
 #include "combocolor/combocolor.h"
 #include "ho/hit_object.h"
 #include "tp/timing_point.h"
 
-#include "parser1.h"
+#include "omp.h"
 #include "re.h"
 
 #define LINE_SIZE  8096
 
-struct generic_entry {
+struct h_entry {
     char *id;
     char *value;
 };
 
-static void default_parser(char *line, struct generic_entry *ge)
+static void default_parser(char *line, struct h_entry *e)
 {
     char *matches[2];
     if (re_match("^ *([^ ]*) *: *(.*) *$", line, 2, matches) == 0) {
-	ge->id = matches[0];
-	ge->value = matches[1];
+	e->id = matches[0];
+	e->value = matches[1];
     }
 }
 
@@ -63,9 +63,15 @@ static void event_parser(char *line, struct generic_entry *ge)
     
 }
 
+#define line_is_empty(line)						\
+    (line == NULL || *line == '\0' || *line == '\r' || *line == '\n')	\
+
+#define line_is_comment(line)					\
+    (line != NULL && (*line == '/' || *(line+1) == '/'))	\
+
 
 __internal
-struct hash_table *read_osu_file(FILE *f, int version)
+struct hash_table *omp_c_parse_osu_file(FILE *f, int version)
 {
     struct hash_table *sections;
     static regex_t section_delim;
@@ -103,19 +109,20 @@ struct hash_table *read_osu_file(FILE *f, int version)
 	
 	if (!strcmp(current_section_name, "Events")) {
 	    // parse subsection and event in a similar manner
+	    // ev_c_parse() ...
 	} else if (!strcmp(current_section_name, "HitObjects")) {
 	    struct hit_object *ho = calloc(sizeof(*ho), 1);
-	    ho_parse(line, ho, version);
+	    ho_c_parse(line, ho, version);
 	    list_add(hit_objects, ho);
 	} else if (!strcmp(current_section_name, "TimingPoints")) {
 	    struct timing_point *tp = malloc(sizeof(*tp));
-	    tp_parse(line, tp);
+	    tp_c_parse(line, tp);
 	    list_add(timing_points, tp);
 	} else {
-	    struct generic_entry ge;
-	    default_parser(line, &ge);
-	    ht_add_entry(current_section, ge.id, ge.value);
-	    free(ge.id);
+	    struct h_entry e;
+	    default_parser(line, &e);
+	    ht_add_entry(current_section, e.id, e.value);
+	    free(e.id);
 	}
     }
 

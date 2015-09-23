@@ -32,7 +32,7 @@
     }						\
     
 
-void tp_parse(struct timing_point *tp, PyObject *tp_dict)
+void tp_py_parse(struct timing_point *tp, PyObject *tp_dict)
 {
     READ_DOUBLE(tp, tp_dict, offset);
     READ_DOUBLE(tp, tp_dict, mpb);
