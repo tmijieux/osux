@@ -15,36 +15,7 @@
  */
 
 #include <stdio.h>
-#include <python2.7/Python.h>
 #include "timing_point.h"
-
-
-#define READ_DOUBLE(tp, dict, str)		\
-    {						\
-	PyObject *tmp;				\
-	tmp = PyDict_GetItemString(dict, #str);	\
-	tp->str = PyFloat_AsDouble(tmp);	\
-    }						\
-    
-#define READ_INT(tp, dict, str)			\
-    {						\
-	PyObject *tmp;				\
-	tmp = PyDict_GetItemString(dict, #str);	\
-	tp->str = PyInt_AsLong(tmp);		\
-    }						\
-    
-
-void tp_parse(struct timing_point *tp, PyObject *tp_dict)
-{
-    READ_DOUBLE(tp, tp_dict, offset);
-    READ_DOUBLE(tp, tp_dict, mpb);
-    READ_INT(tp, tp_dict, time_signature);
-    READ_INT(tp, tp_dict, sample_type);
-    READ_INT(tp, tp_dict, sample_set);
-    READ_INT(tp, tp_dict, volume);
-    READ_INT(tp, tp_dict, uninherited);
-    READ_INT(tp, tp_dict, kiai);
-}
 
 void tp_print(struct timing_point *tp)
 {

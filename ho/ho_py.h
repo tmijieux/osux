@@ -14,30 +14,11 @@
  *  limitations under the License.
  */
 
+#ifndef HO_PY_H
+#define HO_PY_H
 
-#ifndef TIMING_POINT_H
-#define TIMING_POINT_H
+#include <python2.7/Python.h>
 
-struct timing_point {
-    double offset;
+void ho_py_parse(struct hit_object *ho, PyObject *ho_dict);
 
-    union {
-	double mpb; // millisecond per beats
-	double svm; // slider velocity multiplier : percentage
-    };
-
-    int time_signature;
-    int sample_type;
-    int sample_set;
-    int volume;
-    
-    int uninherited;
-    int kiai;
-
-    struct timing_point *last_uninherited;
-};
-
-void tp_print(struct timing_point *tp); // print one timing point
-void tp_free(struct timing_point *tp); // free one timing point
-
-#endif //TIMING_POINT_!H
+#endif //HO_PY_H

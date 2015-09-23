@@ -14,30 +14,9 @@
  *  limitations under the License.
  */
 
+#ifndef RE_H
+#define RE_H
 
-#ifndef TIMING_POINT_H
-#define TIMING_POINT_H
+int re_match(const char *re, const char *str, int match_count, char **matches);
 
-struct timing_point {
-    double offset;
-
-    union {
-	double mpb; // millisecond per beats
-	double svm; // slider velocity multiplier : percentage
-    };
-
-    int time_signature;
-    int sample_type;
-    int sample_set;
-    int volume;
-    
-    int uninherited;
-    int kiai;
-
-    struct timing_point *last_uninherited;
-};
-
-void tp_print(struct timing_point *tp); // print one timing point
-void tp_free(struct timing_point *tp); // free one timing point
-
-#endif //TIMING_POINT_!H
+#endif //RE_H
