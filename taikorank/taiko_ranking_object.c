@@ -16,7 +16,6 @@
 
 #include <math.h>
 
-#include "struct.h"
 #include "taiko_ranking_object.h"
 
 //--------------------------------------------------

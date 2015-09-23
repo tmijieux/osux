@@ -16,30 +16,38 @@
 
 #include <math.h>
 
-#include "struct.h"
+#include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"
 #include "sum.h"
 
 #include "density.h"
 
+// coeff for density
 // LOCAL density for two object on the same time
 #define DENSITY_MAX     10000.
 // when the rest time is DENSITY_TIME_0, the exp value will be
 // DENSITY_VALUE_0
 #define DENSITY_TIME_0  4000.
 #define DENSITY_VALUE_0 pow(10, -9)
+
 // coefficient for object type, 1 is the maximum
-#define DENSITY_NORMAL  0.75
+#define DENSITY_NORMAL  1.
 #define DENSITY_BIG     1.
-#define DENSITY_BONUS   0.25
+#define DENSITY_BONUS   0.33
+
 // coefficient for length weighting in density
 #define DENSITY_LENGTH  0.3
 
+// coeff for star
+#define DENSITY_STAR_COEFF_COLOR 0.8
+#define DENSITY_STAR_COEFF_RAW   0.2
+#define DENSITY_STAR_SCALING     500. // total star is divided by this
+
 //-----------------------------------------------------
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-double tr_obj_coeff_density (struct tr_object * obj)
+double tro_coeff_density (struct tr_object * obj)
 {
   if (tro_is_bonus(obj)) 
     return DENSITY_BONUS;  // 'r' 'R' 's'
@@ -51,10 +59,10 @@ double tr_obj_coeff_density (struct tr_object * obj)
 
 //-----------------------------------------------------
 
-double density (struct tr_object * obj1, struct tr_object * obj2)
+double tro_density (struct tr_object * obj1, struct tr_object * obj2)
 {
   int rest = obj2->offset - obj1->end_offset;
-  double coeff = tr_obj_coeff_density(obj1);
+  double coeff = tro_coeff_density(obj1);
   int length = obj1->end_offset - obj1->offset;
   return (DENSITY_MAX * coeff *
 	  exp((rest + DENSITY_LENGTH * length) *
@@ -65,7 +73,7 @@ double density (struct tr_object * obj1, struct tr_object * obj2)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-void compute_density_raw (struct tr_map * map)
+void trm_compute_density_raw (struct tr_map * map)
 {
   map->object[0].density_raw = 0;
   for (int i = 1; i < map->nb_object; i++)
@@ -73,17 +81,17 @@ void compute_density_raw (struct tr_map * map)
       void * sum = sum_new(i, DEFAULT);
       for (int j = 0; j < i; j++)
 	{
-	  sum_add(sum, density(&map->object[j], &map->object[i]));
+	  sum_add(sum, tro_density(&map->object[j], &map->object[i]));
 	}
       double density_raw = sum_compute(sum);
-      density_raw *= tr_obj_coeff_density(&map->object[i]);
+      density_raw *= tro_coeff_density(&map->object[i]);
       map->object[i].density_raw = density_raw;
     }
 }
 
 //-----------------------------------------------------
 
-void compute_density_color (struct tr_map * map)
+void trm_compute_density_color (struct tr_map * map)
 {
   map->object[0].density_color = 0;
   for (int i = 1; i < map->nb_object; i++)
@@ -92,10 +100,10 @@ void compute_density_color (struct tr_map * map)
       for (int j = 0; j < i; j++)
 	{
 	  if (tro_are_same_density(&map->object[i], &map->object[j]))
-	    sum_add(sum, density(&map->object[j], &map->object[i]));
+	    sum_add(sum, tro_density(&map->object[j], &map->object[i]));
 	}
       double density_color = sum_compute(sum);
-      density_color *= tr_obj_coeff_density(&map->object[i]);
+      density_color *= tro_coeff_density(&map->object[i]);
       map->object[i].density_color = density_color;
     }
 }
@@ -104,21 +112,21 @@ void compute_density_color (struct tr_map * map)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-void compute_density_star (struct tr_map * map)
+void trm_compute_density_star (struct tr_map * map)
 {
   void * sum = sum_new(map->nb_object, PERF);
   for (int i = 0; i < map->nb_object; i++)
     {
       map->object[i].density_star =
-	(0.1 * (0.8 * map->object[i].density_color +
-		0.2 * map->object[i].density_raw));
+	(DENSITY_STAR_COEFF_COLOR * map->object[i].density_color +
+	 DENSITY_STAR_COEFF_RAW   * map->object[i].density_raw);
       sum_add(sum, map->object[i].density_star);
     }
   // weighted
-  //double true_sum = sum_compute(sum) / 2000;
+  //double true_sum = sum_compute(sum) / 20000;
 
   // average
-  double true_sum = sum_compute(sum) / (map->nb_object * 33.); 
+  double true_sum = sum_compute(sum) / (map->nb_object * DENSITY_STAR_SCALING); 
 
   map->density_star = true_sum; 
 }
@@ -127,9 +135,9 @@ void compute_density_star (struct tr_map * map)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-void compute_density (struct tr_map * map)
+void trm_compute_density (struct tr_map * map)
 {
-  compute_density_raw(map);
-  compute_density_color(map);
-  compute_density_star(map);
+  trm_compute_density_raw(map);
+  trm_compute_density_color(map);
+  trm_compute_density_star(map);
 }

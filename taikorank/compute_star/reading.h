@@ -14,22 +14,21 @@
  *  limitations under the License.
  */
 
-
 #ifndef READING_H
 #define READING_H
 
-double tr_obj_coeff_superpos (struct tr_object * obj);
-double hidding (struct tr_object * obj1, struct tr_object * obj2);
-double speed_change (struct tr_object * obj1, struct tr_object * obj2);
-double speed (double bpm_app);
+double tro_coeff_superpos (struct tr_object * obj);
+double tro_hidding (struct tr_object * obj1,
+		    struct tr_object * obj2);
+double tro_speed_change (struct tr_object * obj1,
+			 struct tr_object * obj2);
+double tro_speed (struct tr_object * obj);
 
-void compute_reading_offset (struct tr_map * map);
-void compute_reading_hidding (struct tr_map * map);
-void compute_reading_superposed (struct tr_map * map);
-void compute_reading_speed (struct tr_map * map);
+void trm_compute_reading_hidding (struct tr_map * map);
+void trm_compute_reading_superposed (struct tr_map * map);
+void trm_compute_reading_speed (struct tr_map * map);
 
-void compute_reading_star (struct tr_map * map);
-
-void compute_reading (struct tr_map * map);
+void trm_compute_reading_star (struct tr_map * map);
+void trm_compute_reading (struct tr_map * map);
 
 #endif

@@ -2,7 +2,12 @@ Modifications:
 - changer la projection des petits BPM, -> exp ou ²...
 - vérifier proportions dans reading.c
 - superosed/hidding/hidden à revoir
+- copies de map pour l'application des mods
+- output à gérer
+
+notes:		   
+- HDHR not supported
+- EZ speed not sure
 
 Projet:
 - pattern !
-- accu !

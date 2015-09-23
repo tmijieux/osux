@@ -14,28 +14,35 @@
  *  limitations under the License.
  */
 
-
 #ifndef PRINT_H
 #define PRINT_H
 
 #define OUTPUT     stdout
 #define OUTPUT_ERR stderr
 
-#define FILTER_BASIC       (1 << 0)
-#define FILTER_ADDITIONNAL (1 << 1)
-#define FILTER_DENSITY     (1 << 2)
-#define FILTER_READING     (1 << 3)
-#define FILTER_PATTERN     (1 << 4)
-#define FILTER_ACCURACY    (1 << 5)
-#define FILTER_STAR        (1 << 6)
+#define FILTER_BASIC        (1 << 0)
+#define FILTER_BASIC_PLUS   (1 << 1)
+#define FILTER_ADDITIONNAL  (1 << 2)
+#define FILTER_DENSITY      (1 << 3)
+#define FILTER_READING      (1 << 4)
+#define FILTER_READING_PLUS (1 << 5)
+#define FILTER_PATTERN      (1 << 6)
+#define FILTER_ACCURACY     (1 << 7)
+#define FILTER_STAR         (1 << 8)
 
-#define FILTER_APPLY       (FILTER_BASIC | FILTER_READING)
+#define FILTER_APPLY       (FILTER_BASIC | FILTER_DENSITY)
+
+#define STR_MODS_LENGTH 3
+#define MAX_MODS        4
 
 void print_all_tr_object (struct tr_map * map, int filter);
 void print_one_tr_object (struct tr_object * obj, int filter);
 
 void print_map_star (struct tr_map * map);
 
+int print_one_mod (struct tr_map * map, int mods, int * i,
+		   char * buffer, char * string);
+void print_mods (struct tr_map * map);
 void print_string_size (char * s, int max);
 void print_map_final (struct tr_map * map);
 

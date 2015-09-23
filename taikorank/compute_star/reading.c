@@ -16,20 +16,14 @@
 
 #include <math.h>
 
-#include "struct.h"
+#include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"
 #include "sum.h"
 
 #include "reading.h"
 
-// offset app & dis
-#define NB_MAX_OBJ_BEFORE 12. // maybe 16
-#define NB_MAX_OBJ_AFTER  0.  // maybe 1
-#define OFFSET_MIN 10000
-#define OFFSET_MAX (NB_MAX_OBJ_AFTER / NB_MAX_OBJ_BEFORE * OFFSET_MIN)
-
 // superposition coeff
-#define SUPERPOS_BIG   sqrt(2)
+#define SUPERPOS_BIG   pow(2, 1 / 2.)
 #define SUPERPOS_SMALL 1.
 
 // hidding
@@ -37,19 +31,27 @@
 #define HIDE_EXP 500.
 
 // speed 
-#define BPM_CENTER   100.
+#define BPM_CENTER   80.
 #define BPM_MAX      1000.
 #define SPEED_CENTER 10.
 #define SPEED_MAX    1000.
 
 // speed change
-#define SPEED_CH_MAX     10000.
+#define SPEED_CH_MAX     pow(10, 6)
 #define SPEED_CH_TIME_0  1000.
 #define SPEED_CH_VALUE_0 pow(10, -9)
 
+// coeff for star
+#define READING_STAR_COEFF_SUPERPOSED 0   // 50    lot 0
+#define READING_STAR_COEFF_HIDE       0   // 5000  lot 0
+#define READING_STAR_COEFF_HIDDEN     0   // 5000  lot 0
+#define READING_STAR_COEFF_SPEED_CH   0   // 5000  lot 0
+#define READING_STAR_COEFF_SPEED      1.  // 10000 no 0
+#define READING_STAR_SCALING          1.
+
 //-----------------------------------------------------
 
-double tr_obj_coeff_superpos (struct tr_object * obj)
+double tro_coeff_superpos (struct tr_object * obj)
 {
   if (tro_is_big(obj))   
     return SUPERPOS_BIG;   // 'D' 'K' 'R'
@@ -59,14 +61,14 @@ double tr_obj_coeff_superpos (struct tr_object * obj)
 
 //-----------------------------------------------------
 
-double hidding (struct tr_object * obj1, struct tr_object * obj2)
+double tro_hidding (struct tr_object * obj1, struct tr_object * obj2)
 {
   // int hide = obj1->end_offset_app - obj2->offset_app;
   // ^ not used
   int rest = obj2->offset - obj1->end_offset;
   double speed_change = obj1->bpm_app / obj2->bpm_app;
-  double coeff = (tr_obj_coeff_superpos(obj1) *
-		  tr_obj_coeff_superpos(obj2));
+  double coeff = (tro_coeff_superpos(obj1) *
+		  tro_coeff_superpos(obj2));
   if (speed_change > 1) 
     speed_change = obj2->bpm_app / obj1->bpm_app;
   // ^ True when obj1 hide obj2, so for hidden computation
@@ -75,10 +77,12 @@ double hidding (struct tr_object * obj1, struct tr_object * obj2)
 
 //-----------------------------------------------------
 
-double speed (double bpm_app)
+double tro_speed (struct tr_object * obj)
 {
+  double bpm_app = obj->bpm_app;
   // decrease BPM to max
-  if (bpm_app > BPM_MAX)
+  if (bpm_app > BPM_MAX ||
+      obj->visible_time == 0)
     bpm_app = BPM_MAX;
   
   // convert (0 to BPM_CENTER) to (BPM_CENTER to BPM_MAX) 
@@ -92,8 +96,8 @@ double speed (double bpm_app)
     }
   /*
     return SPEED_CENTER * exp(log(SPEED_MAX / SPEED_CENTER) *
-			    ((bpm_app - BPM_CENTER) /
-			    (BPM_MAX - BPM_CENTER)));
+    ((bpm_app - BPM_CENTER) /
+    (BPM_MAX - BPM_CENTER)));
   */
   
   return SPEED_CENTER * (1 + pow(bpm_app - BPM_CENTER,
@@ -103,7 +107,7 @@ double speed (double bpm_app)
 
 //-----------------------------------------------------
 
-double speed_change (struct tr_object * obj1, struct tr_object * obj2)
+double tro_speed_change (struct tr_object * obj1, struct tr_object * obj2)
 {
   int rest = obj2->offset - obj1->end_offset;
   double coeff = obj1->bpm_app / obj2->bpm_app;
@@ -121,49 +125,7 @@ double speed_change (struct tr_object * obj1, struct tr_object * obj2)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-void compute_reading_offset (struct tr_map * map)
-{
-  for (int i = 0; i < map->nb_object; i++)
-    {
-      struct tr_object * obj = &map->object[i];
-      double space_unit = mpb_to_bpm(obj->bpm_app) / 4.;
-      obj->offset_app = (obj->offset -
-			 NB_MAX_OBJ_BEFORE * space_unit);
-      // ^ wrong for spinner...
-      obj->offset_dis = (obj->end_offset +
-			 NB_MAX_OBJ_AFTER  * space_unit);
-      // ^ will be useful for hidden :) but I hate hidden D:<
-
-      // really far numbers... in case of really slow circle
-      if (obj->offset_app < map->object[0].offset - OFFSET_MIN)
-	{
-	  obj->offset_app = map->object[0].offset - OFFSET_MIN;
-	  obj->offset_dis = obj->end_offset       + OFFSET_MAX;
-	}
-      
-      if (tro_is_slider(obj))
-	{
-	  int diff = obj->end_offset - obj->offset;
-	  obj->end_offset_app = obj->offset_app + diff;
-	  obj->end_offset_dis = obj->offset_dis + diff;
-	}
-      else if (obj->type == 's')
-	{
-	  int diff = obj->end_offset - obj->offset;
-	  obj->end_offset_app = obj->offset_app;
-	  obj->end_offset_dis = obj->offset_dis + diff;
-	}
-      else // d D k K
-	{
-	  obj->end_offset_app = obj->offset_app;
-	  obj->end_offset_dis = obj->offset_dis;
-	}
-    }
-}
-
-//-----------------------------------------------------
-
-void compute_reading_hiding (struct tr_map * map)
+void trm_compute_reading_hiding (struct tr_map * map)
 {
   for (int i = 0; i < map->nb_object; i++)
     {
@@ -175,16 +137,16 @@ void compute_reading_hiding (struct tr_map * map)
 	  int hidden = (map->object[j].end_offset_app -
 			map->object[i].offset_app);
 	  if (hidden > 0)
-	    sum_add(s_hidden, hidding(&map->object[j],
-				      &map->object[i]));
+	    sum_add(s_hidden, tro_hidding(&map->object[j],
+					  &map->object[i]));
 	}
       for (int j = i+1; j < map->nb_object; j++)
 	{
 	  int hide = (map->object[i].end_offset_app -
 		      map->object[j].offset_app);
 	  if (hide > 0)
-	    sum_add(s_hide, hidding(&map->object[i],
-				    &map->object[j]));
+	    sum_add(s_hide, tro_hidding(&map->object[i],
+					&map->object[j]));
 	}
       map->object[i].hide   = sum_compute(s_hide);
       map->object[i].hidden = sum_compute(s_hidden);
@@ -193,20 +155,20 @@ void compute_reading_hiding (struct tr_map * map)
 
 //-----------------------------------------------------
 
-void compute_reading_superposed (struct tr_map * map)
+void trm_compute_reading_superposed (struct tr_map * map)
 {
   map->object[0].superposed = 0;
   for (int i = 1; i < map->nb_object; i++)
     {
       struct tr_object * obj = &map->object[i];
-      double space_unit = (tr_obj_coeff_superpos(&map->object[i-1]) *
-			   tr_obj_coeff_superpos(obj) *
-			   mpb_to_bpm(obj->bpm_app) / 4.);	
+      double space_unit = (tro_coeff_superpos(&map->object[i-1]) *
+			   tro_coeff_superpos(obj) *
+			   mpb_to_bpm(obj->bpm_app) / 4.);
       if (obj->rest < space_unit)
 	if (equal(obj->rest, space_unit))
 	  obj->superposed = 0;
 	else
-	  obj->superposed = (tr_obj_coeff_superpos(obj) *
+	  obj->superposed = (tro_coeff_superpos(obj) *
 			     100 * (space_unit - obj->rest) /
 			     space_unit);
       else
@@ -216,18 +178,18 @@ void compute_reading_superposed (struct tr_map * map)
 
 //-----------------------------------------------------
 
-void compute_reading_speed (struct tr_map * map)
+void trm_compute_reading_speed (struct tr_map * map)
 {
   for (int i = 0; i < map->nb_object; i++)
     {
       struct tr_object * obj = &map->object[i];
-      obj->speed = speed(obj->bpm_app);
+      obj->speed = tro_speed(obj);
     }
 }
 
 //-----------------------------------------------------
 
-void compute_reading_speed_change (struct tr_map * map)
+void trm_compute_reading_speed_change (struct tr_map * map)
 {
   map->object[0].speed_change = 0;
   for (int i = 1; i < map->nb_object; i++)
@@ -236,11 +198,8 @@ void compute_reading_speed_change (struct tr_map * map)
       obj->speed_change = 0;
       for (int j = 0; j < i; j++)
 	{
-	  /*double coeff = (map->object[i].bpm_app /
-			  map->object[i-1].bpm_app);
-			  if (!equal(coeff, 1))*/
 	    obj->speed_change +=
-	      speed_change(&map->object[j],
+	      tro_speed_change(&map->object[j],
 			   &map->object[i]);
 	}
     }
@@ -250,20 +209,21 @@ void compute_reading_speed_change (struct tr_map * map)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-void compute_reading_star (struct tr_map * map)
+void trm_compute_reading_star (struct tr_map * map)
 {
   void * sum = sum_new(map->nb_object, PERF);
   for (int i = 0; i < map->nb_object; i++)
     {
       map->object[i].reading_star =
-	(0.1 * (0 * map->object[i].superposed +   // 50    lot 0
-		0 * map->object[i].hide +         // 5000  lot 0
-		0 * map->object[i].hidden +       // 5000  lot 0
-		0 * map->object[i].speed_change + // 5000  lot 0
-		1 * map->object[i].speed));       // 10000 no 0
+	(READING_STAR_COEFF_SUPERPOSED * map->object[i].superposed +
+	 READING_STAR_COEFF_HIDE       * map->object[i].hide +
+	 READING_STAR_COEFF_HIDDEN     * map->object[i].hidden +
+	 READING_STAR_COEFF_SPEED_CH   * map->object[i].speed_change+
+	 READING_STAR_COEFF_SPEED       * map->object[i].speed);
       sum_add(sum, map->object[i].reading_star);
     }
-  double true_sum = sum_compute(sum) / (map->nb_object);
+  double true_sum = (sum_compute(sum) /
+		     (map->nb_object / READING_STAR_SCALING));
   map->reading_star = true_sum;
 }
 
@@ -271,13 +231,12 @@ void compute_reading_star (struct tr_map * map)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-void compute_reading (struct tr_map * map)
+void trm_compute_reading (struct tr_map * map)
 {
-  compute_reading_offset(map);
-  compute_reading_hiding(map);
-  compute_reading_superposed(map);
-  compute_reading_speed(map);
-  compute_reading_speed_change(map);
+  trm_compute_reading_hiding(map);
+  trm_compute_reading_superposed(map);
+  trm_compute_reading_speed(map);
+  trm_compute_reading_speed_change(map);
   
-  compute_reading_star(map);
+  trm_compute_reading_star(map);
 }

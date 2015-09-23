@@ -14,17 +14,17 @@
  *  limitations under the License.
  */
 
-#ifndef DENSITY_H
-#define DENSITY_H
+#ifndef ACCURACY_H
+#define ACCURACY_H
 
-double tr_obj_coeff_density (struct tr_object * obj);
-double density (struct tr_object * obj1, struct tr_object * obj2);
+#define MS_GREAT       48
+#define MS_COEFF_GREAT 3
+#define MS_BAD         108
+#define MS_COEFF_BAD   6
 
-void compute_density_raw (struct tr_map * map);
-void compute_density_color (struct tr_map * map);
+void trm_compute_od_to_ms (struct tr_map * map);
+void trm_compute_spacing (struct tr_map * map);
 
-void compute_density_star (struct tr_map * map);
+void trm_compute_accuracy (struct tr_map * map);
 
-void compute_density (struct tr_map * map);
-
-#endif
+#endif //ACCURACY_H

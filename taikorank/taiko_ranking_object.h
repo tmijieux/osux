@@ -14,7 +14,6 @@
  *  limitations under the License.
  */
 
-
 #ifndef TRO_H
 #define TRO_H
 
@@ -22,6 +21,49 @@
 #define EPSILON 1.5
 
 #define MSEC_IN_MINUTE 60000.
+
+//---------------------------------------------------------------
+
+struct tr_object
+{
+  // ---- basic data
+  int offset;
+  int end_offset;     // printed in basic+
+  char type;          // d D k K s(spinner) r(roll) R(roll)
+  double bpm_app;
+
+  // ---- additionnal data
+  int l_hand;
+  int r_hand;
+  int rest;            // printed in basic
+  double obj_app;      // nb obj displayable on screen, without overlapping
+  double obj_dis;      // nb obj where disappear
+  int offset_app;      // printed in reading
+  int end_offset_app;  // printed in reading+
+  int offset_dis;      // printed in reading
+  int end_offset_dis;  // printed in reading+
+  int visible_time;    // printed in reading 
+  int invisible_time;  // printed in reading
+
+  // ---- density data
+  double density_raw;
+  double density_color;
+
+  // ---- reading data
+  double superposed;   // percentage
+  double hidden;       // how it is hidden by others
+  double hide;         // how it hide others
+  double speed;
+  double speed_change;
+
+  // ---- star
+  double density_star;
+  double reading_star;
+  double pattern_star;
+  double accuracy_star;
+};
+
+//-------------------------------------------------------------
 
 double mpb_to_bpm (double mpb);
 int equal (double x, double y);

@@ -25,8 +25,9 @@
 #include "tp/timing_point.h"
 #include "hs/hitsound.h"
 
-#include "struct.h"
+#include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"
+
 #include "convert.h"
 #include "print.h"
 
@@ -114,13 +115,15 @@ int convert_get_end_offset (struct hit_object * ho, int type,
 //---------------------------------------------------------------
 //---------------------------------------------------------------
 
-struct tr_map * convert (char* file_name)
+struct tr_map * trm_convert (char* file_name)
 {
   struct map * map = osu_map_parser(file_name);
   
   if (map->Mode != MODE_TAIKO)
     {
-      fprintf(OUTPUT_ERR, "Autoconverts are said to be bad. But I don't think so. Please implement the corresponding functions.\n");
+      fprintf(OUTPUT_ERR, "Autoconverts are said to be bad. But "
+	      "I don't think so. Please implement the corresponding"
+	      " functions.\n");
       map_free(map);
       return NULL;
     }
@@ -159,9 +162,9 @@ struct tr_map * convert (char* file_name)
 
   // get other data
   tr_map->od = map->OverallDifficulty;
-  tr_map->title         = malloc(sizeof(char) * (1 + strlen(map->Title)));
-  tr_map->creator       = malloc(sizeof(char) * (1 + strlen(map->Creator)));
-  tr_map->diff          = malloc(sizeof(char) * (1 + strlen(map->Version)));
+  tr_map->title   = malloc(sizeof(char) * (1 + strlen(map->Title)));
+  tr_map->creator = malloc(sizeof(char) * (1 + strlen(map->Creator)));
+  tr_map->diff    = malloc(sizeof(char) * (1 + strlen(map->Version)));
   strcpy(tr_map->title,         map->Title);
   strcpy(tr_map->creator,       map->Creator);
   strcpy(tr_map->diff,          map->Version);

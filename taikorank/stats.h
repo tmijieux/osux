@@ -14,11 +14,27 @@
  *  limitations under the License.
  */
 
+#ifndef STATS_H
+#define STATS_H
 
-#ifndef COMPUTE_H
-#define COMPUTE_H
+#define TRM_STATS_HEADER(FIELD)					\
+  void trm_sort_##FIELD (struct tr_map * map);			\
+  struct stats * trm_stats_##FIELD (struct tr_map * map);	  
 
-void compute_hand (struct tr_map * map);
-void compute_rest (struct tr_map * map);
+//-----------------------------------------------------
 
-#endif
+struct stats
+{
+  double median;
+  double mean;
+};
+
+//-----------------------------------------------------
+
+TRM_STATS_HEADER(offset)
+TRM_STATS_HEADER(density_star)
+TRM_STATS_HEADER(reading_star)
+TRM_STATS_HEADER(pattern_star)
+TRM_STATS_HEADER(accuracy_star)
+
+#endif //STATS_H

@@ -19,8 +19,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "struct.h"
+#include "taiko_ranking_map.h"
+#include "taiko_ranking_object.h"
+
 #include "print.h"
+#include "mods.h"
 
 //-------------------------------------------------
 //-------------------------------------------------
@@ -29,17 +32,21 @@
 void print_all_tr_object (struct tr_map * map, int filter)
 {
   if ((filter & FILTER_BASIC) != 0)
+    fprintf(OUTPUT, "offset\trest\ttype\tbpm app\t");
+  if ((filter & FILTER_BASIC_PLUS) != 0)
     fprintf(OUTPUT, "offset\tend\trest\ttype\tbpm app\t");
   if ((filter & FILTER_ADDITIONNAL) != 0)
-    fprintf(OUTPUT, "l hand\tr hand\trest\t");
+    fprintf(OUTPUT, "l hand\tr hand\trest\tobj app\tobjdis\t");
   if ((filter & FILTER_DENSITY) != 0)
     fprintf(OUTPUT, "dnst rw\tdnst cl\tdnst*\t");
   if ((filter & FILTER_READING) != 0)
+    fprintf(OUTPUT, "app\tdis\tvisi\tinvisi\tsperpos\thidden\thide\tspeed\tspd chg\tread*\t");
+  if ((filter & FILTER_READING_PLUS) != 0)
     fprintf(OUTPUT, "app\tend app\tdis\tend dis\tsperpos\thidden\thide\tspeed\tspd chg\tread*\t");
   if ((filter & FILTER_PATTERN) != 0)
     fprintf(OUTPUT, "\t");
   if ((filter & FILTER_ACCURACY) != 0)
-    fprintf(OUTPUT, "\t");
+    fprintf(OUTPUT, "%g\t%g\t", map->great_ms, map->bad_ms);
   
   fprintf(OUTPUT, "\n");
   
@@ -54,6 +61,12 @@ void print_all_tr_object (struct tr_map * map, int filter)
 void print_one_tr_object (struct tr_object * obj, int filter)
 {
   if ((filter & FILTER_BASIC) != 0)
+    fprintf(OUTPUT, "%d\t%d\t%c\t%.3g\t",
+	    obj->offset,
+	    obj->rest,
+	    obj->type,
+	    obj->bpm_app);
+  if ((filter & FILTER_BASIC_PLUS) != 0)
     fprintf(OUTPUT, "%d\t%d\t%d\t%c\t%.3g\t",
 	    obj->offset,
 	    obj->end_offset,
@@ -61,15 +74,29 @@ void print_one_tr_object (struct tr_object * obj, int filter)
 	    obj->type,
 	    obj->bpm_app);
   if ((filter & FILTER_ADDITIONNAL) != 0)
-    fprintf(OUTPUT, "%d\t%d\t",
+    fprintf(OUTPUT, "%d\t%d\t%g\t%g\t",
 	    obj->l_hand,
-	    obj->r_hand);
+	    obj->r_hand,
+	    obj->obj_app,
+	    obj->obj_dis);
   if ((filter & FILTER_DENSITY) != 0)
     fprintf(OUTPUT, "%g\t%g\t%g\t",
 	    obj->density_raw,
 	    obj->density_color,
 	    obj->density_star);
   if ((filter & FILTER_READING) != 0)
+    fprintf(OUTPUT, "%d\t%d\t%d\t%d\t%g\t%.3g\t%.3g\t%g\t%.2g\t%g\t",
+	    obj->offset_app,
+	    obj->offset_dis,
+	    obj->visible_time,
+	    obj->invisible_time,
+	    obj->superposed,
+	    obj->hidden,
+	    obj->hide,
+	    obj->speed,
+	    obj->speed_change,
+	    obj->reading_star);
+  if ((filter & FILTER_READING_PLUS) != 0)
     fprintf(OUTPUT, "%d\t%d\t%d\t%d\t%g\t%.3g\t%.3g\t%g\t%.2g\t%g\t",
 	    obj->offset_app,
 	    obj->end_offset_app,
@@ -104,11 +131,11 @@ void print_map_star (struct tr_map * map)
   fprintf(OUTPUT, "Reading star: \t%.15g\n",
 	  map->reading_star);
   /*
-  fprintf(OUTPUT, "Pattern star: \t%g\n",
-	  map->pattern_star);
+    fprintf(OUTPUT, "Pattern star: \t%g\n",
+    map->pattern_star);
   
-  fprintf(OUTPUT, "Accuracy star: \t%g\n",
-  map->accuracy_star);
+    fprintf(OUTPUT, "Accuracy star: \t%g\n",
+    map->accuracy_star);
   */
 }
 
@@ -130,8 +157,41 @@ void print_string_size (char * s, int max)
   fprintf(OUTPUT, "%s", s);
   length = max - length - 1;
   for (int i = 0; i < length; i++)
-      fprintf(OUTPUT, " ");
+    fprintf(OUTPUT, " ");
   fprintf(OUTPUT, "\t");
+}
+
+//-------------------------------------------------
+
+int print_one_mod (struct tr_map * map, int mods, int * i,
+		   char * buffer, char * string)
+{
+  if ((map->mods & mods) != 0)
+    {
+      sprintf(&buffer[*i], string);
+      *i += STR_MODS_LENGTH;
+      return 1;
+    }
+  return 0;
+}
+
+//-------------------------------------------------
+
+void print_mods (struct tr_map * map)
+{
+  char buffer[STR_MODS_LENGTH * MAX_MODS + 1];
+  int i = 0;
+  
+  if (print_one_mod(map, MODS_HR, &i, buffer, "HR ") == 0)
+    print_one_mod(map, MODS_EZ, &i, buffer, "EZ ");
+
+  if (print_one_mod(map, MODS_DT, &i, buffer, "DT ") == 0)
+    print_one_mod(map, MODS_HT, &i, buffer, "HT ");
+
+  print_one_mod(map, MODS_HD, &i, buffer, "HD ");
+  print_one_mod(map, MODS_FL, &i, buffer, "FL ");
+
+  print_string_size(buffer, STR_MODS_LENGTH * MAX_MODS + 1);
 }
 
 //-------------------------------------------------
@@ -140,8 +200,9 @@ void print_map_final (struct tr_map * map)
 {
   fprintf(OUTPUT, "%g      \t", map->reading_star);
   fprintf(OUTPUT, "%g      \t", map->density_star);
-  print_string_size(map->diff,    32);
+  print_mods(map);
+  print_string_size(map->diff,    24);
   print_string_size(map->title,   32);
-  print_string_size(map->creator, 32);
+  print_string_size(map->creator, 16);
   fprintf(OUTPUT, "\n");
 }
