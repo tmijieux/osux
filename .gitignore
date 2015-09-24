@@ -19,3 +19,6 @@ build
 *.cfg
 *.psd
 resources
+resources.tar.xz
+bigdb
+bigdb.tar.xz

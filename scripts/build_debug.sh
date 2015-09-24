@@ -12,4 +12,4 @@ if [ ! -f Makefile ]; then
     cmake -DCMAKE_BUILD_TYPE=Debug -H../.. -B.
 fi
 make -s
-#make -s install 
+make -s install 

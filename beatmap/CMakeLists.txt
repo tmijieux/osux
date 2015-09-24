@@ -8,5 +8,3 @@ target_link_libraries(beatmap hitobject timingpoint combocolor)
 add_subdirectory(parser)
 
 # install(DIRECTORY osufiles DESTINATION .)
-
-install(FILES py/omp.py DESTINATION scripts/python)
