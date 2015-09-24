@@ -143,7 +143,7 @@ void print_map_star (struct tr_map * map)
 //-------------------------------------------------
 //-------------------------------------------------
 
-void print_string_size (char * s, int max)
+void print_string_size(char *s, int max)
 {
   int length = strlen(s);
   if (length >= max)
@@ -179,7 +179,7 @@ int print_one_mod (struct tr_map * map, int mods, int * i,
 
 void print_mods (struct tr_map * map)
 {
-  char buffer[STR_MODS_LENGTH * MAX_MODS + 1];
+  char buffer[STR_MODS_LENGTH * MAX_MODS + 1] = { 0 };
   int i = 0;
   
   if (print_one_mod(map, MODS_HR, &i, buffer, "HR ") == 0)
