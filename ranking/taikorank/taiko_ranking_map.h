@@ -34,7 +34,7 @@ struct tr_map
   
   // Taiko objects
   int nb_object;
-  struct tr_object * object;
+  struct tr_object * object; 
   
   // stars *-*
   double density_star;
@@ -45,6 +45,8 @@ struct tr_map
 
 //----------------------------------------
 
-void trm_compute_taiko_stars(struct tr_map * map, int mods);
+void trm_compute_taiko_stars(const struct tr_map * map, int mods);
+struct tr_map * trm_copy (const struct tr_map * map);
+void trm_free(struct tr_map * map);
 
 #endif

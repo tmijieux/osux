@@ -34,6 +34,7 @@
 // speed 
 #define BPM_CENTER   80.
 #define BPM_MAX      1000.
+
 #define SPEED_CENTER 10.
 #define SPEED_MAX    1000.
 
@@ -48,7 +49,7 @@
 #define READING_STAR_COEFF_HIDDEN     0   // 5000  lot 0
 #define READING_STAR_COEFF_SPEED_CH   0   // 5000  lot 0
 #define READING_STAR_COEFF_SPEED      1.  // 10000 no 0
-#define READING_STAR_SCALING          1.
+#define READING_STAR_SCALING          100.
 
 //-----------------------------------------------------
 
@@ -95,11 +96,10 @@ double tro_speed (struct tr_object * obj)
 		     log(BPM_MAX - BPM_CENTER) /
 		     log(BPM_CENTER)));
     }
-  /*
-    return SPEED_CENTER * exp(log(SPEED_MAX / SPEED_CENTER) *
-    ((bpm_app - BPM_CENTER) /
-    (BPM_MAX - BPM_CENTER)));
-  */
+  
+  // return SPEED_CENTER * exp(log(SPEED_MAX / SPEED_CENTER) *
+  //  ((bpm_app - BPM_CENTER) /
+  //  (BPM_MAX - BPM_CENTER)));
   
   return SPEED_CENTER * (1 + pow(bpm_app - BPM_CENTER,
 				 (log(SPEED_MAX / SPEED_CENTER - 1) /
@@ -221,10 +221,10 @@ void trm_compute_reading_star (struct tr_map * map)
 	 READING_STAR_COEFF_SPEED_CH   * map->object[i].speed_change+
 	 READING_STAR_COEFF_SPEED      * map->object[i].speed);
     }
-  struct stats * stats = trm_stats_reading_star(map);
   
+  struct stats * stats = trm_stats_reading_star(map);
   double true_sum = (stats->mean /
-		     (map->nb_object / READING_STAR_SCALING));
+		     (map->nb_object * READING_STAR_SCALING));
 
   free(stats);
   map->reading_star = true_sum;

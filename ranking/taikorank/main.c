@@ -44,6 +44,8 @@ int main(int argc, char* argv[])
 	  //trm_compute_taiko_stars(map, MODS_HR);
 	  //trm_compute_taiko_stars(map, MODS_HD);
 	  //trm_compute_taiko_stars(map, MODS_HD | MODS_FL);
+
+	  trm_free(map);	    
 	}
     }
   else

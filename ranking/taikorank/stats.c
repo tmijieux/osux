@@ -44,11 +44,11 @@
 #define TRM_QUARTILE(FIELD, NUM, DEN)  /* set min DEN !*/	\
   double trm_q_##NUM##_##DEN##_##FIELD (struct tr_map * map)	\
   {								\
+    int i = (int) (map->nb_object * ((float) NUM / DEN));	\
     if ((map->nb_object % DEN) == 0)				\
       return							\
-	(map->object[map->nb_object * (NUM / DEN) - 1].FIELD +	\
-	 map->object[map->nb_object * (NUM / DEN)].FIELD) / 2.;	\
-    return map->object[map->nb_object * (NUM / DEN)].FIELD;	\
+	(map->object[i-1].FIELD + map->object[i].FIELD) / 2.;	\
+    return map->object[i].FIELD;				\
   }
 
 #define TRM_MEAN(FIELD)					\
@@ -71,13 +71,16 @@
     stats->q1     = trm_q_1_4_##FIELD (map);			\
     stats->median = trm_q_1_2_##FIELD (map);			\
     stats->q3     = trm_q_3_4_##FIELD (map);			\
-    trm_sort_offset (map);					\
+    trm_sort_offset(map);					\
     return stats;						\
   }
 
-#define TRM_STATS_MACRO(FIELD)			\
+#define TRM_SORT_FUNCTIONS(FIELD)		\
   TRO_COMPARE(FIELD)				\
-  TRM_SORT(FIELD)				\
+  TRM_SORT(FIELD)
+
+#define TRM_STATS_FUNCTIONS(FIELD)		\
+  TRM_SORT_FUNCTIONS(FIELD)			\
   TRM_QUARTILE(FIELD, 1, 4) /* Q1 */		\
   TRM_QUARTILE(FIELD, 1, 2) /* median */	\
   TRM_QUARTILE(FIELD, 3, 4) /* Q3 */		\
@@ -86,10 +89,11 @@
 
 //-----------------------------------------------------
 
-TRM_STATS_MACRO(offset)
-TRM_STATS_MACRO(density_star)
-TRM_STATS_MACRO(reading_star)
-TRM_STATS_MACRO(pattern_star)
-TRM_STATS_MACRO(accuracy_star)
+TRM_SORT_FUNCTIONS(offset)
+
+TRM_STATS_FUNCTIONS(density_star)
+TRM_STATS_FUNCTIONS(reading_star)
+TRM_STATS_FUNCTIONS(pattern_star)
+TRM_STATS_FUNCTIONS(accuracy_star)
 
 //-----------------------------------------------------

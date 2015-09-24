@@ -35,29 +35,51 @@
 //--------------------------------------------------
 //--------------------------------------------------
 
-void trm_compute_taiko_stars(struct tr_map * map, int mods)
+void trm_compute_taiko_stars(const struct tr_map * map, int mods)
 {
-  map->mods = mods;
+  struct tr_map * map_copy = trm_copy(map);
+  map_copy->mods = mods;  
   
   // computation
-  trm_apply_mods(map);
-  trm_treatment(map);
-  trm_compute_density(map);
-  trm_compute_reading(map);
-  trm_compute_accuracy(map);
+  trm_apply_mods(map_copy);
+  trm_treatment(map_copy);
+  trm_compute_density(map_copy);
+  trm_compute_reading(map_copy);
+  trm_compute_accuracy(map_copy);
 
   // printing
-  print_all_tr_object(map, FILTER_APPLY);
-  print_map_star(map);
-  print_map_final(map);
-  
+  //print_all_tr_object(map_copy, FILTER_APPLY);
+  //print_map_star(map_copy);
+  print_map_final(map_copy);
+
   // free
+  free(map_copy);
+}
+
+//--------------------------------------------------
+
+struct tr_map * trm_copy (const struct tr_map * map)
+{
+  struct tr_map * copy = malloc(sizeof(*copy));
+  memcpy(copy, map, sizeof(*map));
+
+  copy->object = malloc(sizeof(map->object[0]) * map->nb_object);
+  memcpy(copy->object, map->object,
+	  sizeof(map->object[0]) * map->nb_object);
+  
+  copy->title   = strdup(map->title);
+  copy->creator = strdup(map->creator);
+  copy->diff    = strdup(map->diff);
+  return copy;
+}
+
+//--------------------------------------------------
+
+void trm_free (struct tr_map * map)
+{
   free(map->title);
   free(map->creator);
   free(map->diff);  
   free(map->object);
   free(map);
 }
-
-//--------------------------------------------------
-

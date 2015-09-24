@@ -17,9 +17,13 @@
 #ifndef STATS_H
 #define STATS_H
 
+#define TRM_SORT_HEADER(FIELD)			\
+  void trm_sort_##FIELD (struct tr_map * map);
+
 #define TRM_STATS_HEADER(FIELD)					\
-  struct stats * trm_stats_##FIELD (struct tr_map * map);	\
-  //void trm_sort_##FIELD (struct tr_map * map);
+  TRM_SORT_HEADER(FIELD)					\
+  double trm_mean_##FIELD (struct tr_map * map);		\
+  struct stats * trm_stats_##FIELD (struct tr_map * map);
 
 //-----------------------------------------------------
 
@@ -33,7 +37,8 @@ struct stats
 
 //-----------------------------------------------------
 
-TRM_STATS_HEADER(offset)
+TRM_SORT_HEADER(offset)
+
 TRM_STATS_HEADER(density_star)
 TRM_STATS_HEADER(reading_star)
 TRM_STATS_HEADER(pattern_star)

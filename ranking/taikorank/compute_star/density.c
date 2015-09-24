@@ -42,7 +42,7 @@
 // coeff for star
 #define DENSITY_STAR_COEFF_COLOR 0.8
 #define DENSITY_STAR_COEFF_RAW   0.2
-#define DENSITY_STAR_SCALING     500. // total star is divided by this
+#define DENSITY_STAR_SCALING     700.
 
 //-----------------------------------------------------
 //-----------------------------------------------------
@@ -121,14 +121,11 @@ void trm_compute_density_star (struct tr_map * map)
 	(DENSITY_STAR_COEFF_COLOR * map->object[i].density_color +
 	 DENSITY_STAR_COEFF_RAW   * map->object[i].density_raw);
     }
-  // weighted
-  //double true_sum = sum_compute(sum) / 20000;
 
   struct stats * stats = trm_stats_density_star(map);
+  double true_sum = (stats->mean /
+		     (map->nb_object * DENSITY_STAR_SCALING));
   
-  // average
-  double true_sum = stats->mean / (map->nb_object * DENSITY_STAR_SCALING); 
-
   free(stats);
   map->density_star = true_sum; 
 }
