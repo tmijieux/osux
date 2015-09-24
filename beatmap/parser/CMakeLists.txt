@@ -5,6 +5,7 @@ add_subdirectory(cparser)
 add_library(parser SHARED parser.c)
 #TEMPORARY:
 target_link_libraries(parser pyparser)
+install(TARGETS parser DESTINATION lib)
 # dynamic load one of the two previous module
 # need dependancy module / by functionality
 

@@ -208,7 +208,7 @@ struct map *osux_py_parse_beatmap(const char *filename)
     
     PyObject *data =
 	embed_python_funcall("./scripts/python", "omp", "parse",
-			     1 ,(const char*[]) { filename });
+			     1, (const char*[]) { filename });
     if (!data) {
 	fprintf(stderr, "Error parsing with omp python module");
 	return NULL;
