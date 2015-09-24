@@ -53,7 +53,7 @@ void trm_compute_taiko_stars(const struct tr_map * map, int mods)
   print_map_final(map_copy);
 
   // free
-  free(map_copy);
+  trm_free(map_copy);
 }
 
 //--------------------------------------------------
