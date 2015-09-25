@@ -87,3 +87,18 @@ embed_python_funcall(const char *path,
     }
     return pValue;
 }
+
+
+#ifdef USE_PYTHON_CUSTOM_PATH
+
+#ifndef PYTHON_CUSTOM_PATH
+#error PYTHON_CUSTOM_PATH must be set when USE_PYTHON_CUSTOM_PATH is used
+#endif
+
+char *
+Py_GetPath(void)
+{
+    return PYTHON_CUSTOM_PATH;
+}
+
+#endif
