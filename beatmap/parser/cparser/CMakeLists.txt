@@ -1,3 +1,3 @@
 
-# add_library(cparser MODULE cparser.c omp.c)
-# target_link_libraries(cparser beatmap)
+add_library(cparser MODULE fetch.c parse.c re.c)
+target_link_libraries(cparser beatmap)

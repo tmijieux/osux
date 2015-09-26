@@ -1,1 +1,1 @@
-add_library(hashtable STATIC hashtable.c)
+add_library(hashtable SHARED hashtable.c)

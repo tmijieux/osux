@@ -18,11 +18,11 @@
 #include <stdlib.h>
 
 #include "beatmap.h"
+#include "hitobject.h"
+#include "timingpoint.h"
 
-#include "hitobject/hit_object.h"
-#include "timingpoint/timing_point.h"
-#include "storyboard/storyboard.h"
-#include "combocolor/combocolor.h"
+#include "storyboard.h"
+#include "color.h"
 
 struct map DEFAULT_MAP = {
     .TimelineZoom = 1.

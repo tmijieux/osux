@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#include "storyboard/storyboard.h"
+#include "storyboard.h"
 
 #define MODE_STD     0
 #define MODE_TAIKO   1

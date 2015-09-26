@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 #ifndef COLOR_H
 #define COLOR_H
 
@@ -34,6 +33,5 @@ struct color {
 };
 
 void col_print(FILE *f, struct color *c, int id);
-void col_parse(struct color *c, PyObject *p);
 
 #endif //COLOR_H

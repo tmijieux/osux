@@ -17,11 +17,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <beatmap/hitobject/hit_object.h>
-#include <beatmap/timingpoint/timing_point.h>
+#include "beatmap/beatmap.h"
+#include "beatmap/hitobject.h"
+#include "beatmap/timingpoint.h"
 
 #include "parser.h"
-#include "beatmap/beatmap.h"
+
 
 int main(int argc, char *argv[])
 {

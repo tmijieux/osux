@@ -1,1 +1,1 @@
-install(FILES omp_util.py DESTINATION scripts/python)
+install(FILES osux_util.py DESTINATION scripts/python)

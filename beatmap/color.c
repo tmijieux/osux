@@ -14,11 +14,10 @@
  *  limitations under the License.
  */
 
-#ifndef HO_PY_H
-#define HO_PY_H
+#include <stdio.h>
+#include "color.h"
 
-#include <python2.7/Python.h>
-
-void ho_py_parse(struct hit_object *ho, PyObject *ho_dict);
-
-#endif //HO_PY_H
+void col_print(FILE *f, struct color *c, int id)
+{
+    fprintf(f, "Combo%d : %hhu,%hhu,%hhu\r\n", id,  c->r, c->g, c->b);
+}

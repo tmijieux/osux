@@ -14,11 +14,14 @@
  *  limitations under the License.
  */
 
-#include "pyparser/pyparser.h"
+#include "pyparser/pyfetch.h"
+
+static struct map* (*parser)(const char*) =
+    &osux_py_parse_beatmap;
 
 struct map *osux_parse_beatmap(const char *filename)
 {
-    return osux_py_parse_beatmap(filename);
+    return parser(filename);
 
     // TODO
     // get function pointer of any loaded module that provides this function

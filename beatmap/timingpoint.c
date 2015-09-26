@@ -15,20 +15,22 @@
  */
 
 #include <stdio.h>
+#include "timingpoint.h"
 
-#include <python2.7/Python.h>
-#include "combocolor.h"
-
-void col_print(FILE *f, struct color *c, int id)
+void tp_print(struct timing_point *tp)
 {
-    fprintf(f, "Combo%d : %hhu,%hhu,%hhu\r\n", id,  c->r, c->g, c->b);
+    printf("%.15g,%.15g,%d,%d,%d,%d,%d,%d\r\n",
+	   tp->offset,
+	   tp->mpb,
+	   tp->time_signature,
+	   tp->sample_type,
+	   tp->sample_set,
+	   tp->volume,
+	   tp->uninherited,
+	   tp->kiai);
 }
 
-void col_parse(struct color *c, PyObject *p)
+void tp_free(struct timing_point *tp)
 {
-    PyObject *q = PyList_GetItem(p, 1);
-    
-    c->r = PyInt_AsLong(PyList_GetItem(q, 0));
-    c->g = PyInt_AsLong(PyList_GetItem(q, 1));
-    c->b = PyInt_AsLong(PyList_GetItem(q, 2)) ;
+    // nothing
 }

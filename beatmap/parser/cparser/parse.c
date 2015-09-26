@@ -28,14 +28,24 @@
 #include "util/list/list.h"
 #include "util/hashtable/hashtable.h"
 
-#include "hs/hitsound.h"
-#include "map/map.h"
-#include "combocolor/combocolor.h"
-#include "ho/hit_object.h"
-#include "tp/timing_point.h"
+#include "beatmap/beatmap.h"
+#include "beatmap/hitobject.h"
+#include "beatmap/timingpoint.h"
+#include "beatmap/hitsound.h"
 
-#include "omp.h"
+#include "parse.h"
 #include "re.h"
+
+
+/******************************************************************************/
+/* OMP
+ */
+
+#define line_is_empty(line)						\
+    (line == NULL || *line == '\0' || *line == '\r' || *line == '\n')	\
+
+#define line_is_comment(line)					\
+    (line != NULL && (*line == '/' || *(line+1) == '/'))	\
 
 #define LINE_SIZE  8096
 
@@ -53,40 +63,72 @@ static void default_parser(char *line, struct h_entry *e)
     }
 }
 
-static void event_subsection_parser(char *line, struct generic_entry *ge)
+static struct hash_table *event_parse(char *line)
 {
-
+    return NULL;
 }
 
-static void event_parser(char *line, struct generic_entry *ge)
+static struct hash_table *col_c_parse(char *line)
 {
+    return NULL;
+}
+
+static struct hash_table *tp_c_parse(char *line)
+{
+    return NULL;
+}
+
+static struct hash_table *ho_c_parse(char *line)
+{
+    return NULL;
+}
+
+
+static void check_format(FILE *f, int *v, int *bbom)
+{
+    unsigned char bom[3];
+    fread(bom, 3, 1, f);
+    *bbom = 1;
+    if ( !(bom[0] == 0xEF && bom[1] == 0xBB && bom[2] == 0xBF)) {
+	rewind(f);
+	*bbom = 0;
+    }
     
+    *v = -1;
+    if (fscanf(f, u8"osu file format v%d\r\n", v) != 1) {
+	return;
+    }
 }
-
-#define line_is_empty(line)						\
-    (line == NULL || *line == '\0' || *line == '\r' || *line == '\n')	\
-
-#define line_is_comment(line)					\
-    (line != NULL && (*line == '/' || *(line+1) == '/'))	\
-
 
 __internal
-struct hash_table *omp_c_parse_osu_file(FILE *f, int version)
+struct hash_table *cparse_osu_file(FILE *f)
 {
     struct hash_table *sections;
-    static regex_t section_delim;
-    struct list *hit_objects;
-    struct list *timing_points;
-    char *current_section_name = NULL;
-    struct hash_table *current_section = NULL;
+
+    int *ver = malloc(sizeof(*ver));   // TODO THINK TO FREE
+    int *bom = malloc(sizeof(*bom));   // idem
+    
+    check_format(f, ver, bom);
+    if (*ver < 0) {
+	free(ver); free(bom);
+	return NULL;
+    }
     
     sections = ht_create(NULL);
-    hit_objects = list_new(0);
-    timing_points = list_new(0);
+    ht_add_entry(sections, "version", ver);
+    ht_add_entry(sections, "bom", bom);
     
+    struct list *hit_objects = list_new(0);
+    struct list *timing_points = list_new(0);
+    struct list *colors = list_new(0);
+    struct list *events = list_new(0);
     ht_add_entry(sections, "HitObjects", hit_objects);
     ht_add_entry(sections, "TimingPoints", timing_points);
+    ht_add_entry(sections, "Colours", colors);
+    ht_add_entry(sections, "Events", events);
 
+    struct hash_table *current_section = NULL;
+    char *current_section_name = NULL;
     char line[LINE_SIZE];
     while (fgets(line, LINE_SIZE, f) != NULL) {
 	char *match[1];
@@ -108,16 +150,18 @@ struct hash_table *omp_c_parse_osu_file(FILE *f, int version)
 	    continue;
 	
 	if (!strcmp(current_section_name, "Events")) {
-	    // parse subsection and event in a similar manner
-	    // ev_c_parse() ...
+	    struct hash_table *ev = event_parse(line);
+	    if (ev)
+		list_add(events, ev);
 	} else if (!strcmp(current_section_name, "HitObjects")) {
-	    struct hit_object *ho = calloc(sizeof(*ho), 1);
-	    ho_c_parse(line, ho, version);
+	    struct hash_table *ho = ho_c_parse(line);
 	    list_add(hit_objects, ho);
 	} else if (!strcmp(current_section_name, "TimingPoints")) {
-	    struct timing_point *tp = malloc(sizeof(*tp));
-	    tp_c_parse(line, tp);
+	    struct hash_table *tp = tp_c_parse(line);
 	    list_add(timing_points, tp);
+	} else if (!strcmp(current_section_name, "Colours")) {
+	    struct hash_table *col = col_c_parse(line);
+	    list_add(colors, col);
 	} else {
 	    struct h_entry e;
 	    default_parser(line, &e);
@@ -127,6 +171,7 @@ struct hash_table *omp_c_parse_osu_file(FILE *f, int version)
     }
 
     free(current_section);
-    regfree(&section_delim);
     return sections;
 }
+
+

@@ -21,9 +21,9 @@
 
 #include "beatmap/beatmap.h"
 #include "beatmap/parser/parser.h"
-#include "beatmap/hitobject/hit_object.h"
-#include "beatmap/timingpoint/timing_point.h"
-#include "beatmap/hitsound/hitsound.h"
+#include "beatmap/hitobject.h"
+#include "beatmap/timingpoint.h"
+#include "beatmap/hitsound.h"
 
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"

@@ -17,7 +17,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "hit_object.h"
+#include "hitobject.h"
 
 void ho_print(struct hit_object *ho, int version)
 {
@@ -72,3 +72,4 @@ void ho_free(struct hit_object *ho)
     if (ho->hs.additional)
 	free(ho->hs.sfx_filename);
 }
+

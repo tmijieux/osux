@@ -14,23 +14,13 @@
  *  limitations under the License.
  */
 
-#include <stdio.h>
-#include "timing_point.h"
+#ifndef OMP_H
+#define OMP_H
 
-void tp_print(struct timing_point *tp)
-{
-    printf("%.15g,%.15g,%d,%d,%d,%d,%d,%d\r\n",
-	   tp->offset,
-	   tp->mpb,
-	   tp->time_signature,
-	   tp->sample_type,
-	   tp->sample_set,
-	   tp->volume,
-	   tp->uninherited,
-	   tp->kiai);
-}
+#include <visibility.h>
+#include "util/hashtable/hashtable.h"
 
-void tp_free(struct timing_point *tp)
-{
-    // nothing !
-}
+__internal
+struct hash_table *cparse_osu_file(FILE *f);
+
+#endif //OMP_H
