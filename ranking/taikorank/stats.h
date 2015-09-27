@@ -23,16 +23,22 @@
 #define TRM_STATS_HEADER(FIELD)					\
   TRM_SORT_HEADER(FIELD)					\
   double trm_mean_##FIELD (struct tr_map * map);		\
-  struct stats * trm_stats_##FIELD (struct tr_map * map);
+  struct stats * trm_stats_##FIELD (struct tr_map * map);	\
+  double trm_stats_analysis_##FIELD (struct tr_map * map);
 
 //-----------------------------------------------------
 
 struct stats
 {
+  double min;
+  double max;
+  double spread;
+  
   double mean;
   double q1;
   double median;
   double q3;
+  double d9;
 };
 
 //-----------------------------------------------------
@@ -43,5 +49,8 @@ TRM_STATS_HEADER(density_star)
 TRM_STATS_HEADER(reading_star)
 TRM_STATS_HEADER(pattern_star)
 TRM_STATS_HEADER(accuracy_star)
+
+double stats_analysis(struct stats * stats);
+void stats_print(struct stats * stats);
 
 #endif //STATS_H

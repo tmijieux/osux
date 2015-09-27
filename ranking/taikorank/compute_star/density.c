@@ -15,6 +15,7 @@
  */
 
 #include <math.h>
+#include "interpolation.h"
 
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"
@@ -25,11 +26,10 @@
 
 // coeff for density
 // LOCAL density for two object on the same time
-#define DENSITY_MAX     10000.
-// when the rest time is DENSITY_TIME_0, the exp value will be
-// DENSITY_VALUE_0
-#define DENSITY_TIME_0  4000.
-#define DENSITY_VALUE_0 pow(10, -9)
+#define DENSITY_X1  0.
+#define DENSITY_Y1  10000.
+#define DENSITY_X2  3000.
+#define DENSITY_Y2  pow(10, -8)
 
 // coefficient for object type, 1 is the maximum
 #define DENSITY_NORMAL  1.
@@ -37,12 +37,12 @@
 #define DENSITY_BONUS   0.33
 
 // coefficient for length weighting in density
-#define DENSITY_LENGTH  0.3
+#define DENSITY_LENGTH  0.2
 
 // coeff for star
 #define DENSITY_STAR_COEFF_COLOR 0.8
 #define DENSITY_STAR_COEFF_RAW   0.2
-#define DENSITY_STAR_SCALING     700.
+#define DENSITY_STAR_SCALING     15000.
 
 //-----------------------------------------------------
 //-----------------------------------------------------
@@ -63,11 +63,12 @@ double tro_coeff_density (struct tr_object * obj)
 double tro_density (struct tr_object * obj1, struct tr_object * obj2)
 {
   int rest = obj2->offset - obj1->end_offset;
-  double coeff = tro_coeff_density(obj1);
   int length = obj1->end_offset - obj1->offset;
-  return (DENSITY_MAX * coeff *
-	  exp((rest + DENSITY_LENGTH * length) *
-	      (log(DENSITY_VALUE_0) / DENSITY_TIME_0)));
+  double coeff = tro_coeff_density(obj1);
+  double value = EXP_2_PT(rest + DENSITY_LENGTH * length,
+			  DENSITY_X1, DENSITY_Y1,
+			  DENSITY_X2, DENSITY_X2);
+  return coeff * value;
 }
 
 //-----------------------------------------------------
@@ -122,11 +123,8 @@ void trm_compute_density_star (struct tr_map * map)
 	 DENSITY_STAR_COEFF_RAW   * map->object[i].density_raw);
     }
 
-  struct stats * stats = trm_stats_density_star(map);
-  double true_sum = (stats->mean /
-		     (map->nb_object * DENSITY_STAR_SCALING));
-  
-  free(stats);
+  double true_sum = (trm_stats_analysis_density_star(map) /
+		     DENSITY_STAR_SCALING);
   map->density_star = true_sum; 
 }
 

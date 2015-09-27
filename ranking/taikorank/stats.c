@@ -15,13 +15,18 @@
  */
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <math.h>
 
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"
+#include "print.h"
 
 #include "stats.h"
-#include "sum/sum.h"
+#include "sum.h"
+
+#define STATS_COEFF_MEDIAN 0.7
+#define STATS_COEFF_Q1     0.3
 
 //-----------------------------------------------------
 
@@ -59,7 +64,7 @@
       {							\
 	sum_add(sum, map->object[i].FIELD);		\
       }							\
-    return sum_compute(sum);				\
+    return sum_compute(sum) / map->nb_object;		\
   }
 
 #define TRM_STATS(FIELD)					\
@@ -67,13 +72,29 @@
   {								\
     trm_sort_##FIELD (map);					\
     struct stats * stats = malloc(sizeof(struct stats));	\
+    stats->min    = map->object[0].FIELD;			\
+    stats->max    = map->object[map->nb_object - 1].FIELD;	\
+    stats->spread = stats->max - stats->min;			\
     stats->mean   = trm_mean_##FIELD (map);			\
     stats->q1     = trm_q_1_4_##FIELD (map);			\
     stats->median = trm_q_1_2_##FIELD (map);			\
     stats->q3     = trm_q_3_4_##FIELD (map);			\
+    stats->d9     = trm_q_9_10_##FIELD (map);			\
     trm_sort_offset(map);					\
     return stats;						\
   }
+
+#define TRM_STATS_ANALYSIS(FIELD)				\
+  double trm_stats_analysis_##FIELD (struct tr_map * map)	\
+  {								\
+    struct stats * stats = trm_stats_##FIELD (map);		\
+    stats_print(stats);						\
+    double res = stats_analysis(stats);				\
+    free(stats);						\
+    return res;							\
+  }
+
+// ---- Macro macro
 
 #define TRM_SORT_FUNCTIONS(FIELD)		\
   TRO_COMPARE(FIELD)				\
@@ -84,8 +105,10 @@
   TRM_QUARTILE(FIELD, 1, 4) /* Q1 */		\
   TRM_QUARTILE(FIELD, 1, 2) /* median */	\
   TRM_QUARTILE(FIELD, 3, 4) /* Q3 */		\
+  TRM_QUARTILE(FIELD, 9, 10) /* D9 */		\
   TRM_MEAN(FIELD)				\
-  TRM_STATS(FIELD)
+  TRM_STATS(FIELD)				\
+  TRM_STATS_ANALYSIS(FIELD)
 
 //-----------------------------------------------------
 
@@ -97,3 +120,26 @@ TRM_STATS_FUNCTIONS(pattern_star)
 TRM_STATS_FUNCTIONS(accuracy_star)
 
 //-----------------------------------------------------
+
+double stats_analysis(struct stats * stats)
+{
+  double value = (STATS_COEFF_MEDIAN * stats->median +
+		  STATS_COEFF_Q1     * stats->q1);
+  return value;
+}
+
+void stats_print(struct stats * stats)
+{
+  fprintf(OUTPUT_INFO, "min:    %g\n", stats->min);
+  fprintf(OUTPUT_INFO, "max:    %g\n", stats->max);
+  fprintf(OUTPUT_INFO, "spread: %g\n", stats->spread);
+
+  fprintf(OUTPUT_INFO, "\n");
+  
+  fprintf(OUTPUT_INFO, "mean:   %g\n", stats->mean);
+  fprintf(OUTPUT_INFO, "Q1:     %g\n", stats->q1);
+  fprintf(OUTPUT_INFO, "median: %g\n", stats->median);
+  fprintf(OUTPUT_INFO, "Q3:     %g\n", stats->q3);
+  fprintf(OUTPUT_INFO, "D9:     %g\n", stats->d9);
+}
+

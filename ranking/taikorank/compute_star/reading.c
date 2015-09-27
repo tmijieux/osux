@@ -15,6 +15,7 @@
  */
 
 #include <math.h>
+#include "interpolation.h"
 
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"
@@ -24,7 +25,7 @@
 #include "reading.h"
 
 // superposition coeff
-#define SUPERPOS_BIG   pow(2, 1 / 2.)
+#define SUPERPOS_BIG   sqrt(2)
 #define SUPERPOS_SMALL 1.
 
 // hidding
@@ -90,17 +91,12 @@ double tro_speed (struct tr_object * obj)
   // convert (0 to BPM_CENTER) to (BPM_CENTER to BPM_MAX) 
   if (bpm_app < BPM_CENTER)
     {
-      //bpm_app = (BPM_CENTER - bpm_app) * (BPM_MAX / BPM_CENTER);
       bpm_app = (BPM_CENTER +
 		 exp(log(BPM_CENTER - bpm_app) *
 		     log(BPM_MAX - BPM_CENTER) /
 		     log(BPM_CENTER)));
     }
-  
-  // return SPEED_CENTER * exp(log(SPEED_MAX / SPEED_CENTER) *
-  //  ((bpm_app - BPM_CENTER) /
-  //  (BPM_MAX - BPM_CENTER)));
-  
+    
   return SPEED_CENTER * (1 + pow(bpm_app - BPM_CENTER,
 				 (log(SPEED_MAX / SPEED_CENTER - 1) /
 				  log(BPM_MAX - BPM_CENTER))));
@@ -223,8 +219,7 @@ void trm_compute_reading_star (struct tr_map * map)
     }
   
   struct stats * stats = trm_stats_reading_star(map);
-  double true_sum = (stats->mean /
-		     (map->nb_object * READING_STAR_SCALING));
+  double true_sum = stats->mean / READING_STAR_SCALING;
 
   free(stats);
   map->reading_star = true_sum;

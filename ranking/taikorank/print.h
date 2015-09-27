@@ -17,8 +17,9 @@
 #ifndef PRINT_H
 #define PRINT_H
 
-#define OUTPUT     stdout
-#define OUTPUT_ERR stderr
+#define OUTPUT      stdout
+#define OUTPUT_INFO stderr
+#define OUTPUT_ERR  stderr
 
 #define FILTER_BASIC        (1 << 0)
 #define FILTER_BASIC_PLUS   (1 << 1)
@@ -30,6 +31,7 @@
 #define FILTER_ACCURACY     (1 << 7)
 #define FILTER_STAR         (1 << 8)
 
+//#define FILTER_APPLY       (FILTER_BASIC | FILTER_DENSITY)
 #define FILTER_APPLY       (FILTER_BASIC | FILTER_READING)
 
 #define STR_MODS_LENGTH 3
@@ -43,7 +45,7 @@ void print_map_star (struct tr_map * map);
 int print_one_mod (struct tr_map * map, int mods, int * i,
 		   char * buffer, char * string);
 void print_mods (struct tr_map * map);
-void print_string_size (char * s, int max);
+void print_string_size(char *s, int max, FILE * output);
 void print_map_final (struct tr_map * map);
 
 
