@@ -21,11 +21,8 @@
 #include <stdint.h>
 
 #include "storyboard.h"
+#include "general/game_mode.h"
 
-#define MODE_STD     0
-#define MODE_TAIKO   1
-#define MODE_CTB     2
-#define MODE_MANIA   3
 
 struct map {
     uint32_t version;
