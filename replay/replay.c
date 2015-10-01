@@ -65,7 +65,7 @@ struct dreplay {
     int *object_perf;
 };
 
-int *osux_get_replay_perf(struct dreplay *dr)
+int *osux_get_replay_perf(struct dreplay *re)
 {
     return re->object_perf;
 }
