@@ -25,9 +25,6 @@
 #include "stats.h"
 #include "sum.h"
 
-#define STATS_COEFF_MEDIAN 0.7
-#define STATS_COEFF_Q1     0.3
-
 //-----------------------------------------------------
 
 #define TRO_COMPARE(FIELD)					\
@@ -85,23 +82,13 @@
     return stats;						\
   }
 
-#define TRM_STATS_ANALYSIS(FIELD)				\
-  double trm_stats_analysis_##FIELD (struct tr_map * map)	\
-  {								\
-    struct stats * stats = trm_stats_##FIELD (map);		\
-    stats_print(stats);						\
-    double res = stats_analysis(stats);				\
-    free(stats);						\
-    return res;							\
-  }
-
 // ---- Macro macro
 
 #define TRM_SORT_FUNCTIONS(FIELD)		\
   TRO_COMPARE(FIELD)				\
   TRM_SORT(FIELD)
 
-#define TRM_STATS_FUNCTIONS(FIELD)		\
+#define TRM_STATS_FUNCTIONS(FIELD, MAJ)		\
   TRM_SORT_FUNCTIONS(FIELD)			\
   TRM_QUARTILE(FIELD, 1, 10) /* D1 */		\
   TRM_QUARTILE(FIELD, 1, 4) /* Q1 */		\
@@ -109,26 +96,18 @@
   TRM_QUARTILE(FIELD, 3, 4) /* Q3 */		\
   TRM_QUARTILE(FIELD, 9, 10) /* D9 */		\
   TRM_MEAN(FIELD)				\
-  TRM_STATS(FIELD)				\
-  TRM_STATS_ANALYSIS(FIELD)
+  TRM_STATS(FIELD)
 
 //-----------------------------------------------------
 
 TRM_SORT_FUNCTIONS(offset)
 
-TRM_STATS_FUNCTIONS(density_star)
-TRM_STATS_FUNCTIONS(reading_star)
-TRM_STATS_FUNCTIONS(pattern_star)
-TRM_STATS_FUNCTIONS(accuracy_star)
+TRM_STATS_FUNCTIONS(density_star,  DENSITY)
+TRM_STATS_FUNCTIONS(reading_star,  READING)
+TRM_STATS_FUNCTIONS(pattern_star,  PATTERN)
+TRM_STATS_FUNCTIONS(accuracy_star, ACCURACY)
 
 //-----------------------------------------------------
-
-double stats_analysis(struct stats * stats)
-{
-  double value = (STATS_COEFF_MEDIAN * stats->median +
-		  STATS_COEFF_Q1     * stats->q1);
-  return value;
-}
 
 void stats_print(struct stats * stats)
 {

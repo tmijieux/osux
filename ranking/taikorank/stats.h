@@ -17,14 +17,39 @@
 #ifndef STATS_H
 #define STATS_H
 
+//-----------------------------------------------------
+
+#define TRM_STATS_COMPUTE_STARS(FIELD, MAJ)			\
+  double trm_stats_compute_##FIELD (struct tr_map * map)	\
+  {								\
+    struct stats * s = trm_stats_##FIELD (map);			\
+    double stars = (( MAJ##_COEFF_MEDIAN * s->median +		\
+		      MAJ##_COEFF_MEAN   * s->mean +		\
+		      MAJ##_COEFF_D1     * s->d1 +		\
+		      MAJ##_COEFF_D9     * s->d9 +		\
+		      MAJ##_COEFF_Q1     * s->q1 +		\
+		      MAJ##_COEFF_Q3     * s->q3) /		\
+		    MAJ##_STAR_SCALING);			\
+    free(s);							\
+    return stars;						\
+  }
+
+//-----------------------------------------------------
+
 #define TRM_SORT_HEADER(FIELD)			\
   void trm_sort_##FIELD (struct tr_map * map);
 
-#define TRM_STATS_HEADER(FIELD)					\
+/**
+ * to use in .c files after all the coefficient definitions
+ * -> DENSITY_COEFF_D1...
+ * FIELD ex: density_star
+ * MAJ   ex: DENSITY
+ */
+#define TRM_STATS_HEADER(FIELD, MAJ)				\
   TRM_SORT_HEADER(FIELD)					\
   double trm_mean_##FIELD (struct tr_map * map);		\
   struct stats * trm_stats_##FIELD (struct tr_map * map);	\
-  double trm_stats_analysis_##FIELD (struct tr_map * map);
+  TRM_STATS_COMPUTE_STARS(FIELD, MAJ)			
 
 //-----------------------------------------------------
 
@@ -46,12 +71,6 @@ struct stats
 
 TRM_SORT_HEADER(offset)
 
-TRM_STATS_HEADER(density_star)
-TRM_STATS_HEADER(reading_star)
-TRM_STATS_HEADER(pattern_star)
-TRM_STATS_HEADER(accuracy_star)
-
-double stats_analysis(struct stats * stats);
 void stats_print(struct stats * stats);
 
 #endif //STATS_H

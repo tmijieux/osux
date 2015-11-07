@@ -41,7 +41,20 @@
 // coeff for star
 #define DENSITY_STAR_COEFF_COLOR 0.8
 #define DENSITY_STAR_COEFF_RAW   0.2
-#define DENSITY_STAR_SCALING     15000.
+
+// coeff for stats
+#define DENSITY_COEFF_MEDIAN 0.7
+#define DENSITY_COEFF_MEAN   0.
+#define DENSITY_COEFF_D1     0.
+#define DENSITY_COEFF_D9     0.
+#define DENSITY_COEFF_Q1     0.3
+#define DENSITY_COEFF_Q3     0.
+
+// scaling
+#define DENSITY_STAR_SCALING 15000.
+
+// stats module
+TRM_STATS_HEADER(density_star, DENSITY)
 
 //-----------------------------------------------------
 //-----------------------------------------------------
@@ -122,9 +135,7 @@ void trm_compute_density_star (struct tr_map * map)
 	 DENSITY_STAR_COEFF_RAW   * map->object[i].density_raw);
     }
 
-  double true_sum = (trm_stats_analysis_density_star(map) /
-		     DENSITY_STAR_SCALING);
-  map->density_star = true_sum; 
+  map->density_star = trm_stats_compute_density_star(map); 
 }
 
 //-----------------------------------------------------

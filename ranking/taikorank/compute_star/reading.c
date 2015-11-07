@@ -49,8 +49,21 @@
 #define READING_STAR_COEFF_HIDE       0   
 #define READING_STAR_COEFF_HIDDEN     0   
 #define READING_STAR_COEFF_SPEED_CH   0   
-#define READING_STAR_COEFF_SPEED      1.  
-#define READING_STAR_SCALING          100.
+#define READING_STAR_COEFF_SPEED      1.
+
+// coeff for stats
+#define READING_COEFF_MEDIAN 0.7
+#define READING_COEFF_MEAN   0.
+#define READING_COEFF_D1     0.
+#define READING_COEFF_D9     0.
+#define READING_COEFF_Q1     0.3
+#define READING_COEFF_Q3     0.
+
+// scaling
+#define READING_STAR_SCALING 100.
+
+// stats module
+TRM_STATS_HEADER(reading_star, READING)
 
 //-----------------------------------------------------
 
@@ -220,7 +233,7 @@ void trm_compute_reading_speed_change (struct tr_map * map)
 	{
 	    obj->speed_change +=
 	      tro_speed_change(&map->object[j],
-			   &map->object[i]);
+			       &map->object[i]);
 	}
     }
 }
@@ -241,9 +254,7 @@ void trm_compute_reading_star (struct tr_map * map)
 	 READING_STAR_COEFF_SPEED      * map->object[i].speed);
     }
 
-  double true_sum = (trm_stats_analysis_reading_star(map) /
-		     READING_STAR_SCALING);
-  map->reading_star = true_sum;
+  map->reading_star = trm_stats_compute_reading_star(map); 
 }
 
 //-----------------------------------------------------
