@@ -20,17 +20,20 @@
 
 int cs_timestamp_string(uint64_t timestamp)
 {
-	char buf[50] = {0};
-	sprintf(buf, "%lu", timestamp);
-	int argc = 1;
-	char *argv[] = { buf };
+    char buf[50] = {0};
+    sprintf(buf, "%lu", timestamp);
+    int argc = 2;
+    char *argv[] = { "./date.exe", buf, NULL };
 
-	MonoDomain *domain = NULL;
-	domain = mono_jit_init( "date.exe" );
+    MonoDomain *domain = NULL;
+    domain = mono_jit_init( "date.exe" );
 	
-	MonoAssembly *assembly;
-	assembly = mono_domain_assembly_open(domain, "date.exe");
-
-    //return mono_jit_exec(domain, assembly, argc, argv);
-	return 0;
+    MonoAssembly *assembly;
+    assembly = mono_domain_assembly_open(domain, "date.exe");
+    if (!assembly) {
+	fprintf(stderr, "error loading assembly file date.exe");
+	return -1;
+    }
+    mono_jit_exec(domain, assembly, argc, argv);
+    return 0;
 }

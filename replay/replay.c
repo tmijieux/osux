@@ -39,10 +39,10 @@ struct replay {
     char *replay_md5_hash;
     
     uint16_t _300;
-    uint16_t _100;
-    uint16_t _50;
-    uint16_t _geki;
-    uint16_t _katu;
+    uint16_t _100;  // taiko: 50%, mania: 200
+    uint16_t _50;   // ctb: small fruits
+    uint16_t _geki; // MAX
+    uint16_t _katu; // mania: 100
     uint16_t _miss;
 
     uint32_t score;
@@ -56,6 +56,30 @@ struct replay {
     size_t rdc;
     struct replay_data *rd;
 };
+
+struct dreplay {
+    struct beatmap *bm;
+    struct replay *rp;
+    
+    int hit_object_count;
+    int *object_perf;
+};
+
+int *osux_get_replay_perf(struct dreplay *re)
+{
+    return re->object_perf;
+}
+
+void osux_dreplay_free(struct dreplay *dr)
+{
+
+}
+
+struct dreplay osux_compute_dreplay(struct beatmap *bm, struct replay *rp)
+{
+
+
+}
 
 
 void lzma_decompress(FILE *f, uint8_t **buf);
@@ -156,7 +180,7 @@ void replay_print(FILE *f, const struct replay *r)
 
     
     fprintf(f, "timestamp: %lu\n", r->timestamp);
-    /* cs_timestamp_string(r->timestamp); */
+    //    cs_timestamp_string(r->timestamp);
     /* fprintf(f, "Time: "); */
     /* fprintf(f, "timestamp: %s\n", s); */
 
@@ -185,3 +209,5 @@ void replay_free(struct replay *r)
     free(r->rd);
     free(r);
 }
+
+

@@ -25,8 +25,8 @@
 
 
 /* read/write buffer sizes */
-#define IN_BUF_MAX	4096
-#define OUT_BUF_MAX	4096
+#define IN_BUF_MAX	126
+#define OUT_BUF_MAX	256
 
 /* error codes */
 #define RET_OK			0

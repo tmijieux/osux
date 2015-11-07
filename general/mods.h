@@ -17,8 +17,8 @@
 #ifndef MODS_H
 #define MODS_H
 
-enum MODS {
-    NOMOD		=	0,
+enum mods {
+    MOD_NONE		=	0,
     MOD_NOFAIL 		= 	(1 << 0),
     MOD_EASY  		=	(1 << 1),
     MOD_NOVIDEO		=	(1 << 2),
@@ -63,6 +63,43 @@ enum MODS {
     MOD_7K_COOP		=	(MOD_7K | MOD_COOP),
     MOD_8K_COOP		=	(MOD_8K | MOD_COOP),
     MOD_9K_COOP		=	(MOD_9K | MOD_COOP)
+
+};
+
+enum mods_id {
+    IMOD_NONE		= 0,
+    IMOD_NOFAIL 		= 1,	
+    IMOD_EASY  		= 2,
+    IMOD_NOVIDEO		= 3,
+    IMOD_HIDDEN		= 4,
+    IMOD_HARDROCK	= 5,
+    IMOD_SUDDENDEATH	= 6,
+    IMOD_DOUBLETIME	= 7,
+    IMOD_RELAX		= 8,
+    IMOD_HALFTIME	= 9,
+    IMOD_NIGHTCORE	= 10,
+    IMOD_FLASHLIGHT	= 11,
+    IMOD_AUTOPILOT	= 12,
+    IMOD_PERFECT 	= 13,
+    
+    IMOD_4K		= 14,
+    IMOD_5K		= 15,
+    IMOD_6K		= 16,
+    IMOD_7K		= 17,
+    IMOD_8K		= 18,
+
+    IMOD_FADEIN		= 19,
+    IMOD_RANDOM		= 20,
+    IMOD_CINEMA		= 21,
+
+    IMOD_TARGETPRACTICE	= 22,
+    
+    IMOD_9K		= 23,
+    IMOD_COOP		= 24,
+
+    IMOD_3K		= 25,
+    IMOD_2K		= 26,
+    IMOD_1K		= 27
 
 };
 
