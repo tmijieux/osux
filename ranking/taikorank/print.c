@@ -198,7 +198,7 @@ void print_mods (struct tr_map * map)
 
 void print_map_final (struct tr_map * map)
 {
-  //  fprintf(OUTPUT, "%g      \t", map->reading_star);
+  fprintf(OUTPUT, "%g      \t", map->reading_star);
   fprintf(OUTPUT, "%g      \t", map->density_star);
   print_mods(map);
   print_string_size(map->diff,    24, OUTPUT);

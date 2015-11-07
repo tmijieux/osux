@@ -2,6 +2,10 @@ Modifications:
 - changer la projection des petits BPM, -> exp ou ²...
 - vérifier proportions dans reading.c
 - superosed/hidding/hidden à revoir
+- speed pb: when using FL time is shorter
+-- small time: time
+-- long time:  bpm?
+|> 2 values: reaction_time, slowness
 
 notes:		   
 - HDHR not supported

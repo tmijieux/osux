@@ -76,6 +76,7 @@
     stats->max    = map->object[map->nb_object - 1].FIELD;	\
     stats->spread = stats->max - stats->min;			\
     stats->mean   = trm_mean_##FIELD (map);			\
+    stats->d1     = trm_q_1_10_##FIELD (map);			\
     stats->q1     = trm_q_1_4_##FIELD (map);			\
     stats->median = trm_q_1_2_##FIELD (map);			\
     stats->q3     = trm_q_3_4_##FIELD (map);			\
@@ -102,6 +103,7 @@
 
 #define TRM_STATS_FUNCTIONS(FIELD)		\
   TRM_SORT_FUNCTIONS(FIELD)			\
+  TRM_QUARTILE(FIELD, 1, 10) /* D1 */		\
   TRM_QUARTILE(FIELD, 1, 4) /* Q1 */		\
   TRM_QUARTILE(FIELD, 1, 2) /* median */	\
   TRM_QUARTILE(FIELD, 3, 4) /* Q3 */		\
@@ -130,13 +132,16 @@ double stats_analysis(struct stats * stats)
 
 void stats_print(struct stats * stats)
 {
+  fprintf(OUTPUT_INFO, "-------- Stats --------\n");
   fprintf(OUTPUT_INFO, "min:    %g\n", stats->min);
   fprintf(OUTPUT_INFO, "max:    %g\n", stats->max);
   fprintf(OUTPUT_INFO, "spread: %g\n", stats->spread);
 
   fprintf(OUTPUT_INFO, "\n");
-  
   fprintf(OUTPUT_INFO, "mean:   %g\n", stats->mean);
+  fprintf(OUTPUT_INFO, "\n");
+  
+  fprintf(OUTPUT_INFO, "D1:     %g\n", stats->d1);
   fprintf(OUTPUT_INFO, "Q1:     %g\n", stats->q1);
   fprintf(OUTPUT_INFO, "median: %g\n", stats->median);
   fprintf(OUTPUT_INFO, "Q3:     %g\n", stats->q3);

@@ -45,11 +45,11 @@
 #define SPEED_CH_VALUE_0 pow(10, -9)
 
 // coeff for star
-#define READING_STAR_COEFF_SUPERPOSED 0   // 50    lot 0
-#define READING_STAR_COEFF_HIDE       0   // 5000  lot 0
-#define READING_STAR_COEFF_HIDDEN     0   // 5000  lot 0
-#define READING_STAR_COEFF_SPEED_CH   0   // 5000  lot 0
-#define READING_STAR_COEFF_SPEED      1.  // 10000 no 0
+#define READING_STAR_COEFF_SUPERPOSED 0   
+#define READING_STAR_COEFF_HIDE       0   
+#define READING_STAR_COEFF_HIDDEN     0   
+#define READING_STAR_COEFF_SPEED_CH   0   
+#define READING_STAR_COEFF_SPEED      1.  
 #define READING_STAR_SCALING          100.
 
 //-----------------------------------------------------
@@ -80,14 +80,37 @@ double tro_hidding (struct tr_object * obj1, struct tr_object * obj2)
 
 //-----------------------------------------------------
 
+#define TIME_MIN    100.   // human reaction time ~2500bpm
+#define TIME_CENTER 3200.  // 3200ms ~ 80bpm
+#define TIME_MAX    60000. // max slow considered
+
 double tro_speed (struct tr_object * obj)
 {
+  double time = obj->visible_time;
+  double old = time;
+
+  if (time > TIME_MAX) 
+    time = TIME_MAX; 
+  else if (time < TIME_MIN) 
+    time = TIME_MIN;
+  
+  if (time > TIME_CENTER) 
+    {
+      time = EXP_2_PT(time,
+		      TIME_CENTER, TIME_CENTER,
+		      TIME_MAX,    TIME_MIN);
+    }
+  printf("%g \t->%g\n", old, time);
+
+  return 0;
+  
+  /*
   double bpm_app = obj->bpm_app;
   // decrease BPM to max
   if (bpm_app > BPM_MAX ||
       obj->visible_time == 0)
     bpm_app = BPM_MAX;
-  
+
   // convert (0 to BPM_CENTER) to (BPM_CENTER to BPM_MAX) 
   if (bpm_app < BPM_CENTER)
     {
@@ -96,10 +119,10 @@ double tro_speed (struct tr_object * obj)
 		     log(BPM_MAX - BPM_CENTER) /
 		     log(BPM_CENTER)));
     }
-    
+  
   return SPEED_CENTER * (1 + pow(bpm_app - BPM_CENTER,
 				 (log(SPEED_MAX / SPEED_CENTER - 1) /
-				  log(BPM_MAX - BPM_CENTER))));
+				 log(BPM_MAX - BPM_CENTER))));*/
 }
 
 //-----------------------------------------------------
@@ -217,11 +240,9 @@ void trm_compute_reading_star (struct tr_map * map)
 	 READING_STAR_COEFF_SPEED_CH   * map->object[i].speed_change+
 	 READING_STAR_COEFF_SPEED      * map->object[i].speed);
     }
-  
-  struct stats * stats = trm_stats_reading_star(map);
-  double true_sum = stats->mean / READING_STAR_SCALING;
 
-  free(stats);
+  double true_sum = (trm_stats_analysis_reading_star(map) /
+		     READING_STAR_SCALING);
   map->reading_star = true_sum;
 }
 

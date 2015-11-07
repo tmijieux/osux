@@ -35,6 +35,7 @@ struct stats
   double spread;
   
   double mean;
+  double d1;
   double q1;
   double median;
   double q3;

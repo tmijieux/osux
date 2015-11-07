@@ -36,11 +36,11 @@ int main(int argc, char* argv[])
 	    continue;
 
 	  // map change when mods are apllied
-	  trm_compute_taiko_stars(map, MODS_NONE);
+	  //trm_compute_taiko_stars(map, MODS_NONE);
 	  //trm_compute_taiko_stars(map, MODS_DT);
 	  //trm_compute_taiko_stars(map, MODS_HT);
 	  //trm_compute_taiko_stars(map, MODS_HD);
-	  //trm_compute_taiko_stars(map, MODS_FL);
+	  trm_compute_taiko_stars(map, MODS_FL);
 	  //trm_compute_taiko_stars(map, MODS_HR);
 	  //trm_compute_taiko_stars(map, MODS_HD);
 	  //trm_compute_taiko_stars(map, MODS_HD | MODS_FL);

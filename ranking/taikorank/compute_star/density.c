@@ -25,7 +25,6 @@
 #include "density.h"
 
 // coeff for density
-// LOCAL density for two object on the same time
 #define DENSITY_X1  0.
 #define DENSITY_Y1  10000.
 #define DENSITY_X2  3000.

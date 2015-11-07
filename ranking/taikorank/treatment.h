@@ -17,10 +17,6 @@
 #ifndef TREATMENT_H
 #define TREATMENT_H
 
-// offset app & dis
-#define OFFSET_MIN 10000
-#define OFFSET_MAX (-obj->obj_dis / obj->obj_app * OFFSET_MIN)
-
 void trm_treatment_hand (struct tr_map * map);
 void trm_treatment_rest (struct tr_map * map);
 void trm_treatment_app_dis_offset (struct tr_map * map);

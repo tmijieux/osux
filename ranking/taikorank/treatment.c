@@ -18,6 +18,12 @@
 #include "taiko_ranking_object.h"
 #include "treatment.h"
 
+// offset app & dis
+#define OFFSET_MIN 10000
+#define OFFSET_MAX (-obj->obj_dis / obj->obj_app * OFFSET_MIN)
+
+//------------------------------------------------
+
 void trm_treatment_hand (struct tr_map * map)
 {
   int d_hand = 0;
@@ -69,19 +75,20 @@ void trm_treatment_app_dis_offset (struct tr_map * map)
     {
       struct tr_object * obj = &map->object[i];
       double space_unit = mpb_to_bpm(obj->bpm_app) / 4.;
-      // under is wrong for spinner...
+      // wrong for spinner...
       obj->offset_app = (obj->offset -
 			 obj->obj_app * space_unit);
       obj->offset_dis = (obj->end_offset -
 			 obj->obj_dis * space_unit);
 
+      /*
       // really far numbers... in case of really slow circle
       if (obj->offset_app < map->object[0].offset - OFFSET_MIN)
 	{
 	  obj->offset_app = map->object[0].offset - OFFSET_MIN;
 	  obj->offset_dis = obj->end_offset       + OFFSET_MAX;
 	}
-      
+      */
       if (tro_is_slider(obj))
 	{
 	  int diff = obj->end_offset - obj->offset;
