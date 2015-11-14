@@ -60,16 +60,6 @@
 
 // -----------------------------
 
-void trm_apply_mods_EZ (struct tr_map * map);
-void trm_apply_mods_HT (struct tr_map * map);
-void trm_apply_mods_HR (struct tr_map * map);
-void trm_apply_mods_DT (struct tr_map * map);
-void trm_apply_mods_HD (struct tr_map * map);
-void trm_apply_mods_FL (struct tr_map * map);
-
-void trm_apply_NM_app_dis(struct tr_map * map);
-void trm_apply_NM_ms_coeff(struct tr_map * map);
-
 void trm_apply_mods (struct tr_map * map);
 
 #endif //MODS_H

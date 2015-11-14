@@ -24,6 +24,19 @@
 
 #include "reading.h"
 
+static double tro_coeff_superpos (struct tr_object * obj);
+static double tro_hidding (struct tr_object * obj1,
+			   struct tr_object * obj2);
+static double tro_speed_change (struct tr_object * obj1,
+				struct tr_object * obj2);
+static double tro_speed (struct tr_object * obj);
+
+static void trm_compute_reading_hidding (struct tr_map * map);
+static void trm_compute_reading_superposed (struct tr_map * map);
+static void trm_compute_reading_speed (struct tr_map * map);
+
+static void trm_compute_reading_star (struct tr_map * map);
+
 // superposition coeff
 #define SUPERPOS_BIG   sqrt(2)
 #define SUPERPOS_SMALL 1.
@@ -67,7 +80,7 @@ TRM_STATS_HEADER(reading_star, READING)
 
 //-----------------------------------------------------
 
-double tro_coeff_superpos (struct tr_object * obj)
+static double tro_coeff_superpos (struct tr_object * obj)
 {
   if (tro_is_big(obj))   
     return SUPERPOS_BIG;   // 'D' 'K' 'R'
@@ -77,7 +90,7 @@ double tro_coeff_superpos (struct tr_object * obj)
 
 //-----------------------------------------------------
 
-double tro_hidding (struct tr_object * obj1, struct tr_object * obj2)
+static double tro_hidding (struct tr_object * obj1, struct tr_object * obj2)
 {
   // int hide = obj1->end_offset_app - obj2->offset_app;
   // ^ not used
@@ -97,7 +110,7 @@ double tro_hidding (struct tr_object * obj1, struct tr_object * obj2)
 #define TIME_CENTER 3200.  // 3200ms ~ 80bpm
 #define TIME_MAX    60000. // max slow considered
 
-double tro_speed (struct tr_object * obj)
+static double tro_speed (struct tr_object * obj)
 {
   double time = obj->visible_time;
   double old = time;
@@ -113,7 +126,7 @@ double tro_speed (struct tr_object * obj)
 		      TIME_CENTER, TIME_CENTER,
 		      TIME_MAX,    TIME_MIN);
     }
-  printf("%g \t->%g\n", old, time);
+  //printf("%g \t->%g\n", old, time);
 
   return 0;
   
@@ -140,7 +153,7 @@ double tro_speed (struct tr_object * obj)
 
 //-----------------------------------------------------
 
-double tro_speed_change (struct tr_object * obj1, struct tr_object * obj2)
+static double tro_speed_change (struct tr_object * obj1, struct tr_object * obj2)
 {
   int rest = obj2->offset - obj1->end_offset;
   double coeff = obj1->bpm_app / obj2->bpm_app;
@@ -158,12 +171,12 @@ double tro_speed_change (struct tr_object * obj1, struct tr_object * obj2)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-void trm_compute_reading_hiding (struct tr_map * map)
+static void trm_compute_reading_hiding (struct tr_map * map)
 {
   for (int i = 0; i < map->nb_object; i++)
     {
-      void * s_hide   = sum_new(map->nb_object - i, DEFAULT);
-      void * s_hidden = sum_new(i,                  DEFAULT);
+      struct sum * s_hide   = sum_new(map->nb_object - i, DEFAULT);
+      struct sum * s_hidden = sum_new(i,                  DEFAULT);
       
       for (int j = 0; j < i; j++)
 	{
@@ -188,7 +201,7 @@ void trm_compute_reading_hiding (struct tr_map * map)
 
 //-----------------------------------------------------
 
-void trm_compute_reading_superposed (struct tr_map * map)
+static void trm_compute_reading_superposed (struct tr_map * map)
 {
   map->object[0].superposed = 0;
   for (int i = 1; i < map->nb_object; i++)
@@ -211,7 +224,7 @@ void trm_compute_reading_superposed (struct tr_map * map)
 
 //-----------------------------------------------------
 
-void trm_compute_reading_speed (struct tr_map * map)
+static void trm_compute_reading_speed (struct tr_map * map)
 {
   for (int i = 0; i < map->nb_object; i++)
     {
@@ -222,7 +235,7 @@ void trm_compute_reading_speed (struct tr_map * map)
 
 //-----------------------------------------------------
 
-void trm_compute_reading_speed_change (struct tr_map * map)
+static void trm_compute_reading_speed_change (struct tr_map * map)
 {
   map->object[0].speed_change = 0;
   for (int i = 1; i < map->nb_object; i++)
@@ -242,7 +255,7 @@ void trm_compute_reading_speed_change (struct tr_map * map)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-void trm_compute_reading_star (struct tr_map * map)
+static void trm_compute_reading_star (struct tr_map * map)
 {
   for (int i = 0; i < map->nb_object; i++)
     {

@@ -17,11 +17,6 @@
 #ifndef TREATMENT_H
 #define TREATMENT_H
 
-void trm_treatment_hand (struct tr_map * map);
-void trm_treatment_rest (struct tr_map * map);
-void trm_treatment_app_dis_offset (struct tr_map * map);
-void trm_treatment_visible_time (struct tr_map * map);
-
 void trm_treatment (struct tr_map * map);
 
 #endif //TREATMENT_H

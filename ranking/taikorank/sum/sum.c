@@ -18,6 +18,22 @@
 
 #include "sum.h"
 
+static int inferior(void * x, void * y);
+static int superior(void * x, void * y);
+static double weight (double x, int i);
+
+static struct heap * acc_sum_new (unsigned int size);
+static void acc_sum_add (struct heap * heap, double x);
+static double acc_sum_compute (struct heap * heap);
+
+static struct heap * perf_sum_new (unsigned int size);
+static void perf_sum_add (struct heap * heap, double x);
+static double perf_sum_compute (struct heap * heap);
+
+static struct heap * weight_sum_new (unsigned int size);
+static void weight_sum_add (struct heap * heap, double x);
+static double weight_sum_compute (struct heap * heap);
+
 struct sum
 {
   struct heap * h;
@@ -27,21 +43,21 @@ struct sum
 
 //-----------------------------------------------
 
-int inferior(void * x, void * y)
+static int inferior(void * x, void * y)
 {
   return (*(double *) x < *(double *) y);
 }
 
 //-----------------------------------------------
 
-int superior(void * x, void * y)
+static int superior(void * x, void * y)
 {
   return (*(double *) x > *(double *) y);
 }
 
 //-----------------------------------------------
 
-double weight (double x, int i)
+static double weight (double x, int i)
 {
   return x * (100 - (i * 100. / MAX_NB_WEIGHTED)) / 100;
 }
@@ -59,14 +75,14 @@ double weight (double x, int i)
 //-----------------------------------------------
 //-----------------------------------------------
 
-struct heap * acc_sum_new (unsigned int size)
+static struct heap * acc_sum_new (unsigned int size)
 {
   return heap_new(size, NULL, inferior);
 }
 
 //-----------------------------------------------
 
-void acc_sum_add (struct heap * heap, double x)
+static void acc_sum_add (struct heap * heap, double x)
 {
   double * data = malloc(sizeof(double));
   *data = x;
@@ -75,7 +91,7 @@ void acc_sum_add (struct heap * heap, double x)
 
 //-----------------------------------------------
 
-double acc_sum_compute (struct heap * heap)
+static double acc_sum_compute (struct heap * heap)
 {
   if (heap_size(heap) == 0)
     {
@@ -109,7 +125,7 @@ double acc_sum_compute (struct heap * heap)
 
 //-----------------------------------------------
 
-struct heap * perf_sum_new (unsigned int size)
+static struct heap * perf_sum_new (unsigned int size)
 {
   double * sum = malloc(sizeof(double));
   *sum = 0;
@@ -118,7 +134,7 @@ struct heap * perf_sum_new (unsigned int size)
 
 //-----------------------------------------------
 
-void perf_sum_add (struct heap * heap, double x)
+static void perf_sum_add (struct heap * heap, double x)
 {
   double * sum = (double *) heap;
   *sum += x;
@@ -126,7 +142,7 @@ void perf_sum_add (struct heap * heap, double x)
 
 //-----------------------------------------------
 
-double perf_sum_compute (struct heap * heap)
+static double perf_sum_compute (struct heap * heap)
 {
   double * sum = (double *) heap;
   double true_sum = *sum;
@@ -145,14 +161,14 @@ double perf_sum_compute (struct heap * heap)
 
 //-----------------------------------------------
 
-struct heap * weight_sum_new (unsigned int size)
+static struct heap * weight_sum_new (unsigned int size)
 {
   return heap_new(size, NULL, superior);
 }
 
 //-----------------------------------------------
 
-void weight_sum_add (struct heap * heap, double x)
+static void weight_sum_add (struct heap * heap, double x)
 {
   double * data = malloc(sizeof(double));
   *data = x;
@@ -161,7 +177,7 @@ void weight_sum_add (struct heap * heap, double x)
 
 //-----------------------------------------------
 
-double weight_sum_compute (struct heap * heap)
+static double weight_sum_compute (struct heap * heap)
 {
   if (heap_size(heap) == 0)
     {
@@ -170,7 +186,7 @@ double weight_sum_compute (struct heap * heap)
     }
 
   int nb_weighted = 0;
-  void * sum = sum_new(MAX_NB_WEIGHTED, PERF);
+  struct sum * sum = sum_new(MAX_NB_WEIGHTED, PERF);
 
   while (heap_size(heap) > 0)
     {
@@ -186,7 +202,7 @@ double weight_sum_compute (struct heap * heap)
     }
 
   heap_free(heap);
-  return sum_compute(sum);;
+  return sum_compute(sum);
 }
 
 //-----------------------------------------------
@@ -199,7 +215,7 @@ double weight_sum_compute (struct heap * heap)
 
 //-----------------------------------------------
 
-void * sum_new (unsigned int size, enum sum_type type)
+struct sum * sum_new (unsigned int size, enum sum_type type)
 {
   struct sum * sum = malloc(sizeof(struct sum));
 
@@ -228,23 +244,21 @@ void * sum_new (unsigned int size, enum sum_type type)
       sum = NULL;
       break;
     }
-  return (void *) sum;
+  return sum;
 }
 
 //-----------------------------------------------
 
-void sum_add (void * s, double x)
+void sum_add (struct sum * s, double x)
 {
-  struct sum * sum = (struct sum *) s;
-  sum->add(sum->h, x);
+  s->add(s->h, x);
 }
 
 //-----------------------------------------------
 
-double sum_compute (void * s)
+double sum_compute (struct sum * s)
 {
-  struct sum * sum = (struct sum *) s;
-  double true_sum = sum->compute(sum->h);
-  free(sum);
+  double true_sum = s->compute(s->h);
+  free(s);
   return true_sum;
 }

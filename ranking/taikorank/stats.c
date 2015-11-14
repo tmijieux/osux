@@ -28,7 +28,7 @@
 //-----------------------------------------------------
 
 #define TRO_COMPARE(FIELD)					\
-  int tro_compare_##FIELD (const struct tr_object * obj1,	\
+  static int tro_compare_##FIELD(const struct tr_object * obj1,	\
 			   const struct tr_object * obj2)	\
  {								\
     return obj1->FIELD - obj2->FIELD;				\
@@ -44,7 +44,8 @@
   }
 
 #define TRM_QUARTILE(FIELD, NUM, DEN)  /* set min DEN !*/	\
-  double trm_q_##NUM##_##DEN##_##FIELD (struct tr_map * map)	\
+  static double							\
+  trm_q_##NUM##_##DEN##_##FIELD (struct tr_map * map)		\
   {								\
     int i = (int) (map->nb_object * ((float) NUM / DEN));	\
     if ((map->nb_object % DEN) == 0)				\

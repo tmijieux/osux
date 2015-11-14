@@ -22,9 +22,6 @@
 #define MS_BAD         108
 #define MS_COEFF_BAD   6
 
-void trm_compute_od_to_ms (struct tr_map * map);
-void trm_compute_spacing (struct tr_map * map);
-
 void trm_compute_accuracy (struct tr_map * map);
 
 #endif //ACCURACY_H

@@ -19,9 +19,19 @@
 
 #include "mods.h"
 
+static void trm_apply_mods_EZ (struct tr_map * map);
+static void trm_apply_mods_HT (struct tr_map * map);
+static void trm_apply_mods_HR (struct tr_map * map);
+static void trm_apply_mods_DT (struct tr_map * map);
+static void trm_apply_mods_HD (struct tr_map * map);
+static void trm_apply_mods_FL (struct tr_map * map);
+
+static void trm_apply_NM_app_dis(struct tr_map * map);
+static void trm_apply_NM_ms_coeff(struct tr_map * map);
+
 //---------------------------------------------
 
-void trm_apply_mods_HR (struct tr_map * map)
+static void trm_apply_mods_HR (struct tr_map * map)
 {
   map->od *= HR_COEFF_OD;
   if (map->od > MAX_OD)
@@ -35,7 +45,7 @@ void trm_apply_mods_HR (struct tr_map * map)
 
 //---------------------------------------------
 
-void trm_apply_mods_EZ (struct tr_map * map)
+static void trm_apply_mods_EZ (struct tr_map * map)
 {
   map->od *= EZ_COEFF_OD;
   
@@ -47,7 +57,7 @@ void trm_apply_mods_EZ (struct tr_map * map)
 
 //---------------------------------------------
 
-void trm_apply_mods_DT (struct tr_map * map)
+static void trm_apply_mods_DT (struct tr_map * map)
 {
   map->great_ms = DT_COEFF_MS;
   map->bad_ms   = DT_COEFF_MS;
@@ -62,7 +72,7 @@ void trm_apply_mods_DT (struct tr_map * map)
 
 //---------------------------------------------
 
-void trm_apply_mods_HT (struct tr_map * map)
+static void trm_apply_mods_HT (struct tr_map * map)
 {
   map->great_ms = HT_COEFF_MS;
   map->bad_ms   = HT_COEFF_MS;
@@ -77,7 +87,7 @@ void trm_apply_mods_HT (struct tr_map * map)
 
 //---------------------------------------------
 
-void trm_apply_mods_HD (struct tr_map * map)
+static void trm_apply_mods_HD (struct tr_map * map)
 {
   for (int i = 0; i < map->nb_object; i++)
     {
@@ -99,7 +109,7 @@ void trm_apply_mods_HD (struct tr_map * map)
 
 //---------------------------------------------
 
-void trm_apply_mods_FL (struct tr_map * map)
+static void trm_apply_mods_FL (struct tr_map * map)
 {
   for (int i = 0; i < map->nb_object; i++)
     {
@@ -117,7 +127,7 @@ void trm_apply_mods_FL (struct tr_map * map)
 
 //---------------------------------------------
 
-void trm_apply_NM_app_dis(struct tr_map * map)
+static void trm_apply_NM_app_dis(struct tr_map * map)
 {
   for (int i = 0; i < map->nb_object; i++)
     {
@@ -128,7 +138,7 @@ void trm_apply_NM_app_dis(struct tr_map * map)
 
 //---------------------------------------------
 
-void trm_apply_NM_ms_coeff(struct tr_map * map)
+static void trm_apply_NM_ms_coeff(struct tr_map * map)
 {
   map->great_ms = NM_COEFF_MS;
   map->bad_ms   = NM_COEFF_MS;
@@ -143,7 +153,7 @@ void trm_apply_mods (struct tr_map * map)
   if ((map->mods & MODS_HR) != 0)
     trm_apply_mods_HR(map);
   else if ((map->mods & MODS_EZ) != 0)
-    trm_apply_mods_HR(map);
+    trm_apply_mods_EZ(map);
   
   if ((map->mods & MODS_DT) != 0)
     trm_apply_mods_DT(map);

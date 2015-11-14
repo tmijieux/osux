@@ -45,6 +45,10 @@ struct tr_object
   int visible_time;    // printed in reading 
   int invisible_time;  // printed in reading
 
+  // ---- pattern data
+  double pattern_full_alt1;
+  double pattern_full_alt2;
+  
   // ---- density data
   double density_raw;
   double density_color;

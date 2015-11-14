@@ -14,9 +14,9 @@
  *  limitations under the License.
  */
 
-#ifndef DENSITY_H
-#define DENSITY_H
+#ifndef PATTERN_H
+#define PATTERN_H
 
-void trm_compute_density (struct tr_map * map);
+void trm_compute_pattern (struct tr_map * map);
 
-#endif
+#endif //PATTERN_H

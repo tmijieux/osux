@@ -25,6 +25,11 @@
 #include "print.h"
 #include "mods.h"
 
+static void print_one_tr_object (struct tr_object * obj, int filter);
+static int print_one_mod (struct tr_map * map, int mods, int * i,
+		   char * buffer, char * string);
+static void print_string_size(char *s, int max, FILE * output);
+
 //-------------------------------------------------
 //-------------------------------------------------
 //-------------------------------------------------
@@ -44,7 +49,7 @@ void print_all_tr_object (struct tr_map * map, int filter)
   if ((filter & FILTER_READING_PLUS) != 0)
     fprintf(OUTPUT_INFO, "app\tend app\tdis\tend dis\tsperpos\thidden\thide\tspeed\tspd chg\tread*\t");
   if ((filter & FILTER_PATTERN) != 0)
-    fprintf(OUTPUT_INFO, "\t");
+    fprintf(OUTPUT_INFO, "alt1\talt2\t");
   if ((filter & FILTER_ACCURACY) != 0)
     fprintf(OUTPUT_INFO, "%g\t%g\t", map->great_ms, map->bad_ms);
   
@@ -58,7 +63,7 @@ void print_all_tr_object (struct tr_map * map, int filter)
 
 //-------------------------------------------------
 
-void print_one_tr_object (struct tr_object * obj, int filter)
+static void print_one_tr_object (struct tr_object * obj, int filter)
 {
   if ((filter & FILTER_BASIC) != 0)
     fprintf(OUTPUT_INFO, "%d\t%d\t%c\t%.3g\t",
@@ -109,7 +114,9 @@ void print_one_tr_object (struct tr_object * obj, int filter)
 	    obj->speed_change,
 	    obj->reading_star);
   if ((filter & FILTER_PATTERN) != 0)
-    fprintf(OUTPUT_INFO, "\t");
+    fprintf(OUTPUT_INFO, "%g\t%g\t",
+	    obj->pattern_full_alt1,
+	    obj->pattern_full_alt2);
   if ((filter & FILTER_ACCURACY) != 0)
     fprintf(OUTPUT_INFO, "\t");
   if ((filter & FILTER_STAR) != 0)
@@ -143,7 +150,7 @@ void print_map_star (struct tr_map * map)
 //-------------------------------------------------
 //-------------------------------------------------
 
-void print_string_size(char *s, int max, FILE * output)
+static void print_string_size(char *s, int max, FILE * output)
 {
   int length = strlen(s);
   if (length >= max)
@@ -163,8 +170,8 @@ void print_string_size(char *s, int max, FILE * output)
 
 //-------------------------------------------------
 
-int print_one_mod (struct tr_map * map, int mods, int * i,
-		   char * buffer, char * string)
+static int print_one_mod (struct tr_map * map, int mods, int * i,
+			  char * buffer, char * string)
 {
   if ((map->mods & mods) != 0)
     {
@@ -198,8 +205,8 @@ void print_mods (struct tr_map * map)
 
 void print_map_final (struct tr_map * map)
 {
-  fprintf(OUTPUT, "%g      \t", map->reading_star);
   fprintf(OUTPUT, "%g      \t", map->density_star);
+  fprintf(OUTPUT, "%g      \t", map->reading_star);
   print_mods(map);
   print_string_size(map->diff,    24, OUTPUT);
   print_string_size(map->title,   32, OUTPUT);

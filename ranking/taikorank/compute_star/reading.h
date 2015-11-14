@@ -17,18 +17,6 @@
 #ifndef READING_H
 #define READING_H
 
-double tro_coeff_superpos (struct tr_object * obj);
-double tro_hidding (struct tr_object * obj1,
-		    struct tr_object * obj2);
-double tro_speed_change (struct tr_object * obj1,
-			 struct tr_object * obj2);
-double tro_speed (struct tr_object * obj);
-
-void trm_compute_reading_hidding (struct tr_map * map);
-void trm_compute_reading_superposed (struct tr_map * map);
-void trm_compute_reading_speed (struct tr_map * map);
-
-void trm_compute_reading_star (struct tr_map * map);
 void trm_compute_reading (struct tr_map * map);
 
 #endif

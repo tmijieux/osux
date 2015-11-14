@@ -32,21 +32,15 @@
 #define FILTER_STAR         (1 << 8)
 
 //#define FILTER_APPLY       (FILTER_BASIC | FILTER_DENSITY)
-#define FILTER_APPLY       (FILTER_BASIC | FILTER_READING)
+//#define FILTER_APPLY       (FILTER_BASIC | FILTER_READING)
+#define FILTER_APPLY       (FILTER_BASIC | FILTER_PATTERN)
 
 #define STR_MODS_LENGTH 3
 #define MAX_MODS        4
 
 void print_all_tr_object (struct tr_map * map, int filter);
-void print_one_tr_object (struct tr_object * obj, int filter);
-
 void print_map_star (struct tr_map * map);
-
-int print_one_mod (struct tr_map * map, int mods, int * i,
-		   char * buffer, char * string);
 void print_mods (struct tr_map * map);
-void print_string_size(char *s, int max, FILE * output);
 void print_map_final (struct tr_map * map);
-
 
 #endif

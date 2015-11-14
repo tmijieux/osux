@@ -33,8 +33,10 @@ enum sum_type {
   DEFAULT, PERF, ACC, WEIGHT
 };
 
-void * sum_new (unsigned int size, enum sum_type type);
-void sum_add (void * s, double x);
-double sum_compute (void * s);
+struct sum;
+
+struct sum * sum_new (unsigned int size, enum sum_type type);
+void sum_add (struct sum * s, double x);
+double sum_compute (struct sum * s);
 
 #endif

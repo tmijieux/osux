@@ -17,16 +17,6 @@
 #ifndef CONVERT_H
 #define CONVERT_H
 
-struct map;
-struct hit_object;
-struct timing_point;
-
-char convert_get_type (struct hit_object * ho);
-double convert_get_bpm_app (struct timing_point * tp, double sv);
-int convert_get_end_offset (struct hit_object * ho, int type,
-			    double bpm_app);
-
 struct tr_map * trm_convert (char* file_name);
-
 
 #endif

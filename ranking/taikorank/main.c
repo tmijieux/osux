@@ -28,23 +28,22 @@ int main(int argc, char* argv[])
 {
   // checking arguments
   if (argc >= 2)
-    {
+    {      
       for (int i = 1; i < argc; i++)
 	{
 	  struct tr_map * map = trm_load(argv[i]);
 	  if (map == NULL)
 	    continue;
-
-	  // map change when mods are apllied
-	  //trm_compute_taiko_stars(map, MODS_NONE);
+	  
+	  trm_compute_taiko_stars(map, MODS_NONE);
 	  //trm_compute_taiko_stars(map, MODS_DT);
 	  //trm_compute_taiko_stars(map, MODS_HT);
 	  //trm_compute_taiko_stars(map, MODS_HD);
-	  trm_compute_taiko_stars(map, MODS_FL);
+	  //trm_compute_taiko_stars(map, MODS_FL);
 	  //trm_compute_taiko_stars(map, MODS_HR);
 	  //trm_compute_taiko_stars(map, MODS_HD);
 	  //trm_compute_taiko_stars(map, MODS_HD | MODS_FL);
-
+	  
 	  trm_free(map);	    
 	}
     }

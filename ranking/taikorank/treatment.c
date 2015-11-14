@@ -18,13 +18,18 @@
 #include "taiko_ranking_object.h"
 #include "treatment.h"
 
+static void trm_treatment_hand (struct tr_map * map);
+static void trm_treatment_rest (struct tr_map * map);
+static void trm_treatment_app_dis_offset (struct tr_map * map);
+static void trm_treatment_visible_time (struct tr_map * map);
+
 // offset app & dis
 #define OFFSET_MIN 10000
 #define OFFSET_MAX (-obj->obj_dis / obj->obj_app * OFFSET_MIN)
 
 //------------------------------------------------
 
-void trm_treatment_hand (struct tr_map * map)
+static void trm_treatment_hand (struct tr_map * map)
 {
   int d_hand = 0;
   int k_hand = 0;
@@ -57,7 +62,7 @@ void trm_treatment_hand (struct tr_map * map)
 
 //------------------------------------------------
 
-void trm_treatment_rest (struct tr_map * map)
+static void trm_treatment_rest (struct tr_map * map)
 {
   map->object[0].rest = 0;
   for (int i = 1; i < map->nb_object; i++)
@@ -69,7 +74,7 @@ void trm_treatment_rest (struct tr_map * map)
 
 //-----------------------------------------------------
 
-void trm_treatment_app_dis_offset (struct tr_map * map)
+static void trm_treatment_app_dis_offset (struct tr_map * map)
 {
   for (int i = 0; i < map->nb_object; i++)
     {
@@ -111,7 +116,7 @@ void trm_treatment_app_dis_offset (struct tr_map * map)
 
 //-----------------------------------------------------
 
-void trm_treatment_visible_time (struct tr_map * map)
+static void trm_treatment_visible_time (struct tr_map * map)
 {
   for (int i = 0; i < map->nb_object; i++)
     {

@@ -22,11 +22,14 @@
 
 #include "accuracy.h"
 
+static void trm_compute_od_to_ms (struct tr_map * map);
+static void trm_compute_spacing (struct tr_map * map);
+
 //-----------------------------------------------------
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-void trm_compute_od_to_ms (struct tr_map * map)
+static void trm_compute_od_to_ms (struct tr_map * map)
 {
   map->great_ms = (int )(map->great_ms *
 			 (MS_GREAT - (MS_COEFF_GREAT * map->od)));
@@ -36,7 +39,7 @@ void trm_compute_od_to_ms (struct tr_map * map)
 
 //-----------------------------------------------------
 
-void trm_compute_spacing (struct tr_map * map)
+static void trm_compute_spacing (struct tr_map * map)
 {
 }
 

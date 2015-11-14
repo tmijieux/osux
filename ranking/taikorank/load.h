@@ -17,8 +17,6 @@
 #ifndef LOAD_H
 #define LOAD_H
 
-int compare(char* s, char* t, int length);
-int check_file(char * file_name);
 struct tr_map * trm_load (char * file_name);
 
 #endif //LOAD_H

@@ -31,6 +31,12 @@
 #include "convert.h"
 #include "print.h"
 
+static char convert_get_type (struct hit_object * ho);
+static double convert_get_bpm_app (struct timing_point * tp,
+				   double sv);
+static int convert_get_end_offset (struct hit_object * ho, int type,
+				   double bpm_app);
+
 #define BASIC_SV 1.4
 
 #define TYPE(type)    (type & (~HO_NEWCOMBO) & 0x0F)
@@ -41,7 +47,7 @@
 //---------------------------------------------------------------
 //---------------------------------------------------------------
 
-char convert_get_type (struct hit_object * ho)
+static char convert_get_type (struct hit_object * ho)
 {
   int type = ho->type;
   int sample = ho->hs.sample;
@@ -80,7 +86,8 @@ char convert_get_type (struct hit_object * ho)
 
 //---------------------------------------------------------------
 
-double convert_get_bpm_app (struct timing_point * tp, double sv)
+static double convert_get_bpm_app (struct timing_point * tp,
+				   double sv)
 {
   double sv_multiplication;
   if (tp->uninherited)
@@ -94,8 +101,8 @@ double convert_get_bpm_app (struct timing_point * tp, double sv)
 
 //---------------------------------------------------------------
 
-int convert_get_end_offset (struct hit_object * ho, int type,
-			    double bpm_app)
+static int convert_get_end_offset (struct hit_object * ho, int type,
+				   double bpm_app)
 {
   if (type == 's')
     {

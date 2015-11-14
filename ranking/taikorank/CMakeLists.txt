@@ -11,13 +11,14 @@ set(tr_src
   stats.c
   compute_star/density.c
   compute_star/reading.c
+  compute_star/pattern.c
   compute_star/accuracy.c
   $<TARGET_OBJECTS:module>
   )
 
 add_executable(taiko_ranking ${tr_src})
 
-target_link_libraries(taiko_ranking parser m heap sum)
+target_link_libraries(taiko_ranking parser m heap hashtable sum)
 
 add_subdirectory(sum)
 

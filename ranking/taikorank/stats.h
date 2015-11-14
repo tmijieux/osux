@@ -23,6 +23,7 @@
   double trm_stats_compute_##FIELD (struct tr_map * map)	\
   {								\
     struct stats * s = trm_stats_##FIELD (map);			\
+    stats_print(s);						\
     double stars = (( MAJ##_COEFF_MEDIAN * s->median +		\
 		      MAJ##_COEFF_MEAN   * s->mean +		\
 		      MAJ##_COEFF_D1     * s->d1 +		\

@@ -23,9 +23,12 @@
 #include "convert.h"
 #include "print.h"
 
+static int compare(char* s, char* t, int length);
+static int check_file(char * file_name);
+
 //--------------------------------------------------
 
-int compare(char* s, char* t, int length)
+static int compare(char* s, char* t, int length)
 {
   for (int i = 0; i < length; ++i)
     if (s[i] != t[i])
@@ -35,7 +38,7 @@ int compare(char* s, char* t, int length)
 
 //--------------------------------------------------
 
-int check_file(char * file_name)
+static int check_file(char * file_name)
 {
   // cheking that it's a .osu file
   int length = strlen(file_name);
