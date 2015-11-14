@@ -13,6 +13,7 @@ set(tr_src
   compute_star/reading.c
   compute_star/pattern.c
   compute_star/accuracy.c
+  compute_star/final_star.c
   $<TARGET_OBJECTS:module>
   )
 
@@ -25,4 +26,4 @@ add_subdirectory(sum)
 include_directories(. sum compute_star)
 
 install(TARGETS taiko_ranking DESTINATION .)
-## install(DIRECTORY aa_maps DESTINATION .)
+##install(DIRECTORY aa_maps DESTINATION .)

@@ -46,8 +46,8 @@ struct tr_object
   int invisible_time;  // printed in reading
 
   // ---- pattern data
-  double pattern_full_alt1;
-  double pattern_full_alt2;
+  double pattern_alt1;
+  double pattern_alt2;
   
   // ---- density data
   double density_raw;
@@ -65,6 +65,7 @@ struct tr_object
   double reading_star;
   double pattern_star;
   double accuracy_star;
+  double final_star;
 };
 
 //-------------------------------------------------------------

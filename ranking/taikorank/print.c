@@ -49,7 +49,7 @@ void print_all_tr_object (struct tr_map * map, int filter)
   if ((filter & FILTER_READING_PLUS) != 0)
     fprintf(OUTPUT_INFO, "app\tend app\tdis\tend dis\tsperpos\thidden\thide\tspeed\tspd chg\tread*\t");
   if ((filter & FILTER_PATTERN) != 0)
-    fprintf(OUTPUT_INFO, "alt1\talt2\t");
+    fprintf(OUTPUT_INFO, "alt1\talt2\tpttrn*\t");
   if ((filter & FILTER_ACCURACY) != 0)
     fprintf(OUTPUT_INFO, "%g\t%g\t", map->great_ms, map->bad_ms);
   
@@ -114,15 +114,18 @@ static void print_one_tr_object (struct tr_object * obj, int filter)
 	    obj->speed_change,
 	    obj->reading_star);
   if ((filter & FILTER_PATTERN) != 0)
-    fprintf(OUTPUT_INFO, "%g\t%g\t",
-	    obj->pattern_full_alt1,
-	    obj->pattern_full_alt2);
+    fprintf(OUTPUT_INFO, "%g\t%g\t%g\t",
+	    obj->pattern_alt1,
+	    obj->pattern_alt2,
+	    obj->pattern_star);
   if ((filter & FILTER_ACCURACY) != 0)
     fprintf(OUTPUT_INFO, "\t");
   if ((filter & FILTER_STAR) != 0)
-    fprintf(OUTPUT_INFO, "%g\t%g\t",
+    fprintf(OUTPUT_INFO, "%g\t%g\t%g\t%g\t",
 	    obj->density_star,
-  	    obj->reading_star);
+  	    obj->reading_star,
+	    obj->pattern_star,
+	    obj->final_star);
   
   fprintf(OUTPUT_INFO, "\n");
 }
@@ -137,10 +140,11 @@ void print_map_star (struct tr_map * map)
 	  map->density_star);
   fprintf(OUTPUT_INFO, "Reading star: \t%.15g\n",
 	  map->reading_star);
-  /*
-    fprintf(OUTPUT_INFO, "Pattern star: \t%g\n",
+  fprintf(OUTPUT_INFO, "Pattern star: \t%g\n",
     map->pattern_star);
-  
+  fprintf(OUTPUT_INFO, "Final star: \t%.15g\n",
+	  map->final_star);
+    /*  
     fprintf(OUTPUT_INFO, "Accuracy star: \t%g\n",
     map->accuracy_star);
   */
@@ -205,6 +209,8 @@ void print_mods (struct tr_map * map)
 
 void print_map_final (struct tr_map * map)
 {
+  fprintf(OUTPUT, "%g      \t", map->final_star);
+  fprintf(OUTPUT, "%g      \t", map->pattern_star);
   fprintf(OUTPUT, "%g      \t", map->density_star);
   fprintf(OUTPUT, "%g      \t", map->reading_star);
   print_mods(map);

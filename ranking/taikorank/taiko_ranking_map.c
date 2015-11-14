@@ -31,6 +31,7 @@
 #include "reading.h"
 #include "pattern.h"
 #include "accuracy.h"
+#include "final_star.h"
 
 //--------------------------------------------------
 //--------------------------------------------------
@@ -49,9 +50,10 @@ void trm_compute_taiko_stars(const struct tr_map * map, int mods)
   trm_compute_reading(map_copy);
   trm_compute_pattern(map_copy);
   trm_compute_accuracy(map_copy);
+  trm_compute_final_star(map_copy);
 
   // printing
-  print_all_tr_object(map_copy, FILTER_APPLY);
+  //print_all_tr_object(map_copy, FILTER_APPLY);
   //print_map_star(map_copy);
   print_map_final(map_copy);
 

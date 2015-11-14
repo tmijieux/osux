@@ -28,10 +28,13 @@
 //-----------------------------------------------------
 
 #define TRO_COMPARE(FIELD)					\
-  static int tro_compare_##FIELD(const struct tr_object * obj1,	\
-			   const struct tr_object * obj2)	\
+  static int tro_compare_##FIELD(const void * o1,		\
+				 const void * o2)		\
  {								\
-    return obj1->FIELD - obj2->FIELD;				\
+   const struct tr_object * obj1 = o1;				\
+   const struct tr_object * obj2 = o2;				\
+   double f = (obj1->FIELD - obj2->FIELD);			\
+   return f<0?-1:(f>0?1:0);					\
  }
 
 #define TRM_SORT(FIELD)						\
@@ -39,7 +42,6 @@
   {								\
     qsort(map->object, map->nb_object,				\
 	  sizeof(struct tr_object),				\
-	  (int (*)(const void *, const void *))			\
 	  tro_compare_##FIELD);					\
   }
 
@@ -107,6 +109,7 @@ TRM_STATS_FUNCTIONS(density_star,  DENSITY)
 TRM_STATS_FUNCTIONS(reading_star,  READING)
 TRM_STATS_FUNCTIONS(pattern_star,  PATTERN)
 TRM_STATS_FUNCTIONS(accuracy_star, ACCURACY)
+TRM_STATS_FUNCTIONS(final_star,    FINAL)
 
 //-----------------------------------------------------
 

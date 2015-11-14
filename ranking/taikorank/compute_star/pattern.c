@@ -26,9 +26,14 @@
 
 #include "pattern.h"
 
+static void trm_set_pattern_0(struct tr_map * map);
+// ^ to move ?
+
 static void add_new_pattern(const char * s, double d1, double d2);
 
-static void trm_compute_full_alt_stream(struct tr_map * map);
+static void trm_compute_pattern_full_alt_stream(struct tr_map * map);
+
+static void trm_compute_pattern_star(struct tr_map * map);
 
 //--------------------------------------------------
 
@@ -125,16 +130,19 @@ static struct hash_table * ht_pattern;
 
 //--------------------------------------------------
 
+// coeff for star
+#define PATTERN_STAR_COEFF_ALT 1.
+
 // coeff for stats
-#define PATTERN_COEFF_MEDIAN 0.7
-#define PATTERN_COEFF_MEAN   0.
-#define PATTERN_COEFF_D1     0.
-#define PATTERN_COEFF_D9     0.
-#define PATTERN_COEFF_Q1     0.3
+#define PATTERN_COEFF_MEDIAN 0.1
+#define PATTERN_COEFF_MEAN   0.2
+#define PATTERN_COEFF_D1     0.3
+#define PATTERN_COEFF_D9     0.3
+#define PATTERN_COEFF_Q1     0.
 #define PATTERN_COEFF_Q3     0.
 
 // scaling
-#define PATTERN_STAR_SCALING 100.
+#define PATTERN_STAR_SCALING 1.
 
 // stats module
 TRM_STATS_HEADER(pattern_star, PATTERN)
@@ -239,7 +247,7 @@ static void ht_pattern_free()
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static void trm_compute_full_alt_stream(struct tr_map * map)
+static void trm_compute_pattern_full_alt_stream(struct tr_map * map)
 { 
   int i = 0;
   while(i < map->nb_object)
@@ -281,8 +289,8 @@ static void trm_compute_full_alt_stream(struct tr_map * map)
 	}
       
       //printf("%s: %g %g\n", s, p->d1, p->d2);
-      map->object[i].pattern_full_alt1 = p->d1;
-      map->object[i+1].pattern_full_alt2 = p->d2;
+      map->object[i].pattern_alt1 = p->d1;
+      map->object[i+1].pattern_alt1 = p->d2;
       if(strlen(s) == 1)
 	i++;
       else
@@ -294,7 +302,34 @@ static void trm_compute_full_alt_stream(struct tr_map * map)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
+static void trm_compute_pattern_star(struct tr_map * map)
+{
+  for (int i = 0; i < map->nb_object; i++)
+    {
+      map->object[i].pattern_star =
+	(PATTERN_STAR_COEFF_ALT * map->object[i].pattern_alt1 +
+	 PATTERN_STAR_COEFF_ALT * map->object[i].pattern_alt2);
+    }
+
+  map->pattern_star = trm_stats_compute_pattern_star(map); 
+}
+
+//-----------------------------------------------------
+//-----------------------------------------------------
+//-----------------------------------------------------
+
+static void trm_set_pattern_0(struct tr_map * map)
+{
+  for (int i = 0; i < map->nb_object; i++)
+    {
+      map->object[i].pattern_alt1 = 0;
+      map->object[i].pattern_alt2 = 0;
+    }
+}
+
 void trm_compute_pattern (struct tr_map * map)
 {
-  trm_compute_full_alt_stream(map);
+  trm_set_pattern_0(map);
+  trm_compute_pattern_full_alt_stream(map);
+  trm_compute_pattern_star(map);
 }

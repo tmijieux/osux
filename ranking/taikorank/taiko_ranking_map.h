@@ -41,6 +41,7 @@ struct tr_map
   double reading_star;
   double pattern_star;
   double accuracy_star;
+  double final_star;
 };
 
 //----------------------------------------
