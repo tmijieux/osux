@@ -16,6 +16,7 @@
 
 #include <math.h>
 #include <string.h>
+#include <stdarg.h>
 
 #include "util/hashtable/hashtable.h"
 
@@ -26,10 +27,22 @@
 
 #include "pattern.h"
 
+//--------------------------------------------------
+
+struct pattern
+{
+  double * d;
+};
+
+static struct hash_table * ht_pattern;
+
+//--------------------------------------------------
+
 static void trm_set_pattern_0(struct tr_map * map);
 // ^ to move ?
 
-static void add_new_pattern(const char * s, double d1, double d2);
+static void add_new_pattern(const char * s, ...);
+static void remove_pattern(const char * s, struct pattern ** p);
 
 static void trm_compute_pattern_full_alt_stream(struct tr_map * map);
 
@@ -37,96 +50,44 @@ static void trm_compute_pattern_star(struct tr_map * map);
 
 //--------------------------------------------------
 
-#define ADD_NEW_PATTERN(S, P) add_new_pattern(S, P##_1, P##_2)
-#define REMOVE_PATTERN(S)					\
-  ht_get_entry(ht_pattern, S, &p);				\
-  free(p);
+#define MAX_PATTERN_LENGTH  4
+#define LENGTH_PATTERN_USED 2
 
-#define MAX_PATTERN_LENGTH 4
-
-struct pattern
-{
-  double d1;
-  double d2;
-};
-
-static struct hash_table * ht_pattern;
-
-//--------------------------------------------------
-
-// First Object
 // 1 pattern
-#define D_1    1
-#define K_1    1
+#define D    1,   0
+#define K    1,   0
 // 2 pattern
-#define DD_1   2
-#define DK_1   2.5
-#define KD_1   2.5
-#define KK_1   2
+#define DD   2,   2
+#define DK   2.5, 2.5
+#define KD   2.5, 2.5
+#define KK   2,   2
 // 3 pattern
-#define DDD_1  2
-#define DDK_1  2.2
-#define DKD_1  2.5
-#define DKK_1  2.8
-#define KDD_1  2.2
-#define KDK_1  2.5
-#define KKD_1  2.2
-#define KKK_1  2
+#define DDD  2,   2
+#define DDK  2.2, 2.2
+#define DKD  2.5, 2.5
+#define DKK  2.8, 2.8
+#define KDD  2.2, 2.2
+#define KDK  2.5, 2.5
+#define KKD  2.2, 2.2
+#define KKK  2,   2
 // 4 pattern
-#define DDDD_1 2.1
-#define DDDK_1 2.6
-#define DDKD_1 2.3
-#define DDKK_1 2.2
-#define DKDD_1 3.1
-#define DKDK_1 2.3
-#define DKKD_1 2.5
-#define DKKK_1 2.3
+#define DDDD 2.1, 2.1
+#define DDDK 2.6, 2.6
+#define DDKD 2.3, 2.3
+#define DDKK 2.2, 2.2
+#define DKDD 3.1, 3.1
+#define DKDK 2.3, 2.3
+#define DKKD 2.5, 2.5
+#define DKKK 2.3, 2.3
 
-#define KDDD_1 2.3
-#define KDDK_1 2.5
-#define KDKD_1 2.3
-#define KDKK_1 3.1
-#define KKDD_1 2.2
-#define KKDK_1 2.3
-#define KKKD_1 2.6
-#define KKKK_1 2.1
-
-// Second Object
-// 1 pattern
-#define D_2    0
-#define K_2    0
-// 2 pattern
-#define DD_2   2
-#define DK_2   2.5
-#define KD_2   2.5
-#define KK_2   2
-// 3 pattern
-#define DDD_2  2
-#define DDK_2  2.2
-#define DKD_2  2.5
-#define DKK_2  2.8
-#define KDD_2  2.2
-#define KDK_2  2.5
-#define KKD_2  2.2
-#define KKK_2  2
-// 4 pattern
-#define DDDD_2 2.1
-#define DDDK_2 2.6
-#define DDKD_2 2.3
-#define DDKK_2 2.2
-#define DKDD_2 3.1
-#define DKDK_2 2.3
-#define DKKD_2 2.5
-#define DKKK_2 2.3
-
-#define KDDD_2 2.3
-#define KDDK_2 2.5
-#define KDKD_2 2.3
-#define KDKK_2 3.1
-#define KKDD_2 2.2
-#define KKDK_2 2.3
-#define KKKD_2 2.6
-#define KKKK_2 2.1
+#define KDDD 2.3, 2.3
+#define KDDK 2.5, 2.5
+#define KDKD 2.3, 2.3
+#define KDKK 3.1, 3.1
+#define KKDD 2.2, 2.2
+#define KKDK 2.3, 2.3
+#define KKKD 2.6, 2.6
+#define KKKK 2.1, 2.1
 
 //--------------------------------------------------
 
@@ -151,52 +112,68 @@ TRM_STATS_HEADER(pattern_star, PATTERN)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static void add_new_pattern(const char * s, double d1, double d2)
+static void add_new_pattern(const char * s, ...)
 {
   struct pattern * p = malloc(sizeof(*p));
-  p->d1 = d1;
-  p->d2 = d2;
+  p->d = malloc(sizeof(double) * LENGTH_PATTERN_USED);
+  
+  va_list vl;
+  va_start(vl, s);
+  for (int i = 0; i < LENGTH_PATTERN_USED; ++i)
+    p->d[i] = va_arg(vl, double);
+  va_end(vl);
+  
   ht_add_entry(ht_pattern, s, p);
 }
+
+static void remove_pattern(const char * s, struct pattern ** p)
+{
+  ht_get_entry(ht_pattern, s, p);
+  free((*p)->d);
+  free(*p);
+}
+
+//-----------------------------------------------------
 
 __attribute__((constructor))
 static void ht_pattern_init()
 {
   ht_pattern = ht_create(NULL);
   // 1 pattern list
-  ADD_NEW_PATTERN("d", D);
-  ADD_NEW_PATTERN("k", K);
+  add_new_pattern("d", D);
+  add_new_pattern("k", K);
   // 2 pattern list
-  ADD_NEW_PATTERN("dd", DD);
-  ADD_NEW_PATTERN("dk", DK);
-  ADD_NEW_PATTERN("kd", KD);
-  ADD_NEW_PATTERN("kk", KK);
+  add_new_pattern("dd", DD);
+  add_new_pattern("dk", DK);
+  add_new_pattern("kd", KD);
+  add_new_pattern("kk", KK);
   // 3 pattern list
-  ADD_NEW_PATTERN("ddd", DDD);
-  ADD_NEW_PATTERN("ddk", DDK);
-  ADD_NEW_PATTERN("dkd", DKD);
-  ADD_NEW_PATTERN("dkk", DKK);
-  ADD_NEW_PATTERN("kdd", KDD);
-  ADD_NEW_PATTERN("kdk", KDK);
-  ADD_NEW_PATTERN("kkd", KKD);
-  ADD_NEW_PATTERN("kkk", KKK);
+  add_new_pattern("ddd", DDD);
+  add_new_pattern("ddk", DDK);
+  add_new_pattern("dkd", DKD);
+  add_new_pattern("dkk", DKK);
+  add_new_pattern("kdd", KDD);
+  add_new_pattern("kdk", KDK);
+  add_new_pattern("kkd", KKD);
+  add_new_pattern("kkk", KKK);
   // 4 pattern list
-  ADD_NEW_PATTERN("dddd", DDDD);
-  ADD_NEW_PATTERN("dddk", DDDK);
-  ADD_NEW_PATTERN("ddkd", DDKD);
-  ADD_NEW_PATTERN("ddkk", DDKK);
-  ADD_NEW_PATTERN("dkdd", DKDD);
-  ADD_NEW_PATTERN("dkdk", DKDK);
-  ADD_NEW_PATTERN("dkkd", DKKD);
-  ADD_NEW_PATTERN("dkkk", DKKK);
-  ADD_NEW_PATTERN("kddd", KDDD);
-  ADD_NEW_PATTERN("kddk", KDDK);
-  ADD_NEW_PATTERN("kdkd", KDKD);
-  ADD_NEW_PATTERN("kdkk", KDKK);
-  ADD_NEW_PATTERN("kkdd", KKDD);
-  ADD_NEW_PATTERN("kkdk", KKDK);
-  ADD_NEW_PATTERN("kkkd", KKKD);
-  ADD_NEW_PATTERN("kkkk", KKKK);
+  add_new_pattern("dddd", DDDD);
+  add_new_pattern("dddk", DDDK);
+  add_new_pattern("ddkd", DDKD);
+  add_new_pattern("ddkk", DDKK);
+  add_new_pattern("dkdd", DKDD);
+  add_new_pattern("dkdk", DKDK);
+  add_new_pattern("dkkd", DKKD);
+  add_new_pattern("dkkk", DKKK);
+  
+  add_new_pattern("kddd", KDDD);
+  add_new_pattern("kddk", KDDK);
+  add_new_pattern("kdkd", KDKD);
+  add_new_pattern("kdkk", KDKK);
+  add_new_pattern("kkdd", KKDD);
+  add_new_pattern("kkdk", KKDK);
+  add_new_pattern("kkkd", KKKD);
+  add_new_pattern("kkkk", KKKK);
 }
   
 //--------------------------------------------------
@@ -206,39 +183,39 @@ static void ht_pattern_free()
 {
   struct pattern * p = NULL;
   // 1 pattern
-  REMOVE_PATTERN("d");
-  REMOVE_PATTERN("k");
+  remove_pattern("d", &p);
+  remove_pattern("k", &p);
   // 2 pattern
-  REMOVE_PATTERN("dd");
-  REMOVE_PATTERN("dk");
-  REMOVE_PATTERN("kd");
-  REMOVE_PATTERN("kk");
+  remove_pattern("dd", &p);
+  remove_pattern("dk", &p);
+  remove_pattern("kd", &p);
+  remove_pattern("kk", &p);
   // 3 pattern
-  REMOVE_PATTERN("ddd");
-  REMOVE_PATTERN("ddk");
-  REMOVE_PATTERN("dkd");
-  REMOVE_PATTERN("dkk");
-  REMOVE_PATTERN("kdd");
-  REMOVE_PATTERN("kdk");
-  REMOVE_PATTERN("kkd");
-  REMOVE_PATTERN("kkk");
+  remove_pattern("ddd", &p);
+  remove_pattern("ddk", &p);
+  remove_pattern("dkd", &p);
+  remove_pattern("dkk", &p);
+  remove_pattern("kdd", &p);
+  remove_pattern("kdk", &p);
+  remove_pattern("kkd", &p);
+  remove_pattern("kkk", &p);
   // 3 pattern
-  REMOVE_PATTERN("dddd");
-  REMOVE_PATTERN("dddk");
-  REMOVE_PATTERN("ddkd");
-  REMOVE_PATTERN("ddkk");
-  REMOVE_PATTERN("dkdd");
-  REMOVE_PATTERN("dkdk");
-  REMOVE_PATTERN("dkkd");
-  REMOVE_PATTERN("dkkk");  
-  REMOVE_PATTERN("kddd");
-  REMOVE_PATTERN("kddk");
-  REMOVE_PATTERN("kdkd");
-  REMOVE_PATTERN("kdkk");
-  REMOVE_PATTERN("kkdd");
-  REMOVE_PATTERN("kkdk");
-  REMOVE_PATTERN("kkkd");
-  REMOVE_PATTERN("kkkk");
+  remove_pattern("dddd", &p);
+  remove_pattern("dddk", &p);
+  remove_pattern("ddkd", &p);
+  remove_pattern("ddkk", &p);
+  remove_pattern("dkdd", &p);
+  remove_pattern("dkdk", &p);
+  remove_pattern("dkkd", &p);
+  remove_pattern("dkkk", &p);  
+  remove_pattern("kddd", &p);
+  remove_pattern("kddk", &p);
+  remove_pattern("kdkd", &p);
+  remove_pattern("kdkk", &p);
+  remove_pattern("kkdd", &p);
+  remove_pattern("kkdk", &p);
+  remove_pattern("kkkd", &p);
+  remove_pattern("kkkk", &p);
 	    
   ht_free(ht_pattern);
 }
@@ -289,8 +266,10 @@ static void trm_compute_pattern_full_alt_stream(struct tr_map * map)
 	}
       
       //printf("%s: %g %g\n", s, p->d1, p->d2);
-      map->object[i].pattern_alt1 = p->d1;
-      map->object[i+1].pattern_alt1 = p->d2;
+      
+      map->object[i].pattern_alt1 = p->d[0];
+      map->object[i+1].pattern_alt1 = p->d[1];
+      
       if(strlen(s) == 1)
 	i++;
       else
