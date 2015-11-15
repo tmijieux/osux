@@ -45,7 +45,7 @@ void print_all_tr_object (struct tr_map * map, int filter)
   if ((filter & FILTER_DENSITY) != 0)
     fprintf(OUTPUT_INFO, "dnst rw\tdnst cl\tdnst*\t");
   if ((filter & FILTER_READING) != 0)
-    fprintf(OUTPUT_INFO, "app\tdis\tvisi\tinvisi\tsperpos\thidden\thide\tspeed\tspd chg\tread*\t");
+    fprintf(OUTPUT_INFO, "app\tdis\tvisi\tinvisi\tsperpos\thidden\thide\tslow\tfast\tspd chg\tread*\t");
   if ((filter & FILTER_READING_PLUS) != 0)
     fprintf(OUTPUT_INFO, "app\tend app\tdis\tend dis\tsperpos\thidden\thide\tspeed\tspd chg\tread*\t");
   if ((filter & FILTER_PATTERN) != 0)
@@ -90,7 +90,7 @@ static void print_one_tr_object (struct tr_object * obj, int filter)
 	    obj->density_color,
 	    obj->density_star);
   if ((filter & FILTER_READING) != 0)
-    fprintf(OUTPUT_INFO, "%d\t%d\t%d\t%d\t%g\t%.3g\t%.3g\t%g\t%.2g\t%g\t",
+    fprintf(OUTPUT_INFO, "%d\t%d\t%d\t%d\t%g\t%.3g\t%.3g\t%.3g\t%.3g\t%.2g\t%g\t",
 	    obj->offset_app,
 	    obj->offset_dis,
 	    obj->visible_time,
@@ -98,11 +98,12 @@ static void print_one_tr_object (struct tr_object * obj, int filter)
 	    obj->superposed,
 	    obj->hidden,
 	    obj->hide,
-	    obj->speed,
+	    obj->slow,
+	    obj->fast,
 	    obj->speed_change,
 	    obj->reading_star);
   if ((filter & FILTER_READING_PLUS) != 0)
-    fprintf(OUTPUT_INFO, "%d\t%d\t%d\t%d\t%g\t%.3g\t%.3g\t%g\t%.2g\t%g\t",
+    fprintf(OUTPUT_INFO, "%d\t%d\t%d\t%d\t%g\t%.3g\t%.3g\t%.3g\t%.3g\t%.2g\t%g\t",
 	    obj->offset_app,
 	    obj->end_offset_app,
 	    obj->offset_dis,
@@ -110,7 +111,8 @@ static void print_one_tr_object (struct tr_object * obj, int filter)
 	    obj->superposed,
 	    obj->hidden,
 	    obj->hide,
-	    obj->speed,
+	    obj->slow,
+	    obj->fast,
 	    obj->speed_change,
 	    obj->reading_star);
   if ((filter & FILTER_PATTERN) != 0)
@@ -209,10 +211,10 @@ void print_mods (struct tr_map * map)
 
 void print_map_final (struct tr_map * map)
 {
-  fprintf(OUTPUT, "%g      \t", map->final_star);
-  fprintf(OUTPUT, "%g      \t", map->pattern_star);
-  fprintf(OUTPUT, "%g      \t", map->density_star);
-  fprintf(OUTPUT, "%g      \t", map->reading_star);
+  fprintf(OUTPUT, "%.4g      \t", map->reading_star);
+  /*  fprintf(OUTPUT, "%.4g      \t", map->final_star);
+  fprintf(OUTPUT, "%.4g      \t", map->pattern_star);
+  fprintf(OUTPUT, "%.4g      \t", map->density_star);*/
   print_mods(map);
   print_string_size(map->diff,    24, OUTPUT);
   print_string_size(map->title,   32, OUTPUT);

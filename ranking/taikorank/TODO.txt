@@ -12,4 +12,24 @@ notes:
 - EZ speed not sure
 
 Projet:
-- pattern !
+- accuracy !
+- redo all reading computation...
+- pattern, singletap proba
+
+/*
+old function ... to delete
+static double tro_speed (struct tr_object * obj)
+{
+  
+  if (time > TIME_CENTER) 
+    {
+      time = EXP_2_PT(time,
+		      TIME_CENTER, TIME_CENTER,
+		      TIME_MAX,    TIME_MIN);
+    }
+    
+  return FAST_MIN * (1 + pow(bpm_app - BPM_CENTER,
+			     (log(FAST_MAX / FAST_MIN - 1) /
+			     log(BPM_MAX - BPM_CENTER))));
+
+*/

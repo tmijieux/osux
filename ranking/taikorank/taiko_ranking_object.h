@@ -57,7 +57,8 @@ struct tr_object
   double superposed;   // percentage
   double hidden;       // how it is hidden by others
   double hide;         // how it hide others
-  double speed;
+  double slow;         // slow, hard to acc
+  double fast;         // fast, hard to see
   double speed_change;
 
   // ---- star
