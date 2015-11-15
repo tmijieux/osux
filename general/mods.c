@@ -13,7 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
+#include <stdio.h>
+#include <stdint.h>
 #include "mods.h"
 
 struct mod_designation {
@@ -22,8 +23,9 @@ struct mod_designation {
     
 };
 
-struct mod_designation mods_designation[] = {
-    [ IMOD_NONE ]         = { "None",        "" },
+struct mod_designation none = { "None",        "" };
+
+struct mod_designation md[] = {
     [ IMOD_NOFAIL ]       = { "NoFail",      "NF" },
     [ IMOD_EASY ]         = { "Easy",        "EZ" },
     [ IMOD_NOVIDEO ]      = { "NoVideo",     "" },
@@ -37,7 +39,7 @@ struct mod_designation mods_designation[] = {
     [ IMOD_FLASHLIGHT ]   = { "FlashLight",  "FL" },
     [ IMOD_AUTOPLAY ]     = { "Auto",        "Auto" },
     [ IMOD_SPUNOUT ]      = { "SpunOut",     "SO" },
-    [ IMOD_RELAX2 ]       = { "AutoPilot",   "AP" },
+    [ IMOD_AUTOPILOT ]    = { "AutoPilot",   "AP" },
     [ IMOD_PERFECT ]      = { "Perfect",     "PF" },
     [ IMOD_1K ]           = { "Key1",        "1K" },
     [ IMOD_2K ]           = { "Key2",        "2K" },
@@ -50,8 +52,27 @@ struct mod_designation mods_designation[] = {
     [ IMOD_9K ]           = { "Key9",        "9K" },
     [ IMOD_FADEIN ]       = { "FadeIn",      "FI" },
     [ IMOD_RANDOM ]       = { "Random",      "RD" },
-    [ IMOD_LASTMOD ]      = { "Cinema",      "" },
-    
+    [ IMOD_CINEMA ]       = { "Cinema",      ""   },
+};
 
-}
+void mod_print(FILE *f, uint32_t mod_bitfield)
+{
+    int count = 0;
     
+    if (mod_bitfield == 0)
+    {
+	fputs(none.short_, f);
+	return;
+    }
+    
+    for (int i = 0; i < 32; ++i)
+    {
+	if ( ((mod_bitfield >> i) % 2) != 0)
+	{
+	    if (count > 0)
+		fprintf(f, "|");
+	    fputs(md[i].short_, f);
+	    count++;
+	}
+    }
+}

@@ -58,8 +58,7 @@ init_decoder(lzma_stream *strm)
     // (src/liblzma/api/lzma/container.h in the source package or e.g.
     // /usr/include/lzma/container.h depending on the install prefix)
     // for details.
-    lzma_ret ret = lzma_stream_decoder(
-	strm, UINT64_MAX, LZMA_CONCATENATED);
+    lzma_ret ret = lzma_stream_decoder(strm, UINT64_MAX, LZMA_CONCATENATED);
 
     // Return successfully if the initialization went fine.
     if (ret == LZMA_OK)
@@ -238,7 +237,6 @@ decompress(lzma_stream *strm, const char *inname, FILE *infile, FILE *outfile)
 	}
     }
 }
-
 
 extern int
 main(int argc, char **argv)

@@ -14,26 +14,30 @@
  *  limitations under the License.
  */
 
-
+#include <stdlib.h>
 #include <mono/jit/jit.h>
 #include <mono/metadata/assembly.h>
+#include <mono/metadata/debug-helpers.h>
 
 int cs_timestamp_string(uint64_t timestamp)
 {
-    char buf[50] = {0};
-    sprintf(buf, "%lu", timestamp);
-    int argc = 2;
-    char *argv[] = { "./date.exe", buf, NULL };
-
     MonoDomain *domain = NULL;
-    domain = mono_jit_init( "date.exe" );
+    domain = mono_jit_init( "date.dll" );
 	
     MonoAssembly *assembly;
-    assembly = mono_domain_assembly_open(domain, "date.exe");
+    assembly = mono_domain_assembly_open(domain, "date.dll");
     if (!assembly) {
-	fprintf(stderr, "error loading assembly file date.exe");
+	fprintf(stderr, "error loading assembly file date.dll");
 	return -1;
     }
-    mono_jit_exec(domain, assembly, argc, argv);
+    MonoImage * image = mono_assembly_get_image(assembly);
+    MonoMethodDesc* get_date_desc =
+	mono_method_desc_new("OsuDate:get_date(long)", 1);
+    MonoMethod *get_date_method =
+    	mono_method_desc_search_in_image(get_date_desc, image);
+    void *params[1] = { &timestamp };
+    MonoObject * ret = mono_runtime_invoke(get_date_method, NULL, params, NULL);
+    char *str = mono_string_to_utf8((MonoString*)ret);
+    fputs(str, stdout);
     return 0;
 }

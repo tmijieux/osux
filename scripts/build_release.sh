@@ -11,5 +11,4 @@ if [ ! -f Makefile ]; then
     rm -rf *
     cmake -DCMAKE_BUILD_TYPE=Release -H../.. -B.
 fi
-make -s
 make -s install
