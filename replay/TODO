@@ -1,0 +1,5 @@
+
+free hash_table: provide a function to free elements
+same for list
+
+free yaml_wrap: very recursive

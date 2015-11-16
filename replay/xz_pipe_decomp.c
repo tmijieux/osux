@@ -39,7 +39,6 @@
 static int xz_decompress (FILE *in_file, FILE *out_file)
 {
     lzma_stream strm = LZMA_STREAM_INIT; /* alloc and init lzma_stream struct */
-    const uint32_t flags = LZMA_TELL_UNSUPPORTED_CHECK | LZMA_CONCATENATED;
     const uint64_t memory_limit = UINT64_MAX; /* no memory limit */
     uint8_t in_buf [IN_BUF_MAX];
     uint8_t out_buf [OUT_BUF_MAX];
@@ -53,8 +52,8 @@ static int xz_decompress (FILE *in_file, FILE *out_file)
 
     ret = RET_OK;
 
-    /* initialize xz decoder */
-    ret_xz = lzma_auto_decoder (&strm, memory_limit, flags);
+    /* initialize lzma decoder */
+    ret_xz = lzma_alone_decoder (&strm, memory_limit);
     if (ret_xz != LZMA_OK) {
 	fprintf (stderr, "lzma_stream_decoder error: %d\n", (int) ret_xz);
 	return RET_ERROR_INIT;
@@ -71,7 +70,6 @@ static int xz_decompress (FILE *in_file, FILE *out_file)
 	    in_finished = true;
 	    ret = RET_ERROR_INPUT;
 	}
-
 	strm.next_in = in_buf;
 	strm.avail_in = in_len;
 
