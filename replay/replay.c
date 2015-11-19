@@ -14,15 +14,18 @@
  *  limitations under the License.
  */
 
-#include "replay.h"
 #include <stdlib.h>
 #include <stdint.h>
+#include <unistd.h>
+
+#include "replay.h"
 
 #include <beatmap/beatmap.h> // game modes
-#include <unistd.h>
 #include <util/uleb128/uleb128.h>
 #include <util/list/list.h>
 #include <util/string/split.h>
+#include <general/mods.h>
+
 
 struct replay_data {
     int64_t previous_time;
@@ -38,70 +41,61 @@ struct replay {
     char *player_name;
     char *replay_md5_hash;
     
-    uint16_t _300;
-    uint16_t _100;  // taiko: 50%, mania: 200
+    uint16_t _300; // [ taiko: 100%, great, 300pts], mania: 300(not MAX)
+    uint16_t _100;  // [taiko: 50%, good, 150pts] , mania: 200
     uint16_t _50;   // ctb: small fruits
-    uint16_t _geki; // MAX
-    uint16_t _katu; // mania: 100
+    uint16_t _geki; // taiko: big great (100%), mania: MAX
+    uint16_t _katu; //taiko: big good (50%), mania 100
     uint16_t _miss;
 
     uint32_t score;
-    uint16_t max_combo;
+    uint16_t max_combo; // max combo of score, not map
+    
     uint8_t fc;
-    uint32_t mods;
-    char *xy;
+    uint32_t mods;  // this is a bitfield, see general/mods.h
+
+
+    /* list of time|life separated by commas,  where time is in milliseconds
+       and life is a percentage
+
+       this represent the graph of life during the play  */
+    char *lifebar_graph;
+
+
+    /* the date and time of the play  */
     uint64_t timestamp;
+
+
+    /* number of bytes in the compress lzma stream */
     uint32_t replay_length;
 
-    size_t rdc;
-    struct replay_data *rd;
+    uint64_t repdata_count;
+    struct replay_data *repdata;
 };
-
-struct dreplay {
-    struct beatmap *bm;
-    struct replay *rp;
-    
-    int hit_object_count;
-    int *object_perf;
-};
-
-int *osux_get_replay_perf(struct dreplay *re)
-{
-    return re->object_perf;
-}
-
-void osux_dreplay_free(struct dreplay *dr)
-{
-
-}
-
-struct dreplay osux_compute_dreplay(struct beatmap *bm, struct replay *rp)
-{
-
-
-}
 
 
 void lzma_decompress(FILE *f, uint8_t **buf);
 
-static unsigned int parse_replay_data(FILE *f, struct replay_data **rd)
+static unsigned int parse_replay_data(FILE *f, struct replay_data **repdata)
 {
-    char *uncomp;
+    char *uncomp, **tab;
+    unsigned int repdata_count;
+    
     lzma_decompress(f, (uint8_t**) &uncomp);
-    char **tab;
-    unsigned int rdc = string_split(uncomp, ",", &tab);
+    repdata_count = string_split(uncomp, ",", &tab);
     free(uncomp);
-    *rd = calloc(sizeof(**rd), rdc);
-    for (int i = 0; i < rdc; ++i) {
+    
+    *repdata = calloc(sizeof(**repdata), repdata_count);
+    for (int i = 0; i < repdata_count; ++i) {
 	sscanf(tab[i], "%ld|%lg|%lg|%d",
-	       &(*rd)[i].previous_time,
-	       &(*rd)[i].x,
-	       &(*rd)[i].y,
-    	       &(*rd)[i].keys);
+	       &(*repdata)[i].previous_time,
+	       &(*repdata)[i].x,
+	       &(*repdata)[i].y,
+    	       &(*repdata)[i].keys);
 	free(tab[i]);
     }
     free(tab);
-    return rdc;
+    return repdata_count;
 }
 
 static void read_string(char **buf, FILE *f)
@@ -145,17 +139,20 @@ struct replay *replay_parse(FILE *f)
     fread(&r->fc, 1, 1, f);
     fread(&r->mods, 4, 1, f);
 
-    read_string(&r->xy, f);
+    read_string(&r->lifebar_graph, f);
     
     fread(&r->timestamp, 8, 1, f);
     fread(&r->replay_length, 4, 1, f);
 
-    r->rdc = parse_replay_data(f, &r->rd);
+    r->repdata_count = parse_replay_data(f, &r->repdata);
     
     return r;
 }
 
 int cs_timestamp_string(uint64_t timestamp);
+
+#define TICKS_PER_SECONDS 10000000L
+#define LOL l
 
 void replay_print(FILE *f, const struct replay *r)
 {
@@ -175,23 +172,23 @@ void replay_print(FILE *f, const struct replay *r)
     fprintf(f, "score: %u\n", r->score);
     fprintf(f, "max combo: %hu\n", r->max_combo);
     fprintf(f, "Full combo: %hhu\n", r->fc);
-    fprintf(f, "mods: %u\n", r->mods);
-    fprintf(f, "xy: %s\n", r->xy);
+    fputs("mods: ", f);  mod_print(f, r->mods); fputs("\n", f);  
+
+    fprintf(f, "lifebar_graph: %s\n", r->lifebar_graph);
 
     
-    fprintf(f, "timestamp: %lu\n", r->timestamp);
-    //    cs_timestamp_string(r->timestamp);
+    fputs("date: ", f);//  %lu\n", r->timestamp);
+    cs_timestamp_string(r->timestamp);
+    fputs("\n", f);
     /* fprintf(f, "Time: "); */
     /* fprintf(f, "timestamp: %s\n", s); */
-
     
-    fprintf(f, "replay length: %u\n", r->replay_length);
-
+    fprintf(f, "replay length: %u bytes\n", r->replay_length);
     fprintf(f, "\n");
     fprintf(f, "__ DATA __ :\n");
 
-    for (int i = 0; i < r->rdc; ++i) {
-    	struct replay_data *rd = &r->rd[i];
+    for (int i = 0; i < r->repdata_count; ++i) {
+    	struct replay_data *rd = &r->repdata[i];
     	fprintf(f, "%ld|", rd->previous_time);
     	fprintf(f, "%g|", rd->x);
     	fprintf(f, "%g|", rd->y);
@@ -205,8 +202,8 @@ void replay_free(struct replay *r)
     free(r->bm_md5_hash);
     free(r->player_name);
     free(r->replay_md5_hash);
-    free(r->xy);
-    free(r->rd);
+    free(r->lifebar_graph);
+    free(r->repdata);
     free(r);
 }
 

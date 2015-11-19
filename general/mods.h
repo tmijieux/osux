@@ -17,8 +17,9 @@
 #ifndef MODS_H
 #define MODS_H
 
+void mod_print(FILE *f, uint32_t mod_bitfield);
+    
 enum mods {
-    MOD_NONE		=	0,
     MOD_NOFAIL 		= 	(1 << 0),
     MOD_EASY  		=	(1 << 1),
     MOD_NOVIDEO		=	(1 << 2),
@@ -30,6 +31,8 @@ enum mods {
     MOD_HALFTIME	=	(1 << 8),
     MOD_NIGHTCORE	=	(1 << 9),
     MOD_FLASHLIGHT	=	(1 << 10),
+    MOD_AUTOPLAY        =       (1 << 11),
+    MOD_SPUNOUT         =       (1 << 12),
     MOD_AUTOPILOT	=	(1 << 13),
     MOD_PERFECT 	=	(1 << 14),
     
@@ -39,7 +42,6 @@ enum mods {
     MOD_7K		= 	(1 << 18),
     MOD_8K		=	(1 << 19),
 
-    MOD_KEYMOD		=	(MOD_4K | MOD_5K | MOD_6K | MOD_7K | MOD_8K),
     MOD_FADEIN		=	(1 << 20),
     MOD_RANDOM		=	(1 << 21),
     MOD_CINEMA		= 	(1 << 22),
@@ -49,9 +51,9 @@ enum mods {
     MOD_9K		=	(1 << 24),
     MOD_COOP		=	(1 << 25),
 
+    MOD_1K		=	(1 << 26),
     MOD_3K		=	(1 << 27),
     MOD_2K		=	(1 << 28),
-    MOD_1K		=	(1 << 29),
 
     MOD_1K_COOP		=	MOD_2K,
     MOD_2K_COOP		=	MOD_4K,
@@ -67,39 +69,41 @@ enum mods {
 };
 
 enum mods_id {
-    IMOD_NONE		= 0,
-    IMOD_NOFAIL 		= 1,	
-    IMOD_EASY  		= 2,
-    IMOD_NOVIDEO		= 3,
-    IMOD_HIDDEN		= 4,
-    IMOD_HARDROCK	= 5,
-    IMOD_SUDDENDEATH	= 6,
-    IMOD_DOUBLETIME	= 7,
-    IMOD_RELAX		= 8,
-    IMOD_HALFTIME	= 9,
-    IMOD_NIGHTCORE	= 10,
-    IMOD_FLASHLIGHT	= 11,
-    IMOD_AUTOPILOT	= 12,
-    IMOD_PERFECT 	= 13,
+    IMOD_NOFAIL 	= 0,	
+    IMOD_EASY  		= 1,
+    IMOD_NOVIDEO	= 2,
+    IMOD_HIDDEN		= 3,
+    IMOD_HARDROCK	= 4,
+    IMOD_SUDDENDEATH	= 5,
+    IMOD_DOUBLETIME	= 6,
+    IMOD_RELAX		= 7,
+    IMOD_HALFTIME	= 8,
+    IMOD_NIGHTCORE	= 9,
+    IMOD_FLASHLIGHT	= 10,
+
+    IMOD_AUTOPLAY	= 11,
+    IMOD_SPUNOUT	= 12,
+    IMOD_AUTOPILOT	= 13,
+    IMOD_PERFECT 	= 14,
     
-    IMOD_4K		= 14,
-    IMOD_5K		= 15,
-    IMOD_6K		= 16,
-    IMOD_7K		= 17,
-    IMOD_8K		= 18,
+    IMOD_4K		= 15,
+    IMOD_5K		= 16,
+    IMOD_6K		= 17,
+    IMOD_7K		= 18,
+    IMOD_8K		= 19,
 
-    IMOD_FADEIN		= 19,
-    IMOD_RANDOM		= 20,
-    IMOD_CINEMA		= 21,
+    IMOD_FADEIN		= 20,
+    IMOD_RANDOM		= 21,
+    IMOD_CINEMA		= 22,
 
-    IMOD_TARGETPRACTICE	= 22,
+    IMOD_TARGETPRACTICE	= 23,
     
-    IMOD_9K		= 23,
-    IMOD_COOP		= 24,
+    IMOD_9K		= 24,
+    IMOD_COOP		= 25,
 
-    IMOD_3K		= 25,
-    IMOD_2K		= 26,
-    IMOD_1K		= 27
+    IMOD_1K		= 26,
+    IMOD_3K		= 27,
+    IMOD_2K		= 28
 
 };
 

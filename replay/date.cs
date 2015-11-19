@@ -16,15 +16,15 @@
 
 using System;
 
-public class OsuDate
+namespace osux
 {
-    public static void Main(string[] args)
+    public class OsuDate
     {
-	if (args.Length == 1)
+	public static string get_date(long ticks)
 	{
-	    long ticks = Convert.ToInt64(args[0]);
-	    DateTime myDate = new DateTime(ticks);
-	    Console.WriteLine(myDate.ToString("MMMM dd, yyyy hh:mm:ss"));
+	    return new DateTime(ticks).ToString("MMMM dd, yyyy hh:mm:ss");
 	}
     }
 }
+
+
