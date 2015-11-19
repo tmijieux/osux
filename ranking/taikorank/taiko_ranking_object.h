@@ -71,6 +71,8 @@ struct tr_object
 
 //-------------------------------------------------------------
 
+void tro_print(struct tr_object * obj, int filter);
+
 double mpb_to_bpm (double mpb);
 int equal (double x, double y);
 

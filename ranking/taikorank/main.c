@@ -22,7 +22,6 @@
 #include "taiko_ranking_map.h"
 #include "mods.h"
 #include "print.h"
-#include "load.h"
 
 int main(int argc, char* argv[])
 {
@@ -31,7 +30,7 @@ int main(int argc, char* argv[])
     {      
       for (int i = 1; i < argc; i++)
 	{
-	  struct tr_map * map = trm_load(argv[i]);
+	  struct tr_map * map = trm_new(argv[i]);
 	  if (map == NULL)
 	    continue;
 	  

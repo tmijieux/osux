@@ -38,9 +38,6 @@
 #define STR_MODS_LENGTH 3
 #define MAX_MODS        4
 
-void print_all_tr_object (struct tr_map * map, int filter);
-void print_map_star (struct tr_map * map);
-void print_mods (struct tr_map * map);
-void print_map_final (struct tr_map * map);
+void print_string_size(char *s, int max, FILE * output);
 
 #endif

@@ -1,9 +1,8 @@
 
 set(tr_src
   main.c
-  load.c
+  check_osu_file.c
   mods.c
-  convert.c
   print.c
   taiko_ranking_map.c
   taiko_ranking_object.c
@@ -19,7 +18,7 @@ set(tr_src
 
 add_executable(taiko_ranking ${tr_src})
 
-target_link_libraries(taiko_ranking parser m heap hashtable sum)
+target_link_libraries(taiko_ranking parser m heap hashtable sum yaml)
 
 add_subdirectory(sum)
 

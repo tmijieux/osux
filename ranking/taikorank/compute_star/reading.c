@@ -36,6 +36,7 @@ static void trm_compute_reading_hiding(struct tr_map * map);
 static void trm_compute_reading_superposed(struct tr_map * map);
 static void trm_compute_reading_slow(struct tr_map * map);
 static void trm_compute_reading_fast(struct tr_map * map);
+
 static void trm_compute_reading_star(struct tr_map * map);
 
 // superposition coeff

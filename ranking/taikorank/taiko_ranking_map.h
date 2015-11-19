@@ -46,8 +46,12 @@ struct tr_map
 
 //----------------------------------------
 
-void trm_compute_taiko_stars(const struct tr_map * map, int mods);
-struct tr_map * trm_copy (const struct tr_map * map);
+struct tr_map * trm_new(char * file_name);
+struct tr_map * trm_copy(const struct tr_map * map);
 void trm_free(struct tr_map * map);
+void trm_compute_taiko_stars(const struct tr_map * map, int mods);
+
+void trm_print_tro(struct tr_map * map, int filter);
+void trm_print(struct tr_map * map);
 
 #endif
