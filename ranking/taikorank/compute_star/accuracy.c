@@ -51,4 +51,5 @@ void trm_compute_accuracy (struct tr_map * map)
 {
   trm_compute_od_to_ms(map);
   trm_compute_spacing(map);
+  map->accuracy_star = 0;
 }

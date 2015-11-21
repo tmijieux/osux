@@ -8,6 +8,7 @@ set(tr_src
   taiko_ranking_object.c
   treatment.c
   stats.c
+  tr_db.c
   compute_star/density.c
   compute_star/reading.c
   compute_star/pattern.c
@@ -18,7 +19,7 @@ set(tr_src
 
 add_executable(taiko_ranking ${tr_src})
 
-target_link_libraries(taiko_ranking parser m heap hashtable sum yaml)
+target_link_libraries(taiko_ranking parser m heap hashtable sum yaml mysqlclient)
 
 add_subdirectory(sum)
 

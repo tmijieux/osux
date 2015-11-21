@@ -32,6 +32,8 @@
 
 #include "print.h"
 
+#include "tr_db.h"
+
 #include "mods.h"
 #include "treatment.h"
 
@@ -76,7 +78,9 @@ void trm_compute_taiko_stars(const struct tr_map * map, int mods)
   // printing
   trm_print_tro(map_copy, FILTER_APPLY);
   trm_print(map_copy);
-  trm_print_DB(map_copy);
+
+  // db
+  tr_db_add(map_copy);
   
   // free
   trm_free(map_copy);
@@ -319,27 +323,4 @@ void trm_print(struct tr_map * map)
   print_string_size(map->title,   32, OUTPUT);
   print_string_size(map->creator, 16, OUTPUT);
   fprintf(OUTPUT, "\n");
-}
-
-//-------------------------------------------------
-
-void trm_print_DB(struct tr_map * map)
-{
-  FILE * DB_file = fopen(DB_FILE_PATH, "a");
-
-  // user
-  fprintf(DB_file, "INSERT INTO %s\n", TABLE_USER);
-  fprintf(DB_file, "(%s)\n", TABLE_USER_NAME);
-  fprintf(DB_file, "(%s);\n\n", map->creator);
-
-  // beatmapset
-  fprintf(DB_file, "INSERT INTO %s\n", TABLE_BMS);
-  fprintf(DB_file, "(%s, %s, %s, %s)\n",
-	  TABLE_BMS_TITLE, TABLE_BMS_ARTIST,
-	  TABLE_BMS_SOURCE, TABLE_BMS_USER_ID);
-  fprintf(DB_file, "(%s, %s, %s, %d);\n\n",
-	  map->title, map->artist,
-	  map->source, 0);
-
-  fclose(DB_file);
 }
