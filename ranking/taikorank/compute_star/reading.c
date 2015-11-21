@@ -53,7 +53,7 @@ static void trm_compute_reading_star(struct tr_map * map);
 #define TIME_MAX    60000. // max slow considered
 
 #define SLOW_MIN 0.
-#define SLOW_MAX 10000.
+#define SLOW_MAX 1000.
 
 // fast
 #define BPM_MIN      0.
@@ -61,7 +61,7 @@ static void trm_compute_reading_star(struct tr_map * map);
 #define BPM_MAX      2500.
 
 #define FAST_MIN 1.
-#define FAST_MAX 10000.
+#define FAST_MAX 1000.
 
 // speed change
 #define SPEED_CH_MAX     pow(10, 6)
@@ -120,6 +120,20 @@ static double tro_hiding(struct tr_object * obj1, struct tr_object * obj2)
 
 static double tro_slow(struct tr_object * obj)
 {
+  double bpm_app = obj->bpm_app;
+  if (bpm_app > BPM_MAX ||
+      obj->visible_time == 0) // 0 bpm ~ 2500 bpm
+    bpm_app = BPM_MAX;
+
+  return POLY_2_PT(bpm_app,
+		   BPM_MIN, SLOW_MAX,
+		   BPM_MAX, SLOW_MIN);
+}
+
+//-----------------------------------------------------
+
+static double tro_fast(struct tr_object * obj)
+{
   double time = obj->visible_time;
   if (time > TIME_MAX) 
     time = TIME_MAX; 
@@ -127,22 +141,8 @@ static double tro_slow(struct tr_object * obj)
     time = TIME_MIN;
 
   return POLY_2_PT(time,
-		   TIME_MIN, SLOW_MIN,
-		   TIME_MAX, SLOW_MAX);
-}
-
-//-----------------------------------------------------
-
-static double tro_fast(struct tr_object * obj)
-{
-  double bpm_app = obj->bpm_app;
-  if (bpm_app > BPM_MAX ||
-      obj->visible_time == 0)
-    bpm_app = BPM_MAX;
-
-  return POLY_2_PT(bpm_app,
-		   BPM_MIN, FAST_MIN,
-		   BPM_MAX, FAST_MAX);
+		   TIME_MIN, FAST_MAX,
+		   TIME_MAX, FAST_MIN);
 }
 
 //-----------------------------------------------------

@@ -38,6 +38,18 @@
 #define STR_MODS_LENGTH 3
 #define MAX_MODS        4
 
+#define DB_FILE_PATH "data.sql"
+
+#define TABLE_USER      "tr_user"
+#define TABLE_USER_NAME "name"
+
+#define TABLE_BMS         "tr_beatmap_set"
+#define TABLE_BMS_TITLE   "title"
+#define TABLE_BMS_ARTIST  "artist"
+#define TABLE_BMS_SOURCE  "source"
+#define TABLE_BMS_USER_ID "user_ID"
+
+
 void print_string_size(char *s, int max, FILE * output);
 
 #endif

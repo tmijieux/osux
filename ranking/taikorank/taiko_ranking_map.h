@@ -23,8 +23,14 @@ struct tr_map
 {
   // Name info
   char * title;
+  char * artist;
+  char * source;
   char * creator;
   char * diff;
+  unsigned int bms_osu_ID;
+  /*char * title_uni;
+  char * artist_uni;
+  unsigned int diff_osu_ID;*/
   
   // Song Info
   int mods;
@@ -53,5 +59,6 @@ void trm_compute_taiko_stars(const struct tr_map * map, int mods);
 
 void trm_print_tro(struct tr_map * map, int filter);
 void trm_print(struct tr_map * map);
+void trm_print_DB(struct tr_map * map);
 
 #endif
