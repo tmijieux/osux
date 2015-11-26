@@ -15,7 +15,10 @@
  */
 
 #include <math.h>
+#include "interpolation.h"
+
 #include <string.h>
+#include <stdio.h>
 #include <stdarg.h>
 
 #include "util/hashtable/hashtable.h"
@@ -24,6 +27,7 @@
 #include "taiko_ranking_object.h"
 #include "sum.h"
 #include "stats.h"
+#include "print.h"
 
 #include "pattern.h"
 
@@ -38,13 +42,17 @@ static struct hash_table * ht_pattern;
 
 //--------------------------------------------------
 
-static void trm_set_pattern_0(struct tr_map * map);
-// ^ to move ?
-
 static void add_new_pattern(const char * s, ...);
-static void remove_pattern(const char * s, struct pattern ** p);
+static void remove_pattern(const char * s);
 
-static void trm_compute_pattern_full_alt_stream(struct tr_map * map);
+static double tro_singletap_proba(struct tr_object * obj);
+static struct pattern * trm_get_pattern(struct tr_map * map,
+					int i, double proba_alt);
+
+static void trm_pattern_alloc(struct tr_map * map);
+static void trm_compute_pattern_proba(struct tr_map * map);
+static void trm_compute_pattern_full_alt(struct tr_map * map);
+static void trm_compute_pattern_singletap(struct tr_map * map);
 
 static void trm_compute_pattern_star(struct tr_map * map);
 
@@ -53,23 +61,25 @@ static void trm_compute_pattern_star(struct tr_map * map);
 #define MAX_PATTERN_LENGTH  4
 #define LENGTH_PATTERN_USED 2
 
+// values between 0. and 10.
+// "." -> all must but double!
 // 1 pattern
-#define D    1,   0
-#define K    1,   0
+#define D    1.,  0.
+#define K    1.,  0.
 // 2 pattern
-#define DD   2,   2
+#define DD   2.,  2.
 #define DK   2.5, 2.5
 #define KD   2.5, 2.5
-#define KK   2,   2
+#define KK   2.,  2.
 // 3 pattern
-#define DDD  2,   2
+#define DDD  2.,  2.
 #define DDK  2.2, 2.2
 #define DKD  2.5, 2.5
 #define DKK  2.8, 2.8
 #define KDD  2.2, 2.2
 #define KDK  2.5, 2.5
 #define KKD  2.2, 2.2
-#define KKK  2,   2
+#define KKK  2.,  2.
 // 4 pattern
 #define DDDD 2.1, 2.1
 #define DDDK 2.6, 2.6
@@ -91,8 +101,17 @@ static void trm_compute_pattern_star(struct tr_map * map);
 
 //--------------------------------------------------
 
+// coeff for singletap proba
+#define SINGLETAP_MIN 0.
+#define SINGLETAP_MAX 1.
+#define TIME_MIN 0.
+#define TIME_MAX 200.
+// 160ms ~ 180bpm 1/2
+// 125ms = 240bpm 1/2
+
 // coeff for star
 #define PATTERN_STAR_COEFF_ALT 1.
+#define PATTERN_STAR_COEFF_SIN 1.
 
 // coeff for stats
 #define PATTERN_COEFF_MEDIAN 0.1
@@ -111,7 +130,7 @@ TRM_STATS_HEADER(pattern_star, PATTERN)
 //-----------------------------------------------------
 //-----------------------------------------------------
 //-----------------------------------------------------
-
+/*
 #include "yaml.h"
 #include "stdio.h"
 
@@ -121,36 +140,36 @@ static void yaml_pattern()
   yaml_parser_t parser;
   yaml_token_t  token;
   
-  /* Initialize parser */
+  //Initialize parser 
   if(!yaml_parser_initialize(&parser))
     fputs("Failed to initialize parser!\n", stderr);
   if(f == NULL)
     fputs("Failed to open file!\n", stderr);
 
-  /* Set input file */
+  // Set input file 
   yaml_parser_set_input_file(&parser, f);
 
-  /* CODE HERE */
+  // CODE HERE 
   do
     {
       yaml_parser_scan(&parser, &token);
       switch(token.type)
 	{
-	  /* Stream start/end */
+	  //Stream start/end 
 	case YAML_STREAM_START_TOKEN:
 	  puts("STREAM START");
 	  break;
 	case YAML_STREAM_END_TOKEN:
 	  puts("STREAM END");
 	  break;
-	  /* Token types (read before actual token) */
+	  // Token types (read before actual token) 
 	case YAML_KEY_TOKEN:
 	  printf("(Key token)   ");
 	  break;
 	case YAML_VALUE_TOKEN:
 	  printf("(Value token) ");
 	  break;
-	  /* Block delimeters */
+	  // Block delimeters 
 	case YAML_BLOCK_SEQUENCE_START_TOKEN:
 	  puts("<b>Start Block (Sequence)</b>");
 	  break;
@@ -160,14 +179,14 @@ static void yaml_pattern()
 	case YAML_BLOCK_END_TOKEN:
 	  puts("<b>End block</b>");
 	  break;
-	  /* Data */
+	  // Data 
 	case YAML_BLOCK_MAPPING_START_TOKEN:
 	  puts("[Block mapping]");
 	  break;
 	case YAML_SCALAR_TOKEN:
 	  printf("scalar %s \n", token.data.scalar.value);
 	  break;
-	  /* Others */
+	  // Others
 	default:
 	  printf("Got token of type %d\n", token.type);
 	}
@@ -177,17 +196,17 @@ static void yaml_pattern()
   while(token.type != YAML_STREAM_END_TOKEN);
   yaml_token_delete(&token);
   
-  /* Cleanup */
+  // Cleanup 
   yaml_parser_delete(&parser);
   fclose(f);
 }
-
+*/
 //-----------------------------------------------------
 
 static void add_new_pattern(const char * s, ...)
 {
-  struct pattern * p = malloc(sizeof(*p));
-  p->d = malloc(sizeof(double) * LENGTH_PATTERN_USED);
+  struct pattern * p = calloc(sizeof(*p), 1);
+  p->d = calloc(sizeof(double), LENGTH_PATTERN_USED);
   
   va_list vl;
   va_start(vl, s);
@@ -198,11 +217,12 @@ static void add_new_pattern(const char * s, ...)
   ht_add_entry(ht_pattern, s, p);
 }
 
-static void remove_pattern(const char * s, struct pattern ** p)
+static void remove_pattern(const char * s)
 {
-  ht_get_entry(ht_pattern, s, p);
-  free((*p)->d);
-  free(*p);
+  struct pattern * p = NULL;
+  ht_get_entry(ht_pattern, s, &p);
+  free(p->d);
+  free(p);
 }
 
 //-----------------------------------------------------
@@ -253,42 +273,41 @@ static void ht_pattern_init()
 __attribute__((destructor))
 static void ht_pattern_free()
 {
-  struct pattern * p = NULL;
   // 1 pattern
-  remove_pattern("d", &p);
-  remove_pattern("k", &p);
+  remove_pattern("d");
+  remove_pattern("k");
   // 2 pattern
-  remove_pattern("dd", &p);
-  remove_pattern("dk", &p);
-  remove_pattern("kd", &p);
-  remove_pattern("kk", &p);
+  remove_pattern("dd");
+  remove_pattern("dk");
+  remove_pattern("kd");
+  remove_pattern("kk");
   // 3 pattern
-  remove_pattern("ddd", &p);
-  remove_pattern("ddk", &p);
-  remove_pattern("dkd", &p);
-  remove_pattern("dkk", &p);
-  remove_pattern("kdd", &p);
-  remove_pattern("kdk", &p);
-  remove_pattern("kkd", &p);
-  remove_pattern("kkk", &p);
+  remove_pattern("ddd");
+  remove_pattern("ddk");
+  remove_pattern("dkd");
+  remove_pattern("dkk");
+  remove_pattern("kdd");
+  remove_pattern("kdk");
+  remove_pattern("kkd");
+  remove_pattern("kkk");
   // 3 pattern
-  remove_pattern("dddd", &p);
-  remove_pattern("dddk", &p);
-  remove_pattern("ddkd", &p);
-  remove_pattern("ddkk", &p);
-  remove_pattern("dkdd", &p);
-  remove_pattern("dkdk", &p);
-  remove_pattern("dkkd", &p);
-  remove_pattern("dkkk", &p);  
-  remove_pattern("kddd", &p);
-  remove_pattern("kddk", &p);
-  remove_pattern("kdkd", &p);
-  remove_pattern("kdkk", &p);
-  remove_pattern("kkdd", &p);
-  remove_pattern("kkdk", &p);
-  remove_pattern("kkkd", &p);
-  remove_pattern("kkkk", &p);
-	    
+  remove_pattern("dddd");
+  remove_pattern("dddk");
+  remove_pattern("ddkd");
+  remove_pattern("ddkk");
+  remove_pattern("dkdd");
+  remove_pattern("dkdk");
+  remove_pattern("dkkd");
+  remove_pattern("dkkk");
+  remove_pattern("kddd");
+  remove_pattern("kddk");
+  remove_pattern("kdkd");
+  remove_pattern("kdkk");
+  remove_pattern("kkdd");
+  remove_pattern("kkdk");
+  remove_pattern("kkkd");
+  remove_pattern("kkkk");
+
   ht_free(ht_pattern);
 }
 
@@ -296,56 +315,114 @@ static void ht_pattern_free()
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static void trm_compute_pattern_full_alt_stream(struct tr_map * map)
-{ 
-  int i = 0;
-  while(i < map->nb_object)
+static double tro_singletap_proba(struct tr_object * obj)
+{
+  double time = obj->rest;
+  if (time > TIME_MAX)
+    time = TIME_MAX;
+
+  return POLY_2_PT(time,
+		   TIME_MIN, SINGLETAP_MIN,
+		   TIME_MAX, SINGLETAP_MAX);
+}
+
+//-----------------------------------------------------
+
+static struct pattern * trm_get_pattern(struct tr_map * map,
+					int i, double proba_alt)
+{
+  char s[MAX_PATTERN_LENGTH + 1];
+  for (int j = 0; (j < MAX_PATTERN_LENGTH &&
+		   i + j < map->nb_object); j++)
     {
-      char s[MAX_PATTERN_LENGTH + 1];
-      struct pattern * p = NULL;
-      
-      for (int j = 0; j < MAX_PATTERN_LENGTH; j++)
+      if (tro_is_bonus(&map->object[i+j]))
 	{
-	  if (tro_is_bonus(&map->object[i+j]))
-	    {
-	      s[j] = 0;
-	      break;
-	    }
-	  else if (tro_is_don(&map->object[i+j]))
-	    {
-	      s[j] = 'd';
-	    }
-	  else // if (tro_is_kat(&map->object[i+j]))
-	    {
-	      s[j] = 'k';
-	    }
-	  
-	  if (tro_is_big(&map->object[i+j]))
-	    {
-	      s[j+1] = 0;
-	      break;
-	    }
+	  s[j] = 0;
+	  break; // continue ?
 	}
-      s[4] = 0;
-            
-      int ret = ht_get_entry(ht_pattern, s, &p);
-      if (ret != 0) // when s[0] = 0 (bonus) or not found (error)
+      else if (tro_is_don(&map->object[i+j]))
+	s[j] = 'd';
+      else // if (tro_is_kat(&map->object[i+j]))
+	s[j] = 'k';
+      
+      if (tro_is_big(&map->object[i+j]) ||
+	  map->object[i+j].proba > proba_alt)
 	{
-	  /*if (s[0] != 0)
-	    printf("Pattern %s introuvable...\n", s);*/
-	  i++;
-	  continue;
+	  s[j+1] = 0;
+	  break;
 	}
-      
-      //printf("%s: %g %g\n", s, p->d1, p->d2);
-      
-      map->object[i].pattern_alt1 = p->d[0];
-      map->object[i+1].pattern_alt1 = p->d[1];
-      
-      if(strlen(s) == 1)
-	i++;
-      else
-	i+=2;
+    }
+  s[MAX_PATTERN_LENGTH] = 0;
+
+  struct pattern * p = NULL;
+  int ret = ht_get_entry(ht_pattern, s, &p);
+  if (ret != 0) // when s[0] = 0 (bonus) or not found (error)
+    {
+      if (s[0] != 0)
+	fprintf(OUTPUT_ERR, "Could not find pattern :%s\n", s);
+      return NULL;
+    }
+  return p;
+}
+
+//-----------------------------------------------------
+//-----------------------------------------------------
+//-----------------------------------------------------
+
+static void trm_pattern_alloc(struct tr_map * map)
+{
+  for (int i = 0; i < map->nb_object; i++)
+    {
+      map->object[i].alt =
+	calloc(sizeof(double), LENGTH_PATTERN_USED);
+      map->object[i].singletap =
+	calloc(sizeof(double), LENGTH_PATTERN_USED);
+    }  
+}
+
+//-----------------------------------------------------
+
+static void trm_compute_pattern_proba(struct tr_map * map)
+{
+  for (int i = 0; i < map->nb_object; i++)
+    {
+      map->object[i].proba = tro_singletap_proba(&map->object[i]);
+    }  
+}
+
+//-----------------------------------------------------
+
+static void trm_compute_pattern_full_alt(struct tr_map * map)
+{ 
+  for(int i = 0; i < map->nb_object; i++)
+    {
+      struct pattern * p = trm_get_pattern(map, i, 1);
+      if (p == NULL)
+	continue;
+
+      for (int j = 0; (j < LENGTH_PATTERN_USED &&
+		       i + j < map->nb_object); j++)
+	{
+	  map->object[i+j].alt[j] = p->d[j];
+	}
+    }
+}
+
+//-----------------------------------------------------
+
+static void trm_compute_pattern_singletap(struct tr_map * map)
+{
+  for(int i = 0; i < map->nb_object; i++)
+    {
+      struct pattern * p = trm_get_pattern(map, i, 0.75);
+      if (p == NULL)
+	continue;
+
+      for (int j = 0; (j < LENGTH_PATTERN_USED &&
+		       i + j < map->nb_object); j++)
+	{
+	  map->object[i+j].singletap[j] = p->d[j];
+	}
     }
 }
 
@@ -358,8 +435,10 @@ static void trm_compute_pattern_star(struct tr_map * map)
   for (int i = 0; i < map->nb_object; i++)
     {
       map->object[i].pattern_star =
-	(PATTERN_STAR_COEFF_ALT * map->object[i].pattern_alt1 +
-	 PATTERN_STAR_COEFF_ALT * map->object[i].pattern_alt2);
+	(PATTERN_STAR_COEFF_ALT * map->object[i].alt[0] +
+	 PATTERN_STAR_COEFF_ALT * map->object[i].alt[1] +
+	 PATTERN_STAR_COEFF_SIN * map->object[i].singletap[0] +
+	 PATTERN_STAR_COEFF_SIN * map->object[i].singletap[1]);
     }
 
   map->pattern_star = trm_stats_compute_pattern_star(map); 
@@ -369,18 +448,12 @@ static void trm_compute_pattern_star(struct tr_map * map)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static void trm_set_pattern_0(struct tr_map * map)
-{
-  for (int i = 0; i < map->nb_object; i++)
-    {
-      map->object[i].pattern_alt1 = 0;
-      map->object[i].pattern_alt2 = 0;
-    }
-}
-
 void trm_compute_pattern (struct tr_map * map)
 {
-  trm_set_pattern_0(map);
-  trm_compute_pattern_full_alt_stream(map);
+  trm_pattern_alloc(map);
+  trm_compute_pattern_proba(map);
+  trm_compute_pattern_full_alt(map);
+  trm_compute_pattern_singletap(map);
+				      
   trm_compute_pattern_star(map);
 }

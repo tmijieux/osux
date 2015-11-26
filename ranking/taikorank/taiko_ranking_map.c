@@ -90,12 +90,12 @@ void trm_compute_taiko_stars(const struct tr_map * map, int mods)
 
 struct tr_map * trm_copy (const struct tr_map * map)
 {
-  struct tr_map * copy = malloc(sizeof(*copy));
+  struct tr_map * copy = calloc(sizeof(*copy), 1);
   memcpy(copy, map, sizeof(*map));
 
-  copy->object = malloc(sizeof(map->object[0]) * map->nb_object);
+  copy->object = calloc(sizeof(map->object[0]), map->nb_object);
   memcpy(copy->object, map->object,
-	  sizeof(map->object[0]) * map->nb_object);
+	 sizeof(map->object[0]) * map->nb_object);
   
   copy->title   = strdup(map->title);
   copy->artist  = strdup(map->artist);
@@ -226,9 +226,9 @@ struct tr_map * trm_convert (char* file_name)
       return NULL;
     }
   
-  struct tr_map * tr_map = malloc(sizeof(struct tr_map));
+  struct tr_map * tr_map = calloc(sizeof(struct tr_map), 1);
   tr_map->nb_object = map->hoc;
-  tr_map->object = malloc(map->hoc * sizeof(struct tr_object));
+  tr_map->object = calloc(sizeof(struct tr_object), map->hoc);
 
   // set last uninherited
   for (int i = 0; i < map->tpc; i++)
@@ -298,7 +298,7 @@ void trm_print_tro(struct tr_map * map, int filter)
   if ((filter & FILTER_READING_PLUS) != 0)
     fprintf(OUTPUT_INFO, "app\tend app\tdis\tend dis\tsperpos\thidden\thide\tspeed\tspd chg\tread*\t");
   if ((filter & FILTER_PATTERN) != 0)
-    fprintf(OUTPUT_INFO, "alt1\talt2\tpttrn*\t");
+    fprintf(OUTPUT_INFO, "proba\talt1\talt2\tsingle1\tsingle2\tpttrn*\t");
   if ((filter & FILTER_ACCURACY) != 0)
     fprintf(OUTPUT_INFO, "%g\t%g\t", map->great_ms, map->bad_ms);
   
@@ -318,6 +318,7 @@ void trm_print(struct tr_map * map)
   fprintf(OUTPUT, "%.4g\t", map->reading_star);
   fprintf(OUTPUT, "%.4g\t", map->pattern_star);
   fprintf(OUTPUT, "%.4g\t", map->density_star);
+  fprintf(OUTPUT, "%.4g\t", map->accuracy_star);
   trm_print_mods(map);
   print_string_size(map->diff,    24, OUTPUT);
   print_string_size(map->title,   32, OUTPUT);

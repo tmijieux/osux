@@ -23,6 +23,8 @@ static void trm_treatment_rest (struct tr_map * map);
 static void trm_treatment_app_dis_offset (struct tr_map * map);
 static void trm_treatment_visible_time (struct tr_map * map);
 
+#define MAX_REST 10000.
+
 // offset app & dis
 #define OFFSET_MIN 10000
 #define OFFSET_MAX (-obj->obj_dis / obj->obj_app * OFFSET_MIN)
@@ -64,7 +66,7 @@ static void trm_treatment_hand (struct tr_map * map)
 
 static void trm_treatment_rest (struct tr_map * map)
 {
-  map->object[0].rest = 0;
+  map->object[0].rest = MAX_REST;
   for (int i = 1; i < map->nb_object; i++)
     {
       map->object[i].rest = (map->object[i].offset -

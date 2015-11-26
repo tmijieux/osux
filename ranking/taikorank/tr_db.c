@@ -86,7 +86,6 @@ static int new_rq(MYSQL * sql, const char * rq, ...)
   char * buf = NULL;
   vasprintf(&buf, rq, va);
   va_end(va);
-  //fprintf(OUTPUT_ERR, "%s\n", buf);
 
   if (mysql_query(sql, buf)) 
     {
@@ -131,7 +130,7 @@ void tr_db_add(struct tr_map * map)
 {
   if (sql == NULL)
     {
-      fprintf(OUTPUT_ERR, "Couldn't connect to DB. Data won't be stored.");
+      fprintf(OUTPUT_ERR, "Couldn't connect to DB. Data won't be stored.\n");
       return;
     }
 
@@ -215,4 +214,3 @@ void tr_db_add(struct tr_map * map)
   free(map_creator);
   free(map_diff);
 }
-

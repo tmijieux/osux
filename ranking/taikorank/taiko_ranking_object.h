@@ -46,8 +46,9 @@ struct tr_object
   int invisible_time;  // printed in reading
 
   // ---- pattern data
-  double pattern_alt1;
-  double pattern_alt2;
+  double proba;
+  double * alt;
+  double * singletap;
   
   // ---- density data
   double density_raw;
