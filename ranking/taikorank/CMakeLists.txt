@@ -6,6 +6,7 @@ set(tr_src
   print.c
   taiko_ranking_map.c
   taiko_ranking_object.c
+  taiko_ranking_score.c
   treatment.c
   stats.c
   tr_db.c

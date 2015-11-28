@@ -60,21 +60,14 @@ static struct tr_map * trm_convert (char* file_name);
 //--------------------------------------------------
 //--------------------------------------------------
 
-void trm_compute_taiko_stars(const struct tr_map * map, int mods)
+void trm_main(const struct tr_map * map, int mods)
 {
   struct tr_map * map_copy = trm_copy(map);
-  map_copy->mods = mods;  
-  
-  // computation
-  trm_apply_mods(map_copy);
-  trm_treatment(map_copy);
-  
-  trm_compute_density(map_copy);
-  trm_compute_reading(map_copy);
-  trm_compute_pattern(map_copy);
-  trm_compute_accuracy(map_copy);
-  trm_compute_final_star(map_copy);
+  trm_set_mods(map_copy, mods);
 
+  // compute
+  trm_compute_stars(map_copy);
+  
   // printing
   trm_print_tro(map_copy, FILTER_APPLY);
   trm_print(map_copy);
@@ -88,7 +81,28 @@ void trm_compute_taiko_stars(const struct tr_map * map, int mods)
 
 //--------------------------------------------------
 
-struct tr_map * trm_copy (const struct tr_map * map)
+void trm_set_mods(struct tr_map * map, int mods)
+{
+  map->mods = mods;
+}
+
+//--------------------------------------------------
+
+void trm_compute_stars(struct tr_map * map)
+{
+  trm_apply_mods(map);
+  trm_treatment(map);
+  
+  trm_compute_density(map);
+  trm_compute_reading(map);
+  trm_compute_pattern(map);
+  trm_compute_accuracy(map);
+  trm_compute_final_star(map);
+}
+
+//--------------------------------------------------
+
+struct tr_map * trm_copy(const struct tr_map * map)
 {
   struct tr_map * copy = calloc(sizeof(*copy), 1);
   memcpy(copy, map, sizeof(*map));
@@ -108,10 +122,22 @@ struct tr_map * trm_copy (const struct tr_map * map)
   return copy;
 }
 
+//-----------------------------------------------------
+
+void trm_pattern_free(struct tr_map * map)
+{
+  for (int i = 0; i < map->nb_object; i++)
+    {
+      free(map->object[i].alt);
+      free(map->object[i].singletap);
+    }  
+}
+
 //--------------------------------------------------
 
 void trm_free(struct tr_map * map)
 {
+  trm_pattern_free(map);
   free(map->title);
   free(map->artist);
   free(map->source);
@@ -305,9 +331,7 @@ void trm_print_tro(struct tr_map * map, int filter)
   fprintf(OUTPUT_INFO, "\n");
   
   for (int i = 0; i < map->nb_object; ++i)
-    {
-      tro_print(&map->object[i], filter);
-    }
+    tro_print(&map->object[i], filter);
 }
 
 //-------------------------------------------------
@@ -326,4 +350,26 @@ void trm_print(struct tr_map * map)
   print_string_size(map->title,   32, OUTPUT);
   print_string_size(map->creator, 16, OUTPUT);
   fprintf(OUTPUT, "\n");
+}
+
+//--------------------------------------------------
+//--------------------------------------------------
+//--------------------------------------------------
+
+int trm_hardest_tro(struct tr_map * map)
+{
+  int best = 0;
+  for(int i = 0; i < map->nb_object; i++)
+    if(map->object[i].final_star > map->object[best].final_star)
+      best = i;
+  return best;
+}
+
+//--------------------------------------------------
+
+void trm_remove_tro(struct tr_map * map, int x)
+{
+  for(int i = x; i < map->nb_object - 1; i++)
+    map->object[i] = map->object[i+1];
+  map->nb_object--;
 }

@@ -1,13 +1,12 @@
-Modifications:
-- vérifier proportions dans reading.c
-- superosed/hidding/hidden à revoir
-- last_hand don/kat
+Todo:
+- last_hand don/kat in treatment
+- min on alt[] and singletap[]
+- 95% computation, other methods?
+- redo all reading computation...
 
-notes:		   
+Other:		   
 - HDHR not supported
 - EZ speed not sure
 
 Projet:
 - accuracy !
-- redo all reading computation...
-

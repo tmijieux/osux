@@ -67,37 +67,37 @@ static void trm_compute_pattern_star(struct tr_map * map);
 #define D    1.,  0.
 #define K    1.,  0.
 // 2 pattern
-#define DD   2.,  2.
-#define DK   2.5, 2.5
-#define KD   2.5, 2.5
-#define KK   2.,  2.
+#define DD   2.0, 2.2
+#define DK   2.0, 3.0
+#define KD   2.5, 3.5
+#define KK   2.0, 2.2
 // 3 pattern
-#define DDD  2.,  2.
-#define DDK  2.2, 2.2
-#define DKD  2.5, 2.5
-#define DKK  2.8, 2.8
-#define KDD  2.2, 2.2
-#define KDK  2.5, 2.5
-#define KKD  2.2, 2.2
-#define KKK  2.,  2.
+#define DDD  2.2, 2.5
+#define DDK  2.5, 3.0
+#define DKD  2.5, 3.5
+#define DKK  2.5, 4.2
+#define KDD  2.5, 3.5
+#define KDK  2.5, 3.5
+#define KKD  2.5, 3.0
+#define KKK  2.2, 2.5
 // 4 pattern
-#define DDDD 2.1, 2.1
-#define DDDK 2.6, 2.6
-#define DDKD 2.3, 2.3
-#define DDKK 2.2, 2.2
-#define DKDD 3.1, 3.1
-#define DKDK 2.3, 2.3
-#define DKKD 2.5, 2.5
-#define DKKK 2.3, 2.3
+#define DDDD 3.0, 3.5
+#define DDDK 3.0, 5.0
+#define DDKD 3.0, 4.0
+#define DDKK 3.0, 3.5
+#define DKDD 4.0, 6.5
+#define DKDK 3.5, 4.0
+#define DKKD 4.5, 6.0
+#define DKKK 3.5, 4.5
 
-#define KDDD 2.3, 2.3
-#define KDDK 2.5, 2.5
-#define KDKD 2.3, 2.3
-#define KDKK 3.1, 3.1
-#define KKDD 2.2, 2.2
-#define KKDK 2.3, 2.3
-#define KKKD 2.6, 2.6
-#define KKKK 2.1, 2.1
+#define KDDD 3.5, 4.5
+#define KDDK 5.5, 5.0
+#define KDKD 4.0, 3.5
+#define KDKK 4.5, 7.0
+#define KKDD 3.0, 3.5
+#define KKDK 3.0, 4.0
+#define KKKD 3.0, 5.0
+#define KKKK 3.0, 3.5
 
 //--------------------------------------------------
 
@@ -105,16 +105,16 @@ static void trm_compute_pattern_star(struct tr_map * map);
 #define SINGLETAP_MIN 0.
 #define SINGLETAP_MAX 1.
 #define TIME_MIN 0.
-#define TIME_MAX 200.
+#define TIME_MAX 500.
 // 160ms ~ 180bpm 1/2
 // 125ms = 240bpm 1/2
 
-#define PROBA_START 1.  // <= 
-#define PROBA_END   0.1
-#define PROBA_STEP  0.1
+#define PROBA_START 0.2  // <= 
+#define PROBA_END   1.
+#define PROBA_STEP  0.2
 
 // coeff for star
-#define PATTERN_STAR_COEFF_ALT 5.5
+#define PATTERN_STAR_COEFF_ALT 2.5
 #define PATTERN_STAR_COEFF_SIN 1.
 
 // coeff for stats
@@ -126,7 +126,7 @@ static void trm_compute_pattern_star(struct tr_map * map);
 #define PATTERN_COEFF_Q3     0.
 
 // scaling
-#define PATTERN_STAR_SCALING 10.
+#define PATTERN_STAR_SCALING 5.0
 
 // stats module
 TRM_STATS_HEADER(pattern_star, PATTERN)
@@ -335,7 +335,7 @@ static double tro_singletap_proba(struct tr_object * obj)
 static struct pattern * trm_get_pattern(struct tr_map * map,
 					int i, double proba_alt)
 {
-  char s[MAX_PATTERN_LENGTH + 1];
+  char * s = calloc(sizeof(char), MAX_PATTERN_LENGTH + 1);
   for (int j = 0; (j < MAX_PATTERN_LENGTH &&
 		   i + j < map->nb_object); j++)
     {
@@ -356,7 +356,6 @@ static struct pattern * trm_get_pattern(struct tr_map * map,
 	  break;
 	}
     }
-  s[MAX_PATTERN_LENGTH] = 0;
 
   struct pattern * p = NULL;
   int ret = ht_get_entry(ht_pattern, s, &p);
@@ -364,26 +363,14 @@ static struct pattern * trm_get_pattern(struct tr_map * map,
     {
       if (s[0] != 0)
 	fprintf(OUTPUT_ERR, "Could not find pattern :%s\n", s);
-      return NULL;
+      p = NULL;
     }
+  free(s);
   return p;
 }
 
 //-----------------------------------------------------
 //-----------------------------------------------------
-//-----------------------------------------------------
-
-static void trm_pattern_alloc(struct tr_map * map)
-{
-  for (int i = 0; i < map->nb_object; i++)
-    {
-      map->object[i].alt =
-	calloc(sizeof(double), LENGTH_PATTERN_USED);
-      map->object[i].singletap =
-	calloc(sizeof(double), LENGTH_PATTERN_USED);
-    }  
-}
-
 //-----------------------------------------------------
 
 static void trm_compute_pattern_proba(struct tr_map * map)
@@ -453,12 +440,25 @@ static void trm_compute_pattern_star(struct tr_map * map)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
+static void trm_pattern_alloc(struct tr_map * map)
+{
+  for (int i = 0; i < map->nb_object; i++)
+    {
+      map->object[i].alt =
+	calloc(sizeof(double), LENGTH_PATTERN_USED);
+      map->object[i].singletap =
+	calloc(sizeof(double), LENGTH_PATTERN_USED);
+    }  
+}
+
+//-----------------------------------------------------
+
 void trm_compute_pattern (struct tr_map * map)
 {
   trm_pattern_alloc(map);
   trm_compute_pattern_proba(map);
   trm_compute_pattern_full_alt(map);
   trm_compute_pattern_singletap(map);
-				      
+  
   trm_compute_pattern_star(map);
 }
