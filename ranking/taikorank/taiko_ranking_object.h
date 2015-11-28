@@ -36,6 +36,7 @@ struct tr_object
   int l_hand;
   int r_hand;
   int rest;            // printed in basic
+  int color_rest;      // printed in basic+
   double obj_app;      // nb obj displayable on screen, without overlapping
   double obj_dis;      // nb obj where disappear
   int offset_app;      // printed in reading

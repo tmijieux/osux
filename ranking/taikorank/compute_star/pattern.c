@@ -109,20 +109,24 @@ static void trm_compute_pattern_star(struct tr_map * map);
 // 160ms ~ 180bpm 1/2
 // 125ms = 240bpm 1/2
 
+#define PROBA_START 1.  // <= 
+#define PROBA_END   0.1
+#define PROBA_STEP  0.1
+
 // coeff for star
-#define PATTERN_STAR_COEFF_ALT 1.
+#define PATTERN_STAR_COEFF_ALT 5.5
 #define PATTERN_STAR_COEFF_SIN 1.
 
 // coeff for stats
-#define PATTERN_COEFF_MEDIAN 0.1
-#define PATTERN_COEFF_MEAN   0.2
-#define PATTERN_COEFF_D1     0.3
-#define PATTERN_COEFF_D9     0.3
+#define PATTERN_COEFF_MEDIAN 0.5
+#define PATTERN_COEFF_MEAN   0.3
+#define PATTERN_COEFF_D1     0.
+#define PATTERN_COEFF_D9     0.2
 #define PATTERN_COEFF_Q1     0.
 #define PATTERN_COEFF_Q3     0.
 
 // scaling
-#define PATTERN_STAR_SCALING 1.
+#define PATTERN_STAR_SCALING 10.
 
 // stats module
 TRM_STATS_HEADER(pattern_star, PATTERN)
@@ -402,9 +406,7 @@ static void trm_compute_pattern_full_alt(struct tr_map * map)
 
       for (int j = 0; (j < LENGTH_PATTERN_USED &&
 		       i + j < map->nb_object); j++)
-	{
-	  map->object[i+j].alt[j] = p->d[j];
-	}
+	map->object[i+j].alt[j] = p->d[j];
     }
 }
 
@@ -412,19 +414,20 @@ static void trm_compute_pattern_full_alt(struct tr_map * map)
 
 static void trm_compute_pattern_singletap(struct tr_map * map)
 {
-  for(int i = 0; i < map->nb_object; i++)
-    {
-      struct pattern * p = trm_get_pattern(map, i, 0.75);
-      if (p == NULL)
-	continue;
-
-      for (int j = 0; (j < LENGTH_PATTERN_USED &&
-		       i + j < map->nb_object); j++)
-	{
-	  map->object[i+j].singletap[j] = p->d[j];
-	}
-    }
+  float proba;
+  for(proba = PROBA_START; proba <= PROBA_END; proba += PROBA_STEP)
+    for(int i = 0; i < map->nb_object; i++)
+      {
+	struct pattern * p = trm_get_pattern(map, i, proba);
+	if (p == NULL)
+	  continue;
+	
+	for (int j = 0; (j < LENGTH_PATTERN_USED &&
+			 i + j < map->nb_object); j++)
+	  map->object[i+j].singletap[j] += proba * p->d[j];
+      }
 }
+
 
 //-----------------------------------------------------
 //-----------------------------------------------------
@@ -434,11 +437,13 @@ static void trm_compute_pattern_star(struct tr_map * map)
 {
   for (int i = 0; i < map->nb_object; i++)
     {
-      map->object[i].pattern_star =
-	(PATTERN_STAR_COEFF_ALT * map->object[i].alt[0] +
-	 PATTERN_STAR_COEFF_ALT * map->object[i].alt[1] +
-	 PATTERN_STAR_COEFF_SIN * map->object[i].singletap[0] +
-	 PATTERN_STAR_COEFF_SIN * map->object[i].singletap[1]);
+      map->object[i].pattern_star = 0;
+      for (int j = 0; j < LENGTH_PATTERN_USED; j++)
+	{
+	  map->object[i].pattern_star +=
+	    PATTERN_STAR_COEFF_ALT * map->object[i].alt[j] +
+	    PATTERN_STAR_COEFF_SIN * map->object[i].singletap[j];
+	}
     }
 
   map->pattern_star = trm_stats_compute_pattern_star(map); 

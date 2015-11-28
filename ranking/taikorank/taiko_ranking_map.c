@@ -288,7 +288,7 @@ void trm_print_tro(struct tr_map * map, int filter)
   if ((filter & FILTER_BASIC) != 0)
     fprintf(OUTPUT_INFO, "offset\trest\ttype\tbpm app\t");
   if ((filter & FILTER_BASIC_PLUS) != 0)
-    fprintf(OUTPUT_INFO, "offset\tend\trest\ttype\tbpm app\t");
+    fprintf(OUTPUT_INFO, "offset\tend\trest\trest2\ttype\tbpm app\t");
   if ((filter & FILTER_ADDITIONNAL) != 0)
     fprintf(OUTPUT_INFO, "l hand\tr hand\trest\tobj app\tobjdis\t");
   if ((filter & FILTER_DENSITY) != 0)
@@ -314,11 +314,13 @@ void trm_print_tro(struct tr_map * map, int filter)
 
 void trm_print(struct tr_map * map)
 {
-  fprintf(OUTPUT, "%.4g\t", map->final_star);
-  fprintf(OUTPUT, "%.4g\t", map->reading_star);
   fprintf(OUTPUT, "%.4g\t", map->pattern_star);
   fprintf(OUTPUT, "%.4g\t", map->density_star);
+  
+  fprintf(OUTPUT, "%.4g\t", map->final_star);
+  /*fprintf(OUTPUT, "%.4g\t", map->reading_star);
   fprintf(OUTPUT, "%.4g\t", map->accuracy_star);
+  */
   trm_print_mods(map);
   print_string_size(map->diff,    24, OUTPUT);
   print_string_size(map->title,   32, OUTPUT);

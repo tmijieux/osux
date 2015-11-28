@@ -127,10 +127,11 @@ void tro_print(struct tr_object * obj, int filter)
 	    obj->type,
 	    obj->bpm_app);
   if ((filter & FILTER_BASIC_PLUS) != 0)
-    fprintf(OUTPUT_INFO, "%d\t%d\t%d\t%c\t%.3g\t",
+    fprintf(OUTPUT_INFO, "%d\t%d\t%d\t%d\t%c\t%.3g\t",
 	    obj->offset,
 	    obj->end_offset,
 	    obj->rest,
+	    obj->color_rest,
 	    obj->type,
 	    obj->bpm_app);
   if ((filter & FILTER_ADDITIONNAL) != 0)
