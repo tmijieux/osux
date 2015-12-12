@@ -20,7 +20,7 @@
 
 #include "hashtable.h"
 
-#define INITIAL_HASH_TABLE_SIZE     13
+#define INITIAL_HASH_TABLE_SIZE     113
 
 struct ht_entry {
     char *key;
@@ -91,16 +91,18 @@ static void free_entry(struct ht_entry *he)
     }
 }
 
-struct hash_table* ht_create(int (*hash)(const char*))
+struct hash_table* ht_create(size_t size, int (*hash)(const char*))
 {
-    struct hash_table *ht = malloc(sizeof(*ht));
+    struct hash_table *ht = (struct hash_table*) malloc(sizeof(*ht));
     if (hash)
 	ht->hash = hash;
     else
 	ht->hash = &default_hash;
-    ht->size = INITIAL_HASH_TABLE_SIZE;
+    if (size > 0)
+	    ht->size = size;
+    else
+	    ht->size = INITIAL_HASH_TABLE_SIZE;
     ht->buf = calloc(sizeof(*ht->buf), ht->size);
-    
     return ht;
 }
 

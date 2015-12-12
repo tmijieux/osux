@@ -1,4 +1,3 @@
-
 #ifndef YAML2_H
 #define YAML2_H
 
@@ -12,6 +11,7 @@ union yaml_content {
     struct list *sequence;
     struct hash_table *mapping;
     char *scalar;
+    void *value;
 };
 
 struct yaml_wrap {

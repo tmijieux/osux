@@ -21,7 +21,7 @@
 
 struct hash_table;
 
-struct hash_table* ht_create(int (*hash)(const char*));
+struct hash_table* ht_create(size_t size, int (*hash)(const char*));
 
 int ht_add_entry(struct hash_table* ht, const char *key, const void *data);
 int ht_remove_entry(struct hash_table *ht, const char *key);

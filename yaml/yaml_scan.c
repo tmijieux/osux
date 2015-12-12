@@ -11,6 +11,7 @@
 struct pattern {
     double *d;
 };
+
 struct hash_table;
 int ht_add_entry(struct hash_table*, const char*key, void*value);
 
@@ -40,28 +41,28 @@ int yaml_scan(struct hash_table *ht)
 
 	switch (token.type) {
 	    /* Token types (read before actual token) */
-	    case YAML_KEY_TOKEN:
-		pat = malloc(sizeof*pat);
-	    case YAML_VALUE_TOKEN:
-		token_type = token.type;
-		break;
+	case YAML_KEY_TOKEN:
+	    pat = malloc(sizeof*pat);
+	case YAML_VALUE_TOKEN:
+	    token_type = token.type;
+	    break;
 		    
-	    case YAML_SCALAR_TOKEN:
-		if ( token_type == YAML_KEY_TOKEN)
-		{
-		    key = strdup((char*) token.data.scalar.value);
-		}
-		else if ( token_type == YAML_VALUE_TOKEN )
-		{
-		    pat->d[count++] = atof((char*)token.data.scalar.value);
-		}
-		break;
+	case YAML_SCALAR_TOKEN:
+	    if ( token_type == YAML_KEY_TOKEN)
+	    {
+		key = strdup((char*) token.data.scalar.value);
+	    }
+	    else if ( token_type == YAML_VALUE_TOKEN )
+	    {
+		pat->d[count++] = atof((char*)token.data.scalar.value);
+	    }
+	    break;
 
-	    case 11: // list end ']'
-		ht_add_entry(ht, key, pat);
-		break;
-	    default:
-		break;
+	case 11: // list end ']'
+	    ht_add_entry(ht, key, pat);
+	    break;
+	default:
+	    break;
 	}
 	done = (token.type == YAML_STREAM_END_TOKEN);
 	yaml_token_delete(&token);
