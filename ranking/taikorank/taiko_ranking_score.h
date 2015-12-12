@@ -14,29 +14,27 @@
  *  limitations under the License.
  */
 
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#ifndef TAIKO_RANKING_SCORE_H
+#define TAIKO_RANKING_SCORE_H
 
-#include "print.h"
+struct tr_map;
 
-//-------------------------------------------------
-
-void print_string_size(char *s, int max, FILE * output)
+struct tr_score
 {
-  int length = strlen(s);
-  if (length >= max)
-    {
-      s[max-1] = '\0';
-      s[max-2] = '.';
-      s[max-3] = '.';
-      s[max-4] = '.';
-      length = max;
-    }
-  fprintf(output, "%s", s);
-  length = max - length - 1;
-  for (int i = 0; i < length; i++)
-    fprintf(output, " ");
-  fprintf(output, "\t");
-}
+  const struct tr_map * origin;
+  double acc;
+  
+  struct tr_map * map;
+  double current_acc;
+};
+
+void trs_main(const struct tr_map * map, int mods, double acc);
+struct tr_score * trs_new(const struct tr_map * map, int mods,
+			  double acc);
+void trs_free(struct tr_score * score);
+
+void trs_compute(struct tr_score * score);
+
+void trs_print(struct tr_score * score);
+
+#endif //TAIKO_RANKING_SCORE_H

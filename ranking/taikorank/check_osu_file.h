@@ -14,9 +14,9 @@
  *  limitations under the License.
  */
 
-#ifndef LOAD_H
-#define LOAD_H
+#ifndef LOAD_OSU_H
+#define LOAD_OSU_H
 
-struct tr_map * trm_load (char * file_name);
+int check_file(char * file_name);
 
-#endif //LOAD_H
+#endif //LOAD_OSU_H

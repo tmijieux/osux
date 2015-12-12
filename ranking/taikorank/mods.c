@@ -14,9 +14,12 @@
  *  limitations under the License.
  */
 
+#include <stdio.h>
+
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"
 
+#include "print.h"
 #include "mods.h"
 
 static void trm_apply_mods_EZ (struct tr_map * map);
@@ -28,6 +31,9 @@ static void trm_apply_mods_FL (struct tr_map * map);
 
 static void trm_apply_NM_app_dis(struct tr_map * map);
 static void trm_apply_NM_ms_coeff(struct tr_map * map);
+
+static int trm_print_one_mod(struct tr_map * map, int mods, int * i,
+			     char * buffer, char * string);
 
 //---------------------------------------------
 
@@ -172,3 +178,36 @@ void trm_apply_mods (struct tr_map * map)
 }
 
 //---------------------------------------------
+//-------------------------------------------------
+
+static int trm_print_one_mod(struct tr_map * map, int mods, int * i,
+			  char * buffer, char * string)
+{
+  if ((map->mods & mods) != 0)
+    {
+      sprintf(&buffer[*i], string);
+      *i += STR_MODS_LENGTH;
+      return 1;
+    }
+  return 0;
+}
+
+//-------------------------------------------------
+
+void trm_print_mods(struct tr_map * map)
+{
+  char buffer[STR_MODS_LENGTH * MAX_MODS + 1] = { 0 };
+  int i = 0;
+  
+  if (trm_print_one_mod(map, MODS_HR, &i, buffer, "HR ") == 0)
+    trm_print_one_mod(map, MODS_EZ, &i, buffer, "EZ ");
+
+  if (trm_print_one_mod(map, MODS_DT, &i, buffer, "DT ") == 0)
+    trm_print_one_mod(map, MODS_HT, &i, buffer, "HT ");
+
+  trm_print_one_mod(map, MODS_HD, &i, buffer, "HD ");
+  trm_print_one_mod(map, MODS_FL, &i, buffer, "FL ");
+
+  print_string_size(buffer, STR_MODS_LENGTH * MAX_MODS + 1, OUTPUT);
+}
+

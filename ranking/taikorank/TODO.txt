@@ -1,35 +1,12 @@
-Modifications:
-- changer la projection des petits BPM, -> exp ou ²...
-- vérifier proportions dans reading.c
-- superosed/hidding/hidden à revoir
-- speed pb: when using FL time is shorter
--- small time: time
--- long time:  bpm?
-|> 2 values: reaction_time, slowness
+Todo:
+- last_hand don/kat in treatment
+- min on alt[] and singletap[]
+- 95% computation, other methods?
+- redo all reading computation...
 
-notes:		   
+Other:		   
 - HDHR not supported
 - EZ speed not sure
 
 Projet:
 - accuracy !
-- redo all reading computation...
-- pattern, singletap proba
-
-/*
-old function ... to delete
-static double tro_speed (struct tr_object * obj)
-{
-  
-  if (time > TIME_CENTER) 
-    {
-      time = EXP_2_PT(time,
-		      TIME_CENTER, TIME_CENTER,
-		      TIME_MAX,    TIME_MIN);
-    }
-    
-  return FAST_MIN * (1 + pow(bpm_app - BPM_CENTER,
-			     (log(FAST_MAX / FAST_MIN - 1) /
-			     log(BPM_MAX - BPM_CENTER))));
-
-*/

@@ -33,7 +33,7 @@
 #define FINAL_COEFF_Q3     0.
 
 // scaling
-#define FINAL_STAR_SCALING 1.
+#define FINAL_STAR_SCALING 2.
 
 // stats module
 TRM_STATS_HEADER(final_star, FINAL)
@@ -47,11 +47,11 @@ void trm_compute_final_star (struct tr_map * map)
   for(int i = 0; i < map->nb_object; i++)
     {
       map->object[i].final_star =
-	(map->object[i].density_star *
-	 map->object[i].pattern_star);
+	pow(map->object[i].density_star *
+	    map->object[i].pattern_star,
+	    0.25);
     }
 
   map->final_star = trm_stats_compute_final_star(map);
-  map->final_star = pow(map->final_star, 0.25);
 }
 

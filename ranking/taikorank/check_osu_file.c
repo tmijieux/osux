@@ -20,11 +20,11 @@
 #include <string.h>
 
 #include "taiko_ranking_map.h"
-#include "convert.h"
 #include "print.h"
 
+#include "check_osu_file.h"
+
 static int compare(char* s, char* t, int length);
-static int check_file(char * file_name);
 
 //--------------------------------------------------
 
@@ -38,7 +38,7 @@ static int compare(char* s, char* t, int length)
 
 //--------------------------------------------------
 
-static int check_file(char * file_name)
+int check_file(char * file_name)
 {
   // cheking that it's a .osu file
   int length = strlen(file_name);
@@ -54,14 +54,4 @@ static int check_file(char * file_name)
       return 0;
     }
   return 1;
-}
-
-//--------------------------------------------------
-
-struct tr_map * trm_load (char * file_name)
-{
-  if (check_file(file_name) == 0)
-    return NULL;
-
-  return trm_convert(file_name);
 }

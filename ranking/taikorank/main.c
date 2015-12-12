@@ -20,9 +20,11 @@
 #include <string.h>
 
 #include "taiko_ranking_map.h"
+#include "taiko_ranking_score.h"
 #include "mods.h"
 #include "print.h"
-#include "load.h"
+
+#define ACC 0.95
 
 int main(int argc, char* argv[])
 {
@@ -31,18 +33,19 @@ int main(int argc, char* argv[])
     {      
       for (int i = 1; i < argc; i++)
 	{
-	  struct tr_map * map = trm_load(argv[i]);
+	  struct tr_map * map = trm_new(argv[i]);
 	  if (map == NULL)
 	    continue;
 	  
-	  trm_compute_taiko_stars(map, MODS_NONE);
-	  //trm_compute_taiko_stars(map, MODS_DT);
-	  //trm_compute_taiko_stars(map, MODS_HT);
-	  //trm_compute_taiko_stars(map, MODS_HD);
-	  //trm_compute_taiko_stars(map, MODS_FL);
-	  //trm_compute_taiko_stars(map, MODS_HR);
-	  //trm_compute_taiko_stars(map, MODS_HD);
-	  //trm_compute_taiko_stars(map, MODS_HD | MODS_FL);
+	  trm_main(map, MODS_NONE);
+	  trs_main(map, MODS_NONE, ACC);
+	  //trm_main(map, MODS_DT);
+	  //trm_main(map, MODS_HT);
+	  //trm_main(map, MODS_HD);
+	  //trm_main(map, MODS_FL);
+	  //trm_main(map, MODS_HR);
+	  //trm_main(map, MODS_HD);
+	  //trm_main(map, MODS_HD | MODS_FL);
 	  
 	  trm_free(map);	    
 	}

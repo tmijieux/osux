@@ -14,29 +14,9 @@
  *  limitations under the License.
  */
 
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#ifndef TR_DB_H
+#define TR_DB_H
 
-#include "print.h"
+void tr_db_add(struct tr_map * map);
 
-//-------------------------------------------------
-
-void print_string_size(char *s, int max, FILE * output)
-{
-  int length = strlen(s);
-  if (length >= max)
-    {
-      s[max-1] = '\0';
-      s[max-2] = '.';
-      s[max-3] = '.';
-      s[max-4] = '.';
-      length = max;
-    }
-  fprintf(output, "%s", s);
-  length = max - length - 1;
-  for (int i = 0; i < length; i++)
-    fprintf(output, " ");
-  fprintf(output, "\t");
-}
+#endif //TR_DB_H

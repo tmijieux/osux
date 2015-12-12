@@ -14,7 +14,10 @@
  *  limitations under the License.
  */
 
+#include <stdio.h>
 #include <math.h>
+
+#include "print.h"
 
 #include "taiko_ranking_object.h"
 
@@ -114,3 +117,78 @@ int tro_are_same_density (struct tr_object * obj1,
 //---------------------------------------------------
 //---------------------------------------------------
 //---------------------------------------------------
+
+void tro_print(struct tr_object * obj, int filter)
+{
+  if ((filter & FILTER_BASIC) != 0)
+    fprintf(OUTPUT_INFO, "%d\t%d\t%c\t%.3g\t",
+	    obj->offset,
+	    obj->rest,
+	    obj->type,
+	    obj->bpm_app);
+  if ((filter & FILTER_BASIC_PLUS) != 0)
+    fprintf(OUTPUT_INFO, "%d\t%d\t%d\t%d\t%c\t%.3g\t",
+	    obj->offset,
+	    obj->end_offset,
+	    obj->rest,
+	    obj->color_rest,
+	    obj->type,
+	    obj->bpm_app);
+  if ((filter & FILTER_ADDITIONNAL) != 0)
+    fprintf(OUTPUT_INFO, "%d\t%d\t%g\t%g\t",
+	    obj->l_hand,
+	    obj->r_hand,
+	    obj->obj_app,
+	    obj->obj_dis);
+  if ((filter & FILTER_DENSITY) != 0)
+    fprintf(OUTPUT_INFO, "%g\t%g\t%g\t",
+	    obj->density_raw,
+	    obj->density_color,
+	    obj->density_star);
+  if ((filter & FILTER_READING) != 0)
+    fprintf(OUTPUT_INFO, "%d\t%d\t%d\t%d\t%g\t%.3g\t%.3g\t%.3g\t%.3g\t%.2g\t%g\t",
+	    obj->offset_app,
+	    obj->offset_dis,
+	    obj->visible_time,
+	    obj->invisible_time,
+	    obj->superposed,
+	    obj->hidden,
+	    obj->hide,
+	    obj->slow,
+	    obj->fast,
+	    obj->speed_change,
+	    obj->reading_star);
+  if ((filter & FILTER_READING_PLUS) != 0)
+    fprintf(OUTPUT_INFO, "%d\t%d\t%d\t%d\t%g\t%.3g\t%.3g\t%.3g\t%.3g\t%.2g\t%g\t",
+	    obj->offset_app,
+	    obj->end_offset_app,
+	    obj->offset_dis,
+	    obj->end_offset_dis,
+	    obj->superposed,
+	    obj->hidden,
+	    obj->hide,
+	    obj->slow,
+	    obj->fast,
+	    obj->speed_change,
+	    obj->reading_star);
+  if ((filter & FILTER_PATTERN) != 0)
+    fprintf(OUTPUT_INFO, "%.3g\t%.3g\t%.3g\t%.3g\t%.3g\t%g\t",
+	    obj->proba,
+	    obj->alt[0],
+	    obj->alt[1],
+	    obj->singletap[0],
+	    obj->singletap[1],
+	    obj->pattern_star);
+  if ((filter & FILTER_ACCURACY) != 0)
+    fprintf(OUTPUT_INFO, "\t");
+  if ((filter & FILTER_STAR) != 0)
+    fprintf(OUTPUT_INFO, "%g\t%g\t%g\t%g\t",
+	    obj->density_star,
+  	    obj->reading_star,
+	    obj->pattern_star,
+	    obj->final_star);
+  
+  fprintf(OUTPUT_INFO, "\n");
+}
+
+//-------------------------------------------------

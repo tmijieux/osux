@@ -36,6 +36,7 @@ struct tr_object
   int l_hand;
   int r_hand;
   int rest;            // printed in basic
+  int color_rest;      // printed in basic+
   double obj_app;      // nb obj displayable on screen, without overlapping
   double obj_dis;      // nb obj where disappear
   int offset_app;      // printed in reading
@@ -46,8 +47,9 @@ struct tr_object
   int invisible_time;  // printed in reading
 
   // ---- pattern data
-  double pattern_alt1;
-  double pattern_alt2;
+  double proba;
+  double * alt;
+  double * singletap;
   
   // ---- density data
   double density_raw;
@@ -70,6 +72,8 @@ struct tr_object
 };
 
 //-------------------------------------------------------------
+
+void tro_print(struct tr_object * obj, int filter);
 
 double mpb_to_bpm (double mpb);
 int equal (double x, double y);

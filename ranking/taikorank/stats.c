@@ -34,7 +34,7 @@
    const struct tr_object * obj1 = o1;				\
    const struct tr_object * obj2 = o2;				\
    double f = (obj1->FIELD - obj2->FIELD);			\
-   return f<0?-1:(f>0?1:0);					\
+   return f < 0? -1:(f > 0? 1:0);				\
  }
 
 #define TRM_SORT(FIELD)						\
