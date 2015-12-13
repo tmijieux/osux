@@ -114,7 +114,7 @@ struct hash_table *cparse_osu_file(FILE *f)
 	return NULL;
     }
     
-    sections = ht_create(NULL);
+    sections = ht_create(0, NULL);
     ht_add_entry(sections, "version", ver);
     ht_add_entry(sections, "bom", bom);
     
@@ -137,7 +137,7 @@ struct hash_table *cparse_osu_file(FILE *f)
 	    free(current_section_name);
 	    current_section_name = match[0];
 	    if (!ht_has_entry(sections, current_section_name)) {
-		current_section = ht_create(NULL);
+		current_section = ht_create(0, NULL);
 		ht_add_entry(sections, current_section_name, current_section);
 	    } else {
 		ht_get_entry(sections, current_section_name, &current_section);

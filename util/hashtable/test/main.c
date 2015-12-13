@@ -21,7 +21,7 @@
 
 int main(int argc, char *argv[])
 {
-    struct hash_table *ht = ht_create(NULL);
+    struct hash_table *ht = ht_create(0, NULL);
     ht_add_entry(ht, "lulz", "some data", 10);
 
     int lulz, ret;

@@ -234,7 +234,7 @@ static void remove_pattern(const char * s)
 __attribute__((constructor))
 static void ht_pattern_init()
 {  
-  ht_pattern = ht_create(NULL);
+  ht_pattern = ht_create(0, NULL);
   // 1 pattern list
   add_new_pattern("d", D);
   add_new_pattern("k", K);
