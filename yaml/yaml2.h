@@ -2,9 +2,9 @@
 #define YAML2_H
 
 enum yaml_type {
-    YAML_MAPPING,
-    YAML_SEQUENCE,
-    YAML_SCALAR
+    YAML_MAPPING = 10,
+    YAML_SEQUENCE = 13,
+    YAML_SCALAR = -9
 };
 
 union yaml_content {
@@ -19,7 +19,6 @@ struct yaml_wrap {
     union yaml_content content;
 };
 
-int parse_yaml_file(struct yaml_wrap **yamlw, const char *file_name);
-    
+int yaml2_parse_file(struct yaml_wrap **yamlw, const char *file_name);
 
 #endif //YAML2_H

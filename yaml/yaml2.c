@@ -7,37 +7,69 @@
 #include <list.h>
 #include "stack.h"
 
+void yaml2_dump(FILE *out, const struct yaml_wrap *yw);
+
+static void mapping_dump(const char *name, void *data, void *args)
+{
+    fprintf(args, "%s: ", name);
+    yaml2_dump(args, data);
+}
+
+void yaml2_dump(FILE *out, const struct yaml_wrap *yw)
+{
+    switch (yw->type) {
+    case YAML_SEQUENCE:
+	fprintf(out, "yaml sequence start:\n", yw->content.scalar);
+	int si = list_size(yw->content.sequence);
+	for (int i = 1; i <= si; ++i) {
+	    fprintf(out, "- ");
+	    yaml2_dump(out, list_get(yw->content.sequence, i));
+	}
+	fprintf(out, "yaml sequence end\n", yw->content.scalar);
+
+	break;
+
+    case YAML_MAPPING:
+	fprintf(out, "yaml mapping start:\n", yw->content.scalar);
+	ht_for_each(yw->content.mapping, mapping_dump, out);
+	fprintf(out, "yaml mapping end\n", yw->content.scalar);
+	break;
+
+    case YAML_SCALAR:
+	fprintf(out, "%s\n", yw->content.scalar);
+	break;
+    }
+}
+
 int main(int argc, char *argv[])
 {
     struct yaml_wrap *yamlw;
-    parse_yaml_file(&yamlw, "description.yaml");
-
-    printf("%s\n", (yamlw->type == YAML_MAPPING)? "mapping" :
-	   ((yamlw->type == YAML_SEQUENCE)? "sequence":"scalar"));
-
-    
+    yaml2_parse_file(&yamlw, "description.yaml");
+    yaml2_dump(stdout, yamlw);
     return 0;
 }
 
 void parser_stack_push(struct stack *parser_stack,
 		       enum yaml_type yt, void *value, char *keyname)
 {
+    struct yaml_wrap *newhead = calloc(sizeof*newhead, 1);
+    newhead->type = yt;
+    newhead->content.value = value;
+
     if (stack_size(parser_stack) > 0) {
 	struct yaml_wrap *head = stack_peek(parser_stack);
 	
 	if (YAML_MAPPING == head->type)
-	    ht_add_entry(head->content.mapping, keyname, value);
-	else if (YAML_SEQUENCE == head->type)
-	    list_append(head->content.sequence, value);
+	    ht_add_entry(head->content.mapping, keyname, newhead);
+	else if (YAML_SEQUENCE == head->type) {
+	    list_append(head->content.sequence, newhead);
+	}
     }
     
-    struct yaml_wrap *newhead = calloc(sizeof*newhead, 1);
-    newhead->type = yt;
-    newhead->content.value = value;
     stack_push(parser_stack, newhead);
 }
 
-int parse_yaml_file(struct yaml_wrap **yamlw, const char *file_name)
+int yaml2_parse_file(struct yaml_wrap **yamlw, const char *file_name)
 {
     FILE *fh;
     yaml_parser_t parser;
@@ -80,12 +112,10 @@ int parse_yaml_file(struct yaml_wrap **yamlw, const char *file_name)
 	    break;
 		
 	case YAML_SEQUENCE_START_EVENT:
-	    printf("seq start\n");
 	    parser_stack_push(parser_stack, YAML_SEQUENCE, list_new(0), keyname);
 	    break;
 
 	case YAML_MAPPING_START_EVENT:
-	    printf("map start\n");
 	    key = 0;
 	    parser_stack_push(parser_stack, YAML_MAPPING,
 			      ht_create(100, NULL), keyname);
@@ -110,6 +140,7 @@ int parse_yaml_file(struct yaml_wrap **yamlw, const char *file_name)
 			key = 0;
 		    }
 		} else {
+		    assert(head->type == YAML_SEQUENCE);
 		    parser_stack_push(parser_stack, YAML_SCALAR,
 				      strdup(event.data.scalar.value), keyname);
 		    stack_pop(parser_stack);
