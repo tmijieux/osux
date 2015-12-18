@@ -22,6 +22,7 @@
 #include <stdarg.h>
 
 #include "util/hashtable/hashtable.h"
+#include "yaml/yaml2.h"
 
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"
@@ -109,8 +110,8 @@ static void trm_compute_pattern_star(struct tr_map * map);
 // 160ms ~ 180bpm 1/2
 // 125ms = 240bpm 1/2
 
-#define PROBA_START 0.2  // <= 
-#define PROBA_END   1.
+#define PROBA_START 0.2  
+#define PROBA_END   1.  // <= 
 #define PROBA_STEP  0.2
 
 // coeff for star
@@ -134,77 +135,30 @@ TRM_STATS_HEADER(pattern_star, PATTERN)
 //-----------------------------------------------------
 //-----------------------------------------------------
 //-----------------------------------------------------
-/*
-#include "yaml.h"
-#include "stdio.h"
 
-static void yaml_pattern()
+#define PATTERN_FILE "pattern_cst.yaml"
+
+struct hash_table * ht_cst;
+static void pattern_cst_init()
 {
-  FILE * f = fopen("pattern_diff.yaml", "r");
-  yaml_parser_t parser;
-  yaml_token_t  token;
-  
-  //Initialize parser 
-  if(!yaml_parser_initialize(&parser))
-    fputs("Failed to initialize parser!\n", stderr);
-  if(f == NULL)
-    fputs("Failed to open file!\n", stderr);
-
-  // Set input file 
-  yaml_parser_set_input_file(&parser, f);
-
-  // CODE HERE 
-  do
+  struct yaml_wrap * yw = NULL;
+  int r = yaml2_parse_file(&yw, PATTERN_FILE);
+  if (r != 0)
     {
-      yaml_parser_scan(&parser, &token);
-      switch(token.type)
-	{
-	  //Stream start/end 
-	case YAML_STREAM_START_TOKEN:
-	  puts("STREAM START");
-	  break;
-	case YAML_STREAM_END_TOKEN:
-	  puts("STREAM END");
-	  break;
-	  // Token types (read before actual token) 
-	case YAML_KEY_TOKEN:
-	  printf("(Key token)   ");
-	  break;
-	case YAML_VALUE_TOKEN:
-	  printf("(Value token) ");
-	  break;
-	  // Block delimeters 
-	case YAML_BLOCK_SEQUENCE_START_TOKEN:
-	  puts("<b>Start Block (Sequence)</b>");
-	  break;
-	case YAML_BLOCK_ENTRY_TOKEN:
-	  puts("<b>Start Block (Entry)</b>");
-	  break;
-	case YAML_BLOCK_END_TOKEN:
-	  puts("<b>End block</b>");
-	  break;
-	  // Data 
-	case YAML_BLOCK_MAPPING_START_TOKEN:
-	  puts("[Block mapping]");
-	  break;
-	case YAML_SCALAR_TOKEN:
-	  printf("scalar %s \n", token.data.scalar.value);
-	  break;
-	  // Others
-	default:
-	  printf("Got token of type %d\n", token.type);
-	}
-      if(token.type != YAML_STREAM_END_TOKEN)
-	yaml_token_delete(&token);
+      
+      return;
     }
-  while(token.type != YAML_STREAM_END_TOKEN);
-  yaml_token_delete(&token);
-  
-  // Cleanup 
-  yaml_parser_delete(&parser);
-  fclose(f);
+  yaml2_dump(stdout, yw);
+  if(yw->type == YAML_MAPPING)
+    {
+      ht_cst = yw->content.mapping;
+      struct yaml_wrap * tmp = NULL;
+      ht_get_entry(ht_cst, "MAX_PATTERN_LENGTH", &tmp);
+      if(tmp->type == YAML_SCALAR)
+	printf("%s\n", tmp->content.scalar);
+    }
 }
-*/
+
 //-----------------------------------------------------
 
 static void add_new_pattern(const char * s, ...)

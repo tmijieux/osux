@@ -3,8 +3,8 @@
 #include <assert.h>
 
 #include "yaml2.h"
-#include <hashtable.h>
-#include <list.h>
+#include "hashtable.h"
+#include "list.h"
 #include "stack.h"
 
 void yaml2_dump(FILE *out, const struct yaml_wrap *yw);
@@ -39,14 +39,6 @@ void yaml2_dump(FILE *out, const struct yaml_wrap *yw)
 	fprintf(out, "%s\n", yw->content.scalar);
 	break;
     }
-}
-
-int main(int argc, char *argv[])
-{
-    struct yaml_wrap *yamlw;
-    yaml2_parse_file(&yamlw, "description.yaml");
-    yaml2_dump(stdout, yamlw);
-    return 0;
 }
 
 void parser_stack_push(struct stack *parser_stack,

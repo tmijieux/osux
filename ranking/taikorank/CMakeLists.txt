@@ -20,7 +20,7 @@ set(tr_src
 
 add_executable(taiko_ranking ${tr_src})
 
-target_link_libraries(taiko_ranking parser m heap hashtable sum yaml mysqlclient)
+target_link_libraries(taiko_ranking parser m heap hashtable sum yaml2 mysqlclient)
 
 add_subdirectory(sum)
 
