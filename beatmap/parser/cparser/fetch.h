@@ -17,8 +17,6 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "util/hashtable/hashtable.h"
-
 struct map *osux_c_parse_beatmap(const char *filename);
 
 #endif //PARSER_H

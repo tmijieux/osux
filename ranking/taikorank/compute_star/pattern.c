@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#include "util/hashtable/hashtable.h"
+#include "util/hashtable/hash_table.h"
 #include "yaml/yaml2.h"
 
 #include "taiko_ranking_map.h"

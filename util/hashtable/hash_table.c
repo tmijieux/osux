@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "hashtable.h"
+#include "hash_table.h"
 
 #define INITIAL_HASH_TABLE_SIZE     113
 

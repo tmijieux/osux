@@ -25,7 +25,7 @@
 
 #include "util/string/split.h"
 #include "util/list/list.h"
-#include "util/hashtable/hashtable.h"
+#include "util/hashtable/hash_table.h"
 
 #include "beatmap/hitsound.h"
 #include "beatmap/beatmap.h"

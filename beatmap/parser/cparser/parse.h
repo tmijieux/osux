@@ -18,7 +18,7 @@
 #define OMP_H
 
 #include <visibility.h>
-#include "util/hashtable/hashtable.h"
+#include "util/hashtable/hash_table.h"
 
 __internal
 struct hash_table *cparse_osu_file(FILE *f);

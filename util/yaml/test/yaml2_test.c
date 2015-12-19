@@ -1,4 +1,5 @@
-#include "yaml2.h"
+#include <stdio.h>
+#include "../yaml2.h"
 
 int main(int argc, char *argv[])
 {
@@ -7,3 +8,4 @@ int main(int argc, char *argv[])
     yaml2_dump(stdout, yamlw);
     return 0;
 }
+

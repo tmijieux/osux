@@ -20,7 +20,7 @@
 #include <stdlib.h>
 
 struct list_node {
-    void *data;
+    const void *data;
     struct list_node *next;
     int is_sentinel;
 };
