@@ -1,0 +1,9 @@
+# stats coeff
+final_stats:
+  median:  0.7
+  mean:    0.
+  d1:      0.
+  d9:      0.
+  q1:      0.3
+  q3:      0.
+  scaling: 2.0

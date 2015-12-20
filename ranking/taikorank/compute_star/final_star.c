@@ -17,33 +17,54 @@
 #include <math.h>
 #include "interpolation.h"
 
+#include <stdio.h>
+#include <string.h>
+#include <stdarg.h>
+
+#include "util/hashtable/hash_table.h"
+#include "util/list/list.h"
+#include "yaml/yaml2.h"
+
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"
 #include "sum.h"
 #include "stats.h"
+#include "cst_yaml.h"
+#include "print.h"
 
 #include "final_star.h"
 
-// coeff for stats
-#define FINAL_COEFF_MEDIAN 0.7
-#define FINAL_COEFF_MEAN   0.
-#define FINAL_COEFF_D1     0.
-#define FINAL_COEFF_D9     0.
-#define FINAL_COEFF_Q1     0.3
-#define FINAL_COEFF_Q3     0.
+static struct yaml_wrap * yw;
+static struct hash_table * ht_cst;
 
-// scaling
-#define FINAL_STAR_SCALING 2.
-
-// stats module
-TRM_STATS_HEADER(final_star, FINAL)
+#define FINAL_FILE  "final_cst.yaml"
+#define FINAL_STATS "final_stats"
 
 //-----------------------------------------------------
-//-----------------------------------------------------
+
+__attribute__((constructor))
+static void ht_cst_init_final(void)
+{
+  yw = cst_get_yw(FINAL_FILE);
+  ht_cst = cst_get_ht(yw);
+}
+
+__attribute__((destructor))
+static void ht_cst_exit_final(void)
+{
+  //yaml2_free(yw);
+}
+
 //-----------------------------------------------------
 
 void trm_compute_final_star (struct tr_map * map)
 {
+  if(!ht_cst)
+    {
+      tr_error("Unable to compute reading stars.");
+      return;
+    }
+  
   for(int i = 0; i < map->nb_object; i++)
     {
       map->object[i].final_star =
@@ -52,6 +73,7 @@ void trm_compute_final_star (struct tr_map * map)
 	    0.25);
     }
 
-  map->final_star = trm_stats_compute_final_star(map);
+  struct stats * stats = trm_stats_final_star(map);
+  struct stats * coeff = cst_stats(ht_cst, FINAL_STATS);
+  map->final_star = stats_stars(stats, coeff);
 }
-

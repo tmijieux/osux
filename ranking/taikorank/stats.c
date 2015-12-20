@@ -113,6 +113,22 @@ TRM_STATS_FUNCTIONS(final_star,    FINAL)
 
 //-----------------------------------------------------
 
+double stats_stars(struct stats * stats, struct stats * coeff)
+{
+  double stars = ((coeff->median * stats->median +
+		   coeff->mean   * stats->mean +
+		   coeff->d1     * stats->d1 +
+		   coeff->d9     * stats->d9 +
+		   coeff->q1     * stats->q1 +
+		   coeff->q3     * stats->q3) /
+		  coeff->scaling);
+  free(stats);
+  free(coeff);
+  return stars;
+}
+
+//-----------------------------------------------------
+
 void stats_print(struct stats * stats)
 {
   fprintf(OUTPUT_INFO, "-------- Stats --------\n");

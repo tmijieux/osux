@@ -17,12 +17,25 @@
 #include <math.h>
 #include "interpolation.h"
 
+#include <stdio.h>
+#include <string.h>
+#include <stdarg.h>
+
+#include "util/hashtable/hash_table.h"
+#include "util/list/list.h"
+#include "yaml/yaml2.h"
+
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"
 #include "sum.h"
 #include "stats.h"
+#include "cst_yaml.h"
+#include "print.h"
 
 #include "reading.h"
+
+static struct yaml_wrap * yw;
+static struct hash_table * ht_cst;
 
 static double tro_coeff_superpos(struct tr_object * obj);
 static double tro_hiding(struct tr_object * obj1,
@@ -39,57 +52,65 @@ static void trm_compute_reading_fast(struct tr_map * map);
 
 static void trm_compute_reading_star(struct tr_map * map);
 
+//--------------------------------------------------
+
+#define READING_FILE  "reading_cst.yaml"
+#define READING_STATS "reading_stats"
+
 // superposition coeff
-#define SUPERPOS_BIG   sqrt(2)
-#define SUPERPOS_SMALL 1.
+#define SUPERPOS_BIG   cst_f(ht_cst, "superpos_big")
+#define SUPERPOS_SMALL cst_f(ht_cst, "superpos_small")
 
 // hiding
-#define HIDE_MAX 10000.
-#define HIDE_EXP 500.
+#define HIDE_MAX cst_f(ht_cst, "hide_max")
+#define HIDE_EXP cst_f(ht_cst, "hide_exp")
 
 // slow
-#define TIME_MIN    100.   // human reaction time ~2500bpm app
-#define TIME_CENTER 3200.  // 3200ms ~ 80bpm app
-#define TIME_MAX    60000. // max slow considered
+#define TIME_MIN    cst_f(ht_cst, "time_min")
+#define TIME_CENTER cst_f(ht_cst, "time_center")
+#define TIME_MAX    cst_f(ht_cst, "time_max")
 
-#define SLOW_MIN 0.
-#define SLOW_MAX 1000.
+#define SLOW_MIN cst_f(ht_cst, "slow_min")
+#define SLOW_MAX cst_f(ht_cst, "slow_max")
 
 // fast
-#define BPM_MIN      0.
-#define BPM_CENTER   80.
-#define BPM_MAX      2500.
+#define BPM_MIN    cst_f(ht_cst, "bpm_min")
+#define BPM_CENTER cst_f(ht_cst, "bpm_center")
+#define BPM_MAX    cst_f(ht_cst, "bpm_max")
 
-#define FAST_MIN 1.
-#define FAST_MAX 1000.
+#define FAST_MIN cst_f(ht_cst, "fast_min")
+#define FAST_MAX cst_f(ht_cst, "fast_max")
 
 // speed change
-#define SPEED_CH_MAX     pow(10, 6)
-#define SPEED_CH_TIME_0  1000.
-#define SPEED_CH_VALUE_0 pow(10, -9)
+#define SPEED_CH_MAX     cst_f(ht_cst, "star_hide")
+#define SPEED_CH_TIME_0  cst_f(ht_cst, "star_hide")
+#define SPEED_CH_VALUE_0 cst_f(ht_cst, "star_hide")
 
 // coeff for star
-#define READING_STAR_COEFF_SUPERPOSED 0   
-#define READING_STAR_COEFF_HIDE       0   
-#define READING_STAR_COEFF_HIDDEN     0   
-#define READING_STAR_COEFF_SPEED_CH   0   
-#define READING_STAR_COEFF_SLOW       1.
-#define READING_STAR_COEFF_FAST       1.
+#define READING_STAR_COEFF_SUPERPOSED cst_f(ht_cst, "star_superpos") 
+#define READING_STAR_COEFF_HIDE       cst_f(ht_cst, "star_hide")
+#define READING_STAR_COEFF_HIDDEN     cst_f(ht_cst, "star_hidden")   
+#define READING_STAR_COEFF_SPEED_CH   cst_f(ht_cst, "star_speed_ch")
+#define READING_STAR_COEFF_SLOW       cst_f(ht_cst, "star_slow")
+#define READING_STAR_COEFF_FAST       cst_f(ht_cst, "star_fast")
 
-// coeff for stats
-#define READING_COEFF_MEDIAN 0.7
-#define READING_COEFF_MEAN   0.
-#define READING_COEFF_D1     0.
-#define READING_COEFF_D9     0.
-#define READING_COEFF_Q1     0.3
-#define READING_COEFF_Q3     0.
+//-----------------------------------------------------
 
-// scaling
-#define READING_STAR_SCALING 100.
+__attribute__((constructor))
+static void ht_cst_init_reading(void)
+{
+  yw = cst_get_yw(READING_FILE);
+  ht_cst = cst_get_ht(yw);
+}
 
-// stats module
-TRM_STATS_HEADER(reading_star, READING)
+__attribute__((destructor))
+static void ht_cst_exit_reading(void)
+{
+  //yaml2_free(yw);
+}
 
+//-----------------------------------------------------
+//-----------------------------------------------------
 //-----------------------------------------------------
 
 static double tro_coeff_superpos(struct tr_object * obj)
@@ -271,8 +292,9 @@ static void trm_compute_reading_star(struct tr_map * map)
 	 READING_STAR_COEFF_SLOW       * map->object[i].slow +
 	 READING_STAR_COEFF_FAST       * map->object[i].fast);
     }
-
-  map->reading_star = trm_stats_compute_reading_star(map); 
+  struct stats * stats = trm_stats_reading_star(map);
+  struct stats * coeff = cst_stats(ht_cst, READING_STATS);
+  map->reading_star = stats_stars(stats, coeff);
 }
 
 //-----------------------------------------------------
@@ -281,6 +303,12 @@ static void trm_compute_reading_star(struct tr_map * map)
 
 void trm_compute_reading(struct tr_map * map)
 {
+  if(!ht_cst)
+    {
+      tr_error("Unable to compute reading stars.");
+      return;
+    }
+  
   trm_compute_reading_hiding(map);
   trm_compute_reading_superposed(map);
   trm_compute_reading_slow(map);

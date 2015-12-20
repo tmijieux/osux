@@ -26,15 +26,25 @@
 
 //--------------------------------------------------
 
-struct hash_table * cst_get_ht(char * file_name)
+struct yaml_wrap * cst_get_yw(const char * file_name)
 {
   struct yaml_wrap * yw = NULL;
   if(0 != yaml2_parse_file(&yw, file_name))
-    tr_error("Unable to parse yaml file.");
-  else if(yw->type != YAML_MAPPING)
-    tr_error("Yaml file does not begin with a mapping.");
+    tr_error("Unable to parse yaml file %s.", file_name);
   else
-    return yw->content.mapping;
+    return yw;
+  return NULL;
+}
+
+struct hash_table * cst_get_ht(struct yaml_wrap * yw)
+{
+  if(yw != NULL)
+    {
+      if(yw->type != YAML_MAPPING)
+	tr_error("Yaml file does not begin with a mapping.");
+      else
+	return yw->content.mapping;
+    }
   return NULL;
 }
 

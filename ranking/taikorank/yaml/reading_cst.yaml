@@ -1,0 +1,47 @@
+# stats coeff
+reading_stats:
+  median:  0.7
+  mean:    0.
+  d1:      0.
+  d9:      0.
+  q1:      0.3
+  q3:      0.
+  scaling: 100.0
+
+# object superposition
+superpos_big:   1.41 #sqrt(2)
+superpos_small: 1.
+
+# hiding
+hide_max: 10000.
+hide_exp: 500.
+
+# slow
+time_min:    100.   # human reaction time ~2500bpm app
+time_center: 3200.  # 3200ms ~ 80bpm app
+time_max:    60000. # max slow considered
+
+slow_min: 0.
+slow_max: 1000.
+
+# fast
+bpm_min:    0.
+bpm_center: 80.
+bpm_max:    2500.
+
+fast_min: 1.
+fast_max: 1000.
+
+# speed change
+speed_ch_max:     1000000
+speed_ch_time_0:  1000.
+speed_ch_value_0: 0.000000001
+
+# coeff for star
+star_superpos: 0   
+star_hide:     0   
+star_hidden:   0   
+star_speed_ch: 0   
+star_slow:     1.
+star_fast:     1.
+

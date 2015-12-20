@@ -21,6 +21,7 @@
 
 #include "util/hashtable/hash_table.h"
 #include "util/list/list.h"
+#include "yaml/yaml2.h"
 
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"
@@ -31,6 +32,7 @@
 
 #include "density.h"
 
+static struct yaml_wrap * yw;
 static struct hash_table * ht_cst;
 
 static double tro_coeff_density (struct tr_object * obj);
@@ -65,26 +67,19 @@ static void trm_compute_density_star (struct tr_map * map);
 #define DENSITY_STAR_COEFF_COLOR cst_f(ht_cst, "star_color")
 #define DENSITY_STAR_COEFF_RAW   cst_f(ht_cst, "star_raw")
 
-// coeff for stats
-#define DENSITY_COEFF_MEDIAN 0.7
-#define DENSITY_COEFF_MEAN   0.
-#define DENSITY_COEFF_D1     0.
-#define DENSITY_COEFF_D9     0.
-#define DENSITY_COEFF_Q1     0.3
-#define DENSITY_COEFF_Q3     0.
-
-// scaling
-#define DENSITY_STAR_SCALING 15000.
-
-// stats module
-TRM_STATS_HEADER(density_star, DENSITY)
-
 //-----------------------------------------------------
 
 __attribute__((constructor))
-static void ht_cst_init_pattern()
+static void ht_cst_init_density(void)
 {
-  ht_cst = cst_get_ht(DENSITY_FILE);
+  yw = cst_get_yw(DENSITY_FILE);
+  ht_cst = cst_get_ht(yw);
+}
+
+__attribute__((destructor))
+static void ht_cst_exit_density(void)
+{
+  //yaml2_free(yw);
 }
 
 //-----------------------------------------------------
@@ -165,8 +160,9 @@ static void trm_compute_density_star (struct tr_map * map)
 	(DENSITY_STAR_COEFF_COLOR * map->object[i].density_color +
 	 DENSITY_STAR_COEFF_RAW   * map->object[i].density_raw);
     }
-  struct stats * stats = cst_stats(ht_cst, DENSITY_STATS);
-  map->density_star = trm_stats_2_compute_density_star(map, stats); 
+  struct stats * stats = trm_stats_density_star(map);
+  struct stats * coeff = cst_stats(ht_cst, DENSITY_STATS);
+  map->density_star = stats_stars(stats, coeff);
 }
 
 //-----------------------------------------------------

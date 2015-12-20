@@ -39,9 +39,10 @@ struct pattern
   double * d;
 };
 
-static int pattern_set;
-static struct hash_table * ht_pattern;
+static struct yaml_wrap * yw;
 static struct hash_table * ht_cst;
+static struct hash_table * ht_pattern;
+static int pattern_set;
 
 //--------------------------------------------------
 
@@ -84,20 +85,6 @@ static void trm_compute_pattern_star(struct tr_map * map);
 #define MAX_PATTERN_LENGTH  cst_f(ht_cst, "max_pattern_length")
 #define LENGTH_PATTERN_USED cst_f(ht_cst, "length_pattern_used")
 
-// coeff for stats
-#define PATTERN_COEFF_MEDIAN 0.5
-#define PATTERN_COEFF_MEAN   0.3
-#define PATTERN_COEFF_D1     0.
-#define PATTERN_COEFF_D9     0.2
-#define PATTERN_COEFF_Q1     0.
-#define PATTERN_COEFF_Q3     0.
-
-// scaling
-#define PATTERN_STAR_SCALING 5.0
-
-// stats module
-TRM_STATS_HEADER(pattern_star, PATTERN)
-
 #define cst_assert(COND, MSG)			\
   if(!(COND))					\
     {						\
@@ -111,9 +98,10 @@ TRM_STATS_HEADER(pattern_star, PATTERN)
 //-----------------------------------------------------
 
 __attribute__((constructor))
-static void ht_cst_init_pattern()
+static void ht_cst_init_pattern(void)
 {
-  ht_cst = cst_get_ht(PATTERN_FILE);
+  yw = cst_get_yw(PATTERN_FILE);
+  ht_cst = cst_get_ht(yw);
   if(ht_cst == NULL)
     pattern_set = 0;
   else
@@ -125,7 +113,7 @@ static void ht_cst_init_pattern()
 
 //-----------------------------------------------------
 
-static void ht_pattern_init()
+static void ht_pattern_init(void)
 {  
   ht_pattern = ht_create(0, NULL);
 
@@ -176,8 +164,9 @@ static void remove_pattern(const char * s, void * p, void * null)
 //--------------------------------------------------
 
 __attribute__((destructor))
-static void ht_pattern_free()
+static void ht_cst_exit_pattern(void)
 {
+  //yaml2_free(yw);
   ht_for_each(ht_pattern, remove_pattern, NULL);
   ht_free(ht_pattern);
 }
@@ -299,8 +288,9 @@ static void trm_compute_pattern_star(struct tr_map * map)
 	    PATTERN_STAR_COEFF_SIN * map->object[i].singletap[j];
 	}
     }
-  struct stats * stats = cst_stats(ht_cst, PATTERN_STATS);
-  map->pattern_star = trm_stats_2_compute_pattern_star(map, stats); 
+  struct stats * stats = trm_stats_pattern_star(map);
+  struct stats * coeff = cst_stats(ht_cst, PATTERN_STATS);
+  map->pattern_star = stats_stars(stats, coeff);
 }
 
 //-----------------------------------------------------
