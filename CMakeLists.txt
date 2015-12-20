@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 project(osux)
 
 set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/install)
-set(CMAKE_C_FLAGS "-std=gnu11 -Wall")
+set(CMAKE_C_FLAGS "-std=gnu11 -Wall -pg")
 
 set(CMAKE_INSTALL_RPATH "./lib")
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:$ORIGIN/lib/")
