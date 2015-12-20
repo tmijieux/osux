@@ -18,10 +18,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 
 #include "print.h"
 
 //-------------------------------------------------
+
+void tr_error(const char * s, ...)
+{
+  va_list vl;
+  va_start(vl, s);
+  fprintf(OUTPUT_ERR, "[Taiko Ranking] Error: ");
+  vfprintf(OUTPUT_ERR, s, vl);
+  fprintf(OUTPUT_ERR, "\n");
+}
 
 void print_string_size(char *s, int max, FILE * output)
 {

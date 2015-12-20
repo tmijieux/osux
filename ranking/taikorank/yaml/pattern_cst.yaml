@@ -1,5 +1,33 @@
-MAX_PATTERN_LENGTH  : 4
-LENGTH_PATTERN_USED : 2
+# stats coeff
+pattern_stats:
+  median:  0.5
+  mean:    0.3
+  d1:      0.
+  d9:      0.2
+  q1:      0.
+  q3:      0.
+  scaling: 5.0
+
+# coeff for singletap proba
+singletap_min: 0.
+singletap_max: 1.
+time_min: 0.
+time_max: 500.
+# 160ms ~ 180bpm 1/2
+# 125ms = 240bpm 1/2
+
+# range for singletap: (i = start; i <= end; i += step)
+proba_start: 0.2  
+proba_end:   1.  
+proba_step:  0.2
+
+# stars coeff
+star_alt: 2.5
+star_sin: 1.
+
+# patterns
+max_pattern_length:  4
+length_pattern_used: 2
 patterns :
   # 1 pattern
   - [d, 1.0, 0.0]

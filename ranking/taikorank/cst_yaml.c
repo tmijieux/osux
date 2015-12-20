@@ -15,7 +15,7 @@
  */
 #include <stdio.h>
 
-#include "util/hashtable/hashtable.h"
+#include "util/hashtable/hash_table.h"
 #include "util/list/list.h"
 #include "yaml/yaml2.h"
 
@@ -23,6 +23,20 @@
 #include "stats.h"
 #include "cst_yaml.h"
 #include "print.h"
+
+//--------------------------------------------------
+
+struct hash_table * cst_get_ht(char * file_name)
+{
+  struct yaml_wrap * yw = NULL;
+  if(0 != yaml2_parse_file(&yw, file_name))
+    tr_error("Unable to parse yaml file.");
+  else if(yw->type != YAML_MAPPING)
+    tr_error("Yaml file does not begin with a mapping.");
+  else
+    return yw->content.mapping;
+  return NULL;
+}
 
 //--------------------------------------------------
 
@@ -39,7 +53,9 @@ double cst_f(struct hash_table * ht, const char * key)
   return -1; 
 }
 
-struct stats * stats_get(struct hash_table * ht, const char * key)
+//--------------------------------------------------
+
+struct stats * cst_stats(struct hash_table * ht, const char * key)
 {
   struct stats * stats = calloc(sizeof(*stats), 1);
   struct yaml_wrap * yw = NULL;

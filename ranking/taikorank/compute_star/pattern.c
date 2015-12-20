@@ -17,34 +17,36 @@
 #include <math.h>
 #include "interpolation.h"
 
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
 #include <stdarg.h>
 
 #include "util/hashtable/hash_table.h"
+#include "util/list/list.h"
 #include "yaml/yaml2.h"
 
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"
 #include "sum.h"
 #include "stats.h"
+#include "cst_yaml.h"
 #include "print.h"
 
 #include "pattern.h"
-
-//--------------------------------------------------
 
 struct pattern
 {
   double * d;
 };
 
+static int pattern_set;
 static struct hash_table * ht_pattern;
+static struct hash_table * ht_cst;
 
 //--------------------------------------------------
 
-static void add_new_pattern(const char * s, ...);
-static void remove_pattern(const char * s);
+static void remove_pattern(const char * s, void * p, void * null);
+static void ht_pattern_init();
 
 static double tro_singletap_proba(struct tr_object * obj);
 static struct pattern * trm_get_pattern(struct tr_map * map,
@@ -59,64 +61,28 @@ static void trm_compute_pattern_star(struct tr_map * map);
 
 //--------------------------------------------------
 
-#define MAX_PATTERN_LENGTH  4
-#define LENGTH_PATTERN_USED 2
-
-// values between 0. and 10.
-// "." -> all must but double!
-// 1 pattern
-#define D    1.,  0.
-#define K    1.,  0.
-// 2 pattern
-#define DD   2.0, 2.2
-#define DK   2.0, 3.0
-#define KD   2.5, 3.5
-#define KK   2.0, 2.2
-// 3 pattern
-#define DDD  2.2, 2.5
-#define DDK  2.5, 3.0
-#define DKD  2.5, 3.5
-#define DKK  2.5, 4.2
-#define KDD  2.5, 3.5
-#define KDK  2.5, 3.5
-#define KKD  2.5, 3.0
-#define KKK  2.2, 2.5
-// 4 pattern
-#define DDDD 3.0, 3.5
-#define DDDK 3.0, 5.0
-#define DDKD 3.0, 4.0
-#define DDKK 3.0, 3.5
-#define DKDD 4.0, 6.5
-#define DKDK 3.5, 4.0
-#define DKKD 4.5, 6.0
-#define DKKK 3.5, 4.5
-
-#define KDDD 3.5, 4.5
-#define KDDK 5.5, 5.0
-#define KDKD 4.0, 3.5
-#define KDKK 4.5, 7.0
-#define KKDD 3.0, 3.5
-#define KKDK 3.0, 4.0
-#define KKKD 3.0, 5.0
-#define KKKK 3.0, 3.5
-
-//--------------------------------------------------
+#define PATTERN_FILE  "pattern_cst.yaml"
+#define PATTERN_STATS "pattern_stats"
 
 // coeff for singletap proba
-#define SINGLETAP_MIN 0.
-#define SINGLETAP_MAX 1.
-#define TIME_MIN 0.
-#define TIME_MAX 500.
+#define SINGLETAP_MIN cst_f(ht_cst, "singletap_min")
+#define SINGLETAP_MAX cst_f(ht_cst, "singletap_max")
+#define TIME_MIN      cst_f(ht_cst, "time_min")
+#define TIME_MAX      cst_f(ht_cst, "time_max")
 // 160ms ~ 180bpm 1/2
 // 125ms = 240bpm 1/2
 
-#define PROBA_START 0.2  
-#define PROBA_END   1.  // <= 
-#define PROBA_STEP  0.2
+#define PROBA_START cst_f(ht_cst, "proba_start")  
+#define PROBA_END   cst_f(ht_cst, "proba_end")
+#define PROBA_STEP  cst_f(ht_cst, "proba_step")
 
 // coeff for star
-#define PATTERN_STAR_COEFF_ALT 2.5
-#define PATTERN_STAR_COEFF_SIN 1.
+#define PATTERN_STAR_COEFF_ALT cst_f(ht_cst, "star_alt")
+#define PATTERN_STAR_COEFF_SIN cst_f(ht_cst, "star_sin")
+
+// pattern
+#define MAX_PATTERN_LENGTH  cst_f(ht_cst, "max_pattern_length")
+#define LENGTH_PATTERN_USED cst_f(ht_cst, "length_pattern_used")
 
 // coeff for stats
 #define PATTERN_COEFF_MEDIAN 0.5
@@ -132,140 +98,87 @@ static void trm_compute_pattern_star(struct tr_map * map);
 // stats module
 TRM_STATS_HEADER(pattern_star, PATTERN)
 
-//-----------------------------------------------------
-//-----------------------------------------------------
-//-----------------------------------------------------
-
-#define PATTERN_FILE "pattern_cst.yaml"
-
-struct hash_table * ht_cst;
-static void pattern_cst_init()
-{
-  struct yaml_wrap * yw = NULL;
-  int r = yaml2_parse_file(&yw, PATTERN_FILE);
-  if (r != 0)
-    {
-      
-      return;
+#define cst_assert(COND, MSG)			\
+  if(!(COND))					\
+    {						\
+      tr_error(MSG);				\
+      pattern_set = 0;				\
+      return;					\
     }
-  yaml2_dump(stdout, yw);
-  if(yw->type == YAML_MAPPING)
-    {
-      ht_cst = yw->content.mapping;
-      struct yaml_wrap * tmp = NULL;
-      ht_get_entry(ht_cst, "MAX_PATTERN_LENGTH", &tmp);
-      if(tmp->type == YAML_SCALAR)
-	printf("%s\n", tmp->content.scalar);
-    }
-}
 
 //-----------------------------------------------------
-
-static void add_new_pattern(const char * s, ...)
-{
-  struct pattern * p = calloc(sizeof(*p), 1);
-  p->d = calloc(sizeof(double), LENGTH_PATTERN_USED);
-  
-  va_list vl;
-  va_start(vl, s);
-  for (int i = 0; i < LENGTH_PATTERN_USED; ++i)
-    p->d[i] = va_arg(vl, double);
-  va_end(vl);
-  
-  ht_add_entry(ht_pattern, s, p);
-}
-
-static void remove_pattern(const char * s)
-{
-  struct pattern * p = NULL;
-  ht_get_entry(ht_pattern, s, &p);
-  free(p->d);
-  free(p);
-}
-
+//-----------------------------------------------------
 //-----------------------------------------------------
 
 __attribute__((constructor))
+static void ht_cst_init_pattern()
+{
+  ht_cst = cst_get_ht(PATTERN_FILE);
+  if(ht_cst == NULL)
+    pattern_set = 0;
+  else
+    {
+      pattern_set = 1;
+      ht_pattern_init();
+    }
+}
+
+//-----------------------------------------------------
+
 static void ht_pattern_init()
 {  
   ht_pattern = ht_create(0, NULL);
-  // 1 pattern list
-  add_new_pattern("d", D);
-  add_new_pattern("k", K);
-  // 2 pattern list
-  add_new_pattern("dd", DD);
-  add_new_pattern("dk", DK);
-  add_new_pattern("kd", KD);
-  add_new_pattern("kk", KK);
-  // 3 pattern list
-  add_new_pattern("ddd", DDD);
-  add_new_pattern("ddk", DDK);
-  add_new_pattern("dkd", DKD);
-  add_new_pattern("dkk", DKK);
-  add_new_pattern("kdd", KDD);
-  add_new_pattern("kdk", KDK);
-  add_new_pattern("kkd", KKD);
-  add_new_pattern("kkk", KKK);
-  // 4 pattern list
-  add_new_pattern("dddd", DDDD);
-  add_new_pattern("dddk", DDDK);
-  add_new_pattern("ddkd", DDKD);
-  add_new_pattern("ddkk", DDKK);
-  add_new_pattern("dkdd", DKDD);
-  add_new_pattern("dkdk", DKDK);
-  add_new_pattern("dkkd", DKKD);
-  add_new_pattern("dkkk", DKKK);
+
+  struct yaml_wrap * yw_l = NULL;
+  ht_get_entry(ht_cst, "patterns", &yw_l);
+  cst_assert(yw_l != NULL, "Pattern list not found.");
+  cst_assert(yw_l->type == YAML_SEQUENCE,
+	     "Pattern list is not a list.");
   
-  add_new_pattern("kddd", KDDD);
-  add_new_pattern("kddk", KDDK);
-  add_new_pattern("kdkd", KDKD);
-  add_new_pattern("kdkk", KDKK);
-  add_new_pattern("kkdd", KKDD);
-  add_new_pattern("kkdk", KKDK);
-  add_new_pattern("kkkd", KKKD);
-  add_new_pattern("kkkk", KKKK);
+  struct list * pattern_l = yw_l->content.sequence;
+  for(int i = 1; i <= list_size(pattern_l); i++)
+    {
+      struct yaml_wrap * yw_subl = list_get(pattern_l, i);
+      cst_assert(yw_subl->type == YAML_SEQUENCE,
+		  "Pattern structure is not a list.");
+      struct list * pattern_data = yw_subl->content.sequence;
+
+      cst_assert(LENGTH_PATTERN_USED + 1 == list_size(pattern_data),
+		  "Pattern structure does not have the right size.");
+      
+      struct yaml_wrap * yw_name = list_get(pattern_data, 1);
+      cst_assert(yw_name->type == YAML_SCALAR,
+		  "Pattern name is not a scalar.");
+      char * name = yw_name->content.scalar;
+
+      struct pattern * p = calloc(sizeof(*p), 1);
+      p->d = calloc(sizeof(double), LENGTH_PATTERN_USED);
+      
+      for(int j = 2; j <= list_size(pattern_data); j++)
+	{
+	  struct yaml_wrap * yw_s = list_get(pattern_data, j);
+	  cst_assert(yw_s->type == YAML_SCALAR,
+		      "Pattern value is not a scalar.");
+	  p->d[j-2] = atof(yw_s->content.scalar);
+	}
+      ht_add_entry(ht_pattern, name, p);
+    }
 }
   
+//-----------------------------------------------------
+
+static void remove_pattern(const char * s, void * p, void * null)
+{
+  free(((struct pattern *) p)->d);
+  free(p);
+}
+
 //--------------------------------------------------
 
 __attribute__((destructor))
 static void ht_pattern_free()
 {
-  // 1 pattern
-  remove_pattern("d");
-  remove_pattern("k");
-  // 2 pattern
-  remove_pattern("dd");
-  remove_pattern("dk");
-  remove_pattern("kd");
-  remove_pattern("kk");
-  // 3 pattern
-  remove_pattern("ddd");
-  remove_pattern("ddk");
-  remove_pattern("dkd");
-  remove_pattern("dkk");
-  remove_pattern("kdd");
-  remove_pattern("kdk");
-  remove_pattern("kkd");
-  remove_pattern("kkk");
-  // 3 pattern
-  remove_pattern("dddd");
-  remove_pattern("dddk");
-  remove_pattern("ddkd");
-  remove_pattern("ddkk");
-  remove_pattern("dkdd");
-  remove_pattern("dkdk");
-  remove_pattern("dkkd");
-  remove_pattern("dkkk");
-  remove_pattern("kddd");
-  remove_pattern("kddk");
-  remove_pattern("kdkd");
-  remove_pattern("kdkk");
-  remove_pattern("kkdd");
-  remove_pattern("kkdk");
-  remove_pattern("kkkd");
-  remove_pattern("kkkk");
-
+  ht_for_each(ht_pattern, remove_pattern, NULL);
   ht_free(ht_pattern);
 }
 
@@ -316,7 +229,7 @@ static struct pattern * trm_get_pattern(struct tr_map * map,
   if (ret != 0) // when s[0] = 0 (bonus) or not found (error)
     {
       if (s[0] != 0)
-	fprintf(OUTPUT_ERR, "Could not find pattern :%s\n", s);
+	tr_error("Could not find pattern :%s", s);
       p = NULL;
     }
   free(s);
@@ -386,8 +299,8 @@ static void trm_compute_pattern_star(struct tr_map * map)
 	    PATTERN_STAR_COEFF_SIN * map->object[i].singletap[j];
 	}
     }
-
-  map->pattern_star = trm_stats_compute_pattern_star(map); 
+  struct stats * stats = cst_stats(ht_cst, PATTERN_STATS);
+  map->pattern_star = trm_stats_2_compute_pattern_star(map, stats); 
 }
 
 //-----------------------------------------------------
@@ -409,6 +322,12 @@ static void trm_pattern_alloc(struct tr_map * map)
 
 void trm_compute_pattern (struct tr_map * map)
 {
+  if(!pattern_set)
+    {
+      tr_error("Unable to compute pattern stars.");
+      return;
+    }
+  
   trm_pattern_alloc(map);
   trm_compute_pattern_proba(map);
   trm_compute_pattern_full_alt(map);

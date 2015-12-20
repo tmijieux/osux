@@ -16,7 +16,8 @@
 #ifndef CST_YAML_H
 #define CST_YAML_H
 
+struct hash_table * cst_get_ht(char * file_name);
 double cst_f(struct hash_table * ht, const char * key);
-struct stats * stats_get(struct hash_table * ht, const char * key);
+struct stats * cst_stats(struct hash_table * ht, const char * key);
 
 #endif //CST_YAML_H

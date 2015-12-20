@@ -10,6 +10,7 @@ set(tr_src
   treatment.c
   stats.c
   tr_db.c
+  cst_yaml.c
   compute_star/density.c
   compute_star/reading.c
   compute_star/pattern.c

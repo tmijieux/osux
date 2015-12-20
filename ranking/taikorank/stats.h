@@ -35,6 +35,24 @@
     return stars;						\
   }
 
+#define TRM_STATS_COMPUTE_STARS_2(FIELD)			\
+  double trm_stats_2_compute_##FIELD (struct tr_map * map,	\
+				      struct stats * coeff)	\
+  {								\
+    struct stats * s = trm_stats_##FIELD (map);			\
+    /*stats_print(s);*/						\
+    double stars = (( coeff->median * s->median +		\
+		      coeff->mean   * s->mean +			\
+		      coeff->d1     * s->d1 +			\
+		      coeff->d9     * s->d9 +			\
+		      coeff->q1     * s->q1 +			\
+		      coeff->q3     * s->q3) /			\
+		    coeff->scaling);				\
+    free(s);							\
+    free(coeff);						\
+    return stars;						\
+  }
+
 //-----------------------------------------------------
 
 #define TRM_SORT_HEADER(FIELD)			\
@@ -50,7 +68,9 @@
   TRM_SORT_HEADER(FIELD)					\
   double trm_mean_##FIELD (struct tr_map * map);		\
   struct stats * trm_stats_##FIELD (struct tr_map * map);	\
-  TRM_STATS_COMPUTE_STARS(FIELD, MAJ)			
+  TRM_STATS_COMPUTE_STARS(FIELD, MAJ)				\
+  TRM_STATS_COMPUTE_STARS_2(FIELD)
+  
 
 //-----------------------------------------------------
 
@@ -66,6 +86,8 @@ struct stats
   double median;
   double q3;
   double d9;
+
+  double scaling;
 };
 
 //-----------------------------------------------------

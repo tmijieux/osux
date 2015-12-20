@@ -49,7 +49,7 @@
 #define TABLE_BMS_SOURCE  "source"
 #define TABLE_BMS_USER_ID "user_ID"
 
-
+void tr_error(const char * s, ...);
 void print_string_size(char *s, int max, FILE * output);
 
 #endif
