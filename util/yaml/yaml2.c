@@ -24,7 +24,6 @@ void yaml2_dump(FILE *out, const struct yaml_wrap *yw)
 	    yaml2_dump(out, list_get(yw->content.sequence, i));
 	}
 	fprintf(out, "yaml sequence end\n");
-
 	break;
 
     case YAML_MAPPING:
@@ -68,8 +67,6 @@ int yaml2_parse_file(struct yaml_wrap **yamlw, const char *file_name)
     struct stack *parser_stack = stack_create(100);
     char *keyname = NULL;
 
-//    parser_stack_push(parser_stack, YAML_SEQUENCE, list_new(0), NULL);
-    
     assert( NULL != yamlw );
     fh = fopen(file_name, "r");
     
@@ -124,14 +121,17 @@ int yaml2_parse_file(struct yaml_wrap **yamlw, const char *file_name)
 			key = 1;
 		    } else {
 			parser_stack_push(parser_stack, YAML_SCALAR,
-					  strdup((char*) event.data.scalar.value), keyname);
+					  strdup((char*) event.data.scalar.value),
+                                          keyname);
+                        free(keyname);
 			stack_pop(parser_stack);
 			key = 0;
 		    }
 		} else {
 		    assert(head->type == YAML_SEQUENCE);
 		    parser_stack_push(parser_stack, YAML_SCALAR,
-				      strdup((char*) event.data.scalar.value), keyname);
+				      strdup((char*) event.data.scalar.value),
+                                      keyname);
 		    stack_pop(parser_stack);
 		}
 	    } else {
@@ -149,13 +149,13 @@ int yaml2_parse_file(struct yaml_wrap **yamlw, const char *file_name)
     }
 
     yaml_parser_delete(&parser);
+    stack_destroy(parser_stack);
     fclose(fh);    
     return 0;
 }
 
 static void mapping_free(const char *key, void *value, void *args)
 {
-    free((char*)key);
     yaml2_free(value);
 }
 
@@ -172,7 +172,7 @@ void yaml2_free(struct yaml_wrap *yw)
         break;
 
     case YAML_SCALAR:
-        free(yw->content.value);
+        free(yw->content.scalar);
         break;
     }
     free(yw);
