@@ -97,7 +97,7 @@ static void ht_cst_init_density(void)
 __attribute__((destructor))
 static void ht_cst_exit_density(void)
 {
-  //yaml2_free(yw);
+  yaml2_free(yw);
 }
 
 //-----------------------------------------------------

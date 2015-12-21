@@ -25,15 +25,17 @@
 #include "beatmap/timingpoint.h"
 #include "beatmap/hitsound.h"
 
+#include "util/hashtable/hash_table.h"
+#include "util/list/list.h"
+#include "yaml/yaml2.h"
+
 #include "check_osu_file.h"
 
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"
-
+#include "cst_yaml.h"
 #include "print.h"
-
 #include "tr_db.h"
-
 #include "mods.h"
 #include "treatment.h"
 
@@ -43,18 +45,44 @@
 #include "accuracy.h"
 #include "final_star.h"
 
+#define CONFIG_FILE  "config.yaml"
+
+#define OPT_DATABASE    cst_f(ht_conf, "database")
+#define OPT_PRINT_TRO   cst_f(ht_conf, "print_tro")
+#define OPT_PRINT_ORDER cst_str(ht_conf, "print_order")
+
 #define BASIC_SV 1.4
 
 #define TYPE(type)    (type & (~HO_NEWCOMBO) & 0x0F)
 // this get rid of the 'new_combo' flag to get the hit object's type
 // more easily
 
-static char convert_get_type (struct hit_object * ho);
-static double convert_get_bpm_app (struct timing_point * tp,
-				   double sv);
-static int convert_get_end_offset (struct hit_object * ho, int type,
-				   double bpm_app);
-static struct tr_map * trm_convert (char* file_name);
+static struct yaml_wrap * yw;
+static struct hash_table * ht_conf;
+
+static char convert_get_type(struct hit_object * ho);
+static double convert_get_bpm_app(struct timing_point * tp,
+				  double sv);
+static int convert_get_end_offset(struct hit_object * ho, int type,
+				  double bpm_app);
+static struct tr_map * trm_convert(char* file_name);
+
+//-----------------------------------------------------
+
+__attribute__((constructor))
+static void ht_cst_init_config(void)
+{
+  yw = cst_get_yw(CONFIG_FILE);
+  ht_conf = cst_get_ht(yw);
+  if(OPT_DATABASE)
+    tr_db_init();
+}
+
+__attribute__((destructor))
+static void ht_cst_exit_config(void)
+{
+  yaml2_free(yw);
+}
 
 //--------------------------------------------------
 //--------------------------------------------------
@@ -69,11 +97,13 @@ void trm_main(const struct tr_map * map, int mods)
   trm_compute_stars(map_copy);
   
   // printing
+  if(OPT_PRINT_TRO)
   trm_print_tro(map_copy, FILTER_APPLY);
   trm_print(map_copy);
 
   // db
-  tr_db_add(map_copy);
+  if(OPT_DATABASE)
+    tr_db_add(map_copy);
   
   // free
   trm_free(map_copy);
@@ -126,7 +156,7 @@ struct tr_map * trm_copy(const struct tr_map * map)
 
 void trm_pattern_free(struct tr_map * map)
 {
-  for (int i = 0; i < map->nb_object; i++)
+  for(int i = 0; i < map->nb_object; i++)
     {
       free(map->object[i].alt);
       free(map->object[i].singletap);
@@ -154,7 +184,7 @@ void trm_free(struct tr_map * map)
 
 struct tr_map * trm_new(char * file_name)
 {
-  if (check_file(file_name) == 0)
+  if(check_file(file_name) == 0)
     return NULL;
 
   return trm_convert(file_name);
@@ -164,33 +194,33 @@ struct tr_map * trm_new(char * file_name)
 //---------------------------------------------------------------
 //---------------------------------------------------------------
 
-static char convert_get_type (struct hit_object * ho)
+static char convert_get_type(struct hit_object * ho)
 {
   int type = ho->type;
   int sample = ho->hs.sample;
 
-  if (TYPE(type) == HO_SLIDER)
+  if(TYPE(type) == HO_SLIDER)
     {
-      if ((sample & HS_FINISH) != 0)
+      if((sample & HS_FINISH) != 0)
 	return 'R';
       else
 	return 'r';
     }
-  if (TYPE(type) == HO_SPINNER)
+  if(TYPE(type) == HO_SPINNER)
     return 's';
 
-  if (TYPE(type) == HO_CIRCLE)
+  if(TYPE(type) == HO_CIRCLE)
     {
-      if ((sample & (HS_WHISTLE | HS_CLAP)) != 0)
+      if((sample & (HS_WHISTLE | HS_CLAP)) != 0)
 	{
-	  if ((sample & HS_FINISH) != 0)
+	  if((sample & HS_FINISH) != 0)
 	    return 'K';
 	  else
 	    return 'k';
 	}
       else
 	{
-	  if ((sample & HS_FINISH) != 0)
+	  if((sample & HS_FINISH) != 0)
 	    return 'D';
 	  else
 	    return 'd';
@@ -203,29 +233,29 @@ static char convert_get_type (struct hit_object * ho)
 
 //---------------------------------------------------------------
 
-static double convert_get_bpm_app (struct timing_point * tp,
+static double convert_get_bpm_app(struct timing_point * tp,
 				   double sv)
 {
   double sv_multiplication;
-  if (tp->uninherited)
+  if(tp->uninherited)
     sv_multiplication = 1;
   else
     sv_multiplication = -100. / tp->svm;
 
-  return (mpb_to_bpm(tp->last_uninherited->mpb) *
+  return(mpb_to_bpm(tp->last_uninherited->mpb) *
 	  sv_multiplication * (sv / BASIC_SV));
 }
 
 //---------------------------------------------------------------
 
-static int convert_get_end_offset (struct hit_object * ho, int type,
+static int convert_get_end_offset(struct hit_object * ho, int type,
 				   double bpm_app)
 {
-  if (type == 's')
+  if(type == 's')
     {
       return ho->spi.end_offset;
     }
-  if (type == 'r' || type == 'R')
+  if(type == 'r' || type == 'R')
     {
       return ho->offset + ((ho->sli.length * ho->sli.repeat) *
 			   (MSEC_IN_MINUTE / (100. * BASIC_SV)) /
@@ -239,11 +269,11 @@ static int convert_get_end_offset (struct hit_object * ho, int type,
 //---------------------------------------------------------------
 //---------------------------------------------------------------
 
-struct tr_map * trm_convert (char* file_name)
+struct tr_map * trm_convert(char* file_name)
 {
   struct map * map = osu_map_parser(file_name);
   
-  if (map->Mode != MODE_TAIKO)
+  if(map->Mode != MODE_TAIKO)
     {
       fprintf(OUTPUT_ERR, "Autoconverts are said to be bad. But "
 	      "I don't think so. Please implement the corresponding"
@@ -257,9 +287,9 @@ struct tr_map * trm_convert (char* file_name)
   tr_map->object = calloc(sizeof(struct tr_object), map->hoc);
 
   // set last uninherited
-  for (int i = 0; i < map->tpc; i++)
+  for(int i = 0; i < map->tpc; i++)
     {
-      if (map->TimingPoints[i].uninherited)
+      if(map->TimingPoints[i].uninherited)
 	map->TimingPoints[i].last_uninherited =
 	  &map->TimingPoints[i];
       else
@@ -269,9 +299,9 @@ struct tr_map * trm_convert (char* file_name)
 
   // set objects
   int current_tp = 0;
-  for (int i = 0; i < map->hoc; i++)
+  for(int i = 0; i < map->hoc; i++)
     {
-      while (current_tp < (map->tpc - 1) &&
+      while(current_tp < (map->tpc - 1) &&
 	     map->TimingPoints[current_tp + 1].offset
 	     <= map->HitObjects[i].offset)
 	  current_tp++;
@@ -311,26 +341,26 @@ struct tr_map * trm_convert (char* file_name)
 
 void trm_print_tro(struct tr_map * map, int filter)
 {
-  if ((filter & FILTER_BASIC) != 0)
+  if((filter & FILTER_BASIC) != 0)
     fprintf(OUTPUT_INFO, "offset\trest\ttype\tbpm app\t");
-  if ((filter & FILTER_BASIC_PLUS) != 0)
+  if((filter & FILTER_BASIC_PLUS) != 0)
     fprintf(OUTPUT_INFO, "offset\tend\trest\trest2\ttype\tbpm app\t");
-  if ((filter & FILTER_ADDITIONNAL) != 0)
+  if((filter & FILTER_ADDITIONNAL) != 0)
     fprintf(OUTPUT_INFO, "l hand\tr hand\trest\tobj app\tobjdis\t");
-  if ((filter & FILTER_DENSITY) != 0)
+  if((filter & FILTER_DENSITY) != 0)
     fprintf(OUTPUT_INFO, "dnst rw\tdnst cl\tdnst*\t");
-  if ((filter & FILTER_READING) != 0)
+  if((filter & FILTER_READING) != 0)
     fprintf(OUTPUT_INFO, "app\tdis\tvisi\tinvisi\tsperpos\thidden\thide\tslow\tfast\tspd chg\tread*\t");
-  if ((filter & FILTER_READING_PLUS) != 0)
+  if((filter & FILTER_READING_PLUS) != 0)
     fprintf(OUTPUT_INFO, "app\tend app\tdis\tend dis\tsperpos\thidden\thide\tspeed\tspd chg\tread*\t");
-  if ((filter & FILTER_PATTERN) != 0)
+  if((filter & FILTER_PATTERN) != 0)
     fprintf(OUTPUT_INFO, "proba\talt1\talt2\tsingle1\tsingle2\tpttrn*\t");
-  if ((filter & FILTER_ACCURACY) != 0)
+  if((filter & FILTER_ACCURACY) != 0)
     fprintf(OUTPUT_INFO, "%g\t%g\t", map->great_ms, map->bad_ms);
   
   fprintf(OUTPUT_INFO, "\n");
   
-  for (int i = 0; i < map->nb_object; ++i)
+  for(int i = 0; i < map->nb_object; ++i)
     tro_print(&map->object[i], filter);
 }
 
@@ -338,13 +368,32 @@ void trm_print_tro(struct tr_map * map, int filter)
 
 void trm_print(struct tr_map * map)
 {
-  fprintf(OUTPUT, "%.4g\t", map->pattern_star);
-  fprintf(OUTPUT, "%.4g\t", map->density_star);
-  
-  fprintf(OUTPUT, "%.4g\t", map->final_star);
-  /*fprintf(OUTPUT, "%.4g\t", map->reading_star);
-  fprintf(OUTPUT, "%.4g\t", map->accuracy_star);
-  */
+  char * order = OPT_PRINT_ORDER;
+  int i = 0;
+  while(order[i])
+    {
+      switch(order[i])
+	{
+	case 'F':	  
+	  fprintf(OUTPUT, "%.4g\t", map->final_star);
+	  break;
+	case 'D':
+	  fprintf(OUTPUT, "%.4g\t", map->density_star);
+	  break;
+	case 'R':
+	  fprintf(OUTPUT, "%.4g\t", map->reading_star);
+	  break;
+	case 'P':
+	  fprintf(OUTPUT, "%.4g\t", map->pattern_star);
+	  break;
+	case 'A':
+	  fprintf(OUTPUT, "%.4g\t", map->accuracy_star);
+	  break;
+	default:
+	  break;
+	}
+      i++;
+    }
   trm_print_mods(map);
   print_string_size(map->diff,    24, OUTPUT);
   print_string_size(map->title,   32, OUTPUT);

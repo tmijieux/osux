@@ -46,14 +46,13 @@ static char * tr_db_escape_str(MYSQL * sql, const char * src);
 
 //-------------------------------------------------
 
-__attribute__((constructor))
-static void tr_db_init(void)
+void tr_db_init(void)
 {
   sql = mysql_init(NULL);
 
   if (sql == NULL)
     {
-      fprintf(OUTPUT_ERR, "Error: mysql init\n");
+      tr_error("Error: mysql init");
       return;
     }
 
@@ -61,7 +60,7 @@ static void tr_db_init(void)
 				 TR_DB_IP, TR_DB_LOGIN, TR_DB_PASSWD,
 				 NULL, 0, NULL, 0)) 
     {
-      fprintf(OUTPUT_ERR, "%s\n", mysql_error(sql));
+      tr_error("%s", mysql_error(sql));
       mysql_close(sql);
       sql = NULL;
       return;
@@ -89,7 +88,7 @@ static int new_rq(MYSQL * sql, const char * rq, ...)
 
   if (mysql_query(sql, buf)) 
     {
-      fprintf(stderr, "%s\n", mysql_error(sql));
+      tr_error("%s", mysql_error(sql));
       free(buf);
       return -1;
     }
@@ -130,7 +129,7 @@ void tr_db_add(struct tr_map * map)
 {
   if (sql == NULL)
     {
-      fprintf(OUTPUT_ERR, "Couldn't connect to DB. Data won't be stored.\n");
+      tr_error("Couldn't connect to DB. Data won't be stored.");
       return;
     }
 

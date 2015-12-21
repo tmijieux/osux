@@ -52,6 +52,11 @@ struct hash_table * cst_get_ht(struct yaml_wrap * yw)
 
 double cst_f(struct hash_table * ht, const char * key)
 {
+  return atof(cst_str(ht, key));
+}
+
+char * cst_str(struct hash_table * ht, const char * key)
+{
   struct yaml_wrap * yw = NULL;
   ht_get_entry(ht, key, &yw);
   if(yw == NULL)
@@ -59,8 +64,8 @@ double cst_f(struct hash_table * ht, const char * key)
   else if(yw->type != YAML_SCALAR)
     tr_error("Constant %s is not a scalar.", key);
   else
-    return atof(yw->content.scalar);
-  return -1; 
+    return yw->content.scalar;
+  return "-1"; 
 }
 
 //--------------------------------------------------
