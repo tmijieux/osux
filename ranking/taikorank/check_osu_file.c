@@ -44,13 +44,14 @@ int check_file(char * file_name)
   int length = strlen(file_name);
   if (!compare(".osu", &file_name[length-4], 5))
     {
-      fprintf(OUTPUT_ERR, "%s: This isn't a .osu file, are you kidding me ?!\n", file_name);
+      tr_error("%s: This isn't a .osu file, are you kidding me ?!",
+	       file_name);
       return 0;
     }
   // check that the file existence
   if (access(file_name, F_OK) == -1)
     {
-      fprintf(OUTPUT_ERR, "%s: Please let me open your file :S\n", file_name);
+      tr_error("%s: Please let me open your file :S", file_name);
       return 0;
     }
   return 1;

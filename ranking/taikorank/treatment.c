@@ -108,12 +108,12 @@ static void trm_treatment_color_rest (struct tr_map * map)
 	  continue;
 	}
       
-      if(tro_are_same_hand(obj, last_r))
+      if(last_r != NULL && tro_are_same_hand(obj, last_r))
 	{
 	  obj->color_rest = obj->offset - last_r->end_offset;
 	  last_r = obj;
 	}
-      if(tro_are_same_hand(obj, last_l))
+      if(last_l != NULL && tro_are_same_hand(obj, last_l))
 	{
 	  obj->color_rest = obj->offset - last_l->end_offset;
 	  last_l = obj;

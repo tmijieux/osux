@@ -1,51 +1,51 @@
 # stats coeff
 pattern_stats:
-  median:  0.5
-  mean:    0.3
+  median:  0.2
+  mean:    0.5
   d1:      0.
-  d9:      0.2
+  d9:      0.3
   q1:      0.
   q3:      0.
-  scaling: 5.0
+  scaling: 10.0
 
 # coeff for singletap proba
 singletap_min: 0.
 singletap_max: 1.
-time_min: 0.
+time_min: 20.
 time_max: 500.
 # 160ms ~ 180bpm 1/2
 # 125ms = 240bpm 1/2
 
 # range for singletap: (i = start; i <= end; i += step)
-proba_start: 0.2  
+proba_start: 0.1  
 proba_end:   1.  
-proba_step:  0.2
+proba_step:  0.1
 
 # stars coeff
-star_alt: 2.5
-star_sin: 1.
+star_alt: 4.5
+star_sin: 4.
 
 # patterns
 max_pattern_length:  4
 length_pattern_used: 2
 patterns :
   # 1 pattern
-  - [d, 1.0, 0.0]
-  - [k, 1.0, 0.0]  
+  - [d, 0.2, 0.0]
+  - [k, 0.2, 0.0]  
   # 2 pattern
-  - [dd, 2.0, 2.2]
-  - [dk, 2.0, 3.0]
-  - [kd, 2.5, 3.5]
-  - [kk, 2.0, 2.2]
+  - [dd, 1.0, 1.8]
+  - [dk, 1.5, 3.0]
+  - [kd, 1.5, 3.0]
+  - [kk, 1.0, 1.8]
   # 3 pattern
-  - [ddd, 2.2, 2.5]
+  - [ddd, 2.0, 2.5]
   - [ddk, 2.5, 3.0]
   - [dkd, 2.5, 3.5]
   - [dkk, 2.5, 4.2]
   - [kdd, 2.5, 3.5]
   - [kdk, 2.5, 3.5]
   - [kkd, 2.5, 3.0]
-  - [kkk, 2.2, 2.5]
+  - [kkk, 2.0, 2.5]
   # 4 pattern d
   - [dddd, 3.0, 3.5]
   - [dddk, 3.0, 5.0]

@@ -193,6 +193,8 @@ static double tro_singletap_proba(struct tr_object * obj)
   double time = obj->rest;
   if (time > TIME_MAX)
     time = TIME_MAX;
+  else if (time < TIME_MIN)
+    time = TIME_MIN;
 
   return POLY_2_PT(time,
 		   TIME_MIN, SINGLETAP_MIN,
@@ -247,7 +249,7 @@ static void trm_compute_pattern_proba(struct tr_map * map)
   for (int i = 0; i < map->nb_object; i++)
     {
       map->object[i].proba = tro_singletap_proba(&map->object[i]);
-    }  
+    }
 }
 
 //-----------------------------------------------------
@@ -283,7 +285,6 @@ static void trm_compute_pattern_singletap(struct tr_map * map)
 	  map->object[i+j].singletap[j] += proba * p->d[j];
       }
 }
-
 
 //-----------------------------------------------------
 //-----------------------------------------------------

@@ -1,18 +1,18 @@
 # stats coeff
 density_stats:
-  median:  0.7
+  median:  0.3
   mean:    0.
-  d1:      0.
+  d1:      0.7
   d9:      0.
   q1:      0.
   q3:      0.
-  scaling: 15000.
+  scaling: 20000.
 
 # coeff for density
 density_x1: 0.
 density_y1: 10000.
-density_x2: 3000.
-density_y2: 0.0000001
+density_x2: 5000.
+density_y2: 0.00001
 
 # coefficient for object type, 1 is the maximum
 density_normal: 1.

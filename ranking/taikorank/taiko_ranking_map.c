@@ -278,9 +278,8 @@ struct tr_map * trm_convert(char* file_name)
   
   if(map->Mode != MODE_TAIKO)
     {
-      fprintf(OUTPUT_ERR, "Autoconverts are said to be bad. But "
-	      "I don't think so. Please implement the corresponding"
-	      " functions.\n");
+      tr_error("Autoconverts are said to be bad. But I don't think "
+	       "so. Please implement the corresponding functions.");
       map_free(map);
       return NULL;
     }
