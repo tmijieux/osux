@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
 	}
     }
   else
-    fprintf(OUTPUT_ERR, "No osu file D:\n");
+    tr_error("No osu file D:");
 
   return EXIT_SUCCESS;
 }

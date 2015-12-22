@@ -66,16 +66,16 @@ static void trm_compute_pattern_star(struct tr_map * map);
 #define PATTERN_STATS "pattern_stats"
 
 // coeff for singletap proba
-#define SINGLETAP_MIN cst_f(ht_cst, "singletap_min")
-#define SINGLETAP_MAX cst_f(ht_cst, "singletap_max")
-#define TIME_MIN      cst_f(ht_cst, "time_min")
-#define TIME_MAX      cst_f(ht_cst, "time_max")
+static double SINGLETAP_MIN;
+static double SINGLETAP_MAX;
+static double TIME_MIN;
+static double TIME_MAX;
 // 160ms ~ 180bpm 1/2
 // 125ms = 240bpm 1/2
 
-#define PROBA_START cst_f(ht_cst, "proba_start")  
-#define PROBA_END   cst_f(ht_cst, "proba_end")
-#define PROBA_STEP  cst_f(ht_cst, "proba_step")
+static double PROBA_START;
+static double PROBA_END;
+static double PROBA_STEP;
 
 // coeff for star
 #define PATTERN_STAR_COEFF_ALT cst_f(ht_cst, "star_alt")
@@ -94,7 +94,19 @@ static void trm_compute_pattern_star(struct tr_map * map);
     }
 
 //-----------------------------------------------------
-//-----------------------------------------------------
+
+static void global_init(void)
+{
+  SINGLETAP_MIN = cst_f(ht_cst, "singletap_min");
+  SINGLETAP_MAX = cst_f(ht_cst, "singletap_max");
+  TIME_MIN      = cst_f(ht_cst, "time_min");
+  TIME_MAX      = cst_f(ht_cst, "time_max");
+
+  PROBA_START = cst_f(ht_cst, "proba_start");
+  PROBA_END   = cst_f(ht_cst, "proba_end");
+  PROBA_STEP  = cst_f(ht_cst, "proba_step");
+}
+
 //-----------------------------------------------------
 
 __attribute__((constructor))
@@ -102,13 +114,14 @@ static void ht_cst_init_pattern(void)
 {
   yw = cst_get_yw(PATTERN_FILE);
   ht_cst = cst_get_ht(yw);
-  if(ht_cst == NULL)
-    pattern_set = 0;
-  else
+  if(ht_cst)
     {
       pattern_set = 1;
       ht_pattern_init();
+      global_init();
     }
+  else
+    pattern_set = 0;
 }
 
 //-----------------------------------------------------
@@ -128,15 +141,15 @@ static void ht_pattern_init(void)
     {
       struct yaml_wrap * yw_subl = list_get(pattern_l, i);
       cst_assert(yw_subl->type == YAML_SEQUENCE,
-		  "Pattern structure is not a list.");
+		 "Pattern structure is not a list.");
       struct list * pattern_data = yw_subl->content.sequence;
 
       cst_assert(LENGTH_PATTERN_USED + 1 == list_size(pattern_data),
-		  "Pattern structure does not have the right size.");
+		 "Pattern structure does not have the right size.");
       
       struct yaml_wrap * yw_name = list_get(pattern_data, 1);
       cst_assert(yw_name->type == YAML_SCALAR,
-		  "Pattern name is not a scalar.");
+		 "Pattern name is not a scalar.");
       char * name = yw_name->content.scalar;
 
       struct pattern * p = calloc(sizeof(*p), 1);
@@ -146,7 +159,7 @@ static void ht_pattern_init(void)
 	{
 	  struct yaml_wrap * yw_s = list_get(pattern_data, j);
 	  cst_assert(yw_s->type == YAML_SCALAR,
-		      "Pattern value is not a scalar.");
+		     "Pattern value is not a scalar.");
 	  p->d[j-2] = atof(yw_s->content.scalar);
 	}
       ht_add_entry(ht_pattern, name, p);
@@ -166,7 +179,7 @@ static void remove_pattern(const char * s, void * p, void * null)
 __attribute__((destructor))
 static void ht_cst_exit_pattern(void)
 {
-  //yaml2_free(yw);
+  yaml2_free(yw);
   ht_for_each(ht_pattern, remove_pattern, NULL);
   ht_free(ht_pattern);
 }

@@ -50,22 +50,38 @@ static void trm_compute_density_star (struct tr_map * map);
 #define DENSITY_STATS "density_stats"
 
 // coeff for density
-#define DENSITY_X1 cst_f(ht_cst, "density_x1")
-#define DENSITY_Y1 cst_f(ht_cst, "density_y1")
-#define DENSITY_X2 cst_f(ht_cst, "density_x2")
-#define DENSITY_Y2 cst_f(ht_cst, "density_y2")
+static double DENSITY_X1;
+static double DENSITY_Y1;
+static double DENSITY_X2;
+static double DENSITY_Y2;
 
 // coefficient for object type, 1 is the maximum
-#define DENSITY_NORMAL cst_f(ht_cst, "density_normal")
-#define DENSITY_BIG    cst_f(ht_cst, "density_big")
-#define DENSITY_BONUS  cst_f(ht_cst, "density_bonus")
+static double DENSITY_NORMAL;
+static double DENSITY_BIG;
+static double DENSITY_BONUS;
 
 // coefficient for length weighting in density
-#define DENSITY_LENGTH cst_f(ht_cst, "density_length")
+static double DENSITY_LENGTH;
 
 // coeff for star
 #define DENSITY_STAR_COEFF_COLOR cst_f(ht_cst, "star_color")
 #define DENSITY_STAR_COEFF_RAW   cst_f(ht_cst, "star_raw")
+
+//-----------------------------------------------------
+
+static void global_init(void)
+{
+  DENSITY_X1 = cst_f(ht_cst, "density_x1");
+  DENSITY_Y1 = cst_f(ht_cst, "density_y1");
+  DENSITY_X2 = cst_f(ht_cst, "density_x2");
+  DENSITY_Y2 = cst_f(ht_cst, "density_y2");
+
+  DENSITY_NORMAL = cst_f(ht_cst, "density_normal");
+  DENSITY_BIG    = cst_f(ht_cst, "density_big");
+  DENSITY_BONUS  = cst_f(ht_cst, "density_bonus");
+
+  DENSITY_LENGTH = cst_f(ht_cst, "density_length"); 
+}
 
 //-----------------------------------------------------
 
@@ -74,12 +90,14 @@ static void ht_cst_init_density(void)
 {
   yw = cst_get_yw(DENSITY_FILE);
   ht_cst = cst_get_ht(yw);
+  if(ht_cst)
+    global_init();
 }
 
 __attribute__((destructor))
 static void ht_cst_exit_density(void)
 {
-  //yaml2_free(yw);
+  yaml2_free(yw);
 }
 
 //-----------------------------------------------------
@@ -88,12 +106,22 @@ static void ht_cst_exit_density(void)
 
 static double tro_coeff_density (struct tr_object * obj)
 {
-  if (tro_is_bonus(obj)) 
-    return DENSITY_BONUS;  // 'r' 'R' 's'
-  if (tro_is_big(obj))   
-    return DENSITY_BIG;    // 'D' 'K'
-  else
-    return DENSITY_NORMAL; // 'd' 'k'
+  switch(obj->type)
+    {
+    case 'd':
+    case 'k':
+      return DENSITY_NORMAL;
+    case 'D':
+    case 'K':
+      return DENSITY_BIG;
+    case 'r':
+    case 'R':
+    case 's':
+      return DENSITY_BONUS;
+    default:
+      tr_error("Wrong type %c.", obj->type);
+      return -1;
+    }
 }
 
 //-----------------------------------------------------

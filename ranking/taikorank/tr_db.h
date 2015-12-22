@@ -17,6 +17,7 @@
 #ifndef TR_DB_H
 #define TR_DB_H
 
+void tr_db_init(void);
 void tr_db_add(struct tr_map * map);
 
 #endif //TR_DB_H

@@ -58,33 +58,31 @@ static void trm_compute_reading_star(struct tr_map * map);
 #define READING_STATS "reading_stats"
 
 // superposition coeff
-#define SUPERPOS_BIG   cst_f(ht_cst, "superpos_big")
-#define SUPERPOS_SMALL cst_f(ht_cst, "superpos_small")
+static double SUPERPOS_BIG;
+static double SUPERPOS_SMALL;
 
 // hiding
-#define HIDE_MAX cst_f(ht_cst, "hide_max")
-#define HIDE_EXP cst_f(ht_cst, "hide_exp")
+static double HIDE_MAX;
+static double HIDE_EXP;
 
 // slow
-#define TIME_MIN    cst_f(ht_cst, "time_min")
-#define TIME_CENTER cst_f(ht_cst, "time_center")
-#define TIME_MAX    cst_f(ht_cst, "time_max")
-
-#define SLOW_MIN cst_f(ht_cst, "slow_min")
-#define SLOW_MAX cst_f(ht_cst, "slow_max")
+static double TIME_MIN;
+static double TIME_CENTER;
+static double TIME_MAX;
+static double SLOW_MIN;
+static double SLOW_MAX;
 
 // fast
-#define BPM_MIN    cst_f(ht_cst, "bpm_min")
-#define BPM_CENTER cst_f(ht_cst, "bpm_center")
-#define BPM_MAX    cst_f(ht_cst, "bpm_max")
-
-#define FAST_MIN cst_f(ht_cst, "fast_min")
-#define FAST_MAX cst_f(ht_cst, "fast_max")
+static double BPM_MIN;
+static double BPM_CENTER;
+static double BPM_MAX;
+static double FAST_MIN;
+static double FAST_MAX;
 
 // speed change
-#define SPEED_CH_MAX     cst_f(ht_cst, "star_hide")
-#define SPEED_CH_TIME_0  cst_f(ht_cst, "star_hide")
-#define SPEED_CH_VALUE_0 cst_f(ht_cst, "star_hide")
+static double SPEED_CH_MAX;
+static double SPEED_CH_TIME_0;
+static double SPEED_CH_VALUE_0;
 
 // coeff for star
 #define READING_STAR_COEFF_SUPERPOSED cst_f(ht_cst, "star_superpos") 
@@ -96,17 +94,46 @@ static void trm_compute_reading_star(struct tr_map * map);
 
 //-----------------------------------------------------
 
+static void global_init(void)
+{
+  SUPERPOS_BIG   = cst_f(ht_cst, "superpos_big");
+  SUPERPOS_SMALL = cst_f(ht_cst, "superpos_small");
+
+  HIDE_MAX = cst_f(ht_cst, "hide_max");
+  HIDE_EXP = cst_f(ht_cst, "hide_exp");
+
+  TIME_MIN    = cst_f(ht_cst, "time_min");
+  TIME_CENTER = cst_f(ht_cst, "time_center");
+  TIME_MAX    = cst_f(ht_cst, "time_max");
+  SLOW_MIN = cst_f(ht_cst, "slow_min");
+  SLOW_MAX = cst_f(ht_cst, "slow_max");
+
+  BPM_MIN    = cst_f(ht_cst, "bpm_min");
+  BPM_CENTER = cst_f(ht_cst, "bpm_center");
+  BPM_MAX    = cst_f(ht_cst, "bpm_max");
+  FAST_MIN = cst_f(ht_cst, "fast_min");
+  FAST_MAX = cst_f(ht_cst, "fast_max");
+
+  SPEED_CH_MAX     = cst_f(ht_cst, "speed_ch_max");
+  SPEED_CH_TIME_0  = cst_f(ht_cst, "speed_ch_time_0");
+  SPEED_CH_VALUE_0 = cst_f(ht_cst, "speed_ch_value_0");
+}
+
+//-----------------------------------------------------
+
 __attribute__((constructor))
 static void ht_cst_init_reading(void)
 {
   yw = cst_get_yw(READING_FILE);
   ht_cst = cst_get_ht(yw);
+  if(ht_cst)
+    global_init();
 }
 
 __attribute__((destructor))
 static void ht_cst_exit_reading(void)
 {
-  //yaml2_free(yw);
+  yaml2_free(yw);
 }
 
 //-----------------------------------------------------
@@ -309,11 +336,11 @@ void trm_compute_reading(struct tr_map * map)
       return;
     }
   
-  trm_compute_reading_hiding(map);
-  trm_compute_reading_superposed(map);
+  //trm_compute_reading_hiding(map);
+  //trm_compute_reading_superposed(map);
   trm_compute_reading_slow(map);
   trm_compute_reading_fast(map);
-  trm_compute_reading_speed_change(map);
+  //trm_compute_reading_speed_change(map);
   
   trm_compute_reading_star(map);
 }
