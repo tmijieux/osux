@@ -53,6 +53,9 @@
 
 #define BASIC_SV 1.4
 
+// mini patch
+#define strdup(X) X != NULL ? strdup(X) : NULL
+
 #define TYPE(type)    (type & (~HO_NEWCOMBO) & 0x0F)
 // this get rid of the 'new_combo' flag to get the hit object's type
 // more easily
@@ -366,6 +369,12 @@ void trm_print_tro(struct tr_map * map, int filter)
 
 //-------------------------------------------------
 
+#define CASE_PRINT(C, STAR)			\
+  case C:					\
+  fprintf(OUTPUT, "%.4g\t", STAR);		\
+  break
+
+
 void trm_print(struct tr_map * map)
 {
   char * order = OPT_PRINT_ORDER;
@@ -374,21 +383,11 @@ void trm_print(struct tr_map * map)
     {
       switch(order[i])
 	{
-	case 'F':	  
-	  fprintf(OUTPUT, "%.4g\t", map->final_star);
-	  break;
-	case 'D':
-	  fprintf(OUTPUT, "%.4g\t", map->density_star);
-	  break;
-	case 'R':
-	  fprintf(OUTPUT, "%.4g\t", map->reading_star);
-	  break;
-	case 'P':
-	  fprintf(OUTPUT, "%.4g\t", map->pattern_star);
-	  break;
-	case 'A':
-	  fprintf(OUTPUT, "%.4g\t", map->accuracy_star);
-	  break;
+	  CASE_PRINT('F', map->final_star);
+	  CASE_PRINT('D', map->density_star);
+	  CASE_PRINT('R', map->reading_star);
+	  CASE_PRINT('P', map->pattern_star);
+	  CASE_PRINT('A', map->accuracy_star);
 	default:
 	  break;
 	}

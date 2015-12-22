@@ -336,11 +336,11 @@ void trm_compute_reading(struct tr_map * map)
       return;
     }
   
-  trm_compute_reading_hiding(map);
-  trm_compute_reading_superposed(map);
+  //trm_compute_reading_hiding(map);
+  //trm_compute_reading_superposed(map);
   trm_compute_reading_slow(map);
   trm_compute_reading_fast(map);
-  trm_compute_reading_speed_change(map);
+  //trm_compute_reading_speed_change(map);
   
   trm_compute_reading_star(map);
 }
