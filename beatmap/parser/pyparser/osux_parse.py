@@ -187,9 +187,9 @@ def parse(osufilename):
                 data[current_section].append(parse_colour(line))
 
             else:
-                m = re.match(r"^ *([^ ]*) *: *(.*) *$", line)
-                if m:
-                    keyword, value = m.group(1), m.group(2)
+                m = map(str.strip, line.split(":", 1))
+                if len(m) == 2:
+                    keyword, value = m[0], m[1]
                     if keyword in  ["Bookmarks", "Tags"]:
                         value = map(Int, value.split(","))
                     value = Float(value)
