@@ -55,6 +55,11 @@ double cst_f(struct hash_table * ht, const char * key)
   return atof(cst_str(ht, key));
 }
 
+int cst_i(struct hash_table * ht, const char * key)
+{
+  return atoi(cst_str(ht, key));
+}
+
 char * cst_str(struct hash_table * ht, const char * key)
 {
   struct yaml_wrap * yw = NULL;

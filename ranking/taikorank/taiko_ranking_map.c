@@ -162,7 +162,6 @@ void trm_pattern_free(struct tr_map * map)
   for(int i = 0; i < map->nb_object; i++)
     {
       free(map->object[i].alt);
-      free(map->object[i].singletap);
     }  
 }
 

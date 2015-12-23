@@ -21,13 +21,13 @@
 #include <string.h>
 #include <stdarg.h>
 
+#include "util/sum/sum.h"
 #include "util/hashtable/hash_table.h"
 #include "util/list/list.h"
 #include "yaml/yaml2.h"
 
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"
-#include "sum.h"
 #include "stats.h"
 #include "cst_yaml.h"
 #include "print.h"
@@ -55,8 +55,7 @@ static struct pattern * trm_get_pattern(struct tr_map * map,
 
 static void trm_pattern_alloc(struct tr_map * map);
 static void trm_compute_pattern_proba(struct tr_map * map);
-static void trm_compute_pattern_full_alt(struct tr_map * map);
-static void trm_compute_pattern_singletap(struct tr_map * map);
+static void trm_compute_pattern_alt(struct tr_map * map);
 
 static void trm_compute_pattern_star(struct tr_map * map);
 
@@ -73,17 +72,19 @@ static double TIME_MAX;
 // 160ms ~ 180bpm 1/2
 // 125ms = 240bpm 1/2
 
-static double PROBA_START;
-static double PROBA_END;
-static double PROBA_STEP;
+static int PROBA_START;
+static int PROBA_END;
+static int PROBA_STEP;
+
+// stats
+static struct stats * STATS_COEFF;
 
 // coeff for star
-#define PATTERN_STAR_COEFF_ALT cst_f(ht_cst, "star_alt")
-#define PATTERN_STAR_COEFF_SIN cst_f(ht_cst, "star_sin")
+static double PATTERN_STAR_COEFF_ALT;
 
 // pattern
-#define MAX_PATTERN_LENGTH  cst_f(ht_cst, "max_pattern_length")
-#define LENGTH_PATTERN_USED cst_f(ht_cst, "length_pattern_used")
+static int MAX_PATTERN_LENGTH;
+static int LENGTH_PATTERN_USED;
 
 #define cst_assert(COND, MSG)			\
   if(!(COND))					\
@@ -105,6 +106,13 @@ static void global_init(void)
   PROBA_START = cst_f(ht_cst, "proba_start");
   PROBA_END   = cst_f(ht_cst, "proba_end");
   PROBA_STEP  = cst_f(ht_cst, "proba_step");
+
+  MAX_PATTERN_LENGTH = cst_i(ht_cst, "max_pattern_length");
+  LENGTH_PATTERN_USED = cst_i(ht_cst, "length_pattern_used");
+    
+  STATS_COEFF = cst_stats(ht_cst, PATTERN_STATS);
+
+  PATTERN_STAR_COEFF_ALT = cst_f(ht_cst, "star_alt");
 }
 
 //-----------------------------------------------------
@@ -116,9 +124,9 @@ static void ht_cst_init_pattern(void)
   ht_cst = cst_get_ht(yw);
   if(ht_cst)
     {
+      global_init();
       pattern_set = 1;
       ht_pattern_init();
-      global_init();
     }
   else
     pattern_set = 0;
@@ -182,6 +190,7 @@ static void ht_cst_exit_pattern(void)
   yaml2_free(yw);
   ht_for_each(ht_pattern, remove_pattern, NULL);
   ht_free(ht_pattern);
+  free(STATS_COEFF);
 }
 
 //-----------------------------------------------------
@@ -191,9 +200,9 @@ static void ht_cst_exit_pattern(void)
 static double tro_singletap_proba(struct tr_object * obj)
 {
   double time = obj->rest;
-  if (time > TIME_MAX)
+  if(time > TIME_MAX)
     time = TIME_MAX;
-  else if (time < TIME_MIN)
+  else if(time < TIME_MIN)
     time = TIME_MIN;
 
   return POLY_2_PT(time,
@@ -246,7 +255,7 @@ static struct pattern * trm_get_pattern(struct tr_map * map,
 
 static void trm_compute_pattern_proba(struct tr_map * map)
 {
-  for (int i = 0; i < map->nb_object; i++)
+  for(int i = 0; i < map->nb_object; i++)
     {
       map->object[i].proba = tro_singletap_proba(&map->object[i]);
     }
@@ -254,36 +263,22 @@ static void trm_compute_pattern_proba(struct tr_map * map)
 
 //-----------------------------------------------------
 
-static void trm_compute_pattern_full_alt(struct tr_map * map)
-{ 
-  for(int i = 0; i < map->nb_object; i++)
-    {
-      struct pattern * p = trm_get_pattern(map, i, 1);
-      if (p == NULL)
-	continue;
-
-      for (int j = 0; (j < LENGTH_PATTERN_USED &&
-		       i + j < map->nb_object); j++)
-	map->object[i+j].alt[j] = p->d[j];
-    }
-}
-
-//-----------------------------------------------------
-
-static void trm_compute_pattern_singletap(struct tr_map * map)
+static void trm_compute_pattern_alt(struct tr_map * map)
 {
-  float proba;
-  for(proba = PROBA_START; proba <= PROBA_END; proba += PROBA_STEP)
-    for(int i = 0; i < map->nb_object; i++)
-      {
-	struct pattern * p = trm_get_pattern(map, i, proba);
-	if (p == NULL)
-	  continue;
-	
-	for (int j = 0; (j < LENGTH_PATTERN_USED &&
-			 i + j < map->nb_object); j++)
-	  map->object[i+j].singletap[j] += proba * p->d[j];
-      }
+  for(int pro = PROBA_START; pro <= PROBA_END; pro += PROBA_STEP)
+    {
+      double pro_p = pro / 100.;
+      for(int i = 0; i < map->nb_object; i++)
+	{
+	  struct pattern * p = trm_get_pattern(map, i, pro_p);
+	  if (p == NULL)
+	    continue;
+	  
+	  for (int j = 0; (j < LENGTH_PATTERN_USED &&
+			   i + j < map->nb_object); j++)
+	    map->object[i+j].alt[j] += pro_p * p->d[j];
+	}
+    }
 }
 
 //-----------------------------------------------------
@@ -298,13 +293,11 @@ static void trm_compute_pattern_star(struct tr_map * map)
       for (int j = 0; j < LENGTH_PATTERN_USED; j++)
 	{
 	  map->object[i].pattern_star +=
-	    PATTERN_STAR_COEFF_ALT * map->object[i].alt[j] +
-	    PATTERN_STAR_COEFF_SIN * map->object[i].singletap[j];
+	    PATTERN_STAR_COEFF_ALT * map->object[i].alt[j];
 	}
     }
   struct stats * stats = trm_stats_pattern_star(map);
-  struct stats * coeff = cst_stats(ht_cst, PATTERN_STATS);
-  map->pattern_star = stats_stars(stats, coeff);
+  map->pattern_star = stats_stars(stats, STATS_COEFF);
 }
 
 //-----------------------------------------------------
@@ -316,8 +309,6 @@ static void trm_pattern_alloc(struct tr_map * map)
   for (int i = 0; i < map->nb_object; i++)
     {
       map->object[i].alt =
-	calloc(sizeof(double), LENGTH_PATTERN_USED);
-      map->object[i].singletap =
 	calloc(sizeof(double), LENGTH_PATTERN_USED);
     }  
 }
@@ -334,8 +325,7 @@ void trm_compute_pattern (struct tr_map * map)
   
   trm_pattern_alloc(map);
   trm_compute_pattern_proba(map);
-  trm_compute_pattern_full_alt(map);
-  trm_compute_pattern_singletap(map);
+  trm_compute_pattern_alt(map);
   
   trm_compute_pattern_star(map);
 }

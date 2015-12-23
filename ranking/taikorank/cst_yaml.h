@@ -20,6 +20,7 @@ struct yaml_wrap * cst_get_yw(const char * file_name);
 struct hash_table * cst_get_ht(struct yaml_wrap * yw);
 
 double cst_f(struct hash_table * ht, const char * key);
+int cst_i(struct hash_table * ht, const char * key);
 char * cst_str(struct hash_table * ht, const char * key);
 struct stats * cst_stats(struct hash_table * ht, const char * key);
 

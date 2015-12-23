@@ -23,7 +23,7 @@
 
 //--------------------------------------------------
 
-double mpb_to_bpm (double mpb)
+double mpb_to_bpm(double mpb)
 {
   // work for 'mpb to bpm' and for 'bpm to mpb'
   return MSEC_IN_MINUTE / mpb;
@@ -31,7 +31,7 @@ double mpb_to_bpm (double mpb)
 
 //---------------------------------------------------
 
-int equal (double x, double y)
+int equal(double x, double y)
 {
   return fabs(1. - x / y) <= (EPSILON / 100.);
 }
@@ -40,7 +40,7 @@ int equal (double x, double y)
 //---------------------------------------------------
 //---------------------------------------------------
 
-int tro_is_big (struct tr_object * obj)
+int tro_is_big(struct tr_object * obj)
 {
   return (obj->type == 'D' || obj->type == 'K' ||
 	  obj->type == 'R');
@@ -48,35 +48,35 @@ int tro_is_big (struct tr_object * obj)
 
 //---------------------------------------------------
 
-int tro_is_bonus (struct tr_object * obj)
+int tro_is_bonus(struct tr_object * obj)
 {
   return (obj->type == 's' || tro_is_slider(obj));
 }
 
 //---------------------------------------------------
 
-int tro_is_slider (struct tr_object * obj)
+int tro_is_slider(struct tr_object * obj)
 {
   return (obj->type == 'r' || obj->type == 'R');
 }
 
 //---------------------------------------------------
 
-int tro_is_circle (struct tr_object * obj)
+int tro_is_circle(struct tr_object * obj)
 {
-  return !tro_is_bonus (obj);
+  return !tro_is_bonus(obj);
 }
 
 //---------------------------------------------------
 
-int tro_is_kat (struct tr_object * obj)
+int tro_is_kat(struct tr_object * obj)
 {
   return (obj->type == 'k' || obj->type == 'K');
 }
 
 //---------------------------------------------------
 
-int tro_is_don (struct tr_object * obj)
+int tro_is_don(struct tr_object * obj)
 {
   return (obj->type == 'd' || obj->type == 'D');
 }
@@ -85,8 +85,8 @@ int tro_is_don (struct tr_object * obj)
 //---------------------------------------------------
 //---------------------------------------------------
 
-int tro_are_same_hand (struct tr_object * obj1,
-		       struct tr_object * obj2)
+int tro_are_same_hand(struct tr_object * obj1,
+		      struct tr_object * obj2)
 {
   return ((obj1->l_hand == obj2->l_hand) ||
 	  (obj1->r_hand == obj2->r_hand));
@@ -94,12 +94,12 @@ int tro_are_same_hand (struct tr_object * obj1,
 
 //---------------------------------------------------
 
-int tro_are_same_type (struct tr_object * obj1,
-		       struct tr_object * obj2)
+int tro_are_same_type(struct tr_object * obj1,
+		      struct tr_object * obj2)
 {
-  if (obj1->type == 's' || obj2->type == 's')
+  if(obj1->type == 's' || obj2->type == 's')
     return 1; // d and k are played
-  if (obj1->type == 'r' || obj2->type == 'r')
+  if(obj1->type == 'r' || obj2->type == 'r')
     return 0; // suppose you play the easier...
   return ((tro_is_don(obj1) && tro_is_don(obj2)) ||
 	  (tro_is_kat(obj1) && tro_is_kat(obj2)));
@@ -107,8 +107,8 @@ int tro_are_same_type (struct tr_object * obj1,
 
 //---------------------------------------------------
 
-int tro_are_same_density (struct tr_object * obj1,
-			  struct tr_object * obj2)
+int tro_are_same_density(struct tr_object * obj1,
+			 struct tr_object * obj2)
 {
   return (tro_are_same_type(obj1, obj2) &&
 	  tro_are_same_hand(obj1, obj2));
@@ -120,13 +120,13 @@ int tro_are_same_density (struct tr_object * obj1,
 
 void tro_print(struct tr_object * obj, int filter)
 {
-  if ((filter & FILTER_BASIC) != 0)
+  if((filter & FILTER_BASIC) != 0)
     fprintf(OUTPUT_INFO, "%d\t%d\t%c\t%.3g\t",
 	    obj->offset,
 	    obj->rest,
 	    obj->type,
 	    obj->bpm_app);
-  if ((filter & FILTER_BASIC_PLUS) != 0)
+  if((filter & FILTER_BASIC_PLUS) != 0)
     fprintf(OUTPUT_INFO, "%d\t%d\t%d\t%d\t%c\t%.3g\t",
 	    obj->offset,
 	    obj->end_offset,
@@ -134,18 +134,18 @@ void tro_print(struct tr_object * obj, int filter)
 	    obj->color_rest,
 	    obj->type,
 	    obj->bpm_app);
-  if ((filter & FILTER_ADDITIONNAL) != 0)
+  if((filter & FILTER_ADDITIONNAL) != 0)
     fprintf(OUTPUT_INFO, "%d\t%d\t%g\t%g\t",
 	    obj->l_hand,
 	    obj->r_hand,
 	    obj->obj_app,
 	    obj->obj_dis);
-  if ((filter & FILTER_DENSITY) != 0)
+  if((filter & FILTER_DENSITY) != 0)
     fprintf(OUTPUT_INFO, "%g\t%g\t%g\t",
 	    obj->density_raw,
 	    obj->density_color,
 	    obj->density_star);
-  if ((filter & FILTER_READING) != 0)
+  if((filter & FILTER_READING) != 0)
     fprintf(OUTPUT_INFO, "%d\t%d\t%d\t%d\t%g\t%.3g\t%.3g\t%.3g\t%.3g\t%.2g\t%g\t",
 	    obj->offset_app,
 	    obj->offset_dis,
@@ -158,7 +158,7 @@ void tro_print(struct tr_object * obj, int filter)
 	    obj->fast,
 	    obj->speed_change,
 	    obj->reading_star);
-  if ((filter & FILTER_READING_PLUS) != 0)
+  if((filter & FILTER_READING_PLUS) != 0)
     fprintf(OUTPUT_INFO, "%d\t%d\t%d\t%d\t%g\t%.3g\t%.3g\t%.3g\t%.3g\t%.2g\t%g\t",
 	    obj->offset_app,
 	    obj->end_offset_app,
@@ -171,17 +171,15 @@ void tro_print(struct tr_object * obj, int filter)
 	    obj->fast,
 	    obj->speed_change,
 	    obj->reading_star);
-  if ((filter & FILTER_PATTERN) != 0)
-    fprintf(OUTPUT_INFO, "%.3g\t%.3g\t%.3g\t%.3g\t%.3g\t%g\t",
+  if((filter & FILTER_PATTERN) != 0)
+    fprintf(OUTPUT_INFO, "%.3g\t%.3g\t%.3g\t%g\t",
 	    obj->proba,
 	    obj->alt[0],
 	    obj->alt[1],
-	    obj->singletap[0],
-	    obj->singletap[1],
 	    obj->pattern_star);
-  if ((filter & FILTER_ACCURACY) != 0)
+  if((filter & FILTER_ACCURACY) != 0)
     fprintf(OUTPUT_INFO, "\t");
-  if ((filter & FILTER_STAR) != 0)
+  if((filter & FILTER_STAR) != 0)
     fprintf(OUTPUT_INFO, "%g\t%g\t%g\t%g\t",
 	    obj->density_star,
   	    obj->reading_star,

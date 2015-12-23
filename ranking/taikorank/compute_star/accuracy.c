@@ -15,10 +15,10 @@
  */
 
 #include <math.h>
+#include "util/sum/sum.h"
 
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"
-#include "sum.h"
 
 #include "accuracy.h"
 
@@ -31,10 +31,10 @@ static void trm_compute_spacing (struct tr_map * map);
 
 static void trm_compute_od_to_ms (struct tr_map * map)
 {
-  map->great_ms = (int )(map->great_ms *
-			 (MS_GREAT - (MS_COEFF_GREAT * map->od)));
-  map->bad_ms =  (int) (map->bad_ms *
-			(MS_BAD - (MS_COEFF_BAD * map->od)));
+  map->great_ms = (int)(map->great_ms *
+			(MS_GREAT - (MS_COEFF_GREAT * map->od)));
+  map->bad_ms =  (int)(map->bad_ms *
+		       (MS_BAD - (MS_COEFF_BAD * map->od)));
 }
 
 //-----------------------------------------------------

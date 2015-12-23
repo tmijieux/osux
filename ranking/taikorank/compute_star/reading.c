@@ -21,13 +21,13 @@
 #include <string.h>
 #include <stdarg.h>
 
+#include "util/sum/sum.h"
 #include "util/hashtable/hash_table.h"
 #include "util/list/list.h"
 #include "yaml/yaml2.h"
 
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"
-#include "sum.h"
 #include "stats.h"
 #include "cst_yaml.h"
 #include "print.h"
@@ -84,13 +84,16 @@ static double SPEED_CH_MAX;
 static double SPEED_CH_TIME_0;
 static double SPEED_CH_VALUE_0;
 
+// stats
+static struct stats * STATS_COEFF;
+
 // coeff for star
-#define READING_STAR_COEFF_SUPERPOSED cst_f(ht_cst, "star_superpos") 
-#define READING_STAR_COEFF_HIDE       cst_f(ht_cst, "star_hide")
-#define READING_STAR_COEFF_HIDDEN     cst_f(ht_cst, "star_hidden")   
-#define READING_STAR_COEFF_SPEED_CH   cst_f(ht_cst, "star_speed_ch")
-#define READING_STAR_COEFF_SLOW       cst_f(ht_cst, "star_slow")
-#define READING_STAR_COEFF_FAST       cst_f(ht_cst, "star_fast")
+static double READING_STAR_COEFF_SUPERPOSED;
+static double READING_STAR_COEFF_HIDE;
+static double READING_STAR_COEFF_HIDDEN;
+static double READING_STAR_COEFF_SPEED_CH;
+static double READING_STAR_COEFF_SLOW;
+static double READING_STAR_COEFF_FAST;
 
 //-----------------------------------------------------
 
@@ -117,6 +120,15 @@ static void global_init(void)
   SPEED_CH_MAX     = cst_f(ht_cst, "speed_ch_max");
   SPEED_CH_TIME_0  = cst_f(ht_cst, "speed_ch_time_0");
   SPEED_CH_VALUE_0 = cst_f(ht_cst, "speed_ch_value_0");
+
+  STATS_COEFF = cst_stats(ht_cst, READING_STATS);
+
+  READING_STAR_COEFF_SUPERPOSED = cst_f(ht_cst, "star_superpos"); 
+  READING_STAR_COEFF_HIDE       = cst_f(ht_cst, "star_hide");
+  READING_STAR_COEFF_HIDDEN     = cst_f(ht_cst, "star_hidden");   
+  READING_STAR_COEFF_SPEED_CH   = cst_f(ht_cst, "star_speed_ch");
+  READING_STAR_COEFF_SLOW       = cst_f(ht_cst, "star_slow");
+  READING_STAR_COEFF_FAST       = cst_f(ht_cst, "star_fast");
 }
 
 //-----------------------------------------------------
@@ -134,6 +146,7 @@ __attribute__((destructor))
 static void ht_cst_exit_reading(void)
 {
   yaml2_free(yw);
+  free(STATS_COEFF);
 }
 
 //-----------------------------------------------------
@@ -320,8 +333,7 @@ static void trm_compute_reading_star(struct tr_map * map)
 	 READING_STAR_COEFF_FAST       * map->object[i].fast);
     }
   struct stats * stats = trm_stats_reading_star(map);
-  struct stats * coeff = cst_stats(ht_cst, READING_STATS);
-  map->reading_star = stats_stars(stats, coeff);
+  map->reading_star = stats_stars(stats, STATS_COEFF);
 }
 
 //-----------------------------------------------------

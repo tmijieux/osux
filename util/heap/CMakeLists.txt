@@ -5,5 +5,6 @@ set(heap_src
 
 	)
 
-add_library(heap STATIC ${heap_src})
+add_library(heap SHARED ${heap_src})
+install(TARGETS heap DESTINATION lib)
 

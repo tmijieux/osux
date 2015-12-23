@@ -23,7 +23,7 @@
 #include "print.h"
 
 #include "stats.h"
-#include "sum.h"
+#include "util/sum/sum.h"
 
 //-----------------------------------------------------
 
@@ -123,7 +123,6 @@ double stats_stars(struct stats * stats, struct stats * coeff)
 		   coeff->q3     * stats->q3) /
 		  coeff->scaling);
   free(stats);
-  free(coeff);
   return stars;
 }
 

@@ -17,13 +17,13 @@ time_max: 500.
 # 125ms = 240bpm 1/2
 
 # range for singletap: (i = start; i <= end; i += step)
-proba_start: 0.1  
-proba_end:   1.  
-proba_step:  0.1
+# in %
+proba_start: 10  
+proba_end:   100  
+proba_step:  10
 
 # stars coeff
-star_alt: 4.5
-star_sin: 4.
+star_alt: 1.0
 
 # patterns
 max_pattern_length:  4

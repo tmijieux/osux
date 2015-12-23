@@ -19,13 +19,13 @@
 
 #include <stdio.h>
 
+#include "util/sum/sum.h"
 #include "util/hashtable/hash_table.h"
 #include "util/list/list.h"
 #include "yaml/yaml2.h"
 
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"
-#include "sum.h"
 #include "stats.h"
 #include "cst_yaml.h"
 #include "print.h"
@@ -63,9 +63,12 @@ static double DENSITY_BONUS;
 // coefficient for length weighting in density
 static double DENSITY_LENGTH;
 
+// stats
+static struct stats * STATS_COEFF;
+
 // coeff for star
-#define DENSITY_STAR_COEFF_COLOR cst_f(ht_cst, "star_color")
-#define DENSITY_STAR_COEFF_RAW   cst_f(ht_cst, "star_raw")
+static double DENSITY_STAR_COEFF_COLOR;
+static double DENSITY_STAR_COEFF_RAW;
 
 //-----------------------------------------------------
 
@@ -80,7 +83,12 @@ static void global_init(void)
   DENSITY_BIG    = cst_f(ht_cst, "density_big");
   DENSITY_BONUS  = cst_f(ht_cst, "density_bonus");
 
-  DENSITY_LENGTH = cst_f(ht_cst, "density_length"); 
+  DENSITY_LENGTH = cst_f(ht_cst, "density_length");
+  
+  STATS_COEFF = cst_stats(ht_cst, DENSITY_STATS);
+
+  DENSITY_STAR_COEFF_COLOR = cst_f(ht_cst, "star_color");
+  DENSITY_STAR_COEFF_RAW   = cst_f(ht_cst, "star_raw");
 }
 
 //-----------------------------------------------------
@@ -98,6 +106,7 @@ __attribute__((destructor))
 static void ht_cst_exit_density(void)
 {
   yaml2_free(yw);
+  free(STATS_COEFF);  
 }
 
 //-----------------------------------------------------
@@ -189,8 +198,7 @@ static void trm_compute_density_star (struct tr_map * map)
 	 DENSITY_STAR_COEFF_RAW   * map->object[i].density_raw);
     }
   struct stats * stats = trm_stats_density_star(map);
-  struct stats * coeff = cst_stats(ht_cst, DENSITY_STATS);
-  map->density_star = stats_stars(stats, coeff);
+  map->density_star = stats_stars(stats, STATS_COEFF);
 }
 
 //-----------------------------------------------------

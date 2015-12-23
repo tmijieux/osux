@@ -49,7 +49,6 @@ struct tr_object
   // ---- pattern data
   double proba;
   double * alt;
-  double * singletap;
   
   // ---- density data
   double density_raw;

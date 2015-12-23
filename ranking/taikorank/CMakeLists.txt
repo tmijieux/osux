@@ -23,9 +23,7 @@ add_executable(taiko_ranking ${tr_src})
 
 target_link_libraries(taiko_ranking parser m heap hashtable sum yaml2 mysqlclient)
 
-add_subdirectory(sum)
-
-include_directories(. sum compute_star)
+include_directories(. compute_star)
 
 install(TARGETS taiko_ranking DESTINATION .)
 ##install(DIRECTORY aa_maps DESTINATION .)
