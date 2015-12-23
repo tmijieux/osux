@@ -47,8 +47,9 @@
 
 #define CONFIG_FILE  "config.yaml"
 
-#define OPT_DATABASE    cst_f(ht_conf, "database")
-#define OPT_PRINT_TRO   cst_f(ht_conf, "print_tro")
+#define OPT_DATABASE    cst_i(ht_conf, "database")
+#define OPT_PRINT_TRO   cst_i(ht_conf, "print_tro")
+#define OPT_PRINT_YAML  cst_i(ht_conf, "print_yaml")
 #define OPT_PRINT_ORDER cst_str(ht_conf, "print_order")
 
 #define BASIC_SV 1.4
@@ -70,6 +71,9 @@ static int convert_get_end_offset(struct hit_object * ho, int type,
 				  double bpm_app);
 static struct tr_map * trm_convert(char* file_name);
 
+static void tr_print_yaml_init(void);
+static void tr_print_yaml_exit(void);
+
 //-----------------------------------------------------
 
 __attribute__((constructor))
@@ -79,11 +83,15 @@ static void ht_cst_init_config(void)
   ht_conf = cst_get_ht(yw);
   if(OPT_DATABASE)
     tr_db_init();
+  if(OPT_PRINT_YAML)
+    tr_print_yaml_init();
 }
 
 __attribute__((destructor))
 static void ht_cst_exit_config(void)
 {
+  if(OPT_PRINT_YAML)
+    tr_print_yaml_exit();
   yaml2_free(yw);
 }
 
@@ -101,8 +109,11 @@ void trm_main(const struct tr_map * map, int mods)
   
   // printing
   if(OPT_PRINT_TRO)
-  trm_print_tro(map_copy, FILTER_APPLY);
-  trm_print(map_copy);
+    trm_print_tro(map_copy, FILTER_APPLY);
+  if(OPT_PRINT_YAML)
+    trm_print_yaml(map_copy);
+  else
+    trm_print(map_copy);
 
   // db
   if(OPT_DATABASE)
@@ -372,7 +383,6 @@ void trm_print_tro(struct tr_map * map, int filter)
   fprintf(OUTPUT, "%.4g\t", STAR);		\
   break
 
-
 void trm_print(struct tr_map * map)
 {
   char * order = OPT_PRINT_ORDER;
@@ -396,6 +406,39 @@ void trm_print(struct tr_map * map)
   print_string_size(map->title,   32, OUTPUT);
   print_string_size(map->creator, 16, OUTPUT);
   fprintf(OUTPUT, "\n");
+}
+
+//--------------------------------------------------
+
+static void tr_print_yaml_init(void)
+{
+  fprintf(OUTPUT, "maps: [");
+}
+
+static void tr_print_yaml_exit(void)
+{
+  fprintf(OUTPUT, "]\n"); // erase ','
+}
+
+void trm_print_yaml(struct tr_map * map)
+{
+  static char * prefix = "";
+
+  fprintf(OUTPUT, "%s{", prefix);
+  fprintf(OUTPUT, "title: \"%s\", ", map->title);
+  fprintf(OUTPUT, "artist: \"%s\", ", map->artist);
+  fprintf(OUTPUT, "source: \"%s\", ", map->source);
+  fprintf(OUTPUT, "creator: \"%s\", ", map->creator);
+  fprintf(OUTPUT, "diff: \"%s\", ", map->diff);
+
+  fprintf(OUTPUT, "stars: {");
+  fprintf(OUTPUT, "density_star: %g, ", map->density_star);
+  fprintf(OUTPUT, "pattern_star: %g, ", map->pattern_star);
+  fprintf(OUTPUT, "final_star: %g", map->final_star);
+  fprintf(OUTPUT, "}");
+
+  fprintf(OUTPUT, "}");
+  prefix = ", ";
 }
 
 //--------------------------------------------------

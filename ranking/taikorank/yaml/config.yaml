@@ -1,6 +1,7 @@
 # 
 database:    0
 print_tro:   0
+print_yaml:  0
 print_order: FDRPA
 # F -> final
 # D -> density

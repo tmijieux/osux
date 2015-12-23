@@ -28,7 +28,7 @@ star_alt: 1.0
 # patterns
 max_pattern_length:  4
 length_pattern_used: 2
-patterns :
+patterns:
   # 1 pattern
   - [d, 0.2, 0.0]
   - [k, 0.2, 0.0]  
