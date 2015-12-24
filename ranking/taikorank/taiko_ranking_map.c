@@ -29,6 +29,7 @@
 #include "check_osu_file.h"
 
 #include "taiko_ranking_map.h"
+#include "taiko_ranking_score.h"
 #include "taiko_ranking_object.h"
 #include "print.h"
 #include "tr_db.h"
@@ -77,7 +78,7 @@ void trm_main(const struct tr_map * map, int mods)
 
   // db
   if(OPT_DATABASE)
-    tr_db_add(map_copy);
+    trm_db_insert(map_copy);
   
   // free
   trm_free(map_copy);

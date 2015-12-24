@@ -24,8 +24,6 @@
 #include "mods.h"
 #include "print.h"
 
-#define ACC 0.95
-
 int main(int argc, char* argv[])
 {
   // checking arguments
@@ -38,7 +36,7 @@ int main(int argc, char* argv[])
 	    continue;
 	  
 	  trm_main(map, MODS_NONE);
-	  //trs_main(map, MODS_NONE, ACC);
+	  //trs_main(map, MODS_NONE);
 	  
 	  //trm_main(map, MODS_DT);
 	  //trm_main(map, MODS_HT);

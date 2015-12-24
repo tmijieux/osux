@@ -8,3 +8,9 @@ print_order: FDRPA
 # R -> reading
 # P -> pattern
 # A -> accuracy
+
+db_ip:     localhost
+db_login:  root
+db_passwd: nope
+
+score_acc: 0.95

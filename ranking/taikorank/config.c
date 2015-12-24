@@ -32,6 +32,12 @@ int OPT_PRINT_TRO;
 int OPT_PRINT_YAML;
 char * OPT_PRINT_ORDER;
 
+char * TR_DB_IP;
+char * TR_DB_LOGIN;
+char * TR_DB_PASSWD;
+
+double SCORE_ACC;
+
 static struct yaml_wrap * yw;
 static struct hash_table * ht_conf;
 
@@ -43,6 +49,12 @@ static void global_init(void)
   OPT_PRINT_TRO   = cst_i(ht_conf, "print_tro");
   OPT_PRINT_YAML  = cst_i(ht_conf, "print_yaml");
   OPT_PRINT_ORDER = cst_str(ht_conf, "print_order");
+
+  TR_DB_IP     = cst_str(ht_conf, "db_ip");
+  TR_DB_LOGIN  = cst_str(ht_conf, "db_login");
+  TR_DB_PASSWD = cst_str(ht_conf, "db_passwd");
+
+  SCORE_ACC = cst_f(ht_conf, "score_acc");
 }
 
 //-----------------------------------------------------

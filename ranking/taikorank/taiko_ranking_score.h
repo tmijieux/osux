@@ -17,6 +17,8 @@
 #ifndef TAIKO_RANKING_SCORE_H
 #define TAIKO_RANKING_SCORE_H
 
+#define MAX_ACC 1.
+
 struct tr_map;
 
 struct tr_score
@@ -28,7 +30,7 @@ struct tr_score
   double current_acc;
 };
 
-void trs_main(const struct tr_map * map, int mods, double acc);
+void trs_main(const struct tr_map * map, int mods);
 struct tr_score * trs_new(const struct tr_map * map, int mods,
 			  double acc);
 void trs_free(struct tr_score * score);

@@ -21,15 +21,16 @@
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_score.h"
 
+#include "config.h"
 #include "print.h"
 
 static void trs_acc(struct tr_score * score);
 
 //--------------------------------------------------
 
-void trs_main(const struct tr_map * map, int mods, double acc)
+void trs_main(const struct tr_map * map, int mods)
 {
-  struct tr_score * score = trs_new(map, mods, acc);
+  struct tr_score * score = trs_new(map, mods, SCORE_ACC);
   trs_compute(score);
   trs_free(score);
 }
@@ -46,7 +47,7 @@ struct tr_score * trs_new(const struct tr_map * map, int mods,
   trm_set_mods(score->map, mods);
 
   score->acc = acc;
-  score->current_acc = 1;
+  score->current_acc = MAX_ACC;
   return score;
 }
 

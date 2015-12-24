@@ -24,14 +24,13 @@
 #include <mysql/mysql.h>
 
 #include "taiko_ranking_map.h"
+#include "taiko_ranking_score.h"
 #include "taiko_ranking_object.h"
 
+#include "config.h"
 #include "mods.h"
 #include "print.h"
-
-#define TR_DB_IP     "localhost"
-#define TR_DB_LOGIN  "root"
-#define TR_DB_PASSWD "LEL"
+#include "tr_db.h"
 
 #define TR_DB_NAME  "taiko_rank"
 #define TR_DB_USER  "tr_user"
@@ -45,6 +44,14 @@ static MYSQL * sql;
 static int new_rq(MYSQL * sql, const char * rq, ...);
 static int tr_db_get_id(MYSQL * sql, char * table, char * cond);
 static char * tr_db_escape_str(MYSQL * sql, const char * src);
+
+static int tr_db_insert_user(struct tr_map * map);
+static int tr_db_insert_bms(struct tr_map * map, int user_id);
+static int tr_db_insert_diff(struct tr_map * map, int bms_id);
+static int tr_db_insert_mod(struct tr_map * map);
+static int tr_db_insert_update_score(struct tr_map * map, 
+				     int diff_id, int mod_id,
+				     double acc);
 
 //-------------------------------------------------
 
@@ -127,41 +134,34 @@ static char * tr_db_escape_str(MYSQL * sql, const char * src)
 
 //-------------------------------------------------
 
-void tr_db_add(struct tr_map * map)
+static int tr_db_insert_user(struct tr_map * map)
 {
-  double acc = 100;
-  if (sql == NULL)
-    {
-      tr_error("Couldn't connect to DB. Data won't be stored.");
-      return;
-    }
-
-  // escape char
-  char * map_title   = tr_db_escape_str(sql, map->title);
-  char * map_artist  = tr_db_escape_str(sql, map->artist);
-  char * map_source  = tr_db_escape_str(sql, map->source);
   char * map_creator = tr_db_escape_str(sql, map->creator);
-  char * map_diff    = tr_db_escape_str(sql, map->diff);
-
-  // use db
-  new_rq(sql, "USE %s;", TR_DB_NAME);
-  
-  // creator
   char * cond = NULL;
   asprintf(&cond, "name = '%s'", map_creator);
-
+  
   int user_id = tr_db_get_id(sql, TR_DB_USER, cond);
   if (user_id < 0)
     {
       new_rq(sql, "INSERT INTO %s(name) VALUES('%s');",
 	     TR_DB_USER, map_creator);
       user_id = tr_db_get_id(sql, TR_DB_USER, cond);
-      fprintf(OUTPUT_INFO, "New user: %s, ID: %d\n", map_creator, user_id);
+      fprintf(OUTPUT_INFO, "New user: %s, ID: %d\n", 
+	      map_creator, user_id);
     }
   free(cond);
-  cond = NULL;
+  free(map_creator);
+  return user_id;
+}
 
-  // beatmap_set
+//-------------------------------------------------
+
+static int tr_db_insert_bms(struct tr_map * map, int user_id)
+{
+  char * map_title  = tr_db_escape_str(sql, map->title);
+  char * map_artist = tr_db_escape_str(sql, map->artist);
+  char * map_source = tr_db_escape_str(sql, map->source);
+  char * cond = NULL;
   asprintf(&cond, "creator_ID = %d and artist = '%s' and title = '%s'",
 	   user_id, map_artist, map_title);
 
@@ -176,9 +176,18 @@ void tr_db_add(struct tr_map * map)
 	      map_artist, map_title, bms_id);
     }
   free(cond);
-  cond = NULL;
+  free(map_title);
+  free(map_artist);
+  free(map_source);
+  return bms_id;
+}
 
-  // diff
+//-------------------------------------------------
+
+static int tr_db_insert_diff(struct tr_map * map, int bms_id)
+{
+  char * map_diff = tr_db_escape_str(sql, map->diff);
+  char * cond = NULL;
   asprintf(&cond, "bms_ID = %d and diff_name = '%s'",
 	   bms_id, map_diff);
 
@@ -193,10 +202,16 @@ void tr_db_add(struct tr_map * map)
 	      map_diff, diff_id);
     }
   free(cond);
-  cond = NULL;
+  free(map_diff);
+  return diff_id;
+}
 
-  // mod id
+//-------------------------------------------------
+
+static int tr_db_insert_mod(struct tr_map * map)
+{
   char * mod_str = trm_mods_to_str(map);
+  char * cond = NULL;
   asprintf(&cond, "mod_name = '%s'", mod_str);
 
   int mod_id = tr_db_get_id(sql, TR_DB_MOD, cond);
@@ -209,9 +224,16 @@ void tr_db_add(struct tr_map * map)
     }
   free(cond);
   free(mod_str);
-  cond = NULL;  
+  return mod_id;
+}
 
-  // score
+//-------------------------------------------------
+
+static int tr_db_insert_update_score(struct tr_map * map, 
+				     int diff_id, int mod_id,
+				     double acc)
+{
+  char * cond = NULL;
   asprintf(&cond, "diff_ID = %d and mod_ID = %d and accuracy = %g",
 	   diff_id, mod_id, acc);
 
@@ -241,11 +263,29 @@ void tr_db_add(struct tr_map * map)
 	      acc, score_id);
     }
   free(cond);
-  cond = NULL;
-  
-  free(map_title);
-  free(map_artist);
-  free(map_source);
-  free(map_creator);
-  free(map_diff);
+  return score_id;
+}
+
+//-------------------------------------------------
+
+void trm_db_insert(struct tr_map * map)
+{
+  trs_db_insert(trs_new(map, map->mods, MAX_ACC));
+}
+
+void trs_db_insert(struct tr_score * score)
+{
+  if (sql == NULL)
+    {
+      tr_error("Couldn't connect to DB. Data won't be stored.");
+      return;
+    }
+  new_rq(sql, "USE %s;", TR_DB_NAME);
+
+  int user_id = tr_db_insert_user(score->map);
+  int mod_id = tr_db_insert_mod(score->map);
+  int bms_id = tr_db_insert_bms(score->map, user_id);
+  int diff_id = tr_db_insert_diff(score->map, bms_id);
+  tr_db_insert_update_score(score->map, diff_id, mod_id, 
+			     score->current_acc);  
 }

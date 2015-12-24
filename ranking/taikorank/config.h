@@ -21,4 +21,10 @@ extern int OPT_PRINT_TRO;
 extern int OPT_PRINT_YAML;
 extern char * OPT_PRINT_ORDER;
 
+extern char * TR_DB_IP;
+extern char * TR_DB_LOGIN;
+extern char * TR_DB_PASSWD;
+
+extern double SCORE_ACC;
+
 #endif //CONFIG_H
