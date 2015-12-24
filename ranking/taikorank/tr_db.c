@@ -31,12 +31,14 @@
 
 #define TR_DB_IP     "localhost"
 #define TR_DB_LOGIN  "root"
-#define TR_DB_PASSWD "NOPE"
+#define TR_DB_PASSWD "LEL"
 
-#define TR_DB_NAME "taiko_rank"
-#define TR_DB_USER "tr_user"
-#define TR_DB_BMS  "tr_beatmap_set"
-#define TR_DB_DIFF "tr_diff"
+#define TR_DB_NAME  "taiko_rank"
+#define TR_DB_USER  "tr_user"
+#define TR_DB_BMS   "tr_beatmap_set"
+#define TR_DB_DIFF  "tr_diff"
+#define TR_DB_MOD   "tr_mod"
+#define TR_DB_SCORE "tr_score"
 
 static MYSQL * sql;
 
@@ -127,6 +129,7 @@ static char * tr_db_escape_str(MYSQL * sql, const char * src)
 
 void tr_db_add(struct tr_map * map)
 {
+  double acc = 100;
   if (sql == NULL)
     {
       tr_error("Couldn't connect to DB. Data won't be stored.");
@@ -182,30 +185,63 @@ void tr_db_add(struct tr_map * map)
   int diff_id = tr_db_get_id(sql, TR_DB_DIFF, cond);
   if (diff_id < 0)
     {
-      new_rq(sql, "INSERT INTO %s(diff_name, bms_ID, "
-	     "density_star, reading_star, pattern_star, "
-	     "accuracy_star, final_star) "
-	     "VALUES('%s', %d, %g, %g, %g, %g, %g);",
-	     TR_DB_DIFF, map_diff, bms_id, map->density_star,
-	     map->reading_star, map->pattern_star,
-	     map->accuracy_star, map->final_star);
+      new_rq(sql, "INSERT INTO %s(diff_name, bms_ID)"
+	     "VALUES('%s', %d);",
+	     TR_DB_DIFF, map_diff, bms_id);
       diff_id = tr_db_get_id(sql, TR_DB_DIFF, cond);
       fprintf(OUTPUT_INFO, "New diff: %s ID: %d\n",
 	      map_diff, diff_id);
     }
-  else
+  free(cond);
+  cond = NULL;
+
+  // mod id
+  char * mod_str = trm_mods_to_str(map);
+  asprintf(&cond, "mod_name = '%s'", mod_str);
+
+  int mod_id = tr_db_get_id(sql, TR_DB_MOD, cond);
+  if (mod_id < 0)
     {
-      new_rq(sql, "UPDATE %s "
-	     "SET density_star = %g, reading_star = %g, pattern_star = %g,"
-	     "accuracy_star = %g, final_star = %g"
-	     "WHERE ID = %d;",
-	     TR_DB_DIFF, map->density_star, map->reading_star,
-	     map->pattern_star, map->accuracy_star,
-	     map->final_star, diff_id);
-      fprintf(OUTPUT_INFO, "Updated diff: %s ID: %d\n",
-	      map_diff, diff_id);
+      new_rq(sql, "INSERT INTO %s(mod_name) VALUES('%s');",
+	     TR_DB_MOD, mod_str);
+      mod_id = tr_db_get_id(sql, TR_DB_MOD, cond);
+      fprintf(OUTPUT_INFO, "New mod: %s ID: %d\n", mod_str, mod_id);
     }
   free(cond);
+  free(mod_str);
+  cond = NULL;  
+
+  // score
+  asprintf(&cond, "diff_ID = %d and mod_ID = %d and accuracy = %g",
+	   diff_id, mod_id, acc);
+
+  int score_id = tr_db_get_id(sql, TR_DB_SCORE, cond);
+  if (score_id < 0)
+    {
+      new_rq(sql, "INSERT INTO %s(diff_ID, mod_ID, accuracy, "
+	     "density_star, pattern_star, reading_star, "
+	     "accuracy_star, final_star)"
+	     "VALUES(%d, %d, %g, %g, %g, %g, %g, %g);",
+	     TR_DB_SCORE, diff_id, mod_id, acc,
+	     map->density_star, map->pattern_star, map->reading_star,
+	     map->accuracy_star, map->final_star);
+      score_id = tr_db_get_id(sql, TR_DB_SCORE, cond);
+      fprintf(OUTPUT_INFO, "New score: %g ID: %d\n", acc, score_id);
+    }
+  else
+    {
+      new_rq(sql, "UPDATE %s SET density_star = %g, "
+	     "reading_star = %g, pattern_star = %g,"
+	     "accuracy_star = %g, final_star = %g"
+	     "WHERE ID = %d;",
+	     TR_DB_SCORE, map->density_star, map->reading_star,
+	     map->pattern_star, map->accuracy_star,
+	     map->final_star, score_id);
+      fprintf(OUTPUT_INFO, "Updated score: %g ID: %d\n", 
+	      acc, score_id);
+    }
+  free(cond);
+  cond = NULL;
   
   free(map_title);
   free(map_artist);

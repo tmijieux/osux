@@ -15,6 +15,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"
@@ -196,18 +197,26 @@ static int trm_print_one_mod(struct tr_map * map, int mods, int * i,
 
 void trm_print_mods(struct tr_map * map)
 {
-  char buffer[STR_MODS_LENGTH * MAX_MODS + 1] = { 0 };
-  int i = 0;
-  
-  if (trm_print_one_mod(map, MODS_HR, &i, buffer, "HR ") == 0)
-    trm_print_one_mod(map, MODS_EZ, &i, buffer, "EZ ");
-
-  if (trm_print_one_mod(map, MODS_DT, &i, buffer, "DT ") == 0)
-    trm_print_one_mod(map, MODS_HT, &i, buffer, "HT ");
-
-  trm_print_one_mod(map, MODS_HD, &i, buffer, "HD ");
-  trm_print_one_mod(map, MODS_FL, &i, buffer, "FL ");
-
+  char * buffer = trm_mods_to_str(map);
   print_string_size(buffer, STR_MODS_LENGTH * MAX_MODS + 1, OUTPUT);
+  free(buffer);
 }
 
+//-------------------------------------------------
+
+char * trm_mods_to_str(struct tr_map * map)
+{
+  char * s = calloc(sizeof(char), STR_MODS_LENGTH * MAX_MODS + 1);
+  int i = 0;
+  
+  if (trm_print_one_mod(map, MODS_HR, &i, s, "HR ") == 0)
+    trm_print_one_mod(map, MODS_EZ, &i, s, "EZ ");
+
+  if (trm_print_one_mod(map, MODS_DT, &i, s, "DT ") == 0)
+    trm_print_one_mod(map, MODS_HT, &i, s, "HT ");
+
+  trm_print_one_mod(map, MODS_HD, &i, s, "HD ");
+  trm_print_one_mod(map, MODS_FL, &i, s, "FL ");
+  
+  return s;
+}

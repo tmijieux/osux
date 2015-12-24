@@ -68,5 +68,6 @@ void trm_main(const struct tr_map * map, int mods);
 void trm_print_tro(struct tr_map * map, int filter);
 void trm_print(struct tr_map * map);
 void trm_print_yaml(struct tr_map * map);
-
+void tr_print_yaml_init(void);
+void tr_print_yaml_exit(void);
 #endif

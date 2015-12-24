@@ -25,15 +25,11 @@
 #include "beatmap/timingpoint.h"
 #include "beatmap/hitsound.h"
 
-#include "util/hashtable/hash_table.h"
-#include "util/list/list.h"
-#include "yaml/yaml2.h"
-
+#include "config.h"
 #include "check_osu_file.h"
 
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"
-#include "cst_yaml.h"
 #include "print.h"
 #include "tr_db.h"
 #include "mods.h"
@@ -45,13 +41,6 @@
 #include "accuracy.h"
 #include "final_star.h"
 
-#define CONFIG_FILE  "config.yaml"
-
-#define OPT_DATABASE    cst_i(ht_conf, "database")
-#define OPT_PRINT_TRO   cst_i(ht_conf, "print_tro")
-#define OPT_PRINT_YAML  cst_i(ht_conf, "print_yaml")
-#define OPT_PRINT_ORDER cst_str(ht_conf, "print_order")
-
 #define BASIC_SV 1.4
 
 // mini patch
@@ -61,9 +50,6 @@
 // this get rid of the 'new_combo' flag to get the hit object's type
 // more easily
 
-static struct yaml_wrap * yw;
-static struct hash_table * ht_conf;
-
 static char convert_get_type(struct hit_object * ho);
 static double convert_get_bpm_app(struct timing_point * tp,
 				  double sv);
@@ -71,32 +57,6 @@ static int convert_get_end_offset(struct hit_object * ho, int type,
 				  double bpm_app);
 static struct tr_map * trm_convert(char* file_name);
 
-static void tr_print_yaml_init(void);
-static void tr_print_yaml_exit(void);
-
-//-----------------------------------------------------
-
-__attribute__((constructor))
-static void ht_cst_init_config(void)
-{
-  yw = cst_get_yw(CONFIG_FILE);
-  ht_conf = cst_get_ht(yw);
-  if(OPT_DATABASE)
-    tr_db_init();
-  if(OPT_PRINT_YAML)
-    tr_print_yaml_init();
-}
-
-__attribute__((destructor))
-static void ht_cst_exit_config(void)
-{
-  if(OPT_PRINT_YAML)
-    tr_print_yaml_exit();
-  yaml2_free(yw);
-}
-
-//--------------------------------------------------
-//--------------------------------------------------
 //--------------------------------------------------
 
 void trm_main(const struct tr_map * map, int mods)
@@ -410,14 +370,14 @@ void trm_print(struct tr_map * map)
 
 //--------------------------------------------------
 
-static void tr_print_yaml_init(void)
+void tr_print_yaml_init(void)
 {
   fprintf(OUTPUT, "maps: [");
 }
 
-static void tr_print_yaml_exit(void)
+void tr_print_yaml_exit(void)
 {
-  fprintf(OUTPUT, "]\n"); // erase ','
+  fprintf(OUTPUT, "]\n");
 }
 
 void trm_print_yaml(struct tr_map * map)

@@ -62,5 +62,6 @@
 
 void trm_apply_mods(struct tr_map * map);
 void trm_print_mods(struct tr_map * map);
+char * trm_mods_to_str(struct tr_map * map);
 
 #endif //MODS_H
