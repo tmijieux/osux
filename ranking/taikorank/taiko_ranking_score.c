@@ -23,6 +23,9 @@
 
 #include "config.h"
 #include "print.h"
+#include "tr_db.h"
+
+#define COEFF_MAX_ACC 100.
 
 static void trs_acc(struct tr_score * score);
 
@@ -72,6 +75,9 @@ void trs_compute(struct tr_score * score)
       trs_acc(score);
       trm_compute_stars(score->map);
       trs_print(score);
+
+      if(OPT_DATABASE)
+	trs_db_insert(score);
     } 
 }
 
@@ -81,7 +87,8 @@ void trs_print(struct tr_score * score)
 {
   //trm_print_tro(score->map, FILTER_APPLY);
   fprintf(OUTPUT_INFO, "Score: %.5g%% \t(aim: %g%%)\n",
-	  score->current_acc * 100., score->acc * 100.);
+	  score->current_acc * COEFF_MAX_ACC, 
+	  score->acc * COEFF_MAX_ACC);
   trm_print(score->map);
 }
 

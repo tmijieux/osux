@@ -35,8 +35,8 @@ int main(int argc, char* argv[])
 	  if (map == NULL)
 	    continue;
 	  
-	  trm_main(map, MODS_NONE);
-	  //trs_main(map, MODS_NONE);
+	  //trm_main(map, MODS_NONE);
+	  trs_main(map, MODS_NONE);
 	  
 	  //trm_main(map, MODS_DT);
 	  //trm_main(map, MODS_HT);
