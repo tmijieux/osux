@@ -33,8 +33,9 @@ void tr_error(const char * s, ...)
   fprintf(OUTPUT_ERR, "\n");
 }
 
-void print_string_size(char *s, int max, FILE * output)
+void print_string_size(const char *src, int max, FILE * output)
 {
+  char * s = strdup(src);
   int length = strlen(s);
   if (length >= max)
     {
@@ -49,4 +50,5 @@ void print_string_size(char *s, int max, FILE * output)
   for (int i = 0; i < length; i++)
     fprintf(output, " ");
   fprintf(output, "\t");
+  free(s);
 }

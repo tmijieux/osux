@@ -22,6 +22,7 @@
 #include "yaml/yaml2.h"
 
 #include "taiko_ranking_map.h"
+#include "taiko_ranking_score.h"
 #include "tr_db.h"
 #include "cst_yaml.h"
 
@@ -36,7 +37,9 @@ char * TR_DB_IP;
 char * TR_DB_LOGIN;
 char * TR_DB_PASSWD;
 
+int OPT_SCORE;
 double SCORE_ACC;
+int (* TRM_METHOD_GET_TRO)(struct tr_map *);
 
 static struct yaml_wrap * yw;
 static struct hash_table * ht_conf;
@@ -45,16 +48,33 @@ static struct hash_table * ht_conf;
 
 static void global_init(void)
 {
-  OPT_DATABASE    = cst_i(ht_conf, "database");
   OPT_PRINT_TRO   = cst_i(ht_conf, "print_tro");
   OPT_PRINT_YAML  = cst_i(ht_conf, "print_yaml");
   OPT_PRINT_ORDER = cst_str(ht_conf, "print_order");
 
-  TR_DB_IP     = cst_str(ht_conf, "db_ip");
-  TR_DB_LOGIN  = cst_str(ht_conf, "db_login");
-  TR_DB_PASSWD = cst_str(ht_conf, "db_passwd");
+  OPT_DATABASE = cst_i(ht_conf, "database");
+  if(OPT_DATABASE)
+    {
+      TR_DB_IP     = cst_str(ht_conf, "db_ip");
+      TR_DB_LOGIN  = cst_str(ht_conf, "db_login");
+      TR_DB_PASSWD = cst_str(ht_conf, "db_passwd");
+    }
 
-  SCORE_ACC = cst_f(ht_conf, "score_acc");
+  OPT_SCORE = cst_i(ht_conf, "score");
+  if(OPT_SCORE)
+    {
+      SCORE_ACC = cst_f(ht_conf, "score_acc");
+      int i = cst_i(ht_conf, "score_method");
+      switch(i)
+	{
+	case 1:
+	  TRM_METHOD_GET_TRO = trm_best_influence_tro;
+	  break;
+	default:
+	  TRM_METHOD_GET_TRO = trm_hardest_tro;
+	  break;
+	}
+    }
 }
 
 //-----------------------------------------------------

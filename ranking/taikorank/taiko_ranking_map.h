@@ -27,10 +27,11 @@ struct tr_map
   char * source;
   char * creator;
   char * diff;
-  unsigned int bms_osu_ID;
-  /*char * title_uni;
+
+  char * title_uni;
   char * artist_uni;
-  unsigned int diff_osu_ID;*/
+  unsigned int bms_osu_ID;
+  unsigned int diff_osu_ID;
   
   // Song Info
   int mods;
@@ -58,6 +59,7 @@ void trm_pattern_free(struct tr_map * map);
 void trm_free(struct tr_map * map);
 
 int trm_hardest_tro(struct tr_map * map);
+int trm_best_influence_tro(struct tr_map * map);
 void trm_remove_tro(struct tr_map * map, int x);
 
 void trm_set_mods(struct tr_map * map, int mods);

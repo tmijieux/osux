@@ -39,6 +39,6 @@
 #define MAX_MODS        4
 
 void tr_error(const char * s, ...);
-void print_string_size(char *s, int max, FILE * output);
+void print_string_size(const char * s, int max, FILE * output);
 
 #endif

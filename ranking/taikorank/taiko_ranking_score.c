@@ -70,7 +70,7 @@ void trs_compute(struct tr_score * score)
   while(score->acc < score->current_acc)
     {
       trm_pattern_free(score->map);
-      int i = trm_hardest_tro(score->map);
+      int i = TRM_METHOD_GET_TRO(score->map);
       trm_remove_tro(score->map, i);
       trs_acc(score);
       trm_compute_stars(score->map);
@@ -78,7 +78,7 @@ void trs_compute(struct tr_score * score)
 
       if(OPT_DATABASE)
 	trs_db_insert(score);
-    } 
+    }
 }
 
 //--------------------------------------------------

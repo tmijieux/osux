@@ -23,6 +23,7 @@
 #include "taiko_ranking_score.h"
 #include "mods.h"
 #include "print.h"
+#include "config.h"
 
 int main(int argc, char* argv[])
 {
@@ -35,8 +36,9 @@ int main(int argc, char* argv[])
 	  if (map == NULL)
 	    continue;
 	  
-	  //trm_main(map, MODS_NONE);
-	  trs_main(map, MODS_NONE);
+	  trm_main(map, MODS_NONE);
+	  if(OPT_SCORE)
+	    trs_main(map, MODS_NONE);
 	  
 	  //trm_main(map, MODS_DT);
 	  //trm_main(map, MODS_HT);

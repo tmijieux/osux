@@ -25,9 +25,6 @@
 #include "beatmap/timingpoint.h"
 #include "beatmap/hitsound.h"
 
-#include "config.h"
-#include "check_osu_file.h"
-
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_score.h"
 #include "taiko_ranking_object.h"
@@ -35,6 +32,9 @@
 #include "tr_db.h"
 #include "mods.h"
 #include "treatment.h"
+
+#include "config.h"
+#include "check_osu_file.h"
 
 #include "density.h"
 #include "reading.h"
@@ -121,8 +121,8 @@ struct tr_map * trm_copy(const struct tr_map * map)
   copy->source  = strdup(map->source);
   copy->creator = strdup(map->creator);
   copy->diff    = strdup(map->diff);
-  /*copy->title_uni   = strdup(map->title_uni);
-    copy->artist_uni  = strdup(map->artist_uni);*/
+  copy->title_uni  = strdup(map->title_uni);
+  copy->artist_uni = strdup(map->artist_uni);
   
   return copy;
 }
@@ -147,8 +147,8 @@ void trm_free(struct tr_map * map)
   free(map->source);
   free(map->creator);
   free(map->diff);
-  /*free(map->title_uni);
-    free(map->artist_uni);*/
+  free(map->title_uni);
+  free(map->artist_uni);
   
   free(map->object);
   free(map);
@@ -299,10 +299,10 @@ struct tr_map * trm_convert(char* file_name)
   tr_map->source     = strdup(map->Source);
   tr_map->creator    = strdup(map->Creator);
   tr_map->diff       = strdup(map->Version);
-  tr_map->bms_osu_ID = map->BeatmapSetID;
-  /*tr_map->diff_osu_ID = map->BeatmapID;
+  tr_map->bms_osu_ID  = map->BeatmapSetID;
+  tr_map->diff_osu_ID = map->BeatmapID;
   tr_map->title_uni  = strdup(map->TitleUnicode);
-  tr_map->artist_uni = strdup(map->ArtistUnicode);*/
+  tr_map->artist_uni = strdup(map->ArtistUnicode);
   
   map_free(map);
   return tr_map;
@@ -412,6 +412,27 @@ int trm_hardest_tro(struct tr_map * map)
   for(int i = 0; i < map->nb_object; i++)
     if(map->object[i].final_star > map->object[best].final_star)
       best = i;
+  return best;
+}
+
+//--------------------------------------------------
+
+int trm_best_influence_tro(struct tr_map * map)
+{
+  int best = -1;
+  double star = map->final_star;
+  for(int i = 0; i < map->nb_object; i++)
+    {
+      struct tr_map * map_copy = trm_copy(map);
+      trm_remove_tro(map_copy, i);
+      trm_compute_stars(map_copy);
+      if(star > map_copy->final_star)
+	{
+	  best = i;
+	  star = map_copy->final_star;
+	}
+      trm_free(map_copy);
+    }
   return best;
 }
 

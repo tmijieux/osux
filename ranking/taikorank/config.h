@@ -25,6 +25,8 @@ extern char * TR_DB_IP;
 extern char * TR_DB_LOGIN;
 extern char * TR_DB_PASSWD;
 
+extern int OPT_SCORE;
 extern double SCORE_ACC;
+extern int (* TRM_METHOD_GET_TRO)(struct tr_map *);
 
 #endif //CONFIG_H

@@ -53,6 +53,8 @@ static int tr_db_insert_update_score(struct tr_map * map,
 				     int diff_id, int mod_id,
 				     double acc);
 
+static void tr_db_insert(struct tr_map * map, double acc);
+
 //-------------------------------------------------
 
 void tr_db_init(void)
@@ -73,7 +75,8 @@ void tr_db_init(void)
       mysql_close(sql);
       sql = NULL;
       return;
-    }  
+    }
+  new_rq(sql, "USE %s;", TR_DB_NAME);
 }
 
 //-------------------------------------------------
@@ -161,16 +164,20 @@ static int tr_db_insert_bms(struct tr_map * map, int user_id)
   char * map_title  = tr_db_escape_str(sql, map->title);
   char * map_artist = tr_db_escape_str(sql, map->artist);
   char * map_source = tr_db_escape_str(sql, map->source);
+  char * map_artist_uni = tr_db_escape_str(sql, map->artist_uni);
+  char * map_title_uni  = tr_db_escape_str(sql, map->title_uni);
   char * cond = NULL;
   asprintf(&cond, "creator_ID = %d and artist = '%s' and title = '%s'",
 	   user_id, map_artist, map_title);
-
+  
   int bms_id = tr_db_get_id(sql, TR_DB_BMS, cond);
   if (bms_id < 0)
     {
-      new_rq(sql, "INSERT INTO %s(artist, title, source, creator_ID)"
-	     "VALUES('%s', '%s', '%s', %d);",
-	     TR_DB_BMS, map_artist, map_title, map_source, user_id);
+      new_rq(sql, "INSERT INTO %s(artist, title, source, creator_ID,"
+	     "artist_uni, title_uni, osu_map_ID)"
+	     "VALUES('%s', '%s', '%s', %d, '%s', '%s', %d);",
+	     TR_DB_BMS, map_artist, map_title, map_source, user_id,
+	     map_artist_uni, map_title_uni, map->bms_osu_ID);
       bms_id = tr_db_get_id(sql, TR_DB_BMS, cond);
       fprintf(OUTPUT_INFO, "New beatmap: %s - %s ID: %d\n",
 	      map_artist, map_title, bms_id);
@@ -179,6 +186,8 @@ static int tr_db_insert_bms(struct tr_map * map, int user_id)
   free(map_title);
   free(map_artist);
   free(map_source);
+  free(map_artist_uni);
+  free(map_title_uni);
   return bms_id;
 }
 
@@ -194,9 +203,9 @@ static int tr_db_insert_diff(struct tr_map * map, int bms_id)
   int diff_id = tr_db_get_id(sql, TR_DB_DIFF, cond);
   if (diff_id < 0)
     {
-      new_rq(sql, "INSERT INTO %s(diff_name, bms_ID)"
-	     "VALUES('%s', %d);",
-	     TR_DB_DIFF, map_diff, bms_id);
+      new_rq(sql, "INSERT INTO %s(diff_name, bms_ID, osu_diff_ID)"
+	     "VALUES('%s', %d, %d);",
+	     TR_DB_DIFF, map_diff, bms_id, map->diff_osu_ID);
       diff_id = tr_db_get_id(sql, TR_DB_DIFF, cond);
       fprintf(OUTPUT_INFO, "New diff: %s ID: %d\n",
 	      map_diff, diff_id);
@@ -268,24 +277,27 @@ static int tr_db_insert_update_score(struct tr_map * map,
 
 //-------------------------------------------------
 
-void trm_db_insert(struct tr_map * map)
-{
-  trs_db_insert(trs_new(map, map->mods, MAX_ACC));
-}
-
-void trs_db_insert(struct tr_score * score)
+static void tr_db_insert(struct tr_map * map, double acc)
 {
   if (sql == NULL)
     {
       tr_error("Couldn't connect to DB. Data won't be stored.");
       return;
     }
-  new_rq(sql, "USE %s;", TR_DB_NAME);
 
-  int user_id = tr_db_insert_user(score->map);
-  int mod_id = tr_db_insert_mod(score->map);
-  int bms_id = tr_db_insert_bms(score->map, user_id);
-  int diff_id = tr_db_insert_diff(score->map, bms_id);
-  tr_db_insert_update_score(score->map, diff_id, mod_id, 
-			     score->current_acc);  
+  int user_id = tr_db_insert_user(map);
+  int mod_id = tr_db_insert_mod(map);
+  int bms_id = tr_db_insert_bms(map, user_id);
+  int diff_id = tr_db_insert_diff(map, bms_id);
+  tr_db_insert_update_score(map, diff_id, mod_id, acc);
+}
+
+void trm_db_insert(struct tr_map * map)
+{
+  tr_db_insert(map, MAX_ACC);
+}
+
+void trs_db_insert(struct tr_score * score)
+{
+  tr_db_insert(score->map, score->current_acc);  
 }

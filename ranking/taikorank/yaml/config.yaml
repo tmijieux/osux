@@ -1,5 +1,4 @@
 # 
-database:    0
 print_tro:   0
 print_yaml:  0
 print_order: FDRPA
@@ -9,8 +8,15 @@ print_order: FDRPA
 # P -> pattern
 # A -> accuracy
 
+# Database
+database:    0
 db_ip:     localhost
 db_login:  root
 db_passwd: nope
 
+# Score
+score: 0
 score_acc: 0.95
+score_method: 0
+# 0 -> hardest
+# 1 -> best influence
