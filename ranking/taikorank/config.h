@@ -29,4 +29,6 @@ extern int OPT_SCORE;
 extern double SCORE_ACC;
 extern int (* TRM_METHOD_GET_TRO)(struct tr_map *);
 
+void ht_conf_db_init(void);
+
 #endif //CONFIG_H

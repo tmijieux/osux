@@ -381,25 +381,39 @@ void tr_print_yaml_exit(void)
   fprintf(OUTPUT, "]\n");
 }
 
-void trm_print_yaml(struct tr_map * map)
+void tr_print_yaml(struct tr_map * map, double acc)
 {
   static char * prefix = "";
+  char * mod = trm_mods_to_str(map);
 
   fprintf(OUTPUT, "%s{", prefix);
   fprintf(OUTPUT, "title: \"%s\", ", map->title);
+  fprintf(OUTPUT, "title_uni: \"%s\", ", map->title_uni);
   fprintf(OUTPUT, "artist: \"%s\", ", map->artist);
+  fprintf(OUTPUT, "artist_uni: \"%s\", ", map->artist_uni);
   fprintf(OUTPUT, "source: \"%s\", ", map->source);
   fprintf(OUTPUT, "creator: \"%s\", ", map->creator);
-  fprintf(OUTPUT, "diff: \"%s\", ", map->diff);
+  fprintf(OUTPUT, "difficulty: \"%s\", ", map->diff);
+
+  fprintf(OUTPUT, "accuracy: %g, ", acc);
+  fprintf(OUTPUT, "mod: \"%s\", ", mod);
 
   fprintf(OUTPUT, "stars: {");
   fprintf(OUTPUT, "density_star: %g, ", map->density_star);
   fprintf(OUTPUT, "pattern_star: %g, ", map->pattern_star);
+  fprintf(OUTPUT, "reading_star: %g, ", map->reading_star);
+  fprintf(OUTPUT, "accuracy_star: %g, ", map->accuracy_star);
   fprintf(OUTPUT, "final_star: %g", map->final_star);
   fprintf(OUTPUT, "}");
 
   fprintf(OUTPUT, "}");
+  free(mod);
   prefix = ", ";
+}
+
+void trm_print_yaml(struct tr_map * map)
+{
+  tr_print_yaml(map, MAX_ACC * COEFF_MAX_ACC);
 }
 
 //--------------------------------------------------

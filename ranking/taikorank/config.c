@@ -25,6 +25,7 @@
 #include "taiko_ranking_score.h"
 #include "tr_db.h"
 #include "cst_yaml.h"
+#include "config.h"
 
 #define CONFIG_FILE  "config.yaml"
 
@@ -54,11 +55,7 @@ static void global_init(void)
 
   OPT_DATABASE = cst_i(ht_conf, "database");
   if(OPT_DATABASE)
-    {
-      TR_DB_IP     = cst_str(ht_conf, "db_ip");
-      TR_DB_LOGIN  = cst_str(ht_conf, "db_login");
-      TR_DB_PASSWD = cst_str(ht_conf, "db_passwd");
-    }
+    ht_conf_db_init();
 
   OPT_SCORE = cst_i(ht_conf, "score");
   if(OPT_SCORE)
@@ -75,6 +72,15 @@ static void global_init(void)
 	  break;
 	}
     }
+}
+
+//-----------------------------------------------------
+
+void ht_conf_db_init(void)
+{
+  TR_DB_IP     = cst_str(ht_conf, "db_ip");
+  TR_DB_LOGIN  = cst_str(ht_conf, "db_login");
+  TR_DB_PASSWD = cst_str(ht_conf, "db_passwd");
 }
 
 //-----------------------------------------------------

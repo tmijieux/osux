@@ -13,32 +13,15 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+#ifndef OPTIONS_H
+#define OPTIONS_H
 
-#ifndef TAIKO_RANKING_SCORE_H
-#define TAIKO_RANKING_SCORE_H
+#define OPTIONS_PREFIX '-'
 
-#define MAX_ACC 1.
-#define COEFF_MAX_ACC 100.
+/**
+ * All options have an argument.
+ * Options must be passed before .osu files.
+*/
+void options_set(const char * s, const char * arg);
 
-struct tr_map;
-
-struct tr_score
-{
-  const struct tr_map * origin;
-  double acc;
-  
-  struct tr_map * map;
-  double current_acc;
-};
-
-void trs_main(const struct tr_map * map, int mods);
-struct tr_score * trs_new(const struct tr_map * map, int mods,
-			  double acc);
-void trs_free(struct tr_score * score);
-
-void trs_compute(struct tr_score * score);
-
-void trs_print(struct tr_score * score);
-void trs_print_yaml(struct tr_score * score);
-
-#endif //TAIKO_RANKING_SCORE_H
+#endif //OPTIONS_H

@@ -24,13 +24,21 @@
 #include "mods.h"
 #include "print.h"
 #include "config.h"
+#include "options.h"
 
 int main(int argc, char* argv[])
 {
+  int k = 1;
+  while(argc > k+1 && argv[k][0] == OPTIONS_PREFIX)
+    {
+      options_set(argv[k], argv[k+1]);
+      k += 2;
+    }
+
   // checking arguments
-  if (argc >= 2)
-    {      
-      for (int i = 1; i < argc; i++)
+  if(argc > k)
+    { 
+      for (int i = k; i < argc; i++)
 	{
 	  struct tr_map * map = trm_new(argv[i]);
 	  if (map == NULL)

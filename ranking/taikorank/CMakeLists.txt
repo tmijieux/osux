@@ -11,6 +11,7 @@ set(tr_src
   stats.c
   tr_db.c
   config.c
+  options.c
   cst_yaml.c
   compute_star/density.c
   compute_star/reading.c
