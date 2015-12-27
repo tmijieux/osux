@@ -252,8 +252,8 @@ static int tr_db_insert_update_score(struct tr_map * map,
       new_rq(sql, "INSERT INTO %s(diff_ID, mod_ID, accuracy, "
 	     "density_star, pattern_star, reading_star, "
 	     "accuracy_star, final_star)"
-	     "VALUES(%d, %d, %g, %g, %g, %g, %g, %g);",
-	     TR_DB_SCORE, diff_id, mod_id, acc,
+	     "VALUES(%d, %d, %g.3, %g.3, %g.3, %g.3, %g.3, %g.3);",
+	     TR_DB_SCORE, diff_id, mod_id, acc * COEFF_MAX_ACC,
 	     map->density_star, map->pattern_star, map->reading_star,
 	     map->accuracy_star, map->final_star);
       score_id = tr_db_get_id(sql, TR_DB_SCORE, cond);
@@ -261,9 +261,9 @@ static int tr_db_insert_update_score(struct tr_map * map,
     }
   else
     {
-      new_rq(sql, "UPDATE %s SET density_star = %g, "
-	     "reading_star = %g, pattern_star = %g,"
-	     "accuracy_star = %g, final_star = %g"
+      new_rq(sql, "UPDATE %s SET density_star = %g.3, "
+	     "reading_star = %g.3, pattern_star = %g.3,"
+	     "accuracy_star = %g.3, final_star = %g.3"
 	     "WHERE ID = %d;",
 	     TR_DB_SCORE, map->density_star, map->reading_star,
 	     map->pattern_star, map->accuracy_star,

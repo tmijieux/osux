@@ -38,23 +38,26 @@ int main(int argc, char* argv[])
   // checking arguments
   if(argc > k)
     { 
+      void (* tr_main)(const struct tr_map *, int);
+      if(OPT_SCORE)
+	tr_main = trs_main;
+      else
+	tr_main = trm_main;
+      
       for (int i = k; i < argc; i++)
 	{
 	  struct tr_map * map = trm_new(argv[i]);
 	  if (map == NULL)
 	    continue;
 	  
-	  trm_main(map, MODS_NONE);
-	  if(OPT_SCORE)
-	    trs_main(map, MODS_NONE);
-	  
-	  //trm_main(map, MODS_DT);
-	  //trm_main(map, MODS_HT);
-	  //trm_main(map, MODS_HD);
-	  //trm_main(map, MODS_FL);
-	  //trm_main(map, MODS_HR);
-	  //trm_main(map, MODS_HD);
-	  //trm_main(map, MODS_HD | MODS_FL);
+	  tr_main(map, MODS_NONE);
+	  tr_main(map, MODS_DT);
+	  tr_main(map, MODS_HT);
+	  //tr_main(map, MODS_HD);
+	  //tr_main(map, MODS_FL);
+	  //tr_main(map, MODS_HR);
+	  //tr_main(map, MODS_HD);
+	  //tr_main(map, MODS_HD | MODS_FL);
 	  
 	  trm_free(map);	    
 	}

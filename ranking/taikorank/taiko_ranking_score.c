@@ -65,6 +65,14 @@ void trs_free(struct tr_score * score)
 void trs_compute(struct tr_score * score)
 {
   trm_compute_stars(score->map);
+  if(OPT_PRINT_YAML)
+    trs_print_yaml(score);
+  else
+    trs_print(score);
+  
+  if(OPT_DATABASE)
+    trs_db_insert(score);
+
   while(score->acc < score->current_acc)
     {
       trm_pattern_free(score->map);

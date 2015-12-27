@@ -60,7 +60,7 @@ static void global_init(void)
   OPT_SCORE = cst_i(ht_conf, "score");
   if(OPT_SCORE)
     {
-      SCORE_ACC = cst_f(ht_conf, "score_acc");
+      SCORE_ACC = cst_f(ht_conf, "score_acc") / COEFF_MAX_ACC;
       int i = cst_i(ht_conf, "score_method");
       switch(i)
 	{

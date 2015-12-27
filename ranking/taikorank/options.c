@@ -24,6 +24,7 @@
 #include "util/hashtable/hash_table.h"
 
 #define ARG_OPT_DB "-db"
+#define ARG_OPT_ACC "-acc"
 
 static struct hash_table * ht_opt;
 
@@ -48,6 +49,11 @@ static void opt_db(const char * value)
   tr_db_init();
 }
 
+static void opt_acc(const char * value)
+{
+  SCORE_ACC = atof(value) / COEFF_MAX_ACC;
+}
+
 //-----------------------------------------------------
 
 __attribute__ ((constructor))
@@ -56,6 +62,7 @@ static void options_init(void)
   ht_opt = ht_create(0, NULL);
   
   ht_add_entry(ht_opt, ARG_OPT_DB, opt_db);
+  ht_add_entry(ht_opt, ARG_OPT_ACC, opt_acc);
 }
 
 __attribute__ ((destructor))
