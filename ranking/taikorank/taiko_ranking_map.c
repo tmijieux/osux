@@ -395,7 +395,7 @@ void tr_print_yaml(struct tr_map * map, double acc)
   fprintf(OUTPUT, "creator: \"%s\", ", map->creator);
   fprintf(OUTPUT, "difficulty: \"%s\", ", map->diff);
 
-  fprintf(OUTPUT, "accuracy: %g, ", acc);
+  fprintf(OUTPUT, "accuracy: %g, ", acc * COEFF_MAX_ACC);
   fprintf(OUTPUT, "mod: \"%s\", ", mod);
 
   fprintf(OUTPUT, "stars: {");
