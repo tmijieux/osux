@@ -17,6 +17,9 @@
 #ifndef TRM_H
 #define TRM_H
 
+#define MAX_ACC 1.
+#define COEFF_MAX_ACC 100.
+
 struct tr_object;
 
 struct tr_map
@@ -49,6 +52,16 @@ struct tr_map
   double pattern_star;
   double accuracy_star;
   double final_star;
+
+  // acc
+  double acc;
+  int combo;
+  int max_combo; 
+
+  int good;
+  int bad;
+  int miss;
+  int bonus;
 };
 
 //----------------------------------------
@@ -60,7 +73,9 @@ void trm_free(struct tr_map * map);
 
 int trm_hardest_tro(struct tr_map * map);
 int trm_best_influence_tro(struct tr_map * map);
-void trm_remove_tro(struct tr_map * map, int x);
+
+void trm_set_bad_tro(struct tr_map * map, int x);
+void trm_set_miss_tro(struct tr_map * map, int x);
 
 void trm_set_mods(struct tr_map * map, int mods);
 void trm_compute_stars(struct tr_map * map);
@@ -69,8 +84,8 @@ void trm_main(const struct tr_map * map, int mods);
 
 void trm_print_tro(struct tr_map * map, int filter);
 void trm_print(struct tr_map * map);
+
 void trm_print_yaml(struct tr_map * map);
-void tr_print_yaml(struct tr_map * map, double acc);
 void tr_print_yaml_init(void);
 void tr_print_yaml_exit(void);
 #endif

@@ -118,22 +118,42 @@ int tro_are_same_density(struct tr_object * obj1,
 //---------------------------------------------------
 //---------------------------------------------------
 
+char * tro_str_state(struct tr_object * o)
+{
+  switch(o->ps)
+    {
+    case GOOD:
+      return "Good";
+    case BAD:
+      return "Bad";
+    case MISS:
+      return "Miss";
+    case BONUS:
+      return "Bonus";
+    default:
+      return "_";
+    }
+}
+
+//---------------------------------------------------
+
 void tro_print(struct tr_object * obj, int filter)
 {
   if((filter & FILTER_BASIC) != 0)
-    fprintf(OUTPUT_INFO, "%d\t%d\t%c\t%.3g\t",
+    fprintf(OUTPUT_INFO, "%d\t%d\t%c\t%.3g\t%s\t",
 	    obj->offset,
 	    obj->rest,
 	    obj->type,
-	    obj->bpm_app);
+	    obj->bpm_app,
+	    tro_str_state(obj));
   if((filter & FILTER_BASIC_PLUS) != 0)
-    fprintf(OUTPUT_INFO, "%d\t%d\t%d\t%d\t%c\t%.3g\t",
+    fprintf(OUTPUT_INFO, "%d\t%d\t%d\t%c\t%.3g\t%s\t",
 	    obj->offset,
 	    obj->end_offset,
 	    obj->rest,
-	    obj->color_rest,
 	    obj->type,
-	    obj->bpm_app);
+	    obj->bpm_app,
+	    tro_str_state(obj));
   if((filter & FILTER_ADDITIONNAL) != 0)
     fprintf(OUTPUT_INFO, "%d\t%d\t%g\t%g\t",
 	    obj->l_hand,

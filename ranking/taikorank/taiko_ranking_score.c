@@ -26,6 +26,7 @@
 #include "tr_db.h"
 
 static void trs_acc(struct tr_score * score);
+static void trs_print_and_db(struct tr_score * score);
 
 //--------------------------------------------------
 
@@ -48,7 +49,7 @@ struct tr_score * trs_new(const struct tr_map * map, int mods,
   trm_set_mods(score->map, mods);
 
   score->acc = acc;
-  score->current_acc = MAX_ACC;
+
   return score;
 }
 
@@ -62,32 +63,36 @@ void trs_free(struct tr_score * score)
 
 //--------------------------------------------------
 
-void trs_compute(struct tr_score * score)
+static void trs_print_and_db(struct tr_score * score)
 {
-  trm_compute_stars(score->map);
+  if(OPT_PRINT_TRO)
+    trm_print_tro(score->map, FILTER_APPLY);
   if(OPT_PRINT_YAML)
-    trs_print_yaml(score);
+    trm_print_yaml(score->map);
   else
     trs_print(score);
   
   if(OPT_DATABASE)
-    trs_db_insert(score);
+    trm_db_insert(score->map);
+}
 
-  while(score->acc < score->current_acc)
+//--------------------------------------------------
+
+void trs_compute(struct tr_score * score)
+{
+  trm_compute_stars(score->map);
+  trs_print_and_db(score);
+
+  while(score->acc < score->map->acc)
     {
       trm_pattern_free(score->map);
-      int i = TRM_METHOD_GET_TRO(score->map);
-      trm_remove_tro(score->map, i);
+      int i = TRM_METHOD_GET_TRO(score->map); 
+      // TODO: for bonus...
+      trm_set_miss_tro(score->map, i);
       trs_acc(score);
       trm_compute_stars(score->map);
 
-      if(OPT_PRINT_YAML)
-	trs_print_yaml(score);
-      else
-	trs_print(score);
-
-      if(OPT_DATABASE)
-	trs_db_insert(score);
+      trs_print_and_db(score);
     }
 }
 
@@ -95,18 +100,10 @@ void trs_compute(struct tr_score * score)
 
 void trs_print(struct tr_score * score)
 {
-  //trm_print_tro(score->map, FILTER_APPLY);
   fprintf(OUTPUT_INFO, "Score: %.5g%% \t(aim: %g%%)\n",
-	  score->current_acc * COEFF_MAX_ACC, 
-	  score->acc * COEFF_MAX_ACC);
+	  score->map->acc * COEFF_MAX_ACC, 
+	  score->acc * COEFF_MAX_ACC);  
   trm_print(score->map);
-}
-
-//--------------------------------------------------
-
-void trs_print_yaml(struct tr_score * score)
-{
-  tr_print_yaml(score->map, score->current_acc);
 }
 
 //--------------------------------------------------
@@ -115,7 +112,8 @@ void trs_print_yaml(struct tr_score * score)
 
 static void trs_acc(struct tr_score * score)
 {
-  score->current_acc = ((double) score->map->nb_object /
-			score->origin->nb_object);
+  score->map->acc = ((score->map->good + 
+		      score->map->bad * 0.5) /
+		     score->map->max_combo);
 }
 

@@ -51,8 +51,8 @@ int main(int argc, char* argv[])
 	    continue;
 	  
 	  tr_main(map, MODS_NONE);
-	  tr_main(map, MODS_DT);
-	  tr_main(map, MODS_HT);
+	  //tr_main(map, MODS_DT);
+	  //tr_main(map, MODS_HT);
 	  //tr_main(map, MODS_HD);
 	  //tr_main(map, MODS_FL);
 	  //tr_main(map, MODS_HR);

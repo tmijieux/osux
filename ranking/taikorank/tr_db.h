@@ -19,6 +19,5 @@
 
 void tr_db_init(void);
 void trm_db_insert(struct tr_map * map);
-void trs_db_insert(struct tr_score * score);
 
 #endif //TR_DB_H

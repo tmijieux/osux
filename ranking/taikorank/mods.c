@@ -23,12 +23,12 @@
 #include "print.h"
 #include "mods.h"
 
-static void trm_apply_mods_EZ (struct tr_map * map);
-static void trm_apply_mods_HT (struct tr_map * map);
-static void trm_apply_mods_HR (struct tr_map * map);
-static void trm_apply_mods_DT (struct tr_map * map);
-static void trm_apply_mods_HD (struct tr_map * map);
-static void trm_apply_mods_FL (struct tr_map * map);
+static void trm_apply_mods_EZ(struct tr_map * map);
+static void trm_apply_mods_HT(struct tr_map * map);
+static void trm_apply_mods_HR(struct tr_map * map);
+static void trm_apply_mods_DT(struct tr_map * map);
+static void trm_apply_mods_HD(struct tr_map * map);
+static void trm_apply_mods_FL(struct tr_map * map);
 
 static void trm_apply_NM_app_dis(struct tr_map * map);
 static void trm_apply_NM_ms_coeff(struct tr_map * map);
@@ -38,13 +38,13 @@ static int trm_print_one_mod(struct tr_map * map, int mods, int * i,
 
 //---------------------------------------------
 
-static void trm_apply_mods_HR (struct tr_map * map)
+static void trm_apply_mods_HR(struct tr_map * map)
 {
   map->od *= HR_COEFF_OD;
-  if (map->od > MAX_OD)
+  if(map->od > MAX_OD)
     map->od = MAX_OD;
     
-  for (int i = 0; i < map->nb_object; i++)
+  for(int i = 0; i < map->nb_object; i++)
     {
       map->object[i].bpm_app *= HR_COEFF_SPEED; 
     }
@@ -52,11 +52,11 @@ static void trm_apply_mods_HR (struct tr_map * map)
 
 //---------------------------------------------
 
-static void trm_apply_mods_EZ (struct tr_map * map)
+static void trm_apply_mods_EZ(struct tr_map * map)
 {
   map->od *= EZ_COEFF_OD;
   
-  for (int i = 0; i < map->nb_object; i++)
+  for(int i = 0; i < map->nb_object; i++)
     {
       map->object[i].bpm_app *= EZ_COEFF_SPEED; 
     }
@@ -64,12 +64,12 @@ static void trm_apply_mods_EZ (struct tr_map * map)
 
 //---------------------------------------------
 
-static void trm_apply_mods_DT (struct tr_map * map)
+static void trm_apply_mods_DT(struct tr_map * map)
 {
   map->great_ms = DT_COEFF_MS;
   map->bad_ms   = DT_COEFF_MS;
   
-  for (int i = 0; i < map->nb_object; i++)
+  for(int i = 0; i < map->nb_object; i++)
     {
       map->object[i].bpm_app    *= DT_COEFF_SPEED;
       map->object[i].offset     /= DT_COEFF_BPM;
@@ -79,12 +79,12 @@ static void trm_apply_mods_DT (struct tr_map * map)
 
 //---------------------------------------------
 
-static void trm_apply_mods_HT (struct tr_map * map)
+static void trm_apply_mods_HT(struct tr_map * map)
 {
   map->great_ms = HT_COEFF_MS;
   map->bad_ms   = HT_COEFF_MS;
   
-  for (int i = 0; i < map->nb_object; i++)
+  for(int i = 0; i < map->nb_object; i++)
     {
       map->object[i].bpm_app    *= HT_COEFF_SPEED;
       map->object[i].offset     /= HT_COEFF_BPM;
@@ -94,20 +94,20 @@ static void trm_apply_mods_HT (struct tr_map * map)
 
 //---------------------------------------------
 
-static void trm_apply_mods_HD (struct tr_map * map)
+static void trm_apply_mods_HD(struct tr_map * map)
 {
-  for (int i = 0; i < map->nb_object; i++)
+  for(int i = 0; i < map->nb_object; i++)
     {
-      if (tro_is_circle(&map->object[i]))
+      if(tro_is_circle(&map->object[i]))
 	{
-	  if ((map->mods & MODS_FL) == 0)
+	  if((map->mods & MODS_FL) == 0)
 	    map->object[i].obj_app = HD_NB_OBJ_APP;
 
 	  map->object[i].obj_dis = HD_NB_OBJ_DIS;
 	}
       else
 	{
-	  if ((map->mods & MODS_FL) == 0)
+	  if((map->mods & MODS_FL) == 0)
 	    map->object[i].obj_app = HD_NB_OBJ_APP;
 	  map->object[i].obj_dis = NM_NB_OBJ_DIS;
 	}
@@ -116,18 +116,25 @@ static void trm_apply_mods_HD (struct tr_map * map)
 
 //---------------------------------------------
 
-static void trm_apply_mods_FL (struct tr_map * map)
+static void trm_apply_mods_FL(struct tr_map * map)
 {
-  for (int i = 0; i < map->nb_object; i++)
+  int combo = 0;
+  for(int i = 0; i < map->nb_object; i++)
     {
-      if (i >= FL_START_APP3)
+      if(map->object[i].ps == GOOD || 
+	 map->object[i].ps == BAD)
+	combo++;
+      else if(map->object[i].ps == MISS)
+	combo = 0;
+
+      if(combo >= FL_START_APP3)
 	map->object[i].obj_app = FL_NB_OBJ_APP3;
-      else if (i >= FL_START_APP2)
+      else if(combo >= FL_START_APP2)
 	map->object[i].obj_app = FL_NB_OBJ_APP2;
       else 
 	map->object[i].obj_app = FL_NB_OBJ_APP1;
       
-      if ((map->mods & MODS_HD) == 0)
+      if((map->mods & MODS_HD) == 0)
 	map->object[i].obj_dis = NM_NB_OBJ_DIS;
     }
 }
@@ -136,7 +143,7 @@ static void trm_apply_mods_FL (struct tr_map * map)
 
 static void trm_apply_NM_app_dis(struct tr_map * map)
 {
-  for (int i = 0; i < map->nb_object; i++)
+  for(int i = 0; i < map->nb_object; i++)
     {
       map->object[i].obj_app = NM_NB_OBJ_APP;
       map->object[i].obj_dis = NM_NB_OBJ_DIS;
@@ -155,26 +162,26 @@ static void trm_apply_NM_ms_coeff(struct tr_map * map)
 //---------------------------------------------
 //---------------------------------------------
 
-void trm_apply_mods (struct tr_map * map)
+void trm_apply_mods(struct tr_map * map)
 {  
-  if ((map->mods & MODS_HR) != 0)
+  if((map->mods & MODS_HR) != 0)
     trm_apply_mods_HR(map);
-  else if ((map->mods & MODS_EZ) != 0)
+  else if((map->mods & MODS_EZ) != 0)
     trm_apply_mods_EZ(map);
   
-  if ((map->mods & MODS_DT) != 0)
+  if((map->mods & MODS_DT) != 0)
     trm_apply_mods_DT(map);
-  else if ((map->mods & MODS_HT) != 0)
+  else if((map->mods & MODS_HT) != 0)
     trm_apply_mods_HT(map);
 
-  if ((map->mods & MODS_HD) != 0)
+  if((map->mods & MODS_HD) != 0)
     trm_apply_mods_HD(map);
-  if ((map->mods & MODS_FL) != 0)
+  if((map->mods & MODS_FL) != 0)
     trm_apply_mods_FL(map);
 
-  if ((map->mods & (MODS_FL | MODS_HD)) == 0)
+  if((map->mods & (MODS_FL | MODS_HD)) == 0)
     trm_apply_NM_app_dis(map);
-  if ((map->mods & (MODS_DT | MODS_HT)) == 0)
+  if((map->mods & (MODS_DT | MODS_HT)) == 0)
     trm_apply_NM_ms_coeff(map);
 }
 
@@ -184,7 +191,7 @@ void trm_apply_mods (struct tr_map * map)
 static int trm_print_one_mod(struct tr_map * map, int mods, int * i,
 			  char * buffer, char * string)
 {
-  if ((map->mods & mods) != 0)
+  if((map->mods & mods) != 0)
     {
       sprintf(&buffer[*i], string);
       *i += STR_MODS_LENGTH;
@@ -209,10 +216,10 @@ char * trm_mods_to_str(struct tr_map * map)
   char * s = calloc(sizeof(char), STR_MODS_LENGTH * MAX_MODS + 1);
   int i = 0;
   
-  if (trm_print_one_mod(map, MODS_HR, &i, s, "HR ") == 0)
+  if(trm_print_one_mod(map, MODS_HR, &i, s, "HR ") == 0)
     trm_print_one_mod(map, MODS_EZ, &i, s, "EZ ");
 
-  if (trm_print_one_mod(map, MODS_DT, &i, s, "DT ") == 0)
+  if(trm_print_one_mod(map, MODS_DT, &i, s, "DT ") == 0)
     trm_print_one_mod(map, MODS_HT, &i, s, "HT ");
 
   trm_print_one_mod(map, MODS_HD, &i, s, "HD ");

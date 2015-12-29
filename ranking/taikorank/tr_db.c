@@ -50,10 +50,7 @@ static int tr_db_insert_bms(struct tr_map * map, int user_id);
 static int tr_db_insert_diff(struct tr_map * map, int bms_id);
 static int tr_db_insert_mod(struct tr_map * map);
 static int tr_db_insert_update_score(struct tr_map * map, 
-				     int diff_id, int mod_id,
-				     double acc);
-
-static void tr_db_insert(struct tr_map * map, double acc);
+				     int diff_id, int mod_id);
 
 //-------------------------------------------------
 
@@ -239,25 +236,31 @@ static int tr_db_insert_mod(struct tr_map * map)
 //-------------------------------------------------
 
 static int tr_db_insert_update_score(struct tr_map * map, 
-				     int diff_id, int mod_id,
-				     double acc)
+				     int diff_id, int mod_id)
 {
   char * cond = NULL;
-  asprintf(&cond, "diff_ID = %d and mod_ID = %d and accuracy = %g",
-	   diff_id, mod_id, acc);
+  asprintf(&cond, "diff_ID = %d and mod_ID = %d and combo = %d and "
+	   "good = %d and bad = %d and miss = %d and bonus = %d",
+	   diff_id, mod_id, map->combo, map->good, map->bad,
+	   map->miss, map->bonus);
 
   int score_id = tr_db_get_id(sql, TR_DB_SCORE, cond);
   if (score_id < 0)
     {
       new_rq(sql, "INSERT INTO %s(diff_ID, mod_ID, accuracy, "
+	     "max_combo, combo, good, bad, miss, bonus, "
 	     "density_star, pattern_star, reading_star, "
 	     "accuracy_star, final_star)"
-	     "VALUES(%d, %d, %.3g, %.3g, %.3g, %.3g, %.3g, %.3g);",
-	     TR_DB_SCORE, diff_id, mod_id, acc * COEFF_MAX_ACC,
+	     "VALUES(%d, %d, %.4g, %d, %d, %d, %d, %d, %d, "
+	     "%.3g, %.3g, %.3g, %.3g, %.3g);",
+	     TR_DB_SCORE, diff_id, mod_id, map->acc * COEFF_MAX_ACC,
+	     map->max_combo, map->combo,
+	     map->good, map->bad, map->miss, map->bonus, 
 	     map->density_star, map->pattern_star, map->reading_star,
 	     map->accuracy_star, map->final_star);
       score_id = tr_db_get_id(sql, TR_DB_SCORE, cond);
-      fprintf(OUTPUT_INFO, "New score: %g ID: %d\n", acc, score_id);
+      fprintf(OUTPUT_INFO, "New score: (%g%%) ID: %d\n", 
+	      map->acc * COEFF_MAX_ACC, score_id);
     }
   else
     {
@@ -268,8 +271,8 @@ static int tr_db_insert_update_score(struct tr_map * map,
 	     TR_DB_SCORE, map->density_star, map->reading_star,
 	     map->pattern_star, map->accuracy_star,
 	     map->final_star, score_id);
-      fprintf(OUTPUT_INFO, "Updated score: %g ID: %d\n", 
-	      acc, score_id);
+      fprintf(OUTPUT_INFO, "Updated score: (%g%%) ID: %d\n", 
+	      map->acc * COEFF_MAX_ACC, score_id);
     }
   free(cond);
   return score_id;
@@ -277,7 +280,7 @@ static int tr_db_insert_update_score(struct tr_map * map,
 
 //-------------------------------------------------
 
-static void tr_db_insert(struct tr_map * map, double acc)
+void trm_db_insert(struct tr_map * map)
 {
   if (sql == NULL)
     {
@@ -289,15 +292,5 @@ static void tr_db_insert(struct tr_map * map, double acc)
   int mod_id = tr_db_insert_mod(map);
   int bms_id = tr_db_insert_bms(map, user_id);
   int diff_id = tr_db_insert_diff(map, bms_id);
-  tr_db_insert_update_score(map, diff_id, mod_id, acc);
-}
-
-void trm_db_insert(struct tr_map * map)
-{
-  tr_db_insert(map, MAX_ACC);
-}
-
-void trs_db_insert(struct tr_score * score)
-{
-  tr_db_insert(score->map, score->current_acc);  
+  tr_db_insert_update_score(map, diff_id, mod_id);
 }

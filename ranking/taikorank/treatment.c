@@ -20,11 +20,11 @@
 #include "taiko_ranking_object.h"
 #include "treatment.h"
 
-static void trm_treatment_hand (struct tr_map * map);
-static void trm_treatment_rest (struct tr_map * map);
-static void trm_treatment_color_rest (struct tr_map * map);
-static void trm_treatment_app_dis_offset (struct tr_map * map);
-static void trm_treatment_visible_time (struct tr_map * map);
+static void trm_treatment_hand(struct tr_map * map);
+static void trm_treatment_rest(struct tr_map * map);
+static void trm_treatment_app_dis_offset(struct tr_map * map);
+static void trm_treatment_visible_time(struct tr_map * map);
+static void trm_set_combo(struct tr_map * map);
 
 #define MAX_REST 10000.
 
@@ -34,25 +34,30 @@ static void trm_treatment_visible_time (struct tr_map * map);
 
 //------------------------------------------------
 
-static void trm_treatment_hand (struct tr_map * map)
+static void trm_treatment_hand(struct tr_map * map)
 {
   int d_hand = 0;
   int k_hand = 0;
-  for (int i = 0; i < map->nb_object; i++)
+  for(int i = 0; i < map->nb_object; i++)
     {
       struct tr_object * obj = &map->object[i];
-      if ((tro_is_big(obj) && tro_is_circle(obj)) ||
-	  obj->type == 's')
+      if(obj->ps == MISS)
+	{
+	  obj->l_hand = 0;
+	  obj->r_hand = 0;
+	}
+      else if((tro_is_big(obj) && tro_is_circle(obj)) ||
+	      obj->type == 's')
 	{
 	  obj->l_hand = 1;
 	  obj->r_hand = 1;
 	}
-      else if (tro_is_don(obj))
+      else if(tro_is_don(obj))
 	{
 	  obj->l_hand = d_hand;
 	  obj->r_hand = (d_hand = !d_hand);
 	}
-      else if (tro_is_kat(obj))
+      else if(tro_is_kat(obj))
 	{
 	  obj->l_hand = k_hand;
 	  obj->r_hand = (k_hand = !k_hand);
@@ -67,65 +72,25 @@ static void trm_treatment_hand (struct tr_map * map)
 
 //------------------------------------------------
 
-static void trm_treatment_rest (struct tr_map * map)
-{
+static void trm_treatment_rest(struct tr_map * map){
   map->object[0].rest = MAX_REST;
-  for (int i = 1; i < map->nb_object; i++)
+  for(int i = 1; i < map->nb_object; i++)
     {
-      map->object[i].rest = (map->object[i].offset -
-			     map->object[i-1].end_offset);
-    }
-}
-
-//------------------------------------------------
-
-static void trm_treatment_color_rest (struct tr_map * map)
-{
-  struct tr_object * last_l = NULL;
-  struct tr_object * last_r = NULL;
-
-  for (int i = 0; i < map->nb_object; i++)
-    if (map->object[i].l_hand == 1)
-      {
-	map->object[i].color_rest = MAX_REST;
-	last_l = &map->object[i];
-	break;
-      }
-  for (int i = 0; i < map->nb_object; i++)
-    if (map->object[i].r_hand == 1)
-      {
-	map->object[i].color_rest = MAX_REST;
-	last_r = &map->object[i];
-	break;
-      }
-
-  for (int i = 0; i < map->nb_object; i++)
-    {
-      struct tr_object * obj = &map->object[i];
-      if (tro_is_bonus(obj) || obj == last_l || obj == last_r)
-	{
-	  obj->color_rest = 0;
-	  continue;
-	}
-      
-      if(last_r != NULL && tro_are_same_hand(obj, last_r))
-	{
-	  obj->color_rest = obj->offset - last_r->end_offset;
-	  last_r = obj;
-	}
-      if(last_l != NULL && tro_are_same_hand(obj, last_l))
-	{
-	  obj->color_rest = obj->offset - last_l->end_offset;
-	  last_l = obj;
-	}
+      if(map->object[i].ps == MISS)
+	map->object[i].rest = MAX_REST;
+      else if(map->object[i-1].ps == MISS)
+	map->object[i].rest = MAX_REST;
+      else
+	map->object[i].rest = (map->object[i].offset -
+			       map->object[i-1].end_offset);
     }
 }
 
 //-----------------------------------------------------
 
-static void trm_treatment_app_dis_offset (struct tr_map * map)
+static void trm_treatment_app_dis_offset(struct tr_map * map)
 {
-  for (int i = 0; i < map->nb_object; i++)
+  for(int i = 0; i < map->nb_object; i++)
     {
       struct tr_object * obj = &map->object[i];
       double space_unit = mpb_to_bpm(obj->bpm_app) / 4.;
@@ -143,13 +108,13 @@ static void trm_treatment_app_dis_offset (struct tr_map * map)
 	  obj->offset_dis = obj->end_offset       + OFFSET_MAX;
 	}
       */
-      if (tro_is_slider(obj))
+      if(tro_is_slider(obj))
 	{
 	  int diff = obj->end_offset - obj->offset;
 	  obj->end_offset_app = obj->offset_app + diff;
 	  obj->end_offset_dis = obj->offset_dis + diff;
 	}
-      else if (obj->type == 's')
+      else if(obj->type == 's')
 	{
 	  int diff = obj->end_offset - obj->offset;
 	  obj->end_offset_app = obj->offset_app;
@@ -165,17 +130,17 @@ static void trm_treatment_app_dis_offset (struct tr_map * map)
 
 //-----------------------------------------------------
 
-static void trm_treatment_visible_time (struct tr_map * map)
+static void trm_treatment_visible_time(struct tr_map * map)
 {
-  for (int i = 0; i < map->nb_object; i++)
+  for(int i = 0; i < map->nb_object; i++)
     {
       struct tr_object * obj = &map->object[i];
       obj->visible_time = obj->offset_dis - obj->end_offset_app;
-      if (obj->type == 's')
+      if(obj->type == 's')
 	obj->visible_time -= obj->end_offset - obj->offset;
       obj->invisible_time = obj->end_offset - obj->offset_dis;
 
-      if (obj->visible_time < 0)
+      if(obj->visible_time < 0)
 	{
 	  // object will never appear
 	  obj->visible_time = 0;
@@ -185,14 +150,36 @@ static void trm_treatment_visible_time (struct tr_map * map)
 }
 
 //-----------------------------------------------------
+
+static void trm_set_combo(struct tr_map * map)
+{
+  int combo = 0;
+  map->combo = 0;
+  for(int i = 0; i < map->nb_object; i++)
+    {
+      if(map->object[i].ps == GOOD || 
+	 map->object[i].ps == BAD)
+	combo++;
+      else if(map->object[i].ps == MISS)
+	{
+	  if(combo > map->combo)
+	    map->combo = combo;
+	  combo = 0;
+	}
+    }
+  if(combo > map->combo)
+    map->combo = combo;
+}
+
+//-----------------------------------------------------
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-void trm_treatment (struct tr_map * map)
+void trm_treatment(struct tr_map * map)
 {
   trm_treatment_hand(map);
   trm_treatment_rest(map);
-  trm_treatment_color_rest(map);
   trm_treatment_app_dis_offset(map);
   trm_treatment_visible_time(map);
+  trm_set_combo(map);
 }

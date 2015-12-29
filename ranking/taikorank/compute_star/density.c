@@ -155,9 +155,17 @@ static void trm_compute_density_raw (struct tr_map * map)
   map->object[0].density_raw = 0;
   for (int i = 1; i < map->nb_object; i++)
     {
+      if(map->object[i].ps == MISS)
+	{
+	  map->object[i].density_raw = 0;
+	  continue;
+	}
+
       struct sum * sum = sum_new(i, DEFAULT);
       for (int j = 0; j < i; j++)
 	{
+	  if(map->object[j].ps == MISS)
+	    continue;
 	  sum_add(sum, tro_density(&map->object[j], &map->object[i]));
 	}
       double density_raw = sum_compute(sum);
@@ -173,9 +181,17 @@ static void trm_compute_density_color (struct tr_map * map)
   map->object[0].density_color = 0;
   for (int i = 1; i < map->nb_object; i++)
     {
+      if(map->object[i].ps == MISS)
+	{
+	  map->object[i].density_color = 0;
+	  continue;
+	}
+
       struct sum * sum = sum_new(i, DEFAULT);
       for (int j = 0; j < i; j++)
 	{
+	  if(map->object[j].ps == MISS)
+	    continue;
 	  if (tro_are_same_density(&map->object[i], &map->object[j]))
 	    sum_add(sum, tro_density(&map->object[j], &map->object[i]));
 	}

@@ -24,6 +24,11 @@
 
 //---------------------------------------------------------------
 
+enum played_state
+{
+  GOOD, BAD, MISS, BONUS
+};
+
 struct tr_object
 {
   // ---- basic data
@@ -31,12 +36,13 @@ struct tr_object
   int end_offset;     // printed in basic+
   char type;          // d D k K s(spinner) r(roll) R(roll)
   double bpm_app;
+  
+  enum played_state ps;
 
   // ---- additionnal data
-  int l_hand;
-  int r_hand;
+  int l_hand;          
+  int r_hand;          
   int rest;            // printed in basic
-  int color_rest;      // printed in basic+
   double obj_app;      // nb obj displayable on screen, without overlapping
   double obj_dis;      // nb obj where disappear
   int offset_app;      // printed in reading

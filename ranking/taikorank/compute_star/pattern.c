@@ -219,10 +219,11 @@ static struct pattern * trm_get_pattern(struct tr_map * map,
   for (int j = 0; (j < MAX_PATTERN_LENGTH &&
 		   i + j < map->nb_object); j++)
     {
-      if (tro_is_bonus(&map->object[i+j]))
+      if (tro_is_bonus(&map->object[i+j]) ||
+	  map->object[i+j].ps == MISS)
 	{
 	  s[j] = 0;
-	  break; // continue ?
+	  break; // continue ? for bonus ?
 	}
       else if (tro_is_don(&map->object[i+j]))
 	s[j] = 'd';

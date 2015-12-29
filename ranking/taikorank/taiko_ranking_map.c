@@ -272,6 +272,7 @@ struct tr_map * trm_convert(char* file_name)
 
   // set objects
   int current_tp = 0;
+  tr_map->max_combo = 0;
   for(int i = 0; i < map->hoc; i++)
     {
       while(current_tp < (map->tpc - 1) &&
@@ -290,6 +291,16 @@ struct tr_map * trm_convert(char* file_name)
 	convert_get_end_offset(&map->HitObjects[i],
 			       tr_map->object[i].type,
 			       tr_map->object[i].bpm_app);
+
+      if(tro_is_bonus(&tr_map->object[i]))
+	{
+	  tr_map->object[i].ps = BONUS;
+	}
+      else
+	{
+	  tr_map->max_combo++;
+	  tr_map->object[i].ps = GOOD;
+	}
     }
 
   // get other data
@@ -304,6 +315,15 @@ struct tr_map * trm_convert(char* file_name)
   tr_map->title_uni  = strdup(map->TitleUnicode);
   tr_map->artist_uni = strdup(map->ArtistUnicode);
   
+  tr_map->good  = tr_map->max_combo;
+  tr_map->bad   = 0;
+  tr_map->miss  = 0;
+  tr_map->bonus = tr_map->nb_object - tr_map->max_combo;
+  if(tr_map->max_combo != 0)
+    tr_map->acc   = MAX_ACC; 
+  else
+    tr_map->acc   = 0; 
+
   map_free(map);
   return tr_map;
 }
@@ -315,9 +335,9 @@ struct tr_map * trm_convert(char* file_name)
 void trm_print_tro(struct tr_map * map, int filter)
 {
   if((filter & FILTER_BASIC) != 0)
-    fprintf(OUTPUT_INFO, "offset\trest\ttype\tbpm app\t");
+    fprintf(OUTPUT_INFO, "offset\trest\ttype\tbpm app\tstate\t");
   if((filter & FILTER_BASIC_PLUS) != 0)
-    fprintf(OUTPUT_INFO, "offset\tend\trest\trest2\ttype\tbpm app\t");
+    fprintf(OUTPUT_INFO, "offset\tend\trest\ttype\tbpm app\tstate\t");
   if((filter & FILTER_ADDITIONNAL) != 0)
     fprintf(OUTPUT_INFO, "l hand\tr hand\trest\tobj app\tobjdis\t");
   if((filter & FILTER_DENSITY) != 0)
@@ -327,7 +347,7 @@ void trm_print_tro(struct tr_map * map, int filter)
   if((filter & FILTER_READING_PLUS) != 0)
     fprintf(OUTPUT_INFO, "app\tend app\tdis\tend dis\tsperpos\thidden\thide\tspeed\tspd chg\tread*\t");
   if((filter & FILTER_PATTERN) != 0)
-    fprintf(OUTPUT_INFO, "proba\talt1\talt2\tsingle1\tsingle2\tpttrn*\t");
+    fprintf(OUTPUT_INFO, "proba\talt1\talt2\tpttrn*\t");
   if((filter & FILTER_ACCURACY) != 0)
     fprintf(OUTPUT_INFO, "%g\t%g\t", map->great_ms, map->bad_ms);
   
@@ -362,6 +382,7 @@ void trm_print(struct tr_map * map)
 	}
       i++;
     }
+  fprintf(OUTPUT, "(%.4g%%)\t", map->acc * COEFF_MAX_ACC);
   trm_print_mods(map);
   print_string_size(map->diff,    24, OUTPUT);
   print_string_size(map->title,   32, OUTPUT);
@@ -381,7 +402,7 @@ void tr_print_yaml_exit(void)
   fprintf(OUTPUT, "]\n");
 }
 
-void tr_print_yaml(struct tr_map * map, double acc)
+void trm_print_yaml(struct tr_map * map)
 {
   static char * prefix = "";
   char * mod = trm_mods_to_str(map);
@@ -395,7 +416,15 @@ void tr_print_yaml(struct tr_map * map, double acc)
   fprintf(OUTPUT, "creator: \"%s\", ", map->creator);
   fprintf(OUTPUT, "difficulty: \"%s\", ", map->diff);
 
-  fprintf(OUTPUT, "accuracy: %g, ", acc * COEFF_MAX_ACC);
+  fprintf(OUTPUT, "accuracy: %g, ", map->acc * COEFF_MAX_ACC);
+  fprintf(OUTPUT, "good: %d, ",  map->good);
+  fprintf(OUTPUT, "bad: %d, ",   map->bad);
+  fprintf(OUTPUT, "miss: %d, ",  map->miss);
+  fprintf(OUTPUT, "bonus: %d, ", map->bonus);
+
+  fprintf(OUTPUT, "max_combo: %d, ", map->max_combo);
+  fprintf(OUTPUT, "combo: %d, ", map->combo);
+
   fprintf(OUTPUT, "mod: \"%s\", ", mod);
 
   fprintf(OUTPUT, "stars: {");
@@ -409,11 +438,6 @@ void tr_print_yaml(struct tr_map * map, double acc)
   fprintf(OUTPUT, "}");
   free(mod);
   prefix = ", ";
-}
-
-void trm_print_yaml(struct tr_map * map)
-{
-  tr_print_yaml(map, MAX_ACC * COEFF_MAX_ACC);
 }
 
 //--------------------------------------------------
@@ -438,7 +462,7 @@ int trm_best_influence_tro(struct tr_map * map)
   for(int i = 0; i < map->nb_object; i++)
     {
       struct tr_map * map_copy = trm_copy(map);
-      trm_remove_tro(map_copy, i);
+      trm_set_bad_tro(map_copy, i);
       trm_compute_stars(map_copy);
       if(star > map_copy->final_star)
 	{
@@ -452,9 +476,16 @@ int trm_best_influence_tro(struct tr_map * map)
 
 //--------------------------------------------------
 
-void trm_remove_tro(struct tr_map * map, int x)
+void trm_set_bad_tro(struct tr_map * map, int x)
 {
-  for(int i = x; i < map->nb_object - 1; i++)
-    map->object[i] = map->object[i+1];
-  map->nb_object--;
+  map->object[x].ps = BAD;
+  map->bad++;
+  map->good--;
+}
+
+void trm_set_miss_tro(struct tr_map * map, int x)
+{
+  map->object[x].ps = MISS;
+  map->miss++;
+  map->good--;
 }

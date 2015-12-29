@@ -17,18 +17,14 @@
 #ifndef TAIKO_RANKING_SCORE_H
 #define TAIKO_RANKING_SCORE_H
 
-#define MAX_ACC 1.
-#define COEFF_MAX_ACC 100.
-
 struct tr_map;
 
 struct tr_score
 {
-  const struct tr_map * origin;
-  double acc;
+  const struct tr_map * origin; // map 100% acc
+  double acc; // final acc
   
-  struct tr_map * map;
-  double current_acc;
+  struct tr_map * map; // current map
 };
 
 void trs_main(const struct tr_map * map, int mods);
@@ -39,6 +35,5 @@ void trs_free(struct tr_score * score);
 void trs_compute(struct tr_score * score);
 
 void trs_print(struct tr_score * score);
-void trs_print_yaml(struct tr_score * score);
 
 #endif //TAIKO_RANKING_SCORE_H

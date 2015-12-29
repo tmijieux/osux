@@ -1,8 +1,9 @@
 Todo:
 - last_hand don/kat in treatment
 - min on alt[] and singletap[]
-- 95% computation, other methods?
 - redo all reading computation...
+- 95% computation, other methods?
+- correction for influence method
 
 Other:		   
 - HDHR not supported
