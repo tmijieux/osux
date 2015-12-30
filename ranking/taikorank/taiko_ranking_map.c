@@ -314,7 +314,11 @@ struct tr_map * trm_convert(char* file_name)
   tr_map->diff_osu_ID = map->BeatmapID;
   tr_map->title_uni  = strdup(map->TitleUnicode);
   tr_map->artist_uni = strdup(map->ArtistUnicode);
-  
+  if(tr_map->title_uni == NULL)
+    tr_map->title_uni = strdup(tr_map->title);
+  if(tr_map->artist_uni == NULL)
+    tr_map->artist_uni = strdup(tr_map->artist);
+
   tr_map->good  = tr_map->max_combo;
   tr_map->bad   = 0;
   tr_map->miss  = 0;
