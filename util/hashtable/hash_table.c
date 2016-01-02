@@ -19,6 +19,7 @@
 #include <string.h>
 
 #include "hash_table.h"
+#include <list/list.h>
 
 #define INITIAL_HASH_TABLE_SIZE     113
 

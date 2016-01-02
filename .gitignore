@@ -1,6 +1,7 @@
 a.out
 *~
 *.o
+*.a
 \#*#
 install
 build
