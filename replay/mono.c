@@ -22,7 +22,7 @@
 int cs_timestamp_string(uint64_t timestamp)
 {
     MonoDomain *domain = NULL;
-    domain = mono_jit_init( "date.dll" );
+    domain = mono_jit_init("date.dll");
 	
     MonoAssembly *assembly;
     assembly = mono_domain_assembly_open(domain, "date.dll");
