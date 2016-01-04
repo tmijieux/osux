@@ -19,6 +19,7 @@
 #include <string.h>
 
 #include "hash_table.h"
+#include <list/list.h>
 
 #define INITIAL_HASH_TABLE_SIZE     113
 
@@ -206,4 +207,20 @@ void ht_for_each(struct hash_table* ht,
 	    }
 	}
     }
+}
+
+
+struct list* ht_to_list(const struct hash_table *ht)
+{
+    struct list *l = list_new(0);
+    if (ht) {
+	for (unsigned int i = 0; i < ht->size; ++i) {
+	    struct ht_entry *he = ht->buf[i];
+	    while (he) {
+		list_append(l, he->data);
+		he = he->next;
+	    }
+	}
+    }
+    return l;
 }
