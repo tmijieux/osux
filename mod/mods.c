@@ -20,7 +20,6 @@
 struct mod_designation {
     const char *long_;
     const char *short_;
-    
 };
 
 struct mod_designation none = { "None",        "" };

@@ -15,9 +15,10 @@
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include <unistd.h>
-
-#include "replay.h"
+#include <time.h>
+#include <locale.h>
 
 #include <beatmap/beatmap.h> // game modes
 #include <util/uleb128/uleb128.h>
@@ -25,7 +26,10 @@
 #include <util/string/split.h>
 #include <mod/mods.h>
 
+#include "replay.h"
 #include "xz_decomp.h"
+
+#define DATE_MAXSIZE 200
 
 static unsigned int parse_replay_data(FILE *f, struct replay_data **repdata)
 {
@@ -63,14 +67,38 @@ static void read_string(char **buf, FILE *f)
     }
 }
 
+#define TICKS_PER_SECONDS 10000000L
+#define TICKS_AT_EPOCH  621355968000000000L
+
+static inline int from_win_timestamp(uint64_t ticks)
+{
+    return (ticks - TICKS_AT_EPOCH) / TICKS_PER_SECONDS;
+}
+
+static void print_date(FILE *f, uint64_t ticks)
+{
+    static bool locale_set = false;
+    char datestr[DATE_MAXSIZE];
+    struct tm info;
+    time_t t = from_win_timestamp(ticks);
+    
+    if (!locale_set) {
+        setlocale(LC_TIME, ""); // TODO: move this
+        locale_set = true;
+    }
+    
+    localtime_r(&t, &info);
+    if (strftime(datestr, DATE_MAXSIZE, "%c", &info) != 0)
+        fprintf(f, "date: %s\n", datestr);
+    else
+        fputs("Date cannot be displayed correctly\n",f);
+}
 
 struct replay *replay_parse(FILE *f)
 {
     rewind(f);
-
     struct replay *r = calloc(sizeof(*r), 1);
 
-    
     fread(&r->game_mode, 1, 1, f);
     fread(&r->game_version, 4, 1, f);
 
@@ -78,6 +106,8 @@ struct replay *replay_parse(FILE *f)
     read_string(&r->player_name, f);
     read_string(&r->replay_md5_hash, f);
 
+    long pos = ftell(f);
+    
     fread(&r->_300,  2, 1, f);
     fread(&r->_100,  2, 1, f);
     fread(&r->_50,   2, 1, f);
@@ -89,18 +119,27 @@ struct replay *replay_parse(FILE *f)
     fread(&r->max_combo, 2, 1, f);
     fread(&r->fc, 1, 1, f);
     fread(&r->mods, 4, 1, f);
-
     read_string(&r->lifebar_graph, f);
-    
     fread(&r->timestamp, 8, 1, f);
+
+
+    long pos2 = ftell(f);
+    FILE *out2 = fopen("hello.kitty", "w+");
+    fseek(f, pos, 0);
+    while(ftell(f) != pos2) {
+        char c[1];
+        fread(c, 1, 1, f);
+        fwrite(c, 1, 1, out2);
+    }
+    fclose(out2);
+    
+    
     fread(&r->replay_length, 4, 1, f);
 
     r->repdata_count = parse_replay_data(f, &r->repdata);
     
     return r;
 }
-
-#define TICKS_PER_SECONDS 10000000L
 
 void replay_print(FILE *f, const struct replay *r)
 {
@@ -121,9 +160,9 @@ void replay_print(FILE *f, const struct replay *r)
     fprintf(f, "max combo: %hu\n", r->max_combo);
     fprintf(f, "Full combo: %hhu\n", r->fc);
     fputs("mods: ", f);  mod_print(f, r->mods); fputs("\n", f);  
-
     fprintf(f, "lifebar_graph: %s\n", r->lifebar_graph);
-    fprintf(f, "date: %lu\n", r->timestamp);
+    print_date(f, r->timestamp);
+    
     fprintf(f, "replay length: %u bytes\n", r->replay_length);
     fprintf(f, "\n");
     fprintf(f, "__ DATA __ :\n");
@@ -135,7 +174,6 @@ void replay_print(FILE *f, const struct replay *r)
     	fprintf(f, "%g|", rd->y);
     	fprintf(f, "%u\n", rd->keys);
     }
-
 }
 
 void replay_free(struct replay *r)

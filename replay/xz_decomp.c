@@ -110,13 +110,14 @@ static int lzma_legacy_decompress(FILE *in_file, FILE *out_file)
 void lzma_decompress(FILE *f, uint8_t **buf)
 {
     struct stat st;
-    FILE *out = tmpfile();
+    FILE *out =  tmpfile();
     
     lzma_legacy_decompress(f, out);
     fflush(out);
     fstat(fileno(out), &st);
-    *buf = malloc(st.st_size);
+    *buf = malloc(st.st_size+1);
     rewind(out);
     fread(*buf, 1, st.st_size, out);
+    (*buf)[st.st_size] = 0;
     fclose(out);
 }

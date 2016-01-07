@@ -35,13 +35,13 @@ unsigned int string_split(const char *str, const char *delim, char ***buf_addr)
     free(strw);
     
     unsigned int s = list_size(li);
-    if (!s)
+    if (!s) {
 	*buf_addr = NULL;
-    else
+    } else {
 	*buf_addr = malloc(sizeof(*buf_addr) * s);
         for (int i = 1; i <= s; ++i)
-	(*buf_addr)[s - i] = list_get(li, i); 
+            (*buf_addr)[s - i] = list_get(li, i);
+    }
     list_free(li);
-    
     return s;
 }
