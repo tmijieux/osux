@@ -299,7 +299,7 @@ struct tr_map * trm_convert(char* file_name)
       else
 	{
 	  tr_map->max_combo++;
-	  tr_map->object[i].ps = GOOD;
+	  tr_map->object[i].ps = GREAT;
 	}
     }
 
@@ -319,8 +319,8 @@ struct tr_map * trm_convert(char* file_name)
   if(tr_map->artist_uni == NULL)
     tr_map->artist_uni = strdup(tr_map->artist);
 
-  tr_map->good  = tr_map->max_combo;
-  tr_map->bad   = 0;
+  tr_map->great = tr_map->max_combo;
+  tr_map->good  = 0;
   tr_map->miss  = 0;
   tr_map->bonus = tr_map->nb_object - tr_map->max_combo;
   if(tr_map->max_combo != 0)
@@ -421,8 +421,8 @@ void trm_print_yaml(struct tr_map * map)
   fprintf(OUTPUT, "difficulty: \"%s\", ", map->diff);
 
   fprintf(OUTPUT, "accuracy: %g, ", map->acc * COEFF_MAX_ACC);
+  fprintf(OUTPUT, "great: %d, ",  map->great);
   fprintf(OUTPUT, "good: %d, ",  map->good);
-  fprintf(OUTPUT, "bad: %d, ",   map->bad);
   fprintf(OUTPUT, "miss: %d, ",  map->miss);
   fprintf(OUTPUT, "bonus: %d, ", map->bonus);
 
@@ -493,14 +493,14 @@ int trm_best_influence_tro(struct tr_map * map)
 
 void trm_set_bad_tro(struct tr_map * map, int x)
 {
-  map->object[x].ps = BAD;
-  map->bad++;
-  map->good--;
+  map->object[x].ps = GOOD;
+  map->good++;
+  map->great--;
 }
 
 void trm_set_miss_tro(struct tr_map * map, int x)
 {
   map->object[x].ps = MISS;
   map->miss++;
-  map->good--;
+  map->great--;
 }

@@ -122,10 +122,10 @@ char * tro_str_state(struct tr_object * o)
 {
   switch(o->ps)
     {
+    case GREAT:
+      return "Great";
     case GOOD:
       return "Good";
-    case BAD:
-      return "Bad";
     case MISS:
       return "Miss";
     case BONUS:

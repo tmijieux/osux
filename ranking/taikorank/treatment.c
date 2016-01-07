@@ -157,8 +157,8 @@ static void trm_set_combo(struct tr_map * map)
   map->combo = 0;
   for(int i = 0; i < map->nb_object; i++)
     {
-      if(map->object[i].ps == GOOD || 
-	 map->object[i].ps == BAD)
+      if(map->object[i].ps == GREAT || 
+	 map->object[i].ps == GOOD)
 	combo++;
       else if(map->object[i].ps == MISS)
 	{

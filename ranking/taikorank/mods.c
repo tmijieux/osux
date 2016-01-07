@@ -121,8 +121,8 @@ static void trm_apply_mods_FL(struct tr_map * map)
   int combo = 0;
   for(int i = 0; i < map->nb_object; i++)
     {
-      if(map->object[i].ps == GOOD || 
-	 map->object[i].ps == BAD)
+      if(map->object[i].ps == GREAT || 
+	 map->object[i].ps == GOOD)
 	combo++;
       else if(map->object[i].ps == MISS)
 	combo = 0;

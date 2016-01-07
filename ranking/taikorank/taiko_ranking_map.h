@@ -58,8 +58,8 @@ struct tr_map
   int combo;
   int max_combo; 
 
+  int great;
   int good;
-  int bad;
   int miss;
   int bonus;
 };

@@ -240,22 +240,22 @@ static int tr_db_insert_update_score(struct tr_map * map,
 {
   char * cond = NULL;
   asprintf(&cond, "diff_ID = %d and mod_ID = %d and combo = %d and "
-	   "good = %d and bad = %d and miss = %d and bonus = %d",
-	   diff_id, mod_id, map->combo, map->good, map->bad,
+	   "great = %d and good = %d and miss = %d and bonus = %d",
+	   diff_id, mod_id, map->combo, map->great, map->good,
 	   map->miss, map->bonus);
 
   int score_id = tr_db_get_id(sql, TR_DB_SCORE, cond);
   if (score_id < 0)
     {
       new_rq(sql, "INSERT INTO %s(diff_ID, mod_ID, accuracy, "
-	     "max_combo, combo, good, bad, miss, bonus, "
+	     "max_combo, combo, great, good, miss, bonus, "
 	     "density_star, pattern_star, reading_star, "
 	     "accuracy_star, final_star)"
 	     "VALUES(%d, %d, %.4g, %d, %d, %d, %d, %d, %d, "
 	     "%.3g, %.3g, %.3g, %.3g, %.3g);",
 	     TR_DB_SCORE, diff_id, mod_id, map->acc * COEFF_MAX_ACC,
 	     map->max_combo, map->combo,
-	     map->good, map->bad, map->miss, map->bonus, 
+	     map->great, map->good, map->miss, map->bonus, 
 	     map->density_star, map->pattern_star, map->reading_star,
 	     map->accuracy_star, map->final_star);
       score_id = tr_db_get_id(sql, TR_DB_SCORE, cond);

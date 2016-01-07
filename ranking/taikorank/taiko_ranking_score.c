@@ -112,8 +112,8 @@ void trs_print(struct tr_score * score)
 
 static void trs_acc(struct tr_score * score)
 {
-  score->map->acc = ((score->map->good + 
-		      score->map->bad * 0.5) /
+  score->map->acc = ((score->map->great + 
+		      score->map->good * 0.5) /
 		     score->map->max_combo);
 }
 

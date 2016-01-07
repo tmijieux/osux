@@ -26,7 +26,7 @@
 
 enum played_state
 {
-  GOOD, BAD, MISS, BONUS
+  GREAT, GOOD, MISS, BONUS
 };
 
 struct tr_object
