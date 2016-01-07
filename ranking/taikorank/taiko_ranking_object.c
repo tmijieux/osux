@@ -137,6 +137,20 @@ char * tro_str_state(struct tr_object * o)
 
 //---------------------------------------------------
 
+void tro_print_yaml(struct tr_object * o)
+{
+  fprintf(OUTPUT, "{");
+  fprintf(OUTPUT, "offset: %d, ", o->offset);
+  fprintf(OUTPUT, "density_star: %g, ", o->density_star);
+  fprintf(OUTPUT, "pattern_star: %g, ", o->pattern_star);
+  fprintf(OUTPUT, "reading_star: %g, ", o->reading_star);
+  fprintf(OUTPUT, "accuracy_star: %g, ", o->accuracy_star);
+  fprintf(OUTPUT, "final_star: %g", o->final_star);
+  fprintf(OUTPUT, "}");
+}
+
+//---------------------------------------------------
+
 void tro_print(struct tr_object * obj, int filter)
 {
   if((filter & FILTER_BASIC) != 0)

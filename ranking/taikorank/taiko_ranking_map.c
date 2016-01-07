@@ -438,6 +438,17 @@ void trm_print_yaml(struct tr_map * map)
   fprintf(OUTPUT, "accuracy_star: %g, ", map->accuracy_star);
   fprintf(OUTPUT, "final_star: %g", map->final_star);
   fprintf(OUTPUT, "}");
+  
+  if(OPT_PRINT_TRO)
+    {
+      fprintf(OUTPUT, ", objects: [");
+      for(int i = 0; i < map->nb_object; i++)
+	{
+	  tro_print_yaml(&map->object[i]);
+	  fprintf(OUTPUT, ", ");
+	}
+      fprintf(OUTPUT, "]");
+    }
 
   fprintf(OUTPUT, "}");
   free(mod);

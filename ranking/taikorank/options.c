@@ -25,6 +25,8 @@
 
 #define ARG_OPT_DB "-db"
 #define ARG_OPT_ACC "-acc"
+#define ARG_OPT_PRINT_TRO  "-ptro"
+#define ARG_OPT_PRINT_YAML "-pyaml"
 
 static struct hash_table * ht_opt;
 
@@ -54,6 +56,16 @@ static void opt_acc(const char * value)
   SCORE_ACC = atof(value) / COEFF_MAX_ACC;
 }
 
+static void opt_print_tro(const char * value)
+{
+  OPT_PRINT_TRO = atoi(value);
+}
+
+static void opt_print_yaml(const char * value)
+{
+  OPT_PRINT_YAML = atoi(value);
+}
+
 //-----------------------------------------------------
 
 __attribute__ ((constructor))
@@ -63,6 +75,8 @@ static void options_init(void)
   
   ht_add_entry(ht_opt, ARG_OPT_DB, opt_db);
   ht_add_entry(ht_opt, ARG_OPT_ACC, opt_acc);
+  ht_add_entry(ht_opt, ARG_OPT_PRINT_TRO, opt_print_tro);
+  ht_add_entry(ht_opt, ARG_OPT_PRINT_YAML, opt_print_yaml);
 }
 
 __attribute__ ((destructor))
