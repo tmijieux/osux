@@ -25,8 +25,6 @@
 #include <util/string/split.h>
 #include <general/mods.h>
 
-
-#include "mono.h"
 #include "xz_decomp.h"
 
 static unsigned int parse_replay_data(FILE *f, struct replay_data **repdata)
@@ -102,10 +100,7 @@ struct replay *replay_parse(FILE *f)
     return r;
 }
 
-int cs_timestamp_string(uint64_t timestamp);
-
 #define TICKS_PER_SECONDS 10000000L
-#define LOL l
 
 void replay_print(FILE *f, const struct replay *r)
 {
@@ -120,22 +115,15 @@ void replay_print(FILE *f, const struct replay *r)
     fprintf(f, "50: %hu\n", r->_50);
     fprintf(f, "geki: %hu\n", r->_geki);
     fprintf(f, "katu: %hu\n", r->_katu);
-    fprintf(f, "miss: %hu\n", r->_miss);
 
+    fprintf(f, "miss: %hu\n", r->_miss);
     fprintf(f, "score: %u\n", r->score);
     fprintf(f, "max combo: %hu\n", r->max_combo);
     fprintf(f, "Full combo: %hhu\n", r->fc);
     fputs("mods: ", f);  mod_print(f, r->mods); fputs("\n", f);  
 
     fprintf(f, "lifebar_graph: %s\n", r->lifebar_graph);
-
-    
-    fputs("date: ", f);//  %lu\n", r->timestamp);
-    cs_timestamp_string(r->timestamp);
-    fputs("\n", f);
-    /* fprintf(f, "Time: "); */
-    /* fprintf(f, "timestamp: %s\n", s); */
-    
+    fprintf(f, "date: %lu\n", r->timestamp);
     fprintf(f, "replay length: %u bytes\n", r->replay_length);
     fprintf(f, "\n");
     fprintf(f, "__ DATA __ :\n");

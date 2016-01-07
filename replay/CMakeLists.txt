@@ -3,7 +3,6 @@ set(replay_src
 	replay.h
 	xz_decomp.c
 	xz_decomp.h
-        mono.c
 	)
 
 add_library(replay SHARED ${replay_src})
