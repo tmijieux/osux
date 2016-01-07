@@ -21,7 +21,7 @@
 #include <stdint.h>
 
 #include "storyboard.h"
-#include "general/game_mode.h"
+#include "mod/game_mode.h"
 
 
 struct map {

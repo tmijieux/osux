@@ -12,7 +12,7 @@ include_directories(. util include)
 
 add_subdirectory(util)
 add_subdirectory(embed)
-add_subdirectory(general)
+add_subdirectory(mod)
 add_subdirectory(replay)
 add_subdirectory(beatmap)
 add_subdirectory(ranking)

@@ -23,7 +23,7 @@
 #include <util/uleb128/uleb128.h>
 #include <util/list/list.h>
 #include <util/string/split.h>
-#include <general/mods.h>
+#include <mod/mods.h>
 
 #include "xz_decomp.h"
 
