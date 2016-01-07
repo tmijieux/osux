@@ -15,7 +15,6 @@
  */
 
 #include <stdlib.h>
-#include <stdint.h>
 #include <unistd.h>
 
 #include "replay.h"
@@ -27,54 +26,8 @@
 #include <general/mods.h>
 
 
-struct replay_data {
-    int64_t previous_time;
-    double x;
-    double y;
-    uint32_t keys;
-};
-
-struct replay {
-    uint8_t game_mode;
-    uint32_t game_version;
-    char *bm_md5_hash;
-    char *player_name;
-    char *replay_md5_hash;
-    
-    uint16_t _300; // [ taiko: 100%, great, 300pts], mania: 300(not MAX)
-    uint16_t _100;  // [taiko: 50%, good, 150pts] , mania: 200
-    uint16_t _50;   // ctb: small fruits
-    uint16_t _geki; // taiko: big great (100%), mania: MAX
-    uint16_t _katu; //taiko: big good (50%), mania 100
-    uint16_t _miss;
-
-    uint32_t score;
-    uint16_t max_combo; // max combo of score, not map
-    
-    uint8_t fc;
-    uint32_t mods;  // this is a bitfield, see general/mods.h
-
-
-    /* list of time|life separated by commas,  where time is in milliseconds
-       and life is a percentage
-
-       this represent the graph of life during the play  */
-    char *lifebar_graph;
-
-
-    /* the date and time of the play  */
-    uint64_t timestamp;
-
-
-    /* number of bytes in the compress lzma stream */
-    uint32_t replay_length;
-
-    uint64_t repdata_count;
-    struct replay_data *repdata;
-};
-
-
-void lzma_decompress(FILE *f, uint8_t **buf);
+#include "mono.h"
+#include "xz_decomp.h"
 
 static unsigned int parse_replay_data(FILE *f, struct replay_data **repdata)
 {

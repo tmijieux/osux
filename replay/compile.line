@@ -1,1 +1,0 @@
-gcc main.c  replay.c -I .. -std=gnu99 mono.c $(pkg-config --cflags --libs mono-2)  -llzma ../general/mods.c ../util/string/split.c ../util/list/list.c xz_pipe_decomp.c 

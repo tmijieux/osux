@@ -1,5 +1,5 @@
 /*
- * xz_pipe_decomp.c
+ * xz_decomp.c
  * A simple example of pipe-only xz decompressor implementation.
  * version: 2010-07-12 - by Daniel Mealha Cabrita
  * Not copyrighted -- provided to the public domain.
@@ -12,9 +12,7 @@
  * $ cat some_file.xz | ./xz_pipe_decomp > some_file
  */
 
-#include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <inttypes.h>
 #include <stdbool.h>
 #include <lzma.h>
@@ -22,6 +20,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
+#include "xz_decomp.h"
 
 
 /* read/write buffer sizes */
@@ -36,7 +36,7 @@
 #define RET_ERROR_DECOMPRESSION	4
 
 /* note: in_file and out_file must be open already */
-static int xz_decompress (FILE *in_file, FILE *out_file)
+static int lzma_legacy_decompress(FILE *in_file, FILE *out_file)
 {
     lzma_stream strm = LZMA_STREAM_INIT; /* alloc and init lzma_stream struct */
     const uint64_t memory_limit = UINT64_MAX; /* no memory limit */
@@ -53,7 +53,7 @@ static int xz_decompress (FILE *in_file, FILE *out_file)
     ret = RET_OK;
 
     /* initialize lzma decoder */
-    ret_xz = lzma_alone_decoder (&strm, memory_limit);
+    ret_xz = lzma_alone_decoder(&strm, memory_limit);
     if (ret_xz != LZMA_OK) {
 	fprintf (stderr, "lzma_stream_decoder error: %d\n", (int) ret_xz);
 	return RET_ERROR_INIT;
@@ -109,19 +109,14 @@ static int xz_decompress (FILE *in_file, FILE *out_file)
 
 void lzma_decompress(FILE *f, uint8_t **buf)
 {
-    char template[] = "tmp.XXXXXX";
-    int fd = mkstemp(template);
-    FILE *out = fdopen(fd, "w+");
-
-    xz_decompress(f, out);
-    fflush(out);
-
     struct stat st;
-    stat(template, &st);
-    *buf = malloc(st.st_size);
+    FILE *out = tmpfile();
     
+    lzma_legacy_decompress(f, out);
+    fflush(out);
+    fstat(fileno(out), &st);
+    *buf = malloc(st.st_size);
     rewind(out);
     fread(*buf, 1, st.st_size, out);
     fclose(out);
-    remove(template);
 }

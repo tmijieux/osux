@@ -19,6 +19,8 @@
 #include <mono/metadata/assembly.h>
 #include <mono/metadata/debug-helpers.h>
 
+#include "mono.h"
+
 int cs_timestamp_string(uint64_t timestamp)
 {
     MonoDomain *domain = NULL;
