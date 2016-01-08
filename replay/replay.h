@@ -19,7 +19,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
-
+#include <time.h>
 
 struct replay_data {
     int64_t previous_time;
@@ -48,17 +48,14 @@ struct replay {
     uint8_t fc;
     uint32_t mods;  // this is a bitfield, see general/mods.h
 
-
     /* list of time|life separated by commas,  where time is in milliseconds
        and life is a percentage
 
        this represent the graph of life during the play  */
     char *lifebar_graph;
 
-
     /* the date and time of the play  */
-    uint64_t timestamp;
-
+    time_t timestamp;
 
     /* number of bytes in the compress lzma stream */
     uint32_t replay_length;

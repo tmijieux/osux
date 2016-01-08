@@ -70,17 +70,16 @@ static void read_string(char **buf, FILE *f)
 #define TICKS_PER_SECONDS 10000000L
 #define TICKS_AT_EPOCH  621355968000000000L
 
-static inline int from_win_timestamp(uint64_t ticks)
+static inline time_t from_win_timestamp(uint64_t ticks)
 {
     return (ticks - TICKS_AT_EPOCH) / TICKS_PER_SECONDS;
 }
 
-static void print_date(FILE *f, uint64_t ticks)
+static void print_date(FILE *f, time_t t)
 {
     static bool locale_set = false;
     char datestr[DATE_MAXSIZE];
     struct tm info;
-    time_t t = from_win_timestamp(ticks);
     
     if (!locale_set) {
         setlocale(LC_TIME, ""); // TODO: move this
@@ -96,8 +95,9 @@ static void print_date(FILE *f, uint64_t ticks)
 
 struct replay *replay_parse(FILE *f)
 {
-    rewind(f);
+    uint64_t ticks;
     struct replay *r = calloc(sizeof(*r), 1);
+    rewind(f);
 
     fread(&r->game_mode, 1, 1, f);
     fread(&r->game_version, 4, 1, f);
@@ -120,8 +120,8 @@ struct replay *replay_parse(FILE *f)
     fread(&r->fc, 1, 1, f);
     fread(&r->mods, 4, 1, f);
     read_string(&r->lifebar_graph, f);
-    fread(&r->timestamp, 8, 1, f);
-
+    fread(&ticks, 8, 1, f);
+    r->timestamp = from_win_timestamp(ticks);
 
     long pos2 = ftell(f);
     FILE *out2 = fopen("hello.kitty", "w+");
@@ -133,9 +133,7 @@ struct replay *replay_parse(FILE *f)
     }
     fclose(out2);
     
-    
     fread(&r->replay_length, 4, 1, f);
-
     r->repdata_count = parse_replay_data(f, &r->repdata);
     
     return r;
