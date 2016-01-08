@@ -95,6 +95,7 @@ static void print_date(FILE *f, time_t t)
 
 struct replay *replay_parse(FILE *f)
 {
+    char **life;
     uint64_t ticks;
     struct replay *r = calloc(sizeof(*r), 1);
     rewind(f);
@@ -105,8 +106,6 @@ struct replay *replay_parse(FILE *f)
     read_string(&r->bm_md5_hash, f);
     read_string(&r->player_name, f);
     read_string(&r->replay_md5_hash, f);
-
-    long pos = ftell(f);
     
     fread(&r->_300,  2, 1, f);
     fread(&r->_100,  2, 1, f);
@@ -119,20 +118,20 @@ struct replay *replay_parse(FILE *f)
     fread(&r->max_combo, 2, 1, f);
     fread(&r->fc, 1, 1, f);
     fread(&r->mods, 4, 1, f);
+
     read_string(&r->lifebar_graph, f);
+    r->replife_size = string_split(r->lifebar_graph, ",", &life);
+    r->replife = malloc(sizeof*r->replife * r->replife_size);
+    for (int i = 0; i < r->replife_size; ++i) {
+        sscanf(life[i], "%lu|%lg", &r->replife[i].time_offset,
+               &r->replife[i].life_amount);
+        free(life[i]);
+    }
+    free(life);
+
     fread(&ticks, 8, 1, f);
     r->timestamp = from_win_timestamp(ticks);
 
-    long pos2 = ftell(f);
-    FILE *out2 = fopen("hello.kitty", "w+");
-    fseek(f, pos, 0);
-    while(ftell(f) != pos2) {
-        char c[1];
-        fread(c, 1, 1, f);
-        fwrite(c, 1, 1, out2);
-    }
-    fclose(out2);
-    
     fread(&r->replay_length, 4, 1, f);
     r->repdata_count = parse_replay_data(f, &r->repdata);
     
@@ -158,9 +157,17 @@ void replay_print(FILE *f, const struct replay *r)
     fprintf(f, "max combo: %hu\n", r->max_combo);
     fprintf(f, "Full combo: %hhu\n", r->fc);
     fputs("mods: ", f);  mod_print(f, r->mods); fputs("\n", f);  
-    fprintf(f, "lifebar_graph: %s\n", r->lifebar_graph);
+    fprintf(f, "lifebar_graph: "/*%s\n", r->lifebar_graph*/);
+
+    for (int i = 0; i < r->replife_size; ++i) {
+        struct replay_life *rl = &r->replife[i];
+        fprintf(f, "%lu|%lg%s", rl->time_offset, rl->life_amount,
+                i == r->replife_size-1 ? "" : ",");
+    }
+    fputs("\n", f);
+
     print_date(f, r->timestamp);
-    
+
     fprintf(f, "replay length: %u bytes\n", r->replay_length);
     fprintf(f, "\n");
     fprintf(f, "__ DATA __ :\n");
@@ -180,6 +187,7 @@ void replay_free(struct replay *r)
     free(r->player_name);
     free(r->replay_md5_hash);
     free(r->lifebar_graph);
+    free(r->replife);
     free(r->repdata);
     free(r);
 }

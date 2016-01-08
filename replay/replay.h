@@ -28,6 +28,11 @@ struct replay_data {
     uint32_t keys;
 };
 
+struct replay_life {
+    uint64_t time_offset;
+    double life_amount;
+};
+
 struct replay {
     uint8_t game_mode;
     uint32_t game_version;
@@ -53,17 +58,17 @@ struct replay {
 
        this represent the graph of life during the play  */
     char *lifebar_graph;
+    uint32_t replife_size;
+    struct replay_life *replife;
 
     /* the date and time of the play  */
     time_t timestamp;
 
-    /* number of bytes in the compress lzma stream */
+    /* number of bytes in the compressed lzma stream */
     uint32_t replay_length;
-
     uint64_t repdata_count;
     struct replay_data *repdata;
 };
-
 
 struct replay *replay_parse(FILE *f);
 void replay_print(FILE *f, const struct replay *r);
