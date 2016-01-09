@@ -23,7 +23,7 @@
 #include "print.h"
 
 #include "stats.h"
-#include "util/sum/sum.h"
+#include "util/sum.h"
 
 //-----------------------------------------------------
 

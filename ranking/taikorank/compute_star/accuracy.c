@@ -15,7 +15,7 @@
  */
 
 #include <math.h>
-#include "util/sum/sum.h"
+#include "util/sum.h"
 
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"

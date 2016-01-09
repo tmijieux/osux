@@ -21,7 +21,7 @@
 #include "config.h"
 #include "print.h"
 
-#include "util/hashtable/hash_table.h"
+#include "util/hash_table.h"
 
 #define ARG_OPT_DB "-db"
 #define ARG_OPT_ACC "-acc"

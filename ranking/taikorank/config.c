@@ -17,9 +17,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "util/hashtable/hash_table.h"
-#include "util/list/list.h"
-#include "yaml/yaml2.h"
+#include "util/hash_table.h"
+#include "util/list.h"
+#include "util/yaml2.h"
 
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_score.h"

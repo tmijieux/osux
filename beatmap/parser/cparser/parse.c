@@ -25,8 +25,8 @@
 
 #include <visibility.h>
 
-#include "util/list/list.h"
-#include "util/hashtable/hash_table.h"
+#include "util/list.h"
+#include "util/hash_table.h"
 
 #include "beatmap/beatmap.h"
 #include "beatmap/hitobject.h"

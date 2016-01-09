@@ -17,7 +17,7 @@
 #ifndef SUM_H
 #define SUM_H
 
-#include "util/heap/heap.h"
+#include "heap.h"
 
 /*
   module for summing double.

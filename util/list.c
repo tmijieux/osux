@@ -19,7 +19,7 @@
 
 #include "list.h"
 #include "list_node.h"
-#include <hash_table.h>
+#include "hash_table.h"
 
 struct list {
     struct list_node *front_sentinel;

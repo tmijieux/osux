@@ -21,9 +21,9 @@
 #include <locale.h>
 
 #include <beatmap/beatmap.h> // game modes
-#include <util/uleb128/uleb128.h>
-#include <util/list/list.h>
-#include <util/string/split.h>
+#include <util/uleb128.h>
+#include <util/list.h>
+#include <util//split.h>
 #include <mod/mods.h>
 
 #include "replay.h"

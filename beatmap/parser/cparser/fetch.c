@@ -23,9 +23,9 @@
 #include <regex.h>
 #include <string.h>
 
-#include "util/string/split.h"
-#include "util/list/list.h"
-#include "util/hashtable/hash_table.h"
+#include "util/split.h"
+#include "util/list.h"
+#include "util/hash_table.h"
 
 #include "beatmap/hitsound.h"
 #include "beatmap/beatmap.h"

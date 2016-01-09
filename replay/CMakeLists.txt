@@ -6,7 +6,7 @@ set(replay_src
 	)
 
 add_library(replay SHARED ${replay_src})
-target_link_libraries(replay mod lzma string)
+target_link_libraries(replay mod lzma util)
 install(TARGETS replay DESTINATION lib)
 
 
