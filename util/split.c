@@ -16,34 +16,31 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-#include "heap.h"
+#include "list.h"
+#include "split.h"
 
-#define HEAP_BUFFER_SIZE 50
-
-static int cmp_int(void *a, void *b)
+unsigned int string_split(const char *str, const char *delim, char ***buf_addr)
 {
-	return (int)(long)a - (int)(long)b;
-}
-
-int main(int argc, char *argv[])
-{
-	struct heap *heap = heap_create(HEAP_BUFFER_SIZE, NULL,
-					&cmp_int);
-
-	heap_insert(heap, (void*)125);
-	heap_insert(heap, (void*)5);
-	heap_insert(heap, (void*)3);
-	heap_insert(heap, (void*)7);
-	heap_insert(heap, (void*)253);
-	heap_insert(heap, (void*)2);
-	heap_insert(heap, (void*)124);
-	heap_insert(heap, (void*)7);
-
-	while (heap_size(heap) > 0) {
-		printf("%d\n", (int)(long) heap_extract_max(heap));
-	}
-	
-	heap_destroy(heap);
-	return 0;
+    char *strw = strdup(str);
+    struct list *li = list_new(0);
+    char *saveptr;
+    char *p =  strtok_r(strw, delim, &saveptr);
+    while (p != NULL) {
+	list_add(li, strdup(p));
+	p = strtok_r(NULL, delim, &saveptr);
+    }
+    free(strw);
+    
+    unsigned int s = list_size(li);
+    if (!s) {
+	*buf_addr = NULL;
+    } else {
+	*buf_addr = malloc(sizeof(*buf_addr) * s);
+        for (int i = 1; i <= s; ++i)
+            (*buf_addr)[s - i] = list_get(li, i);
+    }
+    list_free(li);
+    return s;
 }

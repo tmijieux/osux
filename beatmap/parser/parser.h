@@ -17,7 +17,7 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "util/hashtable/hash_table.h"
+#include "util/hash_table.h"
 
 struct map *osu_map_parser(const char*); // compatibility
 
