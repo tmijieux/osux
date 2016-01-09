@@ -161,6 +161,8 @@ static void mapping_free(const char *key, void *value, void *args)
 
 void yaml2_free(struct yaml_wrap *yw)
 {
+    if (NULL == yw)
+        return;
     switch (yw->type) {
     case YAML_MAPPING:
         ht_for_each(yw->content.mapping, &mapping_free, NULL);
