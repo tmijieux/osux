@@ -94,6 +94,7 @@ static double READING_STAR_COEFF_HIDDEN;
 static double READING_STAR_COEFF_SPEED_CH;
 static double READING_STAR_COEFF_SLOW;
 static double READING_STAR_COEFF_FAST;
+static double READING_STAR_SCALE;
 
 //-----------------------------------------------------
 
@@ -129,6 +130,7 @@ static void global_init(void)
   READING_STAR_COEFF_SPEED_CH   = cst_f(ht_cst, "star_speed_ch");
   READING_STAR_COEFF_SLOW       = cst_f(ht_cst, "star_slow");
   READING_STAR_COEFF_FAST       = cst_f(ht_cst, "star_fast");
+  READING_STAR_SCALE            = cst_f(ht_cst, "star_scale");
 }
 
 //-----------------------------------------------------
@@ -332,8 +334,12 @@ static void trm_compute_reading_star(struct tr_map * map)
 	 READING_STAR_COEFF_SLOW       * map->object[i].slow +
 	 READING_STAR_COEFF_FAST       * map->object[i].fast);
     }
+  /*
   struct stats * stats = trm_stats_reading_star(map);
   map->reading_star = stats_stars(stats, STATS_COEFF);
+  */
+  map->reading_star = (trm_weight_sum_reading_star(map, NULL)
+		       / READING_STAR_SCALE);
 }
 
 //-----------------------------------------------------

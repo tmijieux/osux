@@ -81,6 +81,7 @@ static struct stats * STATS_COEFF;
 
 // coeff for star
 static double PATTERN_STAR_COEFF_ALT;
+static double PATTERN_STAR_SCALE;
 
 // pattern
 static int MAX_PATTERN_LENGTH;
@@ -113,6 +114,7 @@ static void global_init(void)
   STATS_COEFF = cst_stats(ht_cst, PATTERN_STATS);
 
   PATTERN_STAR_COEFF_ALT = cst_f(ht_cst, "star_alt");
+  PATTERN_STAR_SCALE     = cst_f(ht_cst, "star_scale");
 }
 
 //-----------------------------------------------------
@@ -297,8 +299,12 @@ static void trm_compute_pattern_star(struct tr_map * map)
 	    PATTERN_STAR_COEFF_ALT * map->object[i].alt[j];
 	}
     }
+  /*
   struct stats * stats = trm_stats_pattern_star(map);
   map->pattern_star = stats_stars(stats, STATS_COEFF);
+  */
+  map->pattern_star = (trm_weight_sum_pattern_star(map, NULL)
+		       / PATTERN_STAR_SCALE);
 }
 
 //-----------------------------------------------------

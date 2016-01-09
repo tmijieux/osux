@@ -69,6 +69,7 @@ static struct stats * STATS_COEFF;
 // coeff for star
 static double DENSITY_STAR_COEFF_COLOR;
 static double DENSITY_STAR_COEFF_RAW;
+static double DENSITY_STAR_SCALE;
 
 //-----------------------------------------------------
 
@@ -89,6 +90,7 @@ static void global_init(void)
 
   DENSITY_STAR_COEFF_COLOR = cst_f(ht_cst, "star_color");
   DENSITY_STAR_COEFF_RAW   = cst_f(ht_cst, "star_raw");
+  DENSITY_STAR_SCALE       = cst_f(ht_cst, "star_scale");
 }
 
 //-----------------------------------------------------
@@ -213,8 +215,12 @@ static void trm_compute_density_star (struct tr_map * map)
 	(DENSITY_STAR_COEFF_COLOR * map->object[i].density_color +
 	 DENSITY_STAR_COEFF_RAW   * map->object[i].density_raw);
     }
+  /*
   struct stats * stats = trm_stats_density_star(map);
   map->density_star = stats_stars(stats, STATS_COEFF);
+  */
+  map->density_star = (trm_weight_sum_density_star(map, NULL)
+		       / DENSITY_STAR_SCALE);
 }
 
 //-----------------------------------------------------

@@ -25,7 +25,9 @@
 #define TRM_STATS_HEADER(FIELD)					\
   TRM_SORT_HEADER(FIELD)					\
   double trm_mean_##FIELD (struct tr_map * map);		\
-  struct stats * trm_stats_##FIELD (struct tr_map * map);  
+  struct stats * trm_stats_##FIELD (struct tr_map * map);	\
+  double trm_weight_sum_##FIELD (struct tr_map * map,		\
+				 double (*weight)(int,double));
 
 //-----------------------------------------------------
 

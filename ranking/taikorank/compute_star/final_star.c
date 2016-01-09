@@ -93,7 +93,9 @@ void trm_compute_final_star(struct tr_map * map)
 		  SCALE_X1, SCALE_Y1,
 		  SCALE_X2, SCALE_Y2);
     }
-
+  /*
   struct stats * stats = trm_stats_final_star(map);
   map->final_star = stats_stars(stats, STATS_COEFF);
+  */
+  map->final_star = trm_weight_sum_final_star(map, NULL);
 }

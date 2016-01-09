@@ -21,6 +21,7 @@
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"
 #include "print.h"
+#include "interpolation.h"
 
 #include "stats.h"
 #include "util/sum/sum.h"
@@ -85,6 +86,28 @@
     return stats;						\
   }
 
+#define WEIGHT_MAX_OBJ 10000.
+double default_weight(int i, double val)
+{
+  if(i > WEIGHT_MAX_OBJ)
+    return 0;
+  return POLY_2_PT(i, 1., 1., WEIGHT_MAX_OBJ, 0.) * val;
+}
+
+#define TRM_WEIGHT_SUM(FIELD)					\
+  double trm_weight_sum_##FIELD (struct tr_map * map,		\
+				 double (* weight)(int,double))	\
+  {								\
+    if(weight == NULL)						\
+      weight = default_weight;					\
+    trm_sort_##FIELD (map);					\
+    double sum = 0;						\
+    for(int i = 0; i < map->nb_object; i++)			\
+      sum += weight(map->nb_object - i, map->object[i].FIELD);	\
+    trm_sort_offset(map);					\
+    return sum / map->nb_object;				\
+  }
+
 // ---- Macro macro
 
 #define TRM_SORT_FUNCTIONS(FIELD)		\
@@ -99,7 +122,8 @@
   TRM_QUARTILE(FIELD, 3, 4) /* Q3 */		\
   TRM_QUARTILE(FIELD, 9, 10) /* D9 */		\
   TRM_MEAN(FIELD)				\
-  TRM_STATS(FIELD)
+  TRM_STATS(FIELD)				\
+  TRM_WEIGHT_SUM(FIELD)
 
 //-----------------------------------------------------
 
