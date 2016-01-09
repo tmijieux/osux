@@ -71,7 +71,8 @@ static void ht_cst_init_final(void)
 __attribute__((destructor))
 static void ht_cst_exit_final(void)
 {
-  yaml2_free(yw);
+  if(yw)
+    yaml2_free(yw);
   free(STATS_COEFF);
 }
 

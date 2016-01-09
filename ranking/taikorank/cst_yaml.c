@@ -30,7 +30,7 @@ struct yaml_wrap * cst_get_yw(const char * file_name)
 {
   struct yaml_wrap * yw = NULL;
   if(0 != yaml2_parse_file(&yw, file_name))
-    tr_error("Unable to parse yaml file %s.", file_name);
+    tr_error("Unable to parse yaml file '%s'.", file_name);
   else
     return yw;
   return NULL;
@@ -65,9 +65,9 @@ char * cst_str(struct hash_table * ht, const char * key)
   struct yaml_wrap * yw = NULL;
   ht_get_entry(ht, key, &yw);
   if(yw == NULL)
-    tr_error("Constant %s not found.", key);
+    tr_error("Constant '%s' not found.", key);
   else if(yw->type != YAML_SCALAR)
-    tr_error("Constant %s is not a scalar.", key);
+    tr_error("Constant '%s' is not a scalar.", key);
   else
     return yw->content.scalar;
   return "-1"; 
@@ -81,9 +81,9 @@ struct stats * cst_stats(struct hash_table * ht, const char * key)
   struct yaml_wrap * yw = NULL;
   ht_get_entry(ht, key, &yw);
   if(yw == NULL)
-    tr_error("Stats %s not found.", key);
+    tr_error("Stats '%s' not found.", key);
   else if(yw->type != YAML_MAPPING)
-    tr_error("Stats %s is not a mapping.", key);
+    tr_error("Stats '%s' is not a mapping.", key);
   else
     {
       struct hash_table * ht_stats = yw->content.mapping;

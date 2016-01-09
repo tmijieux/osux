@@ -26,6 +26,7 @@
 #include "tr_db.h"
 #include "cst_yaml.h"
 #include "config.h"
+#include "print.h"
 
 #define CONFIG_FILE  "config.yaml"
 
@@ -90,6 +91,11 @@ static void ht_cst_init_config(void)
 {
   yw = cst_get_yw(CONFIG_FILE);
   ht_conf = cst_get_ht(yw);
+  if(ht_conf == NULL)
+    {
+      tr_error("Unable to run without config.");
+      exit(EXIT_FAILURE);
+    }
   global_init();
   if(OPT_DATABASE)
     tr_db_init();
@@ -102,5 +108,6 @@ static void ht_cst_exit_config(void)
 {
   if(OPT_PRINT_YAML)
     tr_print_yaml_exit();
-  yaml2_free(yw);
+  if(yw)
+    yaml2_free(yw);
 }

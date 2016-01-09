@@ -189,7 +189,8 @@ static void remove_pattern(const char * s, void * p, void * null)
 __attribute__((destructor))
 static void ht_cst_exit_pattern(void)
 {
-  yaml2_free(yw);
+  if(yw)
+    yaml2_free(yw);
   ht_for_each(ht_pattern, remove_pattern, NULL);
   ht_free(ht_pattern);
   free(STATS_COEFF);
