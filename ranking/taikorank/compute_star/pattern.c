@@ -289,9 +289,10 @@ static void trm_compute_pattern_star(struct tr_map * map)
 static void trm_pattern_alloc(struct tr_map * map)
 {
   for (int i = 0; i < map->nb_object; i++)
-    {
+    { // end with negative value
       map->object[i].alt =
-	calloc(sizeof(double), LENGTH_PATTERN_USED);
+	calloc(sizeof(double), LENGTH_PATTERN_USED+1);
+      map->object[i].alt[LENGTH_PATTERN_USED] = -1;
     }  
 }
 

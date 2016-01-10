@@ -33,6 +33,7 @@
 int OPT_DATABASE;
 int OPT_PRINT_TRO;
 int OPT_PRINT_YAML;
+int OPT_PRINT_FILTER;
 char * OPT_PRINT_ORDER;
 
 char * TR_DB_IP;
@@ -40,7 +41,8 @@ char * TR_DB_LOGIN;
 char * TR_DB_PASSWD;
 
 int OPT_SCORE;
-double SCORE_ACC;
+int OPT_SCORE_QUICK;
+double OPT_SCORE_ACC;
 int (* TRM_METHOD_GET_TRO)(struct tr_map *);
 
 static struct yaml_wrap * yw;
@@ -48,11 +50,37 @@ static struct hash_table * ht_conf;
 
 //-----------------------------------------------------
 
+#define CASE_FILTER(C, FILTER)			\
+  case C:					\
+  OPT_PRINT_FILTER |= FILTER;			\
+  break
+
 static void global_init(void)
 {
-  OPT_PRINT_TRO   = cst_i(ht_conf, "print_tro");
-  OPT_PRINT_YAML  = cst_i(ht_conf, "print_yaml");
-  OPT_PRINT_ORDER = cst_str(ht_conf, "print_order");
+  OPT_PRINT_TRO    = cst_i(ht_conf, "print_tro");
+  OPT_PRINT_YAML   = cst_i(ht_conf, "print_yaml");
+  OPT_PRINT_ORDER  = cst_str(ht_conf, "print_order");
+  OPT_PRINT_FILTER = 0;
+  char * filter    = cst_str(ht_conf, "print_filter");
+  int i = 0;
+  while(filter[i] != 0)
+    {
+      switch(filter[i])
+	{
+	  CASE_FILTER('b', FILTER_BASIC);
+	  CASE_FILTER('B', FILTER_BASIC_PLUS);
+	  CASE_FILTER('+', FILTER_ADDITIONNAL);
+	  CASE_FILTER('d', FILTER_DENSITY);
+	  CASE_FILTER('r', FILTER_READING);
+	  CASE_FILTER('R', FILTER_READING_PLUS);
+	  CASE_FILTER('p', FILTER_PATTERN);
+	  CASE_FILTER('a', FILTER_ACCURACY);
+	  CASE_FILTER('*', FILTER_STAR);
+	default: 
+	  break;
+	}
+      i++;
+    }
 
   OPT_DATABASE = cst_i(ht_conf, "database");
   if(OPT_DATABASE)
@@ -61,7 +89,8 @@ static void global_init(void)
   OPT_SCORE = cst_i(ht_conf, "score");
   if(OPT_SCORE)
     {
-      SCORE_ACC = cst_f(ht_conf, "score_acc") / COEFF_MAX_ACC;
+      OPT_SCORE_QUICK = cst_i(ht_conf, "score_quick");
+      OPT_SCORE_ACC   = cst_f(ht_conf, "score_acc") / COEFF_MAX_ACC;
       int i = cst_i(ht_conf, "score_method");
       switch(i)
 	{

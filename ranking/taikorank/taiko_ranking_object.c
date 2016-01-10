@@ -206,11 +206,14 @@ void tro_print(struct tr_object * obj, int filter)
 	    obj->speed_change,
 	    obj->reading_star);
   if((filter & FILTER_PATTERN) != 0)
-    fprintf(OUTPUT_INFO, "%.3g\t%.3g\t%.3g\t%g\t",
-	    obj->proba,
-	    obj->alt[0],
-	    obj->alt[1],
-	    obj->pattern_star);
+    {
+      fprintf(OUTPUT_INFO, "%.3g\t%g\t",
+	      obj->proba,
+	      obj->pattern_star);
+      int i = 0;
+      while(obj->alt[i] >= 0)
+	fprintf(OUTPUT_INFO, "%.3g\t", obj->alt[i++]);
+    }
   if((filter & FILTER_ACCURACY) != 0)
     fprintf(OUTPUT_INFO, "\t");
   if((filter & FILTER_STAR) != 0)

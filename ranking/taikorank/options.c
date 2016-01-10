@@ -53,7 +53,7 @@ static void opt_db(const char * value)
 
 static void opt_acc(const char * value)
 {
-  SCORE_ACC = atof(value) / COEFF_MAX_ACC;
+  OPT_SCORE_ACC = atof(value) / COEFF_MAX_ACC;
 }
 
 static void opt_print_tro(const char * value)

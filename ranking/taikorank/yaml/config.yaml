@@ -1,8 +1,17 @@
+### Print 
 print_tro:  0
 print_yaml: 0
-# 0 -> none
-# 1 -> map
-print_order: FDP
+print_filter: bp
+# b -> basic
+# B -> basic+
+# + -> additionnal
+# d -> density
+# r -> reading
+# R -> reading+
+# p -> pattern
+# a -> accuracy
+# * -> star
+print_order:  FDP
 # F -> final
 # D -> density
 # R -> reading
@@ -16,8 +25,16 @@ db_login:  root
 db_passwd: NOPE
 
 # Score
-score: 0
-score_acc: 100
+score:        0
+score_quick:  0
+score_acc:    100
 score_method: 0
 # 0 -> hardest
 # 1 -> best influence
+
+# quick is way less accurate
+#    I'm your daddy [Kantan]
+#    quick  + hardest 90% ~= normal + hardest 95%
+# hardest is less accurate but ok 
+#    I'm your daddy [Kantan]
+#    normal + hardest 90% ~= normal + best influence 91%

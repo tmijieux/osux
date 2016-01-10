@@ -54,7 +54,7 @@ struct tr_object
 
   // ---- pattern data
   double proba;
-  double * alt;
+  double * alt; // end with negative value
   
   // ---- density data
   double density_raw;

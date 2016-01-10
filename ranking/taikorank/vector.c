@@ -25,29 +25,17 @@
 #include "vector.h"
 #include "interpolation.h"
 
-#define VECT_DIM 2
+#define CST_VECT_DIM 2
 
 //--------------------------------------------------
 
-struct vector * cst_vect(struct hash_table * ht, const char * key)
+struct vector * vect_new(int dim, int length)
 {
   struct vector * v = malloc(sizeof(*v));
-  char * s = NULL;
-  asprintf(&s, "%s_length", key);
-  v->len = cst_i(ht, s);
-  free(s);
-
+  v->len = length;
   v->t = malloc(sizeof(double *) * v->len);
   for(int i = 0; i < v->len; i++)
-    {
-      v->t[i] = malloc(sizeof(double) * VECT_DIM);
-      for(int j = 0; j < v->len; j++)
-	{
-	  asprintf(&s, "%s_%c%d", key, 'x'+j, i+1);
-	  v->t[i][j] = cst_f(ht, s);
-	  free(s);
-	}
-    }
+    v->t[i] = malloc(sizeof(double) * dim);
   return v;
 }
 
@@ -59,6 +47,24 @@ void vect_free(struct vector * v)
     free(v->t[i]);
   free(v->t);
   free(v);
+}
+
+//--------------------------------------------------
+
+struct vector * cst_vect(struct hash_table * ht, const char * key)
+{
+  char * s = NULL;
+  asprintf(&s, "%s_length", key);
+  struct vector * v = vect_new(cst_i(ht, s), CST_VECT_DIM);
+  free(s);
+  for(int i = 0; i < v->len; i++)
+    for(int j = 0; j < v->len; j++)
+      {
+	asprintf(&s, "%s_%c%d", key, 'x'+j, i+1);
+	v->t[i][j] = cst_f(ht, s);
+	free(s);
+      }
+  return v;
 }
 
 //--------------------------------------------------

@@ -19,6 +19,7 @@
 extern int OPT_DATABASE;
 extern int OPT_PRINT_TRO;
 extern int OPT_PRINT_YAML;
+extern int OPT_PRINT_FILTER;
 extern char * OPT_PRINT_ORDER;
 
 extern char * TR_DB_IP;
@@ -26,7 +27,8 @@ extern char * TR_DB_LOGIN;
 extern char * TR_DB_PASSWD;
 
 extern int OPT_SCORE;
-extern double SCORE_ACC;
+extern int OPT_SCORE_QUICK;
+extern double OPT_SCORE_ACC;
 extern int (* TRM_METHOD_GET_TRO)(struct tr_map *);
 
 void ht_conf_db_init(void);

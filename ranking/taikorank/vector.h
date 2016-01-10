@@ -16,16 +16,15 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
-/**
- * Vector used to construct function. For example: interpolation.
-*/
 struct vector {
   int len;
   double ** t;
 };
 
-struct vector * cst_vect(struct hash_table * ht, const char * key);
+struct vector * vect_new(int dim, int length);
 void vect_free(struct vector * v);
+
+struct vector * cst_vect(struct hash_table * ht, const char * key);
 
 // 2pt
 double vect_exp(struct vector * v, double x);
