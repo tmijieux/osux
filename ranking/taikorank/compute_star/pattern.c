@@ -15,8 +15,6 @@
  */
 
 #include <math.h>
-#include "interpolation.h"
-
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
@@ -30,6 +28,7 @@
 #include "taiko_ranking_object.h"
 #include "stats.h"
 #include "cst_yaml.h"
+#include "vector.h"
 #include "print.h"
 
 #include "pattern.h"
@@ -65,23 +64,15 @@ static void trm_compute_pattern_star(struct tr_map * map);
 #define PATTERN_STATS "pattern_stats"
 
 // coeff for singletap proba
-static double SINGLETAP_MIN;
-static double SINGLETAP_MAX;
-static double TIME_MIN;
-static double TIME_MAX;
-// 160ms ~ 180bpm 1/2
-// 125ms = 240bpm 1/2
+static struct vector * SINGLETAP_VECT;
 
 static int PROBA_START;
 static int PROBA_END;
 static int PROBA_STEP;
 
-// stats
-static struct stats * STATS_COEFF;
-
 // coeff for star
 static double PATTERN_STAR_COEFF_ALT;
-static double PATTERN_STAR_SCALE;
+static struct vector * SCALE_VECT;
 
 // pattern
 static int MAX_PATTERN_LENGTH;
@@ -99,10 +90,8 @@ static int LENGTH_PATTERN_USED;
 
 static void global_init(void)
 {
-  SINGLETAP_MIN = cst_f(ht_cst, "singletap_min");
-  SINGLETAP_MAX = cst_f(ht_cst, "singletap_max");
-  TIME_MIN      = cst_f(ht_cst, "time_min");
-  TIME_MAX      = cst_f(ht_cst, "time_max");
+  SINGLETAP_VECT = cst_vect(ht_cst, "vect_singletap");
+  SCALE_VECT     = cst_vect(ht_cst, "vect_scale");
 
   PROBA_START = cst_f(ht_cst, "proba_start");
   PROBA_END   = cst_f(ht_cst, "proba_end");
@@ -111,10 +100,7 @@ static void global_init(void)
   MAX_PATTERN_LENGTH = cst_i(ht_cst, "max_pattern_length");
   LENGTH_PATTERN_USED = cst_i(ht_cst, "length_pattern_used");
     
-  STATS_COEFF = cst_stats(ht_cst, PATTERN_STATS);
-
   PATTERN_STAR_COEFF_ALT = cst_f(ht_cst, "star_alt");
-  PATTERN_STAR_SCALE     = cst_f(ht_cst, "star_scale");
 }
 
 //-----------------------------------------------------
@@ -193,7 +179,7 @@ static void ht_cst_exit_pattern(void)
     yaml2_free(yw);
   ht_for_each(ht_pattern, remove_pattern, NULL);
   ht_free(ht_pattern);
-  free(STATS_COEFF);
+  free(SCALE_VECT);
 }
 
 //-----------------------------------------------------
@@ -202,15 +188,7 @@ static void ht_cst_exit_pattern(void)
 
 static double tro_singletap_proba(struct tr_object * obj)
 {
-  double time = obj->rest;
-  if(time > TIME_MAX)
-    time = TIME_MAX;
-  else if(time < TIME_MIN)
-    time = TIME_MIN;
-
-  return POLY_2_PT(time,
-		   TIME_MIN, SINGLETAP_MIN,
-		   TIME_MAX, SINGLETAP_MAX);
+  return vect_poly2(SINGLETAP_VECT, obj->rest);
 }
 
 //-----------------------------------------------------
@@ -296,16 +274,12 @@ static void trm_compute_pattern_star(struct tr_map * map)
       map->object[i].pattern_star = 0;
       for (int j = 0; j < LENGTH_PATTERN_USED; j++)
 	{
-	  map->object[i].pattern_star +=
-	    PATTERN_STAR_COEFF_ALT * map->object[i].alt[j];
+	  map->object[i].pattern_star += vect_poly2
+	    (SCALE_VECT,
+	     PATTERN_STAR_COEFF_ALT * map->object[i].alt[j]);
 	}
     }
-  /*
-  struct stats * stats = trm_stats_pattern_star(map);
-  map->pattern_star = stats_stars(stats, STATS_COEFF);
-  */
-  map->pattern_star = (trm_weight_sum_pattern_star(map, NULL)
-		       / PATTERN_STAR_SCALE);
+  map->pattern_star = trm_weight_sum_pattern_star(map, NULL);
 }
 
 //-----------------------------------------------------

@@ -249,8 +249,20 @@ struct tr_map * trm_convert(char* file_name)
   
   if(map->Mode != MODE_TAIKO)
     {
-      tr_error("Autoconverts are said to be bad. But I don't think "
-	       "so. Please implement the corresponding functions.");
+      switch(map->Mode)
+	{
+	case MODE_STD:
+	  tr_error("Autoconverts are said to be bad. But I don't "
+		   "think so. Please implement the corresponding "
+		   "functions.");
+	  break;
+	case MODE_CTB:
+	  tr_error("Catch the beat?!");
+	  break;
+	case MODE_MANIA:
+	  tr_error("Taiko is not 2k.");
+	  break;
+	}
       map_free(map);
       return NULL;
     }

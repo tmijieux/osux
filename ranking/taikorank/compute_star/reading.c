@@ -15,8 +15,6 @@
  */
 
 #include <math.h>
-#include "interpolation.h"
-
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
@@ -30,6 +28,7 @@
 #include "taiko_ranking_object.h"
 #include "stats.h"
 #include "cst_yaml.h"
+#include "vector.h"
 #include "print.h"
 
 #include "reading.h"
@@ -66,26 +65,15 @@ static double HIDE_MAX;
 static double HIDE_EXP;
 
 // slow
-static double TIME_MIN;
-static double TIME_CENTER;
-static double TIME_MAX;
-static double SLOW_MIN;
-static double SLOW_MAX;
+static struct vector * SLOW_VECT;
 
 // fast
-static double BPM_MIN;
-static double BPM_CENTER;
-static double BPM_MAX;
-static double FAST_MIN;
-static double FAST_MAX;
+static struct vector * FAST_VECT;
 
 // speed change
 static double SPEED_CH_MAX;
 static double SPEED_CH_TIME_0;
 static double SPEED_CH_VALUE_0;
-
-// stats
-static struct stats * STATS_COEFF;
 
 // coeff for star
 static double READING_STAR_COEFF_SUPERPOSED;
@@ -94,7 +82,7 @@ static double READING_STAR_COEFF_HIDDEN;
 static double READING_STAR_COEFF_SPEED_CH;
 static double READING_STAR_COEFF_SLOW;
 static double READING_STAR_COEFF_FAST;
-static double READING_STAR_SCALE;
+static struct vector * SCALE_VECT;
 
 //-----------------------------------------------------
 
@@ -106,23 +94,13 @@ static void global_init(void)
   HIDE_MAX = cst_f(ht_cst, "hide_max");
   HIDE_EXP = cst_f(ht_cst, "hide_exp");
 
-  TIME_MIN    = cst_f(ht_cst, "time_min");
-  TIME_CENTER = cst_f(ht_cst, "time_center");
-  TIME_MAX    = cst_f(ht_cst, "time_max");
-  SLOW_MIN = cst_f(ht_cst, "slow_min");
-  SLOW_MAX = cst_f(ht_cst, "slow_max");
-
-  BPM_MIN    = cst_f(ht_cst, "bpm_min");
-  BPM_CENTER = cst_f(ht_cst, "bpm_center");
-  BPM_MAX    = cst_f(ht_cst, "bpm_max");
-  FAST_MIN = cst_f(ht_cst, "fast_min");
-  FAST_MAX = cst_f(ht_cst, "fast_max");
+  SLOW_VECT  = cst_vect(ht_cst, "vect_slow");
+  FAST_VECT  = cst_vect(ht_cst, "vect_fast");  
+  SCALE_VECT = cst_vect(ht_cst, "vect_scale");
 
   SPEED_CH_MAX     = cst_f(ht_cst, "speed_ch_max");
   SPEED_CH_TIME_0  = cst_f(ht_cst, "speed_ch_time_0");
   SPEED_CH_VALUE_0 = cst_f(ht_cst, "speed_ch_value_0");
-
-  STATS_COEFF = cst_stats(ht_cst, READING_STATS);
 
   READING_STAR_COEFF_SUPERPOSED = cst_f(ht_cst, "star_superpos"); 
   READING_STAR_COEFF_HIDE       = cst_f(ht_cst, "star_hide");
@@ -130,7 +108,6 @@ static void global_init(void)
   READING_STAR_COEFF_SPEED_CH   = cst_f(ht_cst, "star_speed_ch");
   READING_STAR_COEFF_SLOW       = cst_f(ht_cst, "star_slow");
   READING_STAR_COEFF_FAST       = cst_f(ht_cst, "star_fast");
-  READING_STAR_SCALE            = cst_f(ht_cst, "star_scale");
 }
 
 //-----------------------------------------------------
@@ -149,7 +126,6 @@ static void ht_cst_exit_reading(void)
 {
   if(yw)
     yaml2_free(yw);
-  free(STATS_COEFF);
 }
 
 //-----------------------------------------------------
@@ -184,29 +160,14 @@ static double tro_hiding(struct tr_object * obj1, struct tr_object * obj2)
 
 static double tro_slow(struct tr_object * obj)
 {
-  double bpm_app = obj->bpm_app;
-  if (bpm_app > BPM_MAX ||
-      obj->visible_time == 0) // 0 bpm ~ 2500 bpm
-    bpm_app = BPM_MAX;
-
-  return POLY_2_PT(bpm_app,
-		   BPM_MIN, SLOW_MAX,
-		   BPM_MAX, SLOW_MIN);
+  return vect_poly2(SLOW_VECT, obj->bpm_app);
 }
 
 //-----------------------------------------------------
 
 static double tro_fast(struct tr_object * obj)
 {
-  double time = obj->visible_time;
-  if (time > TIME_MAX) 
-    time = TIME_MAX; 
-  else if (time < TIME_MIN) 
-    time = TIME_MIN;
-
-  return POLY_2_PT(time,
-		   TIME_MIN, FAST_MAX,
-		   TIME_MAX, FAST_MIN);
+  return vect_poly2(FAST_VECT, obj->visible_time);
 }
 
 //-----------------------------------------------------
@@ -327,20 +288,16 @@ static void trm_compute_reading_star(struct tr_map * map)
 {
   for (int i = 0; i < map->nb_object; i++)
     {
-      map->object[i].reading_star =
-	(READING_STAR_COEFF_SUPERPOSED * map->object[i].superposed +
-	 READING_STAR_COEFF_HIDE       * map->object[i].hide +
-	 READING_STAR_COEFF_HIDDEN     * map->object[i].hidden +
-	 READING_STAR_COEFF_SPEED_CH   * map->object[i].speed_change+
-	 READING_STAR_COEFF_SLOW       * map->object[i].slow +
-	 READING_STAR_COEFF_FAST       * map->object[i].fast);
+      map->object[i].reading_star = vect_poly2
+	(SCALE_VECT,
+	 (READING_STAR_COEFF_SUPERPOSED * map->object[i].superposed +
+	  READING_STAR_COEFF_HIDE       * map->object[i].hide +
+	  READING_STAR_COEFF_HIDDEN     * map->object[i].hidden +
+	  READING_STAR_COEFF_SPEED_CH  * map->object[i].speed_change+
+	  READING_STAR_COEFF_SLOW       * map->object[i].slow +
+	  READING_STAR_COEFF_FAST       * map->object[i].fast));
     }
-  /*
-  struct stats * stats = trm_stats_reading_star(map);
-  map->reading_star = stats_stars(stats, STATS_COEFF);
-  */
-  map->reading_star = (trm_weight_sum_reading_star(map, NULL)
-		       / READING_STAR_SCALE);
+  map->reading_star = trm_weight_sum_reading_star(map, NULL);
 }
 
 //-----------------------------------------------------

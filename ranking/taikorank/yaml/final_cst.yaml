@@ -1,15 +1,6 @@
-# stats coeff
-final_stats:
-  median:  0.4
-  mean:    0.3
-  d1:      0.
-  d9:      0.
-  q1:      0.3
-  q3:      0.
-  scaling: 100000.0
-
 # scale
-scale_x1: 1.
-scale_y1: 1.
-scale_x2: 100.
-scale_y2: 10.
+vect_scale_length: 2
+vect_scale_x1: 0.
+vect_scale_y1: 0.
+vect_scale_x2: 5e-1
+vect_scale_y2: 10.
