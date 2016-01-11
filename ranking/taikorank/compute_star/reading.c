@@ -110,9 +110,9 @@ static void ht_cst_exit_reading(void)
 {
   if(yw)
     yaml2_free(yw);
-  free(HIDE_VECT);
-  free(FAST_VECT);
-  free(SCALE_VECT);
+  vect_free(HIDE_VECT);
+  vect_free(FAST_VECT);
+  vect_free(SCALE_VECT);
 }
 
 //-----------------------------------------------------

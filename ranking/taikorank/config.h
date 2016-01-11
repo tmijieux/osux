@@ -33,6 +33,7 @@ extern int OPT_SCORE_QUICK;
 extern double OPT_SCORE_ACC;
 extern int (* TRM_METHOD_GET_TRO)(struct tr_map *);
 
+void config_set_mods(const char * mods);
 void ht_conf_db_init(void);
 
 #endif //CONFIG_H

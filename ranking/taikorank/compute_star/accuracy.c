@@ -75,8 +75,8 @@ static void ht_cst_exit_accuracy(void)
 {
   if(yw)
     yaml2_free(yw);
-  free(SLOW_VECT);
-  free(SCALE_VECT);
+  vect_free(SLOW_VECT);
+  vect_free(SCALE_VECT);
 }
 
 //-----------------------------------------------------

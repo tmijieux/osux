@@ -62,6 +62,7 @@ static void ht_cst_exit_final(void)
 {
   if(yw)
     yaml2_free(yw);
+  vect_free(SCALE_VECT);
 }
 
 //-----------------------------------------------------

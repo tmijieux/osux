@@ -96,8 +96,8 @@ static void ht_cst_exit_density(void)
 {
   if(yw)
     yaml2_free(yw);
-  free(DENSITY_VECT);
-  free(SCALE_VECT);
+  vect_free(DENSITY_VECT);
+  vect_free(SCALE_VECT);
 }
 
 //-----------------------------------------------------

@@ -55,7 +55,6 @@ static struct yaml_wrap * yw;
 static struct hash_table * ht_conf;
 
 static void config_set_filter(void);
-static void config_set_mods(void);
 
 //-----------------------------------------------------
 
@@ -65,7 +64,10 @@ static void global_init(void)
   OPT_PRINT_YAML   = cst_i(ht_conf, "print_yaml");
   OPT_PRINT_ORDER  = cst_str(ht_conf, "print_order");
   config_set_filter();
-  config_set_mods();
+
+  OPT_MODS = MODS_NONE;
+  char * mods = cst_str(ht_conf, "mods");
+  config_set_mods(mods);
 
   OPT_DATABASE = cst_i(ht_conf, "database");
   if(OPT_DATABASE)
@@ -130,10 +132,8 @@ static void config_set_filter(void)
       continue;						\
     }
 
-static void config_set_mods(void)
+void config_set_mods(const char * mods)
 {
-  OPT_MODS = MODS_NONE;
-  char * mods = cst_str(ht_conf, "mods");
   for(int i = 0; mods[i]; i += MOD_STR_LENGTH)
     {
       IF_MOD_SET("EZ", MODS_EZ, i);
@@ -142,7 +142,16 @@ static void config_set_mods(void)
       IF_MOD_SET("DT", MODS_DT, i);
       IF_MOD_SET("HD", MODS_HD, i);
       IF_MOD_SET("FL", MODS_FL, i);
+      for(int k = 1; k < MOD_STR_LENGTH; k++)
+	if(mods[i+k] == 0)
+	  {
+	    tr_error("Wrong mod length.");
+	    goto break2;
+	  }
+      tr_error("Unknown mod used.");
     }
+ break2:
+
   if((OPT_MODS & MODS_EZ) && (OPT_MODS & MODS_HR))
     tr_error("Incompatible mods EZ and HR");
   if((OPT_MODS & MODS_HT) && (OPT_MODS & MODS_DT))
