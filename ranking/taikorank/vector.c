@@ -29,8 +29,10 @@
 
 //--------------------------------------------------
 
-struct vector * vect_new(int dim, int length)
+struct vector * vect_new(int length, int dim)
 {
+  if(length < 0)
+    length = 0;
   struct vector * v = malloc(sizeof(*v));
   v->len = length;
   v->t = malloc(sizeof(double *) * v->len);
@@ -43,6 +45,8 @@ struct vector * vect_new(int dim, int length)
 
 void vect_free(struct vector * v)
 {
+  if(v == NULL)
+    return;
   for(int i = 0; i < v->len; i++)
     free(v->t[i]);
   free(v->t);

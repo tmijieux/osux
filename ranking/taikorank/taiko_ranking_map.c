@@ -361,14 +361,16 @@ void trm_print_tro(struct tr_map * map, int filter)
   if((filter & FILTER_DENSITY) != 0)
     fprintf(OUTPUT_INFO, "dnst rw\tdnst cl\tdnst*\t");
   if((filter & FILTER_READING) != 0)
-    fprintf(OUTPUT_INFO, "app\tdis\tvisi\tinvisi\thidden\thide\tslow\tfast\tspd chg\tread*\t");
+    fprintf(OUTPUT_INFO, "app\tdis\tvisi\tinvisi\thidden\thide\tfast\tspd chg\tread*\t");
   if((filter & FILTER_READING_PLUS) != 0)
     fprintf(OUTPUT_INFO, "app\tend app\tdis\tend dis\tvisi\tinvisi\thidden\thide\tspeed\tspd chg\tread*\t");
   if((filter & FILTER_ACCURACY) != 0)
-    fprintf(OUTPUT_INFO, "%g\t%g\t", map->great_ms, map->bad_ms);
+    fprintf(OUTPUT_INFO, "slow\t");
   if((filter & FILTER_PATTERN) != 0)
     fprintf(OUTPUT_INFO, "proba\tpttrn*\talt...\t");
-  
+  if((filter & FILTER_STAR) != 0)
+    fprintf(OUTPUT_INFO, "dst*\tread*\tptrn*\tacc*\tfin*\t");
+
   fprintf(OUTPUT_INFO, "\n");
   
   for(int i = 0; i < map->nb_object; ++i)
@@ -477,8 +479,8 @@ int trm_hardest_tro(struct tr_map * map)
 {
   int best = 0;
   for(int i = 0; i < map->nb_object; i++)
-    if(map->object[i].final_star > map->object[best].final_star &&
-       map->object[i].ps != BONUS)
+    if(map->object[i].final_star >= map->object[best].final_star &&
+       map->object[i].ps == GREAT)
       best = i;
   return best;
 }

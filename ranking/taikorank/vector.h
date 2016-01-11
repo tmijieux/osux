@@ -23,7 +23,7 @@ struct vector {
   double ** t;
 };
 
-struct vector * vect_new(int dim, int length);
+struct vector * vect_new(int length, int dim);
 void vect_free(struct vector * v);
 
 struct vector * cst_vect(struct hash_table * ht, const char * key);

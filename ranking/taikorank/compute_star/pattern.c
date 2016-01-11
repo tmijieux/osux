@@ -174,8 +174,7 @@ static void remove_pattern(const char * s, void * p, void * null)
 __attribute__((destructor))
 static void ht_cst_exit_pattern(void)
 {
-  if(yw)
-    yaml2_free(yw);
+  yaml2_free(yw);
   ht_for_each(ht_pattern, remove_pattern, NULL);
   ht_free(ht_pattern);
   vect_free(SCALE_VECT);
@@ -298,7 +297,7 @@ static void trm_pattern_alloc(struct tr_map * map)
 
 //-----------------------------------------------------
 
-void trm_compute_pattern (struct tr_map * map)
+void trm_compute_pattern(struct tr_map * map)
 {
   if(!pattern_set)
     {

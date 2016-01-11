@@ -180,19 +180,18 @@ void tro_print(struct tr_object * obj, int filter)
 	    obj->density_color,
 	    obj->density_star);
   if((filter & FILTER_READING) != 0)
-    fprintf(OUTPUT_INFO, "%d\t%d\t%d\t%d\t%.0f.\t%.0f.\t%.0f.\t%.0f.\t%.0f.\t%.3g\t",
+    fprintf(OUTPUT_INFO, "%d\t%d\t%d\t%d\t%.0f.\t%.0f.\t%.0f.\t%.0f.\t%.3g\t",
 	    obj->offset_app,
 	    obj->offset_dis,
 	    obj->visible_time,
 	    obj->invisible_time,
 	    obj->hidden,
 	    obj->hide,
-	    obj->slow,
 	    obj->fast,
 	    obj->speed_change,
 	    obj->reading_star);
   if((filter & FILTER_READING_PLUS) != 0)
-    fprintf(OUTPUT_INFO, "%d\t%d\t%d\t%d\t%g\t%.2g\t%.2g\t%.2g\t%.2g\t%.2g\t%.3g\t",
+    fprintf(OUTPUT_INFO, "%d\t%d\t%d\t%d\t%g\t%.2g\t%.2g\t%.2g\t%.2g\t%.3g\t",
 	    obj->offset_app,
 	    obj->end_offset_app,
 	    obj->offset_dis,
@@ -200,10 +199,12 @@ void tro_print(struct tr_object * obj, int filter)
 	    obj->superposed,
 	    obj->hidden,
 	    obj->hide,
-	    obj->slow,
 	    obj->fast,
 	    obj->speed_change,
 	    obj->reading_star);
+  if((filter & FILTER_ACCURACY) != 0)
+    fprintf(OUTPUT_INFO, "%.3g\t",
+	    obj->slow);
   if((filter & FILTER_PATTERN) != 0)
     {
       fprintf(OUTPUT_INFO, "%.3g\t%g\t",
@@ -213,13 +214,12 @@ void tro_print(struct tr_object * obj, int filter)
       while(obj->alt[i] >= 0)
 	fprintf(OUTPUT_INFO, "%.3g\t", obj->alt[i++]);
     }
-  if((filter & FILTER_ACCURACY) != 0)
-    fprintf(OUTPUT_INFO, "\t");
   if((filter & FILTER_STAR) != 0)
-    fprintf(OUTPUT_INFO, "%g\t%g\t%g\t%g\t",
+    fprintf(OUTPUT_INFO, "%.3g\t%.3g\t%.3g\t%.3g\t%.3g\t",
 	    obj->density_star,
   	    obj->reading_star,
 	    obj->pattern_star,
+	    obj->accuracy_star,
 	    obj->final_star);
   
   fprintf(OUTPUT_INFO, "\n");

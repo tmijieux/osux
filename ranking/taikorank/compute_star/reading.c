@@ -38,12 +38,13 @@ static struct hash_table * ht_cst;
 
 static double tro_hide(struct tr_object * o1, struct tr_object * o2);
 static double tro_fast(struct tr_object * obj);
+/*
 static double tro_coeff_superpos(struct tr_object * obj);
 static double tro_speed_change(struct tr_object * obj1,
 				struct tr_object * obj2);
-
-static void trm_compute_reading_hide(struct tr_map * map);
 static void trm_compute_reading_superposed(struct tr_map * map);
+*/
+static void trm_compute_reading_hide(struct tr_map * map);
 static void trm_compute_reading_fast(struct tr_map * map);
 
 static void trm_compute_reading_star(struct tr_map * map);
@@ -108,8 +109,7 @@ static void ht_cst_init_reading(void)
 __attribute__((destructor))
 static void ht_cst_exit_reading(void)
 {
-  if(yw)
-    yaml2_free(yw);
+  yaml2_free(yw);
   vect_free(HIDE_VECT);
   vect_free(FAST_VECT);
   vect_free(SCALE_VECT);
@@ -118,7 +118,7 @@ static void ht_cst_exit_reading(void)
 //-----------------------------------------------------
 //-----------------------------------------------------
 //-----------------------------------------------------
-
+/*
 static double tro_coeff_superpos(struct tr_object * obj)
 {
   if (tro_is_big(obj))   
@@ -126,7 +126,7 @@ static double tro_coeff_superpos(struct tr_object * obj)
   else
     return SUPERPOS_SMALL; // 'd' 'k' 'r' 's'
 }
-
+*/
 //-----------------------------------------------------
 
 static double tro_hide(struct tr_object * o1, struct tr_object * o2)
@@ -145,7 +145,7 @@ static double tro_fast(struct tr_object * obj)
 }
 
 //-----------------------------------------------------
-
+/*
 static double tro_speed_change(struct tr_object * obj1,
 			       struct tr_object * obj2)
 {
@@ -160,7 +160,7 @@ static double tro_speed_change(struct tr_object * obj1,
 	      rest /
 	      SPEED_CH_TIME_0));
 }
-
+*/
 //-----------------------------------------------------
 //-----------------------------------------------------
 //-----------------------------------------------------
@@ -194,7 +194,7 @@ static void trm_compute_reading_hide(struct tr_map * map)
 }
 
 //-----------------------------------------------------
-
+/*
 static void trm_compute_reading_superposed(struct tr_map * map)
 {
   map->object[0].superposed = 0;
@@ -215,7 +215,7 @@ static void trm_compute_reading_superposed(struct tr_map * map)
 	map->object[i].superposed = 0;
     }
 }
-
+*/
 //-----------------------------------------------------
 
 static void trm_compute_reading_fast(struct tr_map * map)
@@ -227,7 +227,7 @@ static void trm_compute_reading_fast(struct tr_map * map)
 }
 
 //-----------------------------------------------------
-
+/*
 static void trm_compute_reading_speed_change(struct tr_map * map)
 {
   map->object[0].speed_change = 0;
@@ -243,7 +243,7 @@ static void trm_compute_reading_speed_change(struct tr_map * map)
 	}
     }
 }
-
+*/
 //-----------------------------------------------------
 //-----------------------------------------------------
 //-----------------------------------------------------

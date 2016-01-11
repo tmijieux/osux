@@ -54,14 +54,14 @@ static void ht_cst_init_final(void)
 {
   yw = cst_get_yw(FINAL_FILE);
   ht_cst = cst_get_ht(yw);
-  global_init();
+  if(ht_cst)
+    global_init();
 }
 
 __attribute__((destructor))
 static void ht_cst_exit_final(void)
 {
-  if(yw)
-    yaml2_free(yw);
+  yaml2_free(yw);
   vect_free(SCALE_VECT);
 }
 

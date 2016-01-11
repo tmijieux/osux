@@ -95,6 +95,9 @@ void trs_compute(struct tr_score * score)
 
       if(OPT_SCORE_QUICK == 0 || score->acc > score->map->acc)
 	{
+	  if(OPT_SCORE_QUICK)      
+	    trm_pattern_free(score->map);
+
 	  trm_compute_stars(score->map);
 	  trs_print_and_db(score);
 	}

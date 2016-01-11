@@ -73,8 +73,7 @@ static void ht_cst_init_accuracy(void)
 __attribute__((destructor))
 static void ht_cst_exit_accuracy(void)
 {
-  if(yw)
-    yaml2_free(yw);
+  yaml2_free(yw);
   vect_free(SLOW_VECT);
   vect_free(SCALE_VECT);
 }

@@ -94,8 +94,7 @@ static void ht_cst_init_density(void)
 __attribute__((destructor))
 static void ht_cst_exit_density(void)
 {
-  if(yw)
-    yaml2_free(yw);
+  yaml2_free(yw);
   vect_free(DENSITY_VECT);
   vect_free(SCALE_VECT);
 }
