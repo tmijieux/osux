@@ -54,6 +54,7 @@ void parser_stack_push(struct stack *parser_stack,
 	    list_append(head->content.sequence, newhead);
 	}
     }
+    free(keyname);
     
     stack_push(parser_stack, newhead);
 }
@@ -99,12 +100,14 @@ int yaml2_parse_file(struct yaml_wrap **yamlw, const char *file_name)
 	case YAML_SEQUENCE_START_EVENT:
 	    parser_stack_push(parser_stack, YAML_SEQUENCE,
                               list_new(LI_FREE, yaml2_free), keyname);
+	    keyname = NULL;
 	    break;
 
 	case YAML_MAPPING_START_EVENT:
 	    key = 0;
 	    parser_stack_push(parser_stack, YAML_MAPPING,
 			      ht_create(100, NULL), keyname);
+	    keyname = NULL;
 	    break;
 		
 	case YAML_MAPPING_END_EVENT:
@@ -123,22 +126,21 @@ int yaml2_parse_file(struct yaml_wrap **yamlw, const char *file_name)
 			parser_stack_push(parser_stack, YAML_SCALAR,
 					  strdup((char*) event.data.scalar.value),
                                           keyname);
-                        free(keyname);
+			keyname = NULL;
 			stack_pop(parser_stack);
 			key = 0;
 		    }
-		} else {
+		} else { // head is list
 		    assert(head->type == YAML_SEQUENCE);
 		    parser_stack_push(parser_stack, YAML_SCALAR,
 				      strdup((char*) event.data.scalar.value),
                                       keyname);
 		    stack_pop(parser_stack);
 		}
-	    } else {
+	    } else { // the whole document is a sole scalar:
 		parser_stack_push(parser_stack, YAML_SCALAR,
 				  strdup((char*) event.data.scalar.value), NULL);
 	    }
-		
 	    break;
 	default:
 	    break;
