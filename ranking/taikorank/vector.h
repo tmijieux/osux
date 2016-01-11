@@ -18,6 +18,8 @@
 
 struct vector {
   int len;
+  int max_index;
+  int min_index;
   double ** t;
 };
 

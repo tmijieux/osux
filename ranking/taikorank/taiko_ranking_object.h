@@ -49,8 +49,8 @@ struct tr_object
   int end_offset_app;  // printed in reading+
   int offset_dis;      // printed in reading
   int end_offset_dis;  // printed in reading+
-  int visible_time;    // printed in reading 
-  int invisible_time;  // printed in reading
+  int visible_time;    // printed in reading, time visible on screen 
+  int invisible_time;  // printed in reading, time not visible on screen (HD -> after the object disappeared)
 
   // ---- pattern data
   double proba;

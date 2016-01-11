@@ -1,7 +1,7 @@
 ### Print 
 print_tro:  0
 print_yaml: 0
-print_filter: bp
+print_filter: br
 # b -> basic
 # B -> basic+
 # + -> additionnal
@@ -11,23 +11,27 @@ print_filter: bp
 # p -> pattern
 # a -> accuracy
 # * -> star
-print_order:  FDP
+print_order: FP
 # F -> final
 # D -> density
 # R -> reading
 # P -> pattern
 # A -> accuracy
 
-# Database
+### Mods
+mods: HD
+# no space between mods (ex: DTHR)
+
+### Database
 database:  0
 db_ip:     localhost
 db_login:  root
 db_passwd: NOPE
 
-# Score
+### Score
 score:        0
-score_quick:  0
-score_acc:    100
+score_quick:  1
+score_acc:    90
 score_method: 0
 # 0 -> hardest
 # 1 -> best influence

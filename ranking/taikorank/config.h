@@ -22,6 +22,8 @@ extern int OPT_PRINT_YAML;
 extern int OPT_PRINT_FILTER;
 extern char * OPT_PRINT_ORDER;
 
+extern int OPT_MODS;
+
 extern char * TR_DB_IP;
 extern char * TR_DB_LOGIN;
 extern char * TR_DB_PASSWD;

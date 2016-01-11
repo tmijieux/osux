@@ -53,6 +53,7 @@ TRM_SORT_HEADER(offset)
 TRM_STATS_HEADER(pattern_star)
 TRM_STATS_HEADER(density_star)
 TRM_STATS_HEADER(reading_star)
+TRM_STATS_HEADER(accuracy_star)
 TRM_STATS_HEADER(final_star)
 
 double stats_stars(struct stats * stats, struct stats * coeff);

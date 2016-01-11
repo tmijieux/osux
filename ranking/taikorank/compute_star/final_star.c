@@ -33,13 +33,14 @@
 
 #include "final_star.h"
 
+//-----------------------------------------------------
+
+#define FINAL_FILE  "final_cst.yaml"
+
 static struct yaml_wrap * yw;
 static struct hash_table * ht_cst;
 
 static struct vector * SCALE_VECT;
-
-#define FINAL_FILE  "final_cst.yaml"
-#define FINAL_STATS "final_stats"
 
 //-----------------------------------------------------
 

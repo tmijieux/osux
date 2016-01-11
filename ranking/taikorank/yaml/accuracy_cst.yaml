@@ -1,0 +1,17 @@
+# scale
+vect_scale_length: 2
+vect_scale_x1: 0.
+vect_scale_y1: 0.
+vect_scale_x2: 1000.
+vect_scale_y2: 5e+13.
+
+# slow
+# x is in bpm app
+vect_slow_length: 2
+vect_slow_x1: 0.
+vect_slow_y1: 1000.
+vect_slow_x2: 140.
+vect_slow_y2: 0.
+
+# coeff for star
+star_slow: 1.

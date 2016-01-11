@@ -21,7 +21,6 @@
 
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_score.h"
-#include "mods.h"
 #include "print.h"
 #include "config.h"
 #include "options.h"
@@ -50,15 +49,7 @@ int main(int argc, char* argv[])
 	  if (map == NULL)
 	    continue;
 	  
-	  tr_main(map, MODS_NONE);
-	  //tr_main(map, MODS_DT);
-	  //tr_main(map, MODS_HT);
-	  //tr_main(map, MODS_HD);
-	  //tr_main(map, MODS_FL);
-	  //tr_main(map, MODS_HR);
-	  //tr_main(map, MODS_HD);
-	  //tr_main(map, MODS_HD | MODS_FL);
-	  
+	  tr_main(map, OPT_MODS);
 	  trm_free(map);	    
 	}
     }

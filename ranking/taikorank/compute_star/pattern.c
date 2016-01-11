@@ -61,7 +61,6 @@ static void trm_compute_pattern_star(struct tr_map * map);
 //--------------------------------------------------
 
 #define PATTERN_FILE  "pattern_cst.yaml"
-#define PATTERN_STATS "pattern_stats"
 
 // coeff for singletap proba
 static struct vector * SINGLETAP_VECT;

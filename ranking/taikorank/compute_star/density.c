@@ -46,7 +46,6 @@ static void trm_compute_density_star(struct tr_map * map);
 //--------------------------------------------------
 
 #define DENSITY_FILE  "density_cst.yaml"
-#define DENSITY_STATS "density_stats"
 
 // coeff for density
 static struct vector * DENSITY_VECT;
