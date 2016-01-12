@@ -16,6 +16,8 @@ set(util_src
 	yaml2.h
 	stack.c
 	stack.h
+        re.c
+        re.h
 	)
 
 add_library(util SHARED ${util_src})

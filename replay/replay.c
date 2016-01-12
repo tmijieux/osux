@@ -23,11 +23,13 @@
 #include <beatmap/beatmap.h> // game modes
 #include <util/uleb128.h>
 #include <util/list.h>
-#include <util//split.h>
+#include <util/split.h>
 #include <mod/mods.h>
 
 #include "replay.h"
 #include "xz_decomp.h"
+
+#define read_string(buf_ptr_, file_) read_string_(buf_ptr_, file_)
 
 #define DATE_MAXSIZE 200
 
@@ -53,7 +55,7 @@ static unsigned int parse_replay_data(FILE *f, struct replay_data **repdata)
     return repdata_count;
 }
 
-static void read_string(char **buf, FILE *f)
+static void read_string_(char **buf, FILE *f)
 {
     uint8_t h;
     fread(&h, 1, 1, f);

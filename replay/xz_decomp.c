@@ -35,6 +35,26 @@
 #define RET_ERROR_OUTPUT	3
 #define RET_ERROR_DECOMPRESSION	4
 
+
+static void lzma_error(lzma_ret error_code)
+{
+    switch (error_code) {
+    case LZMA_OK:
+    case LZMA_STREAM_END:
+        break;
+    case LZMA_DATA_ERROR:
+    case LZMA_BUF_ERROR:
+        fprintf(stderr, "error: replay data may be corrupted\n");
+        break;
+    default:
+        fprintf(stderr,
+                "error: an unexpected error has occured during replay"
+                " data decompression:\nlzma code error %d\n\n", error_code);
+                break;
+    }
+
+}
+
 /* note: in_file and out_file must be open already */
 static int lzma_legacy_decompress(FILE *in_file, FILE *out_file)
 {
@@ -88,7 +108,7 @@ static int lzma_legacy_decompress(FILE *in_file, FILE *out_file)
 	    ret_xz = lzma_code (&strm, action);
 
 	    if ((ret_xz != LZMA_OK) && (ret_xz != LZMA_STREAM_END)) {
-		fprintf (stderr, "lzma_code error: %d\n", (int) ret_xz);
+                lzma_error(ret_xz);
 		out_finished = true;
 		ret = RET_ERROR_DECOMPRESSION;
 	    } else {

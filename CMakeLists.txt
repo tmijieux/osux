@@ -11,9 +11,14 @@ set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:$ORIGIN/lib/")
 include_directories(. util include)
 
 add_subdirectory(util)
-add_subdirectory(embed)
 add_subdirectory(mod)
 add_subdirectory(replay)
 add_subdirectory(beatmap)
 add_subdirectory(ranking)
 add_subdirectory(editor)
+
+add_library(osux
+  $<TARGET_OBJECTS:beatmap>
+  $<TARGET_OBJECTS:replay>
+  $<TARGET_OBJECTS:mod>
+  )

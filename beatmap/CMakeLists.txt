@@ -1,14 +1,14 @@
-add_library(beatmap SHARED
+
+add_subdirectory(parser)
+
+add_library(beatmap OBJECT
   beatmap.c
   color.c
   hitobject.c
   timingpoint.c
   storyboard.c
+  $<TARGET_OBJECTS:parser>
   )
-
-install(TARGETS beatmap DESTINATION lib)
-
-add_subdirectory(parser)
 
 # install(DIRECTORY osufiles DESTINATION .)
 

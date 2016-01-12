@@ -19,11 +19,10 @@ set(tr_src
   compute_star/pattern.c
   compute_star/accuracy.c
   compute_star/final_star.c
-  $<TARGET_OBJECTS:module>
   )
 
 add_executable(taiko_ranking ${tr_src})
-target_link_libraries(taiko_ranking parser m util mysqlclient)
+target_link_libraries(taiko_ranking osux m util mysqlclient)
 
 include_directories(. compute_star)
 

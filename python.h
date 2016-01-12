@@ -1,5 +1,3 @@
-#ifndef MODULE_H
-#define MODULE_H
 /*
  *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
  *
@@ -16,9 +14,14 @@
  *  limitations under the License.
  */
 
+#ifndef PYTHON_H
+#define PYTHON_H
 
-void module_inc_usecount(const char *module_name, const char *dependency);
-void module_dec_usecount(const char *module_name, const char *dependency);
+#include <python2.7/Python.h>
 
+PyObject *embed_python_funcall(const char *path,
+                               const char *module,
+                               const char *fun,
+                               int argc, const char *argv[]);
 
-#endif //MODULE_H
+#endif //PYTHON_H

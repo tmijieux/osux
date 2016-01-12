@@ -23,6 +23,11 @@
 
 unsigned int string_split(const char *str, const char *delim, char ***buf_addr)
 {
+    if (NULL == str) {
+        *buf_addr = NULL;
+        return 0;
+    }
+
     char *strw = strdup(str);
     struct list *li = list_new(0);
     char *saveptr;

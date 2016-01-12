@@ -30,23 +30,6 @@
 
 #include "pyfetch.h"
 
-__attribute__((constructor))
-static void pyparser_init(void)
-{
-    module_inc_usecount("py_parser", "parser");
-    module_inc_usecount("py_parser", "embed_python");
-    
-}
-
-__attribute__((destructor))
-static void pyparser_exit(void)
-{
-
-    module_dec_usecount("py_parser", "embed_python");
-    module_dec_usecount("py_parser", "parser");
-}
-
-
 #define READ_VALUE(map, fieldName, pyObj, pyMethod, convMethod)		\
     ({									\
 	PyObject *pyTmp;						\
@@ -173,7 +156,6 @@ static void map_fetch_Colours(PyObject *d, struct map *m)
 	col_py_fetch(&m->Colours[i], p);
     }
 }
-
 
 /******************************************************************************/
 
