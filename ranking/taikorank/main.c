@@ -27,6 +27,7 @@
 
 int main(int argc, char* argv[])
 {
+  //set_app_dir(argv[0]);
   int k = 1;
   while(argc > k+1 && argv[k][0] == OPTIONS_PREFIX)
     {
