@@ -15,8 +15,6 @@
  */
 
 #include <math.h>
-#include "interpolation.h"
-
 #include <stdio.h>
 
 #include "util/sum.h"
@@ -28,6 +26,7 @@
 #include "taiko_ranking_object.h"
 #include "stats.h"
 #include "cst_yaml.h"
+#include "vector.h"
 #include "print.h"
 
 #include "density.h"
@@ -35,25 +34,21 @@
 static struct yaml_wrap * yw;
 static struct hash_table * ht_cst;
 
-static double tro_coeff_density (struct tr_object * obj);
-static double tro_density (struct tr_object * obj1,
-			   struct tr_object * obj2);
+static double tro_coeff_density(struct tr_object * obj);
+static double tro_density(struct tr_object * obj1,
+			  struct tr_object * obj2);
 
-static void trm_compute_density_raw (struct tr_map * map);
-static void trm_compute_density_color (struct tr_map * map);
+static void trm_compute_density_raw(struct tr_map * map);
+static void trm_compute_density_color(struct tr_map * map);
 
-static void trm_compute_density_star (struct tr_map * map);
+static void trm_compute_density_star(struct tr_map * map);
 
 //--------------------------------------------------
 
 #define DENSITY_FILE  "density_cst.yaml"
-#define DENSITY_STATS "density_stats"
 
 // coeff for density
-static double DENSITY_X1;
-static double DENSITY_Y1;
-static double DENSITY_X2;
-static double DENSITY_Y2;
+static struct vector * DENSITY_VECT;
 
 // coefficient for object type, 1 is the maximum
 static double DENSITY_NORMAL;
@@ -63,22 +58,17 @@ static double DENSITY_BONUS;
 // coefficient for length weighting in density
 static double DENSITY_LENGTH;
 
-// stats
-static struct stats * STATS_COEFF;
-
 // coeff for star
 static double DENSITY_STAR_COEFF_COLOR;
 static double DENSITY_STAR_COEFF_RAW;
-static double DENSITY_STAR_SCALE;
+static struct vector * SCALE_VECT;
 
 //-----------------------------------------------------
 
 static void global_init(void)
 {
-  DENSITY_X1 = cst_f(ht_cst, "density_x1");
-  DENSITY_Y1 = cst_f(ht_cst, "density_y1");
-  DENSITY_X2 = cst_f(ht_cst, "density_x2");
-  DENSITY_Y2 = cst_f(ht_cst, "density_y2");
+  DENSITY_VECT = cst_vect(ht_cst, "vect_density");
+  SCALE_VECT   = cst_vect(ht_cst, "vect_scale");
 
   DENSITY_NORMAL = cst_f(ht_cst, "density_normal");
   DENSITY_BIG    = cst_f(ht_cst, "density_big");
@@ -86,11 +76,8 @@ static void global_init(void)
 
   DENSITY_LENGTH = cst_f(ht_cst, "density_length");
   
-  STATS_COEFF = cst_stats(ht_cst, DENSITY_STATS);
-
   DENSITY_STAR_COEFF_COLOR = cst_f(ht_cst, "star_color");
   DENSITY_STAR_COEFF_RAW   = cst_f(ht_cst, "star_raw");
-  DENSITY_STAR_SCALE       = cst_f(ht_cst, "star_scale");
 }
 
 //-----------------------------------------------------
@@ -107,16 +94,16 @@ static void ht_cst_init_density(void)
 __attribute__((destructor))
 static void ht_cst_exit_density(void)
 {
-  if(yw)
-    yaml2_free(yw);
-  free(STATS_COEFF);  
+  yaml2_free(yw);
+  vect_free(DENSITY_VECT);
+  vect_free(SCALE_VECT);
 }
 
 //-----------------------------------------------------
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static double tro_coeff_density (struct tr_object * obj)
+static double tro_coeff_density(struct tr_object * obj)
 {
   switch(obj->type)
     {
@@ -138,14 +125,13 @@ static double tro_coeff_density (struct tr_object * obj)
 
 //-----------------------------------------------------
 
-static double tro_density (struct tr_object * obj1, struct tr_object * obj2)
+static double tro_density(struct tr_object * obj1, struct tr_object * obj2)
 {
   int rest = obj2->offset - obj1->end_offset;
   int length = obj1->end_offset - obj1->offset;
   double coeff = tro_coeff_density(obj1);
-  double value = EXP_2_PT(rest + DENSITY_LENGTH * length,
-			  DENSITY_X1, DENSITY_Y1,
-			  DENSITY_X2, DENSITY_X2);
+  double value = vect_exp(DENSITY_VECT,
+			  rest + DENSITY_LENGTH * length);
   return coeff * value;
 }
 
@@ -153,10 +139,10 @@ static double tro_density (struct tr_object * obj1, struct tr_object * obj2)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static void trm_compute_density_raw (struct tr_map * map)
+static void trm_compute_density_raw(struct tr_map * map)
 {
   map->object[0].density_raw = 0;
-  for (int i = 1; i < map->nb_object; i++)
+  for(int i = 1; i < map->nb_object; i++)
     {
       if(map->object[i].ps == MISS)
 	{
@@ -165,7 +151,7 @@ static void trm_compute_density_raw (struct tr_map * map)
 	}
 
       struct sum * sum = sum_new(i, DEFAULT);
-      for (int j = 0; j < i; j++)
+      for(int j = 0; j < i; j++)
 	{
 	  if(map->object[j].ps == MISS)
 	    continue;
@@ -179,10 +165,10 @@ static void trm_compute_density_raw (struct tr_map * map)
 
 //-----------------------------------------------------
 
-static void trm_compute_density_color (struct tr_map * map)
+static void trm_compute_density_color(struct tr_map * map)
 {
   map->object[0].density_color = 0;
-  for (int i = 1; i < map->nb_object; i++)
+  for(int i = 1; i < map->nb_object; i++)
     {
       if(map->object[i].ps == MISS)
 	{
@@ -191,11 +177,11 @@ static void trm_compute_density_color (struct tr_map * map)
 	}
 
       struct sum * sum = sum_new(i, DEFAULT);
-      for (int j = 0; j < i; j++)
+      for(int j = 0; j < i; j++)
 	{
 	  if(map->object[j].ps == MISS)
 	    continue;
-	  if (tro_are_same_density(&map->object[i], &map->object[j]))
+	  if(tro_are_same_density(&map->object[i], &map->object[j]))
 	    sum_add(sum, tro_density(&map->object[j], &map->object[i]));
 	}
       double density_color = sum_compute(sum);
@@ -208,27 +194,23 @@ static void trm_compute_density_color (struct tr_map * map)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static void trm_compute_density_star (struct tr_map * map)
+static void trm_compute_density_star(struct tr_map * map)
 {
-  for (int i = 0; i < map->nb_object; i++)
+  for(int i = 0; i < map->nb_object; i++)
     {
-      map->object[i].density_star =
-	(DENSITY_STAR_COEFF_COLOR * map->object[i].density_color +
-	 DENSITY_STAR_COEFF_RAW   * map->object[i].density_raw);
+      map->object[i].density_star = vect_poly2
+	(SCALE_VECT,
+	 (DENSITY_STAR_COEFF_COLOR * map->object[i].density_color +
+	  DENSITY_STAR_COEFF_RAW   * map->object[i].density_raw));
     }
-  /*
-  struct stats * stats = trm_stats_density_star(map);
-  map->density_star = stats_stars(stats, STATS_COEFF);
-  */
-  map->density_star = (trm_weight_sum_density_star(map, NULL)
-		       / DENSITY_STAR_SCALE);
+  map->density_star = trm_weight_sum_density_star(map, NULL);
 }
 
 //-----------------------------------------------------
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-void trm_compute_density (struct tr_map * map)
+void trm_compute_density(struct tr_map * map)
 {
   if(!ht_cst)
     {

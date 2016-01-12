@@ -25,9 +25,9 @@
 #include "beatmap/timingpoint.h"
 #include "beatmap/hitsound.h"
 
+#include "taiko_ranking_object.h"
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_score.h"
-#include "taiko_ranking_object.h"
 #include "print.h"
 #include "tr_db.h"
 #include "mods.h"
@@ -57,6 +57,8 @@ static double convert_get_bpm_app(struct timing_point * tp,
 static int convert_get_end_offset(struct hit_object * ho, int type,
 				  double bpm_app);
 static struct tr_map * trm_convert(char* file_name);
+static void trm_add_to_ps(struct tr_map * map, 
+			  enum played_state ps, int i);
 
 //--------------------------------------------------
 
@@ -70,7 +72,7 @@ void trm_main(const struct tr_map * map, int mods)
   
   // printing
   if(OPT_PRINT_TRO)
-    trm_print_tro(map_copy, FILTER_APPLY);
+    trm_print_tro(map_copy, OPT_PRINT_FILTER);
   if(OPT_PRINT_YAML)
     trm_print_yaml(map_copy);
   else
@@ -249,8 +251,20 @@ struct tr_map * trm_convert(char* file_name)
   
   if(map->Mode != MODE_TAIKO)
     {
-      tr_error("Autoconverts are said to be bad. But I don't think "
-	       "so. Please implement the corresponding functions.");
+      switch(map->Mode)
+	{
+	case MODE_STD:
+	  tr_error("Autoconverts are said to be bad. But I don't "
+		   "think so. Please implement the corresponding "
+		   "functions.");
+	  break;
+	case MODE_CTB:
+	  tr_error("Catch the beat?!");
+	  break;
+	case MODE_MANIA:
+	  tr_error("Taiko is not 2k.");
+	  break;
+	}
       map_free(map);
       return NULL;
     }
@@ -347,14 +361,16 @@ void trm_print_tro(struct tr_map * map, int filter)
   if((filter & FILTER_DENSITY) != 0)
     fprintf(OUTPUT_INFO, "dnst rw\tdnst cl\tdnst*\t");
   if((filter & FILTER_READING) != 0)
-    fprintf(OUTPUT_INFO, "app\tdis\tvisi\tinvisi\tsperpos\thidden\thide\tslow\tfast\tspd chg\tread*\t");
+    fprintf(OUTPUT_INFO, "app\tdis\tvisi\tinvisi\thidden\thide\tfast\tspd chg\tread*\t");
   if((filter & FILTER_READING_PLUS) != 0)
-    fprintf(OUTPUT_INFO, "app\tend app\tdis\tend dis\tsperpos\thidden\thide\tspeed\tspd chg\tread*\t");
-  if((filter & FILTER_PATTERN) != 0)
-    fprintf(OUTPUT_INFO, "proba\talt1\talt2\tpttrn*\t");
+    fprintf(OUTPUT_INFO, "app\tend app\tdis\tend dis\tvisi\tinvisi\thidden\thide\tspeed\tspd chg\tread*\t");
   if((filter & FILTER_ACCURACY) != 0)
-    fprintf(OUTPUT_INFO, "%g\t%g\t", map->great_ms, map->bad_ms);
-  
+    fprintf(OUTPUT_INFO, "slow\t");
+  if((filter & FILTER_PATTERN) != 0)
+    fprintf(OUTPUT_INFO, "proba\tpttrn*\talt...\t");
+  if((filter & FILTER_STAR) != 0)
+    fprintf(OUTPUT_INFO, "dst*\tread*\tptrn*\tacc*\tfin*\t");
+
   fprintf(OUTPUT_INFO, "\n");
   
   for(int i = 0; i < map->nb_object; ++i)
@@ -463,7 +479,8 @@ int trm_hardest_tro(struct tr_map * map)
 {
   int best = 0;
   for(int i = 0; i < map->nb_object; i++)
-    if(map->object[i].final_star > map->object[best].final_star)
+    if(map->object[i].final_star >= map->object[best].final_star &&
+       map->object[i].ps == GREAT)
       best = i;
   return best;
 }
@@ -476,8 +493,10 @@ int trm_best_influence_tro(struct tr_map * map)
   double star = map->final_star;
   for(int i = 0; i < map->nb_object; i++)
     {
+      if(map->object[i].ps != GREAT)
+	continue;
       struct tr_map * map_copy = trm_copy(map);
-      trm_set_bad_tro(map_copy, i);
+      trm_set_tro_ps(map_copy, i, MISS);
       trm_compute_stars(map_copy);
       if(star > map_copy->final_star)
 	{
@@ -491,16 +510,31 @@ int trm_best_influence_tro(struct tr_map * map)
 
 //--------------------------------------------------
 
-void trm_set_bad_tro(struct tr_map * map, int x)
+static void trm_add_to_ps(struct tr_map * map, 
+			  enum played_state ps, int i)
 {
-  map->object[x].ps = GOOD;
-  map->good++;
-  map->great--;
+  switch(ps)
+    {
+    case GREAT:
+      map->great += i;
+      break;
+    case GOOD:
+      map->good += i;
+      break;
+    case MISS:
+      map->miss += i;
+      break;
+    case BONUS:
+      tr_error("Cannot change bonus!");
+      break;
+    }
 }
 
-void trm_set_miss_tro(struct tr_map * map, int x)
+void trm_set_tro_ps(struct tr_map * map, int x, enum played_state ps)
 {
-  map->object[x].ps = MISS;
-  map->miss++;
-  map->great--;
+  if(map->object[x].ps == ps)
+    tr_error("Object is already with the played state wanted.");
+  trm_add_to_ps(map, map->object[x].ps, -1);
+  trm_add_to_ps(map, ps, 1);
+  map->object[x].ps = ps;
 }

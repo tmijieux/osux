@@ -1,22 +1,44 @@
-# 
-print_tro:   0
-print_yaml:  0
-print_order: FDRPA
+### Print 
+print_tro:  0
+print_yaml: 0
+print_filter: br
+# b -> basic
+# B -> basic+
+# + -> additionnal
+# d -> density
+# r -> reading
+# R -> reading+
+# p -> pattern
+# a -> accuracy
+# * -> star
+print_order: FP
 # F -> final
 # D -> density
 # R -> reading
 # P -> pattern
 # A -> accuracy
 
-# Database
-database:    0
+### Mods
+mods: HD
+# no space between mods (ex: DTHR)
+
+### Database
+database:  0
 db_ip:     localhost
 db_login:  root
-db_passwd: nope
+db_passwd: NOPE
 
-# Score
-score: 0
-score_acc: 0.95
+### Score
+score:        0
+score_quick:  1
+score_acc:    90
 score_method: 0
 # 0 -> hardest
 # 1 -> best influence
+
+# quick is way less accurate
+#    I'm your daddy [Kantan]
+#    quick  + hardest 90% ~= normal + hardest 95%
+# hardest is less accurate but ok 
+#    I'm your daddy [Kantan]
+#    normal + hardest 90% ~= normal + best influence 91%

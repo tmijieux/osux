@@ -1,36 +1,29 @@
-# stats coeff
-reading_stats:
-  median:  0.7
-  mean:    0.
-  d1:      0.
-  d9:      0.
-  q1:      0.3
-  q3:      0.
-  scaling: 100.0
+# scale
+vect_scale_length: 2
+vect_scale_x1: 0.
+vect_scale_y1: 0.
+vect_scale_x2: 10e+4.
+vect_scale_y2: 10.
 
 # object superposition
 superpos_big:   1.41 #sqrt(2)
 superpos_small: 1.
 
-# hiding
-hide_max: 10000.
-hide_exp: 500.
-
-# slow
-time_min:    100.   # human reaction time ~2500bpm app
-time_center: 3200.  # 3200ms ~ 80bpm app
-time_max:    60000. # max slow considered
-
-slow_min: 0.
-slow_max: 1000.
+# hide
+# x is in ms
+vect_hide_length: 2
+vect_hide_x1: 0.
+vect_hide_y1: 0.
+vect_hide_x2: 50000.
+vect_hide_y2: 1000.
 
 # fast
-bpm_min:    0.
-bpm_center: 80.
-bpm_max:    2500.
-
-fast_min: 1.
-fast_max: 1000.
+# x is in ms
+vect_fast_length: 2
+vect_fast_x1: 0.
+vect_fast_y1: 1000.
+vect_fast_x2: 5000.
+vect_fast_y2: 0.
 
 # speed change
 speed_ch_max:     1000000
@@ -42,6 +35,4 @@ star_superpos: 0
 star_hide:     0   
 star_hidden:   0   
 star_speed_ch: 0   
-star_slow:     1.
 star_fast:     1.
-

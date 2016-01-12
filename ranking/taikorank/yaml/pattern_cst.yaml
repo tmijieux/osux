@@ -1,18 +1,17 @@
-# stats coeff
-pattern_stats:
-  median:  0.2
-  mean:    0.5
-  d1:      0.
-  d9:      0.3
-  q1:      0.
-  q3:      0.
-  scaling: 10.0
+# scale
+vect_scale_length: 2
+vect_scale_x1: 0.
+vect_scale_y1: 0.
+vect_scale_x2: 10e+3.
+vect_scale_y2: 10.
 
 # coeff for singletap proba
-singletap_min: 0.
-singletap_max: 1.
-time_min: 20.
-time_max: 500.
+# x is in ms
+vect_singletap_length: 2
+vect_singletap_x1: 20.
+vect_singletap_y1: 0.
+vect_singletap_x2: 500.
+vect_singletap_y2: 1.
 # 160ms ~ 180bpm 1/2
 # 125ms = 240bpm 1/2
 
@@ -23,12 +22,12 @@ proba_end:   100
 proba_step:  10
 
 # stars coeff
-star_alt: 1.0
+star_alt:   1.0
 
 # patterns
 max_pattern_length:  4
 length_pattern_used: 2
-patterns:
+patterns :
   # 1 pattern
   - [d, 0.2, 0.0]
   - [k, 0.2, 0.0]  

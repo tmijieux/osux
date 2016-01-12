@@ -31,10 +31,6 @@
 #define FILTER_ACCURACY     (1 << 7)
 #define FILTER_STAR         (1 << 8)
 
-#define FILTER_APPLY       (FILTER_BASIC | FILTER_DENSITY)
-//#define FILTER_APPLY       (FILTER_BASIC | FILTER_READING)
-//#define FILTER_APPLY       (FILTER_BASIC_PLUS | FILTER_PATTERN)
-
 #define STR_MODS_LENGTH 3
 #define MAX_MODS        4
 

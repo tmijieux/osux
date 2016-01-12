@@ -32,7 +32,7 @@ static void trs_print_and_db(struct tr_score * score);
 
 void trs_main(const struct tr_map * map, int mods)
 {
-  struct tr_score * score = trs_new(map, mods, SCORE_ACC);
+  struct tr_score * score = trs_new(map, mods, OPT_SCORE_ACC);
   trs_compute(score);
   trs_free(score);
 }
@@ -66,7 +66,7 @@ void trs_free(struct tr_score * score)
 static void trs_print_and_db(struct tr_score * score)
 {
   if(OPT_PRINT_TRO)
-    trm_print_tro(score->map, FILTER_APPLY);
+    trm_print_tro(score->map, OPT_PRINT_FILTER);
   if(OPT_PRINT_YAML)
     trm_print_yaml(score->map);
   else
@@ -85,14 +85,22 @@ void trs_compute(struct tr_score * score)
 
   while(score->acc < score->map->acc)
     {
-      trm_pattern_free(score->map);
-      int i = TRM_METHOD_GET_TRO(score->map); 
-      // TODO: for bonus...
-      trm_set_miss_tro(score->map, i);
-      trs_acc(score);
-      trm_compute_stars(score->map);
+      if(OPT_SCORE_QUICK == 0)      
+	trm_pattern_free(score->map);
 
-      trs_print_and_db(score);
+      int i = TRM_METHOD_GET_TRO(score->map); 
+      trm_set_tro_ps(score->map, i, MISS);
+      score->map->object[i].final_star = 0;
+      trs_acc(score);
+
+      if(OPT_SCORE_QUICK == 0 || score->acc > score->map->acc)
+	{
+	  if(OPT_SCORE_QUICK)      
+	    trm_pattern_free(score->map);
+
+	  trm_compute_stars(score->map);
+	  trs_print_and_db(score);
+	}
     }
 }
 

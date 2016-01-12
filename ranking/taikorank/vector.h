@@ -1,5 +1,5 @@
 /*
- *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
+ *  Copyright (©) 2015-2016 Lucas Maugère, Thomas Mijieux
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,27 +13,23 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef VECTOR_H
+#define VECTOR_H
 
-extern int OPT_DATABASE;
-extern int OPT_PRINT_TRO;
-extern int OPT_PRINT_YAML;
-extern int OPT_PRINT_FILTER;
-extern char * OPT_PRINT_ORDER;
+struct vector {
+  int len;
+  int max_index;
+  int min_index;
+  double ** t;
+};
 
-extern int OPT_MODS;
+struct vector * vect_new(int length, int dim);
+void vect_free(struct vector * v);
 
-extern char * TR_DB_IP;
-extern char * TR_DB_LOGIN;
-extern char * TR_DB_PASSWD;
+struct vector * cst_vect(struct hash_table * ht, const char * key);
 
-extern int OPT_SCORE;
-extern int OPT_SCORE_QUICK;
-extern double OPT_SCORE_ACC;
-extern int (* TRM_METHOD_GET_TRO)(struct tr_map *);
+// 2pt
+double vect_exp(struct vector * v, double x);
+double vect_poly2(struct vector * v, double x);
 
-void config_set_mods(const char * mods);
-void ht_conf_db_init(void);
-
-#endif //CONFIG_H
+#endif //VECTOR_H

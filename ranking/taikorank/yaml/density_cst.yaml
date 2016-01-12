@@ -1,18 +1,16 @@
-# stats coeff
-density_stats:
-  median:  0.3
-  mean:    0.
-  d1:      0.7
-  d9:      0.
-  q1:      0.
-  q3:      0.
-  scaling: 20000.
+# scale
+vect_scale_length: 2
+vect_scale_x1: 0.
+vect_scale_y1: 0.
+vect_scale_x2: 15e+5
+vect_scale_y2: 10.
 
 # coeff for density
-density_x1: 0.
-density_y1: 10000.
-density_x2: 5000.
-density_y2: 0.00001
+vect_density_length: 2
+vect_density_x1: 0.
+vect_density_y1: 10000.
+vect_density_x2: 5000.
+vect_density_y2: 0.00001
 
 # coefficient for object type, 1 is the maximum
 density_normal: 1.
@@ -22,7 +20,6 @@ density_bonus:  0.33
 # coefficient for length weighting in density
 density_length: 0.2
 
-# coeff for star
+# star coeff
 star_color: 0.8
 star_raw:   0.2
-

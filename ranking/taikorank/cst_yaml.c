@@ -13,6 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 #include <stdio.h>
 
 #include "util/hash_table.h"
@@ -66,9 +67,9 @@ char * cst_str(struct hash_table * ht, const char * key)
   ht_get_entry(ht, key, &yw);
   if(yw == NULL)
     tr_error("Constant '%s' not found.", key);
-  else if(yw->type != YAML_SCALAR)
+  else if(yw->type != YAML_SCALAR) 
     tr_error("Constant '%s' is not a scalar.", key);
-  else
+  else 
     return yw->content.scalar;
   return "-1"; 
 }

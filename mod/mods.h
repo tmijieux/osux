@@ -97,14 +97,14 @@ enum mods_id {
     IMOD_CINEMA		= 22,
 
     IMOD_TARGETPRACTICE	= 23,
-    
+
     IMOD_9K		= 24,
     IMOD_COOP		= 25,
 
     IMOD_1K		= 26,
     IMOD_3K		= 27,
-    IMOD_2K		= 28
-
+    IMOD_2K		= 28,
+    IMOD_MAX,
 };
 
 #endif //MODS_H

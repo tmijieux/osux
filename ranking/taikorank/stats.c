@@ -26,6 +26,11 @@
 #include "stats.h"
 #include "util/sum.h"
 
+#define DEF_WEIGHT_X1 1.
+#define DEF_WEIGHT_Y1 1.
+#define DEF_WEIGHT_X2 1000.
+#define DEF_WEIGHT_Y2 0.0001
+
 //-----------------------------------------------------
 
 #define TRO_COMPARE(FIELD)					\
@@ -86,12 +91,11 @@
     return stats;						\
   }
 
-#define WEIGHT_MAX_OBJ 10000.
 double default_weight(int i, double val)
 {
-  if(i > WEIGHT_MAX_OBJ)
-    return 0;
-  return POLY_2_PT(i, 1., 1., WEIGHT_MAX_OBJ, 0.) * val;
+  return EXP_2_PT(i, 
+		  DEF_WEIGHT_X1, DEF_WEIGHT_Y1, 
+		  DEF_WEIGHT_X2, DEF_WEIGHT_Y2) * val;
 }
 
 #define TRM_WEIGHT_SUM(FIELD)					\
@@ -105,7 +109,7 @@ double default_weight(int i, double val)
     for(int i = 0; i < map->nb_object; i++)			\
       sum += weight(map->nb_object - i, map->object[i].FIELD);	\
     trm_sort_offset(map);					\
-    return sum / map->nb_object;				\
+    return sum;							\
   }
 
 // ---- Macro macro

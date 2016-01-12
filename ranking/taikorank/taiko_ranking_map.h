@@ -21,6 +21,7 @@
 #define COEFF_MAX_ACC 100.
 
 struct tr_object;
+enum played_state;
 
 struct tr_map
 {
@@ -74,8 +75,7 @@ void trm_free(struct tr_map * map);
 int trm_hardest_tro(struct tr_map * map);
 int trm_best_influence_tro(struct tr_map * map);
 
-void trm_set_bad_tro(struct tr_map * map, int x);
-void trm_set_miss_tro(struct tr_map * map, int x);
+void trm_set_tro_ps(struct tr_map * map, int x, enum played_state ps);
 
 void trm_set_mods(struct tr_map * map, int mods);
 void trm_compute_stars(struct tr_map * map);

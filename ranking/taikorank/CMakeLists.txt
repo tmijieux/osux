@@ -13,6 +13,7 @@ set(tr_src
   config.c
   options.c
   cst_yaml.c
+  vector.c
   compute_star/density.c
   compute_star/reading.c
   compute_star/pattern.c
