@@ -14,6 +14,9 @@
  *  limitations under the License.
  */
 
+
+#define _GNU_SOURCE
+#include <dlfcn.h>
 #include <string.h>
 #include <stdint.h>
 
@@ -24,9 +27,8 @@
 #include "beatmap/hitobject.h"
 #include "beatmap/color.h"
 
-#include "embed/python.h"
+#include "python.h"
 #include "python2.7/Python.h"
-#include "embed/module.h"
 
 #include "pyfetch.h"
 
@@ -356,8 +358,10 @@ static struct map *fetch_beatmap(const char *filename)
 
 /******************************************************************************/
 
-__export
-struct map *osux_py_parse_beatmap(const char *filename)
+__attribute__((constructor))
+static void plugin_register(void)
 {
-    return fetch_beatmap(filename);
+    struct map* (**parse_beatmap)(const char *)
+        = dlsym(RTLD_DEFAULT, "osux_parse_beatmap");
+    *parse_beatmap = &fetch_beatmap;
 }

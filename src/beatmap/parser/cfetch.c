@@ -14,6 +14,8 @@
  *  limitations under the License.
  */
 
+#define _GNU_SOURCE
+#include <dlfcn.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -423,13 +425,12 @@ static struct map *fetch_beatmap(const char *filename)
     return m;
 }
 
-
-
 /******************************************************************************/
 
-
-__export
-struct map *osux_c_parse_beatmap(const char *filename)
+__attribute__((constructor))
+static void plugin_register(void)
 {
-    return fetch_beatmap(filename);
+    struct map* (**parse_beatmap)(const char *)
+        = dlsym(RTLD_DEFAULT, "osux_parse_beatmap");
+    *parse_beatmap = &fetch_beatmap;
 }

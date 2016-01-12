@@ -14,14 +14,7 @@
  *  limitations under the License.
  */
 
-#ifndef PARSER_H
-#define PARSER_H
 
-#include "util/hash_table.h"
+#include "beatmap/beatmap.h"
 
-struct map *osu_map_parser(const char*); // compatibility
-
-
-
-
-#endif //PARSER_H
+struct map* (*osu_parse_beatmap)(const char*)= NULL;

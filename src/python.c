@@ -35,7 +35,7 @@ embed_python_funcall(const char *path,
 		     int argc, const char *argv[])
 {			   
     PyObject *pName, *pModule, *pFunc;
-    PyObject *pArgs, *pValue;
+    PyObject *pArgs, *pValue = NULL;
     PyObject *sysPath = PySys_GetObject((char*)"path");
     PyObject *pPath = PyString_FromString(path);
 

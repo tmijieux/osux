@@ -14,21 +14,11 @@
  *  limitations under the License.
  */
 
-#include "pyparser/pyfetch.h"
+#ifndef PARSER_H
+#define PARSER_H
 
-static struct map* (*parser)(const char*) =
-    &osux_py_parse_beatmap;
+#include "beatmap/beatmap.h"
 
-struct map *osux_parse_beatmap(const char *filename)
-{
-    return parser(filename);
+extern struct map* (*osu_parse_beatmap)(const char*);
 
-    // TODO
-    // get function pointer of any loaded module that provides this function
-    // (either c or python)
-}
-
-struct map *osu_map_parser(const char *filename) // COMPATIBILITY
-{
-    return osux_parse_beatmap(filename);
-}
+#endif //PARSER_H
