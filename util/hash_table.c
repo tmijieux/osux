@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "hash_table.h"
 #include "list.h"
@@ -63,16 +64,19 @@ static int default_hash(const char *x)
  // adapted from :
  // http://cs.mwsu.edu/~griffin/courses/2133/downloads/Spring11/p677-pearson.pdf
     
-    unsigned char hh[4];
+    union {
+        unsigned char hh[4];
+        uint32_t i;
+    } v;
     for (int j = 0; j < 4; j++) {
 	unsigned char h = T[(x[0] + j) % 256];
 	for (int i = 0; x[i]; i++) {
 	    h = T[h ^ x[i]];
 	}
-	hh[j] = h;
+        v.hh[j] = h;
     }
     
-    return *(int*)hh;
+    return (int) v.i;
 }
 
 static struct ht_entry* new_entry(const char *key, void *data)
