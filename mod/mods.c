@@ -51,7 +51,9 @@ struct mod_designation md[] = {
     [ IMOD_9K ]           = { "Key9",        "9K" },
     [ IMOD_FADEIN ]       = { "FadeIn",      "FI" },
     [ IMOD_RANDOM ]       = { "Random",      "RD" },
-    [ IMOD_CINEMA ]       = { "Cinema",      ""   },
+    [ IMOD_CINEMA ]       = { "Cinema",      "CN" },
+    [ IMOD_COOP ]         = { "Coop",        "CP" },
+    [ IMOD_TARGETPRACTICE ] = { "TargetPractice", "TP" },
 };
 
 void mod_print(FILE *f, uint32_t mod_bitfield)
@@ -64,7 +66,7 @@ void mod_print(FILE *f, uint32_t mod_bitfield)
 	return;
     }
     
-    for (int i = 0; i < 32; ++i)
+    for (int i = 0; i < IMOD_MAX; ++i)
     {
 	if ( ((mod_bitfield >> i) % 2) != 0)
 	{
