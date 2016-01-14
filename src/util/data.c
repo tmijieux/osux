@@ -4,14 +4,25 @@
 
 #include "data.h"
 
-FILE *osux_open_resource(const char *path, const char *mode)
+
+static FILE *
+osux_open_prefixed(const char *prefix, const char *path, const char *mode)
 {
-    char *full_path = osux_prefix_path(PKG_DATA_DIR, path);
+    char *full_path = osux_prefix_path(prefix, path);
     FILE *f = fopen(full_path, mode);
-    fprintf(stderr," DEBUG %s\n" , full_path);
     free(full_path);
 
     return f;
+}
+
+FILE *osux_open_resource(const char *path, const char *mode)
+{
+    return osux_open_prefixed(PKG_DATA_DIR, path, mode);
+}
+
+FILE *osux_open_config(const char *path, const char *mode)
+{
+    return osux_open_prefixed(PKG_CONFIG_DIR, path, mode);
 }
 
 char *osux_prefix_path(const char *prefix, const char *path)

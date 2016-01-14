@@ -1,5 +1,10 @@
-AM_CFLAGS = -fPIC -Wall -Wextra -I$(top_srcdir)/src -I$(top_srcdir)/src/util -I$(top_srcdir)/src/include
-#AM_LDFLAGS=-Wl,-rpath,LIBDIR
+pkgconfdir=$(sysconfdir)/$(PACKAGE)
+yamldir = $(pkgconfdir)/yaml
+pythondir = $(pkgdatadir)/python
 
-yamldir = $(pkgdatadir)/yaml
+AM_CFLAGS = -fPIC -Wall -Wextra -I$(top_srcdir)/src -I$(top_srcdir)/src/util \
+	    -I$(top_srcdir)/src/include -DPKG_DATA_DIR=\"$(pkgdatadir)\" \
+	    -DPKG_CONFIG_DIR=\"$(pkgconfdir)\"
+
+#AM_LDFLAGS=-Wl,-rpath,LIBDIR
 

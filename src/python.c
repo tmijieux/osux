@@ -20,6 +20,12 @@ __attribute__((constructor))
 static void embed_python_init(void)
 {
     Py_Initialize();    
+
+    PyObject *sysPath = PySys_GetObject((char*)"path");
+    PyObject *pPath = PyString_FromString(PYTHON_PATH);
+
+    PyList_Append(sysPath, pPath);
+    Py_DECREF(pPath);
 }
 
 __attribute__((destructor))
@@ -36,12 +42,7 @@ embed_python_funcall(const char *path,
 {			   
     PyObject *pName, *pModule, *pFunc;
     PyObject *pArgs, *pValue = NULL;
-    PyObject *sysPath = PySys_GetObject((char*)"path");
-    PyObject *pPath = PyString_FromString(path);
 
-    PyList_Append(sysPath, pPath);
-    Py_DECREF(pPath);
-    
     pName = PyString_FromString(module);
     pModule = PyImport_Import(pName);
     Py_DECREF(pName);

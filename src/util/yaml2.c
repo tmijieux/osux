@@ -72,7 +72,7 @@ int yaml2_parse_file(struct yaml_wrap **yamlw, const char *file_name)
     assert( NULL != yamlw );
 
     char *yaml_path = osux_prefix_path("/yaml/", file_name);
-    fh = osux_open_resource(yaml_path, "r");
+    fh = osux_open_config(yaml_path, "r");
     free(yaml_path);
     
     if (!yaml_parser_initialize(&parser)) {

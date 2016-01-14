@@ -9,7 +9,7 @@ libosux_la_LIBADD = \
 	util/libosux_util.la
 	mod/libmod.la
 
-libosux_la_CFLAGS = $(PYTHON2_CFLAGS) $(AM_CFLAGS)
+libosux_la_CFLAGS = $(PYTHON2_CFLAGS) $(AM_CFLAGS) -DPYTHON_PATH=\"$(pythondir)\"
 libosux_la_LDFLAGS = $(PYTHON2_LIBS) $(AM_LDFLAGS)
 
 #editor/libeditor.la
