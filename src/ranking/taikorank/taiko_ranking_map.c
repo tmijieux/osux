@@ -30,7 +30,7 @@
 #include "taiko_ranking_score.h"
 #include "print.h"
 #include "tr_db.h"
-#include "mods.h"
+#include "tr_mods.h"
 #include "treatment.h"
 
 #include "config.h"
@@ -247,7 +247,7 @@ static int convert_get_end_offset(struct hit_object * ho, int type,
 
 struct tr_map * trm_convert(char* file_name)
 {
-  struct map * map = osu_map_parser(file_name);
+  struct map * map = osux_parse_beatmap(file_name);
   
   if(map->Mode != MODE_TAIKO)
     {

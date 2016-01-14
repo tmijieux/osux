@@ -5,6 +5,11 @@ LT_INIT
 AC_CONFIG_MACRO_DIRS([m4])
 AC_PROG_CC
 AC_CONFIG_HEADERS([config.h])
+
+PKG_CHECK_MODULES(PYTHON2, python2) 
+PKG_CHECK_MODULES(YAML, yaml-0.1) 
+PKG_CHECK_MODULES(LZMA, liblzma) 
+
 AC_CONFIG_FILES([
 		  Makefile
 		  src/Makefile
@@ -14,5 +19,7 @@ AC_CONFIG_FILES([
 		  src/beatmap/parser/Makefile
 		  src/editor/Makefile
 		  src/replay/Makefile
+		  src/ranking/taikorank/Makefile
+		  src/ranking/taikorank/compute_star/Makefile
 ])
 AC_OUTPUT

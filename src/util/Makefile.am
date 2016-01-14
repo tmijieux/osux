@@ -1,7 +1,7 @@
 include $(top_srcdir)/common.mk
 
-lib_LTLIBRARIES = libutil.la 
-libutil_la_SOURCES = \
+lib_LTLIBRARIES = libosux_util.la 
+libosux_util_la_SOURCES = \
 	hash_table.c \
 	heap.c \
 	list.c \
@@ -12,5 +12,5 @@ libutil_la_SOURCES = \
 	re.c \
 	sum.c
 
-libutil_la_LDFLAGS = -lyaml
-
+libosux_util_la_CFLAGS = $(YAML_CFLAGS) $(AM_CFLAGS)
+libosux_util_la_LDFLAGS = $(YAML_LIBS) $(AM_LDFLAGS)
