@@ -1,4 +1,4 @@
-AC_INIT([osux], [0.1], [lmaugere@ipb.fr])
+AC_INIT([osux], [0.1], [lmaugere@ipb.fr, tmijieux@ipb.fr])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AM_PROG_AR
 LT_INIT
@@ -21,5 +21,7 @@ AC_CONFIG_FILES([
 		  src/replay/Makefile
 		  src/ranking/taikorank/Makefile
 		  src/ranking/taikorank/compute_star/Makefile
+		  src/ranking/taikorank/yaml/Makefile
 ])
+
 AC_OUTPUT

@@ -6,6 +6,7 @@
 #include "hash_table.h"
 #include "list.h"
 #include "stack.h"
+#include "data.h"
 
 static void mapping_dump(const char *name, void *data, void *args)
 {
@@ -69,7 +70,10 @@ int yaml2_parse_file(struct yaml_wrap **yamlw, const char *file_name)
     char *keyname = NULL;
 
     assert( NULL != yamlw );
-    fh = fopen(file_name, "r");
+
+    char *yaml_path = osux_prefix_path("/yaml/", file_name);
+    fh = osux_open_resource(yaml_path, "r");
+    free(yaml_path);
     
     if (!yaml_parser_initialize(&parser)) {
 	return -1;

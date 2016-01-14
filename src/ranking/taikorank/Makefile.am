@@ -1,6 +1,6 @@
 include $(top_srcdir)/common.mk
 
-SUBDIRS = compute_star
+SUBDIRS = compute_star yaml
 
 bin_PROGRAMS = taiko_ranking
 taiko_ranking_SOURCES = \
@@ -21,5 +21,5 @@ taiko_ranking_SOURCES = \
 
 taiko_ranking_LDADD = ../../libosux.la ../../util/libosux_util.la compute_star/libtr_star.la
 taiko_ranking_CFLAGS = -I $(srcdir)/compute_star $(AM_CFLAGS)
-taiko_ranking_LDFLAGS = -lmysqlclient -lm
+taiko_ranking_LDFLAGS = -lmysqlclient -lm $(AM_LDFLAGS)
 

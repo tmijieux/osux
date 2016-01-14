@@ -10,7 +10,10 @@ libosux_util_la_SOURCES = \
 	yaml2.c \
 	uleb128.c \
 	re.c \
-	sum.c
+	sum.c \
+	data.c 
 
-libosux_util_la_CFLAGS = $(YAML_CFLAGS) $(AM_CFLAGS)
+libosux_util_la_CFLAGS = $(YAML_CFLAGS) $(AM_CFLAGS) \
+	-DPKG_DATA_DIR=\"$(pkgdatadir)\"
+
 libosux_util_la_LDFLAGS = $(YAML_LIBS) $(AM_LDFLAGS)
