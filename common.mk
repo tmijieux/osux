@@ -1,6 +1,6 @@
 pkgconfdir=$(sysconfdir)/$(PACKAGE)
 yamldir = $(pkgconfdir)/yaml
-pythondir = $(pkgdatadir)/python
+pythondir = $(pkglibdir)
 
 AM_CFLAGS = -fPIC -Wall -Wextra -I$(top_srcdir)/src -I$(top_srcdir)/src/util \
 	    -I$(top_srcdir)/src/include -DPKG_DATA_DIR=\"$(pkgdatadir)\" \
