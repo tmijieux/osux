@@ -28,7 +28,7 @@
 #include "taiko_ranking_object.h"
 
 #include "config.h"
-#include "mods.h"
+#include "tr_mods.h"
 #include "print.h"
 #include "tr_db.h"
 

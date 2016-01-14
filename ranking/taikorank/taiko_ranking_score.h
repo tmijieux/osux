@@ -21,19 +21,20 @@ struct tr_map;
 
 struct tr_score
 {
+  // if need to restart
   const struct tr_map * origin; // map 100% acc
-  double acc; // final acc
+
+  // values to get at the end
+  double acc; // acc
+  int great;
+  int good;
+  int miss;
   
+  // working:
   struct tr_map * map; // current map
 };
 
 void trs_main(const struct tr_map * map, int mods);
-struct tr_score * trs_new(const struct tr_map * map, int mods,
-			  double acc);
-void trs_free(struct tr_score * score);
-
-void trs_compute(struct tr_score * score);
-
-void trs_print(struct tr_score * score);
+void trs_main_replay(char * replay_file_name, struct tr_map * map);
 
 #endif //TAIKO_RANKING_SCORE_H

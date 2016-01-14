@@ -21,7 +21,7 @@
 #include "taiko_ranking_object.h"
 
 #include "print.h"
-#include "mods.h"
+#include "tr_mods.h"
 
 static void trm_apply_mods_EZ(struct tr_map * map);
 static void trm_apply_mods_HT(struct tr_map * map);

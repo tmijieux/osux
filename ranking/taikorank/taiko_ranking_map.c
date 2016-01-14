@@ -30,7 +30,7 @@
 #include "taiko_ranking_score.h"
 #include "print.h"
 #include "tr_db.h"
-#include "mods.h"
+#include "tr_mods.h"
 #include "treatment.h"
 
 #include "config.h"
@@ -59,6 +59,8 @@ static int convert_get_end_offset(struct hit_object * ho, int type,
 static struct tr_map * trm_convert(char* file_name);
 static void trm_add_to_ps(struct tr_map * map, 
 			  enum played_state ps, int i);
+
+static void trm_acc(struct tr_map * map);
 
 //--------------------------------------------------
 
@@ -143,6 +145,8 @@ void trm_pattern_free(struct tr_map * map)
 
 void trm_free(struct tr_map * map)
 {
+  if(map == NULL)
+    return;
   trm_pattern_free(map);
   free(map->title);
   free(map->artist);
@@ -338,9 +342,9 @@ struct tr_map * trm_convert(char* file_name)
   tr_map->miss  = 0;
   tr_map->bonus = tr_map->nb_object - tr_map->max_combo;
   if(tr_map->max_combo != 0)
-    tr_map->acc   = MAX_ACC; 
+    tr_map->acc = MAX_ACC; 
   else
-    tr_map->acc   = 0; 
+    tr_map->acc = 0; 
 
   map_free(map);
   return tr_map;
@@ -530,6 +534,8 @@ static void trm_add_to_ps(struct tr_map * map,
     }
 }
 
+//--------------------------------------------------
+
 void trm_set_tro_ps(struct tr_map * map, int x, enum played_state ps)
 {
   if(map->object[x].ps == ps)
@@ -537,4 +543,25 @@ void trm_set_tro_ps(struct tr_map * map, int x, enum played_state ps)
   trm_add_to_ps(map, map->object[x].ps, -1);
   trm_add_to_ps(map, ps, 1);
   map->object[x].ps = ps;
+  trm_acc(map);
+  if(ps == GOOD)
+    {
+      map->object[x].density_star = 0;
+      map->object[x].reading_star = 0;
+      map->object[x].pattern_star = 0;
+      map->object[x].accuracy_star = 0;
+      map->object[x].final_star = 0;
+    }
+}
+
+//--------------------------------------------------
+
+double compute_acc(int great, int good, int miss)
+{
+  return ((great + good * 0.5) / (great + good + miss));
+}
+
+static void trm_acc(struct tr_map * map)
+{
+  map->acc = compute_acc(map->great, map->good, map->miss);
 }

@@ -25,7 +25,7 @@
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_score.h"
 #include "tr_db.h"
-#include "mods.h"
+#include "tr_mods.h"
 #include "cst_yaml.h"
 #include "config.h"
 #include "print.h"

@@ -2,7 +2,7 @@
 set(tr_src
   main.c
   check_osu_file.c
-  mods.c
+  tr_mods.c
   print.c
   taiko_ranking_map.c
   taiko_ranking_object.c
@@ -23,7 +23,7 @@ set(tr_src
   )
 
 add_executable(taiko_ranking ${tr_src})
-target_link_libraries(taiko_ranking parser m util mysqlclient)
+target_link_libraries(taiko_ranking parser replay m util mysqlclient)
 
 include_directories(. compute_star)
 
