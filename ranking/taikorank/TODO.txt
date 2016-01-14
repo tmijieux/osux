@@ -3,11 +3,11 @@ Todo:
 - min on alt[] and singletap[]
 - redo all reading computation...
 - 95% computation, other methods?
-- correction for influence method
+- flatten & remove bonus?
+- offset_app... roll & spinner -> treatment check
+- pb with time on screen... -> invisble time not 0
+
 
 Other:		   
 - HDHR not supported
 - EZ speed not sure
-
-Projet:
-- accuracy !

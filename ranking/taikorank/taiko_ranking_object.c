@@ -191,12 +191,13 @@ void tro_print(struct tr_object * obj, int filter)
 	    obj->speed_change,
 	    obj->reading_star);
   if((filter & FILTER_READING_PLUS) != 0)
-    fprintf(OUTPUT_INFO, "%d\t%d\t%d\t%d\t%g\t%.2g\t%.2g\t%.2g\t%.2g\t%.3g\t",
+    fprintf(OUTPUT_INFO, "%d\t%d\t%d\t%d\t%d\t%d\t%.2g\t%.2g\t%.2g\t%.2g\t%.3g\t",
 	    obj->offset_app,
 	    obj->end_offset_app,
 	    obj->offset_dis,
 	    obj->end_offset_dis,
-	    obj->superposed,
+	    obj->visible_time,
+	    obj->invisible_time,
 	    obj->hidden,
 	    obj->hide,
 	    obj->fast,

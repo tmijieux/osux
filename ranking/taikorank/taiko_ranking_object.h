@@ -18,9 +18,12 @@
 #define TRO_H
 
 // percentage for equal
-#define EPSILON 1.5
+#define EPSILON 0.5
 
 #define MSEC_IN_MINUTE 60000.
+
+#define TRO_SMALL_SIZE 0.49        /* slightly smaller to avoid false superposition*/
+#define TRO_BIG_SIZE   0.707106781 /* sqrt(2.) / 2. */
 
 //---------------------------------------------------------------
 
@@ -45,13 +48,14 @@ struct tr_object
   int rest;            // printed in basic
   double obj_app;      // nb obj displayable on screen, without overlapping
   double obj_dis;      // nb obj where disappear
-  int offset_app;      // printed in reading
-  int end_offset_app;  // printed in reading+
-  int offset_dis;      // printed in reading
-  int end_offset_dis;  // printed in reading+
+  int offset_app;      // printed in reading,  border left appear
+  int end_offset_app;  // printed in reading+, border right appear
+  int offset_dis;      // printed in reading,  border right disappear
+  int end_offset_dis;  // printed in reading+, border left disappear
   int visible_time;    // printed in reading, time visible on screen 
   int invisible_time;  // printed in reading, time not visible on screen (HD -> after the object disappeared)
-
+  double c_app;     // bpm_app * end_offset_app
+  double c_end_app; // bpm_app * offset_app
   // ---- pattern data
   double proba;
   double * alt; // end with negative value
@@ -61,12 +65,13 @@ struct tr_object
   double density_color;
 
   // ---- reading data
-  double superposed;   // percentage
   double hidden;       // how it is hidden by others
   double hide;         // how it hide others
-  double slow;         // slow, hard to acc
   double fast;         // fast, hard to see
   double speed_change;
+
+  // ---- accuracy star
+  double slow;         // slow, hard to acc
 
   // ---- star
   double density_star;
