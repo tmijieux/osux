@@ -1,5 +1,5 @@
 /*
- *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
+ *  Copyright (©) 2015-2016 Lucas Maugère, Thomas Mijieux
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,10 +20,13 @@
 #include "taiko_ranking_object.h"
 #include "treatment.h"
 
+static void tro_line(struct tr_object * o);
+
 static void trm_treatment_hand(struct tr_map * map);
 static void trm_treatment_rest(struct tr_map * map);
 static void trm_treatment_app_dis_offset(struct tr_map * map);
 static void trm_treatment_visible_time(struct tr_map * map);
+static void trm_treatment_line(struct tr_map * map);
 static void trm_set_combo(struct tr_map * map);
 
 #define MAX_REST 10000.
@@ -31,6 +34,14 @@ static void trm_set_combo(struct tr_map * map);
 // offset app & dis
 #define OFFSET_MIN 10000
 #define OFFSET_MAX (-obj->obj_dis / obj->obj_app * OFFSET_MIN)
+
+//-----------------------------------------------------
+
+static void tro_line(struct tr_object * o)
+{
+  o->c_app     = - o->bpm_app * o->offset_app;
+  o->c_end_app = - o->bpm_app * o->end_offset_app;
+}
 
 //------------------------------------------------
 
@@ -95,10 +106,22 @@ static void trm_treatment_app_dis_offset(struct tr_map * map)
       struct tr_object * obj = &map->object[i];
       double space_unit = mpb_to_bpm(obj->bpm_app) / 4.;
       // wrong for spinner...
+
+      double size;
+      if(tro_is_big(obj))
+	size = TRO_BIG_SIZE;
+      else
+	size = TRO_SMALL_SIZE;
+
       obj->offset_app = (obj->offset -
-			 obj->obj_app * space_unit);
+			 (obj->obj_app + size) * space_unit);
       obj->offset_dis = (obj->end_offset -
-			 obj->obj_dis * space_unit);
+			 (obj->obj_dis + size) * space_unit);
+
+      obj->end_offset_app = (obj->offset -
+			     (obj->obj_app - size) * space_unit);
+      obj->end_offset_dis = (obj->end_offset -
+			     (obj->obj_dis - size) * space_unit);
 
       /*
       // really far numbers... in case of really slow circle
@@ -108,6 +131,9 @@ static void trm_treatment_app_dis_offset(struct tr_map * map)
 	  obj->offset_dis = obj->end_offset       + OFFSET_MAX;
 	}
       */
+
+      // TODO roll and spinner
+      /*
       if(tro_is_slider(obj))
 	{
 	  int diff = obj->end_offset - obj->offset;
@@ -120,11 +146,7 @@ static void trm_treatment_app_dis_offset(struct tr_map * map)
 	  obj->end_offset_app = obj->offset_app;
 	  obj->end_offset_dis = obj->offset_dis + diff;
 	}
-      else // d D k K
-	{
-	  obj->end_offset_app = obj->offset_app;
-	  obj->end_offset_dis = obj->offset_dis;
-	}
+      */
     }
 }
 
@@ -135,18 +157,28 @@ static void trm_treatment_visible_time(struct tr_map * map)
   for(int i = 0; i < map->nb_object; i++)
     {
       struct tr_object * obj = &map->object[i];
-      obj->visible_time = obj->offset_dis - obj->end_offset_app;
+      obj->visible_time = obj->end_offset_dis - obj->offset_app;
       if(obj->type == 's')
 	obj->visible_time -= obj->end_offset - obj->offset;
-      obj->invisible_time = obj->end_offset - obj->offset_dis;
-
+      obj->invisible_time = obj->end_offset - obj->end_offset_dis;
+      
+      /*
       if(obj->visible_time < 0)
 	{
-	  // object will never appear
+	  // object will never appear (HDFL)
 	  obj->visible_time = 0;
 	  obj->invisible_time = 0;
 	}
+      */
     }
+}
+
+//-----------------------------------------------------
+
+static void trm_treatment_line(struct tr_map * map)
+{
+  for(int i = 0; i < map->nb_object; i++)
+    tro_line(&map->object[i]);
 }
 
 //-----------------------------------------------------
@@ -181,5 +213,6 @@ void trm_treatment(struct tr_map * map)
   trm_treatment_rest(map);
   trm_treatment_app_dis_offset(map);
   trm_treatment_visible_time(map);
+  trm_treatment_line(map);
   trm_set_combo(map);
 }

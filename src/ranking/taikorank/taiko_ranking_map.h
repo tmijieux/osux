@@ -1,5 +1,5 @@
 /*
- *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
+ *  Copyright (©) 2015-2016 Lucas Maugère, Thomas Mijieux
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -76,6 +76,7 @@ int trm_hardest_tro(struct tr_map * map);
 int trm_best_influence_tro(struct tr_map * map);
 
 void trm_set_tro_ps(struct tr_map * map, int x, enum played_state ps);
+double compute_acc(int great, int good, int miss);
 
 void trm_set_mods(struct tr_map * map, int mods);
 void trm_compute_stars(struct tr_map * map);

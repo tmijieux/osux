@@ -1,5 +1,5 @@
 /*
- *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
+ *  Copyright (©) 2015-2016 Lucas Maugère, Thomas Mijieux
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -54,17 +54,15 @@ int (* TRM_METHOD_GET_TRO)(struct tr_map *);
 static struct yaml_wrap * yw;
 static struct hash_table * ht_conf;
 
-static void config_set_filter(void);
-
 //-----------------------------------------------------
 
 static void global_init(void)
 {
-  OPT_PRINT_TRO    = cst_i(ht_conf, "print_tro");
-  OPT_PRINT_YAML   = cst_i(ht_conf, "print_yaml");
-  OPT_PRINT_ORDER  = cst_str(ht_conf, "print_order");
-  config_set_filter();
-
+  OPT_PRINT_TRO   = cst_i(ht_conf, "print_tro");
+  OPT_PRINT_YAML  = cst_i(ht_conf, "print_yaml");
+  OPT_PRINT_ORDER = cst_str(ht_conf, "print_order");
+  config_set_filter(cst_str(ht_conf, "print_filter"));
+  
   OPT_MODS = MODS_NONE;
   char * mods = cst_str(ht_conf, "mods");
   config_set_mods(mods);
@@ -98,10 +96,9 @@ static void global_init(void)
   OPT_PRINT_FILTER |= FILTER;			\
   break
 
-static void config_set_filter(void)
+void config_set_filter(char * filter)
 {
   OPT_PRINT_FILTER = 0;
-  char * filter = cst_str(ht_conf, "print_filter");
   int i = 0;
   while(filter[i] != 0)
     {

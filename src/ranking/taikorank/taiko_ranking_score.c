@@ -1,5 +1,5 @@
 /*
- *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
+ *  Copyright (©) 2015-2016 Lucas Maugère, Thomas Mijieux
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,39 +24,70 @@
 #include "config.h"
 #include "print.h"
 #include "tr_db.h"
+#include "tr_mods.h"
 
-static void trs_acc(struct tr_score * score);
 static void trs_print_and_db(struct tr_score * score);
+static void trs_prepare(struct tr_score * sc, int mods, double acc);
+static void trs_compute(struct tr_score * score);
+
+static struct tr_score * trs_new(const struct tr_map * map);
+static void trs_free(struct tr_score * score);
+static void trs_print(struct tr_score * score);
 
 //--------------------------------------------------
 
 void trs_main(const struct tr_map * map, int mods)
 {
-  struct tr_score * score = trs_new(map, mods, OPT_SCORE_ACC);
+  struct tr_score * score = trs_new(map);
+  trs_prepare(score, mods, OPT_SCORE_ACC);
   trs_compute(score);
   trs_free(score);
 }
 
 //--------------------------------------------------
 
-struct tr_score * trs_new(const struct tr_map * map, int mods,
-			  double acc)
+static void trs_prepare(struct tr_score * sc, int mods, double acc)
 {
-  struct tr_score * score = malloc(sizeof(*score));
-  score->origin = map;
-  
-  score->map = trm_copy(map);
-  trm_set_mods(score->map, mods);
+  sc->map = trm_copy(sc->origin);
+  trm_set_mods(sc->map, mods);
 
-  score->acc = acc;
-
-  return score;
+  sc->acc   = sc->origin->acc; 
+  sc->great = sc->origin->great;
+  sc->good  = sc->origin->good;
+  sc->miss  = sc->origin->miss;
+  while(sc->acc > acc)
+    {
+      double try = compute_acc(sc->great-1, sc->good+1, sc->miss);
+      if(try <= acc)
+	{
+	  sc->great--;
+	  sc->good++;
+	  sc->acc = try;
+	}
+      else
+	{
+	  sc->great--;
+	  sc->miss++;
+	  sc->acc = compute_acc(sc->great, sc->good, sc->miss);
+	}
+    }
 }
 
 //--------------------------------------------------
 
-void trs_free(struct tr_score * score)
+static struct tr_score * trs_new(const struct tr_map * map)
 {
+  struct tr_score * sc = malloc(sizeof(*sc));
+  sc->origin = map;
+  return sc;
+}
+
+//--------------------------------------------------
+
+static void trs_free(struct tr_score * score)
+{
+  if(score == NULL)
+    return;
   trm_free(score->map);
   free(score);
 }
@@ -78,22 +109,32 @@ static void trs_print_and_db(struct tr_score * score)
 
 //--------------------------------------------------
 
-void trs_compute(struct tr_score * score)
+static int trs_is_finished(struct tr_score * score)
+{
+  return ((score->great == score->map->great) &&
+	  (score->good  == score->map->good) &&
+	  (score->miss  == score->map->miss));
+}
+
+//--------------------------------------------------
+
+static void trs_compute(struct tr_score * score)
 {
   trm_compute_stars(score->map);
   trs_print_and_db(score);
 
-  while(score->acc < score->map->acc)
+  while(!trs_is_finished(score))
     {
       if(OPT_SCORE_QUICK == 0)      
 	trm_pattern_free(score->map);
 
-      int i = TRM_METHOD_GET_TRO(score->map); 
-      trm_set_tro_ps(score->map, i, MISS);
-      score->map->object[i].final_star = 0;
-      trs_acc(score);
+      int i = TRM_METHOD_GET_TRO(score->map);
+      if(score->miss != score->map->miss)
+	trm_set_tro_ps(score->map, i, MISS);
+      else
+	trm_set_tro_ps(score->map, i, GOOD);
 
-      if(OPT_SCORE_QUICK == 0 || score->acc > score->map->acc)
+      if(OPT_SCORE_QUICK == 0 || trs_is_finished(score))
 	{
 	  if(OPT_SCORE_QUICK)      
 	    trm_pattern_free(score->map);
@@ -106,22 +147,60 @@ void trs_compute(struct tr_score * score)
 
 //--------------------------------------------------
 
-void trs_print(struct tr_score * score)
+static void trs_print(struct tr_score * score)
 {
-  fprintf(OUTPUT_INFO, "Score: %.5g%% \t(aim: %g%%)\n",
+  fprintf(OUTPUT_INFO, "Score: %.5g%% \t(aim: %.4g%%) [%d|%d|%d] (%d/%d)\n",
 	  score->map->acc * COEFF_MAX_ACC, 
-	  score->acc * COEFF_MAX_ACC);  
+	  score->acc * COEFF_MAX_ACC, 
+	  score->map->great, score->map->good, score->map->miss,
+	  score->map->combo, score->map->max_combo);  
   trm_print(score->map);
 }
 
 //--------------------------------------------------
-//--------------------------------------------------
-//--------------------------------------------------
+/*
+#include "replay/replay.h"
+#include "mod/game_mode.h"
+#include "mod/mods.h"
 
-static void trs_acc(struct tr_score * score)
+#define CONVERT_MOD(RP_MOD, TR_MOD, rp_mods, mods)	\
+  if((rp_mods & RP_MOD) != 0)				\
+    mods |= TR_MOD
+
+void trs_main_replay(char * replay_file_name, struct tr_map * map)
 {
-  score->map->acc = ((score->map->great + 
-		      score->map->good * 0.5) /
-		     score->map->max_combo);
-}
+  FILE * f = fopen(replay_file_name, "r");
+  struct replay * replay = replay_parse(f);
 
+  if(replay->game_mode != MODE_TAIKO)
+    {
+      tr_error("Not a taiko score.");
+      replay_free(replay);
+      return;
+    }
+
+  struct tr_score * score = trs_new(map);
+
+  int mods = MODS_NONE;
+  CONVERT_MOD(MOD_EASY,       MODS_EZ, replay->mods, mods);
+  CONVERT_MOD(MOD_HARDROCK,   MODS_HR, replay->mods, mods);
+  CONVERT_MOD(MOD_HIDDEN,     MODS_HD, replay->mods, mods);
+  CONVERT_MOD(MOD_FLASHLIGHT, MODS_FL, replay->mods, mods);
+  CONVERT_MOD(MOD_DOUBLETIME, MODS_DT, replay->mods, mods);
+  CONVERT_MOD(MOD_HALFTIME,   MODS_HT, replay->mods, mods);
+
+  score->map = trm_copy(score->origin);
+  trm_set_mods(score->map, mods);
+
+  score->great = replay->_300;
+  score->good  = replay->_100;
+  score->miss  = replay->_miss;
+  score->acc   = compute_acc(score->great, score->good, score->miss);
+  
+  replay_free(replay);
+  
+  //trs_compute(score);
+  trs_free(score);
+}
+*/
+//--------------------------------------------------

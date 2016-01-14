@@ -1,5 +1,5 @@
 /*
- *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
+ *  Copyright (©) 2015-2016 Lucas Maugère, Thomas Mijieux
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  *  limitations under the License.
  */
 
+#include <time.h>
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -33,16 +34,25 @@
 
 #include "reading.h"
 
+#define min(x, y) x < y ? x : y;
+#define max(x, y) x > y ? x : y;
+#define RAND_DOUBLE ((double) rand() / RAND_MAX)
+
 static struct yaml_wrap * yw;
 static struct hash_table * ht_cst;
 
 static double tro_hide(struct tr_object * o1, struct tr_object * o2);
 static double tro_fast(struct tr_object * obj);
+static int pt_is_in_tro(double x, double y, struct tr_object * o);
+
+static double tr_monte_carlo(int nb_pts,
+			     double x1, double y1,
+			     double x2, double y2,
+			     struct tr_object *o1,
+			     struct tr_object *o2);
 /*
-static double tro_coeff_superpos(struct tr_object * obj);
 static double tro_speed_change(struct tr_object * obj1,
 				struct tr_object * obj2);
-static void trm_compute_reading_superposed(struct tr_map * map);
 */
 static void trm_compute_reading_hide(struct tr_map * map);
 static void trm_compute_reading_fast(struct tr_map * map);
@@ -53,10 +63,7 @@ static void trm_compute_reading_star(struct tr_map * map);
 
 #define READING_FILE  "reading_cst.yaml"
 
-// superposition coeff
-static double SUPERPOS_BIG;
-static double SUPERPOS_SMALL;
-
+static int MONTE_CARLO_NB_PT;
 static struct vector * HIDE_VECT;
 static struct vector * FAST_VECT;
 
@@ -66,7 +73,6 @@ static double SPEED_CH_TIME_0;
 static double SPEED_CH_VALUE_0;
 
 // coeff for star
-static double READING_STAR_COEFF_SUPERPOSED;
 static double READING_STAR_COEFF_HIDE;
 static double READING_STAR_COEFF_HIDDEN;
 static double READING_STAR_COEFF_SPEED_CH;
@@ -77,8 +83,8 @@ static struct vector * SCALE_VECT;
 
 static void global_init(void)
 {
-  SUPERPOS_BIG   = cst_f(ht_cst, "superpos_big");
-  SUPERPOS_SMALL = cst_f(ht_cst, "superpos_small");
+  srand(time(NULL));
+  MONTE_CARLO_NB_PT = cst_i(ht_cst, "monte_carlo_nb_pts");
 
   HIDE_VECT  = cst_vect(ht_cst, "vect_hide");
   FAST_VECT  = cst_vect(ht_cst, "vect_fast");  
@@ -88,7 +94,6 @@ static void global_init(void)
   SPEED_CH_TIME_0  = cst_f(ht_cst, "speed_ch_time_0");
   SPEED_CH_VALUE_0 = cst_f(ht_cst, "speed_ch_value_0");
 
-  READING_STAR_COEFF_SUPERPOSED = cst_f(ht_cst, "star_superpos"); 
   READING_STAR_COEFF_HIDE       = cst_f(ht_cst, "star_hide");
   READING_STAR_COEFF_HIDDEN     = cst_f(ht_cst, "star_hidden");   
   READING_STAR_COEFF_SPEED_CH   = cst_f(ht_cst, "star_speed_ch");
@@ -118,22 +123,61 @@ static void ht_cst_exit_reading(void)
 //-----------------------------------------------------
 //-----------------------------------------------------
 //-----------------------------------------------------
-/*
-static double tro_coeff_superpos(struct tr_object * obj)
+
+static int pt_is_in_tro(double x, double y, struct tr_object * o)
 {
-  if (tro_is_big(obj))   
-    return SUPERPOS_BIG;   // 'D' 'K' 'R'
-  else
-    return SUPERPOS_SMALL; // 'd' 'k' 'r' 's'
+  // y(x) = bpm_app * x + c_app
+  // y(x) = bpm_app * x + c_end_app
+  if(o->bpm_app * x + o->c_end_app <= y &&
+     o->bpm_app * x + o->c_app     >= y)
+    return 1;
+  return 0;
 }
-*/
+
+//-----------------------------------------------------
+
+static double tr_monte_carlo(int nb_pts,
+			     double x1, double y1,
+			     double x2, double y2,
+			     struct tr_object *o1,
+			     struct tr_object *o2)
+{
+  int ok = 0;
+  for(int i = 0; i < nb_pts; i++)
+    {
+      double x = x1 + RAND_DOUBLE * (x2 - x1); // x1 <= x <= x2
+      double y = y1 + RAND_DOUBLE * (y2 - y1); // y1 <= y <= y2
+      if(pt_is_in_tro(x, y, o1) && pt_is_in_tro(x, y, o2))
+	ok++;
+    }
+  return ((fabs(x1 - x2) * fabs(y1 - y2)) *
+	  ((double) ok / (double) nb_pts));
+}
+
 //-----------------------------------------------------
 
 static double tro_hide(struct tr_object * o1, struct tr_object * o2)
 {
-  return vect_poly2(HIDE_VECT,
-		    abs((o2->visible_time + o2->invisible_time) -
-			(o1->visible_time + o1->invisible_time)));
+  // o1 is played before, so o1 is hiding o2
+  double hide = 0;
+  double x1 = max(o1->offset_app, o2->offset_app);
+  double x2 = min(o1->end_offset_dis, o2->end_offset_dis);
+  double y1 = 0;
+  double y2 = o1->bpm_app * o1->end_offset_dis + o1->c_app;
+  if(equal(o1->bpm_app, o2->bpm_app))
+    // parallelogram
+    hide = ((fabs(x1 - x2) * fabs(y1 - y2)) -
+	    ((fabs(x1 - x2) -
+	      (o1->end_offset_app - o2->offset_app)) *
+	     fabs(y1 - y2)));
+  else
+    // complex figure
+    hide = tr_monte_carlo(MONTE_CARLO_NB_PT, x1, y1, x2, y2, o1, o2);
+  if(tro_is_big(o1))
+    hide *= TRO_BIG_SIZE;
+  else
+    hide *= TRO_SMALL_SIZE;
+  return vect_poly2(HIDE_VECT, hide);  
 }
 
 //-----------------------------------------------------
@@ -169,17 +213,18 @@ static void trm_compute_reading_hide(struct tr_map * map)
 {
   for (int i = 0; i < map->nb_object; i++)
     {
-      struct sum * s_hide   = sum_new(map->nb_object - i, DEFAULT);
-      struct sum * s_hidden = sum_new(i,                  DEFAULT);
-      
+      struct sum * s_hidden = sum_new(i, DEFAULT);
       for (int j = 0; j < i; j++)
 	{
 	  int hidden = (map->object[j].end_offset_app -
 			map->object[i].offset_app);
-	  if (hidden > 0)
+	  if (hidden > 0) // here if i has appeared before j
 	    sum_add(s_hidden, tro_hide(&map->object[j],
 				       &map->object[i]));
 	}
+      map->object[i].hidden = sum_compute(s_hidden);
+
+      struct sum * s_hide   = sum_new(map->nb_object - i, DEFAULT);
       for (int j = i+1; j < map->nb_object; j++)
 	{
 	  int hide = (map->object[i].end_offset_app -
@@ -188,34 +233,10 @@ static void trm_compute_reading_hide(struct tr_map * map)
 	    sum_add(s_hide, tro_hide(&map->object[i],
 				     &map->object[j]));
 	}
-      map->object[i].hide   = sum_compute(s_hide);
-      map->object[i].hidden = sum_compute(s_hidden);
+      map->object[i].hide = sum_compute(s_hide);
     }
 }
 
-//-----------------------------------------------------
-/*
-static void trm_compute_reading_superposed(struct tr_map * map)
-{
-  map->object[0].superposed = 0;
-  for (int i = 1; i < map->nb_object; i++)
-    {
-      struct tr_object * obj = &map->object[i];
-      double space_unit = (tro_coeff_superpos(&map->object[i-1]) *
-			   tro_coeff_superpos(obj) *
-			   mpb_to_bpm(obj->bpm_app) / 4.);
-      if (obj->rest < space_unit)
-	if (equal(obj->rest, space_unit))
-	  obj->superposed = 0;
-	else
-	  obj->superposed = (tro_coeff_superpos(obj) *
-			     100 * (space_unit - obj->rest) /
-			     space_unit);
-      else
-	map->object[i].superposed = 0;
-    }
-}
-*/
 //-----------------------------------------------------
 
 static void trm_compute_reading_fast(struct tr_map * map)
@@ -254,8 +275,7 @@ static void trm_compute_reading_star(struct tr_map * map)
     {
       map->object[i].reading_star = vect_poly2
 	(SCALE_VECT,
-	 (READING_STAR_COEFF_SUPERPOSED * map->object[i].superposed +
-	  READING_STAR_COEFF_HIDE       * map->object[i].hide +
+	 (READING_STAR_COEFF_HIDE       * map->object[i].hide +
 	  READING_STAR_COEFF_HIDDEN     * map->object[i].hidden +
 	  READING_STAR_COEFF_SPEED_CH  * map->object[i].speed_change+
 	  READING_STAR_COEFF_FAST       * map->object[i].fast));
@@ -276,9 +296,7 @@ void trm_compute_reading(struct tr_map * map)
     }
   
   trm_compute_reading_hide(map);
-  //trm_compute_reading_superposed(map);
   trm_compute_reading_fast(map);
   //trm_compute_reading_speed_change(map);
-  
   trm_compute_reading_star(map);
 }

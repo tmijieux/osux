@@ -1,5 +1,5 @@
 /*
- *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
+ *  Copyright (©) 2015-2016 Lucas Maugère, Thomas Mijieux
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@
 
 #include "taiko_ranking_object.h"
 #include "taiko_ranking_map.h"
-#include "taiko_ranking_score.h"
 #include "print.h"
 #include "tr_db.h"
 #include "tr_mods.h"
@@ -59,6 +58,8 @@ static int convert_get_end_offset(struct hit_object * ho, int type,
 static struct tr_map * trm_convert(char* file_name);
 static void trm_add_to_ps(struct tr_map * map, 
 			  enum played_state ps, int i);
+
+static void trm_acc(struct tr_map * map);
 
 //--------------------------------------------------
 
@@ -143,6 +144,8 @@ void trm_pattern_free(struct tr_map * map)
 
 void trm_free(struct tr_map * map)
 {
+  if(map == NULL)
+    return;
   trm_pattern_free(map);
   free(map->title);
   free(map->artist);
@@ -338,9 +341,9 @@ struct tr_map * trm_convert(char* file_name)
   tr_map->miss  = 0;
   tr_map->bonus = tr_map->nb_object - tr_map->max_combo;
   if(tr_map->max_combo != 0)
-    tr_map->acc   = MAX_ACC; 
+    tr_map->acc = MAX_ACC; 
   else
-    tr_map->acc   = 0; 
+    tr_map->acc = 0; 
 
   map_free(map);
   return tr_map;
@@ -363,7 +366,7 @@ void trm_print_tro(struct tr_map * map, int filter)
   if((filter & FILTER_READING) != 0)
     fprintf(OUTPUT_INFO, "app\tdis\tvisi\tinvisi\thidden\thide\tfast\tspd chg\tread*\t");
   if((filter & FILTER_READING_PLUS) != 0)
-    fprintf(OUTPUT_INFO, "app\tend app\tdis\tend dis\tvisi\tinvisi\thidden\thide\tspeed\tspd chg\tread*\t");
+    fprintf(OUTPUT_INFO, "app\tend app\tdis\tend dis\tvisi\tinvisi\thidden\thide\tfast\tspd chg\tread*\t");
   if((filter & FILTER_ACCURACY) != 0)
     fprintf(OUTPUT_INFO, "slow\t");
   if((filter & FILTER_PATTERN) != 0)
@@ -530,6 +533,8 @@ static void trm_add_to_ps(struct tr_map * map,
     }
 }
 
+//--------------------------------------------------
+
 void trm_set_tro_ps(struct tr_map * map, int x, enum played_state ps)
 {
   if(map->object[x].ps == ps)
@@ -537,4 +542,25 @@ void trm_set_tro_ps(struct tr_map * map, int x, enum played_state ps)
   trm_add_to_ps(map, map->object[x].ps, -1);
   trm_add_to_ps(map, ps, 1);
   map->object[x].ps = ps;
+  trm_acc(map);
+  if(ps == GOOD)
+    {
+      map->object[x].density_star = 0;
+      map->object[x].reading_star = 0;
+      map->object[x].pattern_star = 0;
+      map->object[x].accuracy_star = 0;
+      map->object[x].final_star = 0;
+    }
+}
+
+//--------------------------------------------------
+
+double compute_acc(int great, int good, int miss)
+{
+  return ((great + good * 0.5) / (great + good + miss));
+}
+
+static void trm_acc(struct tr_map * map)
+{
+  map->acc = compute_acc(map->great, map->good, map->miss);
 }
