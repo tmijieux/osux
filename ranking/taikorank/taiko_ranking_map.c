@@ -1,5 +1,5 @@
 /*
- *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
+ *  Copyright (©) 2015-2016 Lucas Maugère, Thomas Mijieux
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@
 
 #include "taiko_ranking_object.h"
 #include "taiko_ranking_map.h"
-#include "taiko_ranking_score.h"
 #include "print.h"
 #include "tr_db.h"
 #include "tr_mods.h"

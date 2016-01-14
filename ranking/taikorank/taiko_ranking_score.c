@@ -1,5 +1,5 @@
 /*
- *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
+ *  Copyright (©) 2015-2016 Lucas Maugère, Thomas Mijieux
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -158,12 +158,13 @@ static void trs_print(struct tr_score * score)
 }
 
 //--------------------------------------------------
+/*
 #include "replay/replay.h"
 #include "mod/game_mode.h"
 #include "mod/mods.h"
 
 #define CONVERT_MOD(RP_MOD, TR_MOD, rp_mods, mods)	\
-  if(rp_mods & RP_MOD != 0)				\
+  if((rp_mods & RP_MOD) != 0)				\
     mods |= TR_MOD
 
 void trs_main_replay(char * replay_file_name, struct tr_map * map)
@@ -179,7 +180,7 @@ void trs_main_replay(char * replay_file_name, struct tr_map * map)
     }
 
   struct tr_score * score = trs_new(map);
-  /*
+
   int mods = MODS_NONE;
   CONVERT_MOD(MOD_EASY,       MODS_EZ, replay->mods, mods);
   CONVERT_MOD(MOD_HARDROCK,   MODS_HR, replay->mods, mods);
@@ -190,16 +191,16 @@ void trs_main_replay(char * replay_file_name, struct tr_map * map)
 
   score->map = trm_copy(score->origin);
   trm_set_mods(score->map, mods);
-  */
+
   score->great = replay->_300;
   score->good  = replay->_100;
   score->miss  = replay->_miss;
   score->acc   = compute_acc(score->great, score->good, score->miss);
   
   replay_free(replay);
-
+  
   //trs_compute(score);
   trs_free(score);
 }
-
+*/
 //--------------------------------------------------

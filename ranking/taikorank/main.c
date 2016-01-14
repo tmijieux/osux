@@ -1,5 +1,5 @@
 /*
- *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
+ *  Copyright (©) 2015-2016 Lucas Maugère, Thomas Mijieux
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -28,15 +28,23 @@
 int main(int argc, char* argv[])
 {
   //set_app_dir(argv[0]);
-  int k = 1;
-  while(argc > k+1 && argv[k][0] == OPTIONS_PREFIX)
+  int nb_map = 0;
+  char ** arg_map = malloc(sizeof(char*) * argc-1);
+  for(int i = 1; i < argc; i++)
     {
-      options_set(argv[k], argv[k+1]);
-      k += 2;
+      if(argv[i][0] == OPTIONS_PREFIX)
+	{
+	  i += options_set(argc - i, (const char **) &argv[i]);
+	}
+      else
+	{
+	  arg_map[nb_map] = argv[i];
+	  nb_map++;
+	}
     }
 
   // checking arguments
-  if(argc > k)
+  if(nb_map > 0)
     { 
       void (* tr_main)(const struct tr_map *, int);
       if(OPT_SCORE)
@@ -44,9 +52,9 @@ int main(int argc, char* argv[])
       else
 	tr_main = trm_main;
       
-      for (int i = k; i < argc; i++)
+      for (int i = 0; i < nb_map; i++)
 	{
-	  struct tr_map * map = trm_new(argv[i]);
+	  struct tr_map * map = trm_new(arg_map[i]);
 	  if (map == NULL)
 	    continue;
 	  
@@ -57,5 +65,6 @@ int main(int argc, char* argv[])
   else
     tr_error("No osu file D:");
 
+  free(arg_map);
   return EXIT_SUCCESS;
 }
