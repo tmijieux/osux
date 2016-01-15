@@ -8,13 +8,13 @@ a.out
 *.cache
 .deps/
 .libs/
-*.in
 *.log
 *.status
 Makefile
 configure
 \#*#
 install
+inst
 build
 *.osr
 *.osu
