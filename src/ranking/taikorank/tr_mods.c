@@ -66,8 +66,7 @@ static void trm_apply_mods_EZ(struct tr_map * map)
 
 static void trm_apply_mods_DT(struct tr_map * map)
 {
-  map->great_ms = DT_COEFF_MS;
-  map->bad_ms   = DT_COEFF_MS;
+  map->od_mod_mult = DT_COEFF_MS;
   
   for(int i = 0; i < map->nb_object; i++)
     {
@@ -81,8 +80,7 @@ static void trm_apply_mods_DT(struct tr_map * map)
 
 static void trm_apply_mods_HT(struct tr_map * map)
 {
-  map->great_ms = HT_COEFF_MS;
-  map->bad_ms   = HT_COEFF_MS;
+  map->od_mod_mult = HT_COEFF_MS;
   
   for(int i = 0; i < map->nb_object; i++)
     {
@@ -154,8 +152,7 @@ static void trm_apply_NM_app_dis(struct tr_map * map)
 
 static void trm_apply_NM_ms_coeff(struct tr_map * map)
 {
-  map->great_ms = NM_COEFF_MS;
-  map->bad_ms   = NM_COEFF_MS;
+  map->od_mod_mult = NM_COEFF_MS;
 }
 
 //---------------------------------------------

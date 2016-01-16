@@ -63,7 +63,6 @@ static void global_init(void)
   OPT_PRINT_ORDER = cst_str(ht_conf, "print_order");
   config_set_filter(cst_str(ht_conf, "print_filter"));
   
-  OPT_MODS = MODS_NONE;
   char * mods = cst_str(ht_conf, "mods");
   config_set_mods(mods);
 
@@ -131,6 +130,7 @@ void config_set_filter(char * filter)
 
 void config_set_mods(const char * mods)
 {
+  OPT_MODS = MODS_NONE;
   for(int i = 0; mods[i]; i += MOD_STR_LENGTH)
     {
       IF_MOD_SET("EZ", MODS_EZ, i);
@@ -139,6 +139,7 @@ void config_set_mods(const char * mods)
       IF_MOD_SET("DT", MODS_DT, i);
       IF_MOD_SET("HD", MODS_HD, i);
       IF_MOD_SET("FL", MODS_FL, i);
+      IF_MOD_SET("__", MODS_NONE, i);
       for(int k = 1; k < MOD_STR_LENGTH; k++)
 	if(mods[i+k] == 0)
 	  {

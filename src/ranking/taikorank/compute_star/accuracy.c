@@ -37,26 +37,39 @@ static struct hash_table * ht_cst;
 static double tro_slow(struct tr_object * obj);
 
 static void trm_compute_slow(struct tr_map * map);
-static void trm_compute_od_to_ms(struct tr_map * map);
+static void trm_compute_hit_window(struct tr_map * map);
 static void trm_compute_spacing(struct tr_map * map);
 
 //-----------------------------------------------------
 
 #define ACCURACY_FILE  "accuracy_cst.yaml"
 
+#define MS_GREAT       48
+#define MS_COEFF_GREAT 3
+#define MS_GOOD        108
+#define MS_COEFF_GOOD  6
+#define MS_MISS        500 // arbitrary
+#define MS_COEFF_MISS  0   // arbitrary
+
 static struct vector * SLOW_VECT;
+static struct vector * HIT_WINDOW_VECT;
 
 static double ACCURACY_STAR_COEFF_SLOW;
+static double ACCURACY_STAR_COEFF_HIT_WINDOW;
+static double ACCURACY_STAR_COEFF_SPACING;
 static struct vector * SCALE_VECT;
 
 //-----------------------------------------------------
 
 static void global_init(void)
 {
-  SLOW_VECT = cst_vect(ht_cst, "vect_slow");
-  SCALE_VECT = cst_vect(ht_cst, "vect_scale");
+  SLOW_VECT       = cst_vect(ht_cst, "vect_slow");
+  HIT_WINDOW_VECT = cst_vect(ht_cst, "vect_hit_window");
+  SCALE_VECT      = cst_vect(ht_cst, "vect_scale");
 
-  ACCURACY_STAR_COEFF_SLOW = cst_f(ht_cst, "star_slow");
+  ACCURACY_STAR_COEFF_SLOW       = cst_f(ht_cst, "star_slow");
+  ACCURACY_STAR_COEFF_HIT_WINDOW = cst_f(ht_cst, "star_hit_window");
+  ACCURACY_STAR_COEFF_SPACING    = cst_f(ht_cst, "star_spacing");
 }
 
 //-----------------------------------------------------
@@ -74,7 +87,8 @@ __attribute__((destructor))
 static void ht_cst_exit_accuracy(void)
 {
   yaml2_free(yw);
-  vect_free(SLOW_VECT);
+  vect_free(SLOW_VECT);  
+  vect_free(HIT_WINDOW_VECT);
   vect_free(SCALE_VECT);
 }
 
@@ -91,12 +105,25 @@ static double tro_slow(struct tr_object * obj)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static void trm_compute_od_to_ms(struct tr_map * map)
+static void trm_compute_hit_window(struct tr_map * map)
 {
-  map->great_ms = (int)(map->great_ms *
-			(MS_GREAT - (MS_COEFF_GREAT * map->od)));
-  map->bad_ms =  (int)(map->bad_ms *
-		       (MS_BAD - (MS_COEFF_BAD * map->od)));
+  int great_ms = (int)(map->od_mod_mult *
+		       (MS_GREAT - (MS_COEFF_GREAT * map->od)));
+  int good_ms =  (int)(map->od_mod_mult *
+		       (MS_GOOD  - (MS_COEFF_GOOD  * map->od)));
+  int miss_ms =  (int)(map->od_mod_mult *
+		       (MS_MISS  - (MS_COEFF_MISS  * map->od)));
+  for(int i = 0; i < map->nb_object; i++)
+    {
+      if(map->object[i].ps == GREAT)
+	map->object[i].hit_window = great_ms;
+      else if(map->object[i].ps == GOOD)
+	map->object[i].hit_window = good_ms;
+      else // also bonus
+	map->object[i].hit_window = miss_ms;
+      map->object[i].hit_window = vect_exp
+	(HIT_WINDOW_VECT, map->object[i].hit_window);
+    }
 }
 
 //-----------------------------------------------------
@@ -125,7 +152,9 @@ static void trm_compute_accuracy_star(struct tr_map * map)
     {
       map->object[i].accuracy_star = vect_poly2
 	(SCALE_VECT,
-	 (ACCURACY_STAR_COEFF_SLOW * map->object[i].slow));
+	 (ACCURACY_STAR_COEFF_SLOW * map->object[i].slow +
+	  ACCURACY_STAR_COEFF_SPACING * map->object[i].spacing +
+	  ACCURACY_STAR_COEFF_HIT_WINDOW*map->object[i].hit_window));
     }
   map->accuracy_star = trm_weight_sum_accuracy_star(map, NULL);
 }
@@ -142,7 +171,7 @@ void trm_compute_accuracy(struct tr_map * map)
       return;
     }
 
-  trm_compute_od_to_ms(map);
+  trm_compute_hit_window(map);
   trm_compute_spacing(map);
   trm_compute_slow(map);
   trm_compute_accuracy_star(map);

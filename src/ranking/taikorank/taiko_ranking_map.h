@@ -40,8 +40,7 @@ struct tr_map
   // Song Info
   int mods;
   double od;
-  double great_ms;
-  double bad_ms;
+  double od_mod_mult; // DT and HT...
   
   // Taiko objects
   int nb_object;

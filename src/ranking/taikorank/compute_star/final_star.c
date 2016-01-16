@@ -80,7 +80,9 @@ void trm_compute_final_star(struct tr_map * map)
       map->object[i].final_star = 
 	vect_poly2(SCALE_VECT,
 		   map->object[i].density_star *
-		   map->object[i].pattern_star);
+		   map->object[i].reading_star *
+		   map->object[i].pattern_star * 
+		   map->object[i].accuracy_star);
     }
   map->final_star = trm_weight_sum_final_star(map, NULL);
 }

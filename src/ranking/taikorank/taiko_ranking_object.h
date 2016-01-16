@@ -72,6 +72,8 @@ struct tr_object
 
   // ---- accuracy star
   double slow;         // slow, hard to acc
+  double hit_window;
+  double spacing;
 
   // ---- star
   double density_star;

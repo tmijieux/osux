@@ -17,11 +17,6 @@
 #ifndef ACCURACY_H
 #define ACCURACY_H
 
-#define MS_GREAT       48
-#define MS_COEFF_GREAT 3
-#define MS_BAD         108
-#define MS_COEFF_BAD   6
-
 void trm_compute_accuracy (struct tr_map * map);
 
 #endif //ACCURACY_H

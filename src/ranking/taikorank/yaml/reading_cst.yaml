@@ -30,6 +30,6 @@ speed_ch_value_0: 0.000000001
 ### coeff for star
 star_superpos: 0   
 star_hide:     0   
-star_hidden:   0.7
+star_hidden:   0.4
 star_speed_ch: 0   
-star_fast:     0.4
+star_fast:     0.7

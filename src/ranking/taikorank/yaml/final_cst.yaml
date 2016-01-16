@@ -2,5 +2,5 @@
 vect_scale_length: 2
 vect_scale_x1: 0.
 vect_scale_y1: 0.
-vect_scale_x2: 5e-1
+vect_scale_x2: 20e-4
 vect_scale_y2: 10.
