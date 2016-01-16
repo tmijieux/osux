@@ -84,7 +84,7 @@ static void map_fetch_Editor(PyObject *d, struct map *m)
     if (v) {
 	m->bkmkc = (uint32_t) PyList_Size(v);
 	m->Bookmarks = malloc(sizeof (*m->Bookmarks) * m->bkmkc);
-	for (int i = 0; i < m->bkmkc; ++i)
+	for (unsigned int i = 0; i < m->bkmkc; ++i)
 	    m->Bookmarks[i] = (uint32_t) PyInt_AsLong(PyList_GetItem(v, i));
     }
     
@@ -117,7 +117,7 @@ static void map_fetch_Metadata(PyObject *d, struct map *m)
     if (v) {
 	m->tagc = (uint32_t) PyList_Size(v);
 	m->Tags = malloc(sizeof (*m->Tags) * m->tagc);
-	for (int i = 0; i < m->tagc; ++i)
+	for (unsigned int i = 0; i < m->tagc; ++i)
 	    m->Tags[i] = strdup(PyString_AsString(PyList_GetItem(v, i)));
     }
 }
@@ -153,7 +153,7 @@ static void map_fetch_Colours(PyObject *d, struct map *m)
     size_t size = PyList_Size(d);
     m->Colours = malloc(sizeof(*m->Colours) * size);
     m->colc = size;
-    for (int i = 0; i < size; ++i) {
+    for (unsigned int i = 0; i < size; ++i) {
 	PyObject *p = PyList_GetItem(d, i);
 	col_py_fetch(&m->Colours[i], p);
     }
@@ -194,7 +194,7 @@ static void map_fetch_TimingPoints(PyObject *d, struct map *m)
 	return;
     m->tpc = (uint32_t) PyList_Size(d);
     m->TimingPoints = malloc(sizeof (*m->TimingPoints) * m->tpc);
-    for (int i = 0; i < m->tpc; ++i)
+    for (unsigned int i = 0; i < m->tpc; ++i)
 	tp_py_fetch(&m->TimingPoints[i], PyList_GetItem(d, i));
 }
 
@@ -259,7 +259,7 @@ static void ho_py_fetch(struct hit_object *ho, PyObject *ho_dict)
     if (tmp1) {
 	ho->sli.point_count = PyList_Size(tmp1);
 	ho->sli.pos = malloc(sizeof(*ho->sli.pos) * ho->sli.point_count);
-	for (int i = 0; i < ho->sli.point_count; ++i) {
+	for (unsigned int i = 0; i < ho->sli.point_count; ++i) {
 	    PyObject *tmp2 = PyList_GetItem(tmp1, i);
 	    ho->sli.pos[i].x = PyInt_AsLong(PyList_GetItem(tmp2, 0));
 	    ho->sli.pos[i].y = PyInt_AsLong(PyList_GetItem(tmp2, 1));
@@ -276,14 +276,14 @@ static void ho_py_fetch(struct hit_object *ho, PyObject *ho_dict)
 				(ho->sli.repeat + 1));
 
 	if (slisample) {
-	    for (int i = 0; i < (ho->sli.repeat + 1); ++i) {
+	    for (unsigned int i = 0; i < (ho->sli.repeat + 1); ++i) {
 		ho->sli.hs.dat[i].sample
 		    = PyInt_AsLong(PyList_GetItem(slisample, i));
 	    }
 	}
 	
 	if (slihsadd) { // TODO: disable this for v9 by example check version
-	    for (int i = 0; i < (ho->sli.repeat + 1); ++i) {
+	    for (unsigned int i = 0; i < (ho->sli.repeat + 1); ++i) {
 		PyObject *tmp = PyList_GetItem(slihsadd, i);
 		ho->sli.hs.dat[i].st = 
 		    PyInt_AsLong(PyList_GetItem(tmp, 0));
@@ -303,7 +303,7 @@ static void map_fetch_HitObjects(PyObject *d, struct map *m)
 	return;
     m->hoc = (uint32_t) PyList_Size(d);
     m->HitObjects = malloc(sizeof (*m->HitObjects) * m->hoc);
-    for (int i = 0; i < m->hoc; ++i)
+    for (unsigned int i = 0; i < m->hoc; ++i)
 	ho_py_fetch(&m->HitObjects[i], PyList_GetItem(d, i));
 }
 

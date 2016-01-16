@@ -26,7 +26,7 @@
 
 struct map {
     uint32_t version;
-    uint32_t bom;
+    uint32_t bom; // byte order mark; utf-8 stuff
     
     // general info
     char *AudioFilename;

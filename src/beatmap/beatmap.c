@@ -66,7 +66,7 @@ void map_print(const struct map *m, FILE *f)
     PRINT_SECTION( Editor );
     if (m->bkmkc) {
 	fprintf(f, "Bookmarks: ");
-	for (int i = 0; i < m->bkmkc; ++i){
+	for (unsigned int i = 0; i < m->bkmkc; ++i){
 	    if (i>=1) printf(",");
 	    fprintf(f, "%d", m->Bookmarks[i]);
 	}
@@ -103,7 +103,7 @@ void map_print(const struct map *m, FILE *f)
     PRINT_STRING(m, f, Version);
     PRINT_STRING(m, f, Source);
     printf("Tags:");
-    for (int i = 0; i < m->tagc; ++i) {
+    for (unsigned int i = 0; i < m->tagc; ++i) {
 	fprintf(f, "%s", m->Tags[i]);
 	if (i < m->tagc-1) fprintf(f, " ");
     }
@@ -124,18 +124,18 @@ void map_print(const struct map *m, FILE *f)
     PRINT_SECTION( Events );
     
     PRINT_SECTION( TimingPoints );
-    for (int i = 0; i < m->tpc; ++i)
+    for (unsigned int i = 0; i < m->tpc; ++i)
 	tp_print(&m->TimingPoints[i]);
 
     if (m->colc) {
 	PRINT_SECTION( Colours );
-	for (int i = 0; i < m->colc; ++i)
+	for (unsigned int i = 0; i < m->colc; ++i)
 	    col_print(f, &m->Colours[i], i+1);
 	fputs("\r\n", f);
     }
     
     PRINT_SECTION( HitObjects );
-    for (int i = 0; i < m->hoc; ++i)
+    for (unsigned int i = 0; i < m->hoc; ++i)
 	ho_print(&m->HitObjects[i], m->version);
 }
 
@@ -153,16 +153,16 @@ void map_free(struct map *m)
     free(m->Version);
     free(m->Source);
 
-    for (int i = 0; i < m->tagc; ++i)
+    for (unsigned int i = 0; i < m->tagc; ++i)
 	free(m->Tags[i]);
     free(m->Tags);
 
-    for (int i = 0; i < m->tpc; ++i)
+    for (unsigned int i = 0; i < m->tpc; ++i)
 	tp_free(&m->TimingPoints[i]);
     free(m->TimingPoints);
     free(m->Colours);
 
-    for (int i = 0; i < m->hoc; ++i)
+    for (unsigned int i = 0; i < m->hoc; ++i)
 	ho_free(&m->HitObjects[i]);
 
     free(m->HitObjects);
