@@ -43,7 +43,7 @@ static unsigned int parse_replay_data(FILE *f, struct replay_data **repdata)
     free(uncomp);
     
     *repdata = calloc(sizeof(**repdata), repdata_count);
-    for (int i = 0; i < repdata_count; ++i) {
+    for (unsigned int i = 0; i < repdata_count; ++i) {
 	sscanf(tab[i], "%ld|%lg|%lg|%d",
 	       &(*repdata)[i].previous_time,
 	       &(*repdata)[i].x,
@@ -124,7 +124,7 @@ struct replay *replay_parse(FILE *f)
     read_string(&r->lifebar_graph, f);
     r->replife_size = string_split(r->lifebar_graph, ",", &life);
     r->replife = malloc(sizeof*r->replife * r->replife_size);
-    for (int i = 0; i < r->replife_size; ++i) {
+    for (unsigned int i = 0; i < r->replife_size; ++i) {
         sscanf(life[i], "%lu|%lg", &r->replife[i].time_offset,
                &r->replife[i].life_amount);
         free(life[i]);
@@ -161,7 +161,7 @@ void replay_print(FILE *f, const struct replay *r)
     fputs("mods: ", f);  mod_print(f, r->mods); fputs("\n", f);  
     fprintf(f, "lifebar_graph: "/*%s\n", r->lifebar_graph*/);
 
-    for (int i = 0; i < r->replife_size; ++i) {
+    for (unsigned int i = 0; i < r->replife_size; ++i) {
         struct replay_life *rl = &r->replife[i];
         fprintf(f, "%lu|%lg%s", rl->time_offset, rl->life_amount,
                 i == r->replife_size-1 ? "" : ",");
@@ -174,7 +174,7 @@ void replay_print(FILE *f, const struct replay *r)
     fprintf(f, "\n");
     fprintf(f, "__ DATA __ :\n");
 
-    for (int i = 0; i < r->repdata_count; ++i) {
+    for (unsigned int i = 0; i < r->repdata_count; ++i) {
     	struct replay_data *rd = &r->repdata[i];
     	fprintf(f, "%ld|", rd->previous_time);
     	fprintf(f, "%g|", rd->x);

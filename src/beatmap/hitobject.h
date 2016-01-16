@@ -17,6 +17,7 @@
 #ifndef HIT_OBJECT_H
 #define HIT_OBJECT_H
 
+#include <stdint.h>
 
 // HitObject '~~ TYPE'
 #define HO_CIRCLE   1
@@ -62,10 +63,10 @@ struct add_hs {
 
 struct slider {
     int type;
-    int repeat;
+    uint32_t repeat;
     double length;
     
-    int point_count;
+    uint32_t point_count;
     struct point *pos;
     struct {
 	int additional;
