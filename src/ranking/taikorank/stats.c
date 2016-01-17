@@ -118,12 +118,12 @@ double default_weight(int i, double val)
   TRO_COMPARE(FIELD)				\
   TRM_SORT(FIELD)
 
-#define TRM_STATS_FUNCTIONS(FIELD, MAJ)		\
+#define TRM_STATS_FUNCTIONS(FIELD)		\
   TRM_SORT_FUNCTIONS(FIELD)			\
   TRM_QUARTILE(FIELD, 1, 10) /* D1 */		\
-  TRM_QUARTILE(FIELD, 1, 4) /* Q1 */		\
-  TRM_QUARTILE(FIELD, 1, 2) /* median */	\
-  TRM_QUARTILE(FIELD, 3, 4) /* Q3 */		\
+  TRM_QUARTILE(FIELD, 1, 4)  /* Q1 */		\
+  TRM_QUARTILE(FIELD, 1, 2)  /* median */	\
+  TRM_QUARTILE(FIELD, 3, 4)  /* Q3 */		\
   TRM_QUARTILE(FIELD, 9, 10) /* D9 */		\
   TRM_MEAN(FIELD)				\
   TRM_STATS(FIELD)				\
@@ -132,12 +132,13 @@ double default_weight(int i, double val)
 //-----------------------------------------------------
 
 TRM_SORT_FUNCTIONS(offset)
+TRM_SORT_FUNCTIONS(rest)
 
-TRM_STATS_FUNCTIONS(density_star,  DENSITY)
-TRM_STATS_FUNCTIONS(reading_star,  READING)
-TRM_STATS_FUNCTIONS(pattern_star,  PATTERN)
-TRM_STATS_FUNCTIONS(accuracy_star, ACCURACY)
-TRM_STATS_FUNCTIONS(final_star,    FINAL)
+TRM_STATS_FUNCTIONS(density_star)
+TRM_STATS_FUNCTIONS(reading_star)
+TRM_STATS_FUNCTIONS(pattern_star)
+TRM_STATS_FUNCTIONS(accuracy_star)
+TRM_STATS_FUNCTIONS(final_star)
 
 //-----------------------------------------------------
 

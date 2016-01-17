@@ -41,6 +41,8 @@ int OPT_PRINT_FILTER;
 char * OPT_PRINT_ORDER;
 
 int OPT_MODS;
+int OPT_FLAT;
+int OPT_NO_BONUS;
 
 char * TR_DB_IP;
 char * TR_DB_LOGIN;
@@ -65,6 +67,8 @@ static void global_init(void)
   
   char * mods = cst_str(ht_conf, "mods");
   config_set_mods(mods);
+  OPT_FLAT     = cst_i(ht_conf, "flat");
+  OPT_NO_BONUS = cst_i(ht_conf, "no_bonus");
 
   OPT_DATABASE = cst_i(ht_conf, "database");
   if(OPT_DATABASE)
@@ -72,19 +76,24 @@ static void global_init(void)
 
   OPT_SCORE = cst_i(ht_conf, "score");
   if(OPT_SCORE)
+    config_score();
+}
+
+//-----------------------------------------------------
+
+void config_score(void)
+{
+  OPT_SCORE_QUICK = cst_i(ht_conf, "score_quick");
+  OPT_SCORE_ACC   = cst_f(ht_conf, "score_acc") / COEFF_MAX_ACC;
+  int i = cst_i(ht_conf, "score_method");
+  switch(i)
     {
-      OPT_SCORE_QUICK = cst_i(ht_conf, "score_quick");
-      OPT_SCORE_ACC   = cst_f(ht_conf, "score_acc") / COEFF_MAX_ACC;
-      int i = cst_i(ht_conf, "score_method");
-      switch(i)
-	{
-	case 1:
-	  TRM_METHOD_GET_TRO = trm_best_influence_tro;
-	  break;
-	default:
-	  TRM_METHOD_GET_TRO = trm_hardest_tro;
-	  break;
-	}
+    case 1:
+      TRM_METHOD_GET_TRO = trm_best_influence_tro;
+      break;
+    default:
+      TRM_METHOD_GET_TRO = trm_hardest_tro;
+      break;
     }
 }
 

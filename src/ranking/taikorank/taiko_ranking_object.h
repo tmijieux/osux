@@ -18,7 +18,7 @@
 #define TRO_H
 
 // percentage for equal
-#define EPSILON 0.5
+#define EPSILON 1.
 
 #define MSEC_IN_MINUTE 60000.
 

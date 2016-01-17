@@ -30,6 +30,7 @@
 #include "print.h"
 
 #include "accuracy.h"
+#include "spacing_count.h"
 
 static struct yaml_wrap * yw;
 static struct hash_table * ht_cst;
@@ -138,8 +139,32 @@ static void trm_compute_slow(struct tr_map * map)
 
 //-----------------------------------------------------
 
+static int equal_i(int x, int y)
+{
+  return abs(x - y) < 12;
+}
+
 static void trm_compute_spacing(struct tr_map * map)
 {
+  struct list * l = spc_new();
+  trm_sort_rest(map);
+
+  int last = 0;
+  spc_add(l, map->object[last].rest);
+
+  for(int i = 1; i < map->nb_object; i++)
+    {
+      if(equal_i(map->object[last].rest, map->object[i].rest))
+	spc_increase(l, map->object[last].rest);
+      else
+	{
+	  spc_add(l, map->object[i].rest);
+	  last = i;
+	}
+    }
+  // TODO: do something
+  trm_sort_offset(map);
+  spc_free(l);
 }
 
 //-----------------------------------------------------

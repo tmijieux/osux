@@ -13,32 +13,20 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef SPACING_COUNT_H
+#define SPACING_COUNT_H
 
-extern int OPT_DATABASE;
-extern int OPT_PRINT_TRO;
-extern int OPT_PRINT_YAML;
-extern int OPT_PRINT_FILTER;
-extern char * OPT_PRINT_ORDER;
+struct list;
 
-extern int OPT_MODS;
-extern int OPT_FLAT;
-extern int OPT_NO_BONUS;
+struct spacing {
+  int rest;
+  int nb;
+};
 
-extern char * TR_DB_IP;
-extern char * TR_DB_LOGIN;
-extern char * TR_DB_PASSWD;
+struct list * spc_new(void);
+void spc_free(struct list * spc);
+void spc_add(struct list * spc, int rest);
+void spc_increase(struct list * spc, int rest);
+void spc_print(struct list * spc);
 
-extern int OPT_SCORE;
-extern int OPT_SCORE_QUICK;
-extern double OPT_SCORE_ACC;
-extern int (* TRM_METHOD_GET_TRO)(struct tr_map *);
-
-void config_set_mods(const char * mods);
-void config_set_filter(char * filter);
-void config_score(void);
-
-void ht_conf_db_init(void);
-
-#endif //CONFIG_H
+#endif //SPACING_COUNT_H

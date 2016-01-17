@@ -68,6 +68,12 @@ void trm_main(const struct tr_map * map, int mods)
   struct tr_map * map_copy = trm_copy(map);
   trm_set_mods(map_copy, mods);
 
+  // modifications
+  if(OPT_FLAT)
+    trm_flat_big(map_copy);
+  if(OPT_NO_BONUS)
+    trm_remove_bonus(map_copy);
+
   // compute
   trm_compute_stars(map_copy);
   
@@ -213,7 +219,7 @@ static char convert_get_type(struct hit_object * ho)
 //---------------------------------------------------------------
 
 static double convert_get_bpm_app(struct timing_point * tp,
-				   double sv)
+				  double sv)
 {
   double sv_multiplication;
   if(tp->uninherited)
@@ -222,13 +228,13 @@ static double convert_get_bpm_app(struct timing_point * tp,
     sv_multiplication = -100. / tp->svm;
 
   return(mpb_to_bpm(tp->last_uninherited->mpb) *
-	  sv_multiplication * (sv / BASIC_SV));
+	 sv_multiplication * (sv / BASIC_SV));
 }
 
 //---------------------------------------------------------------
 
 static int convert_get_end_offset(struct hit_object * ho, int type,
-				   double bpm_app)
+				  double bpm_app)
 {
   if(type == 's')
     {
@@ -293,9 +299,9 @@ struct tr_map * trm_convert(char* file_name)
   for(int i = 0; i < map->hoc; i++)
     {
       while(current_tp < (map->tpc - 1) &&
-	     map->TimingPoints[current_tp + 1].offset
-	     <= map->HitObjects[i].offset)
-	  current_tp++;
+	    map->TimingPoints[current_tp + 1].offset
+	    <= map->HitObjects[i].offset)
+	current_tp++;
 	
       tr_map->object[i].offset     =
 	(int) map->HitObjects[i].offset;
@@ -563,4 +569,39 @@ double compute_acc(int great, int good, int miss)
 static void trm_acc(struct tr_map * map)
 {
   map->acc = compute_acc(map->great, map->good, map->miss);
+}
+
+//--------------------------------------------------
+
+void trm_flat_big(struct tr_map * map)
+{
+  for(int i = 0; i < map->nb_object; i++)
+    switch(map->object[i].type)
+      {
+      case 'D':
+	map->object[i].type = 'd';
+	break;
+      case 'K':
+	map->object[i].type = 'k';
+	break;
+      case 'R':
+	map->object[i].type = 'r';
+	break;
+      default:
+	break;
+      }
+}
+
+void trm_remove_tro(struct tr_map * map, int o)
+{
+  for(int i = o; i < map->nb_object - 1; i++)
+    map->object[i] = map->object[i+1];
+  map->nb_object--;
+}
+
+void trm_remove_bonus(struct tr_map * map)
+{
+  for(int i = 0; i < map->nb_object; i++)
+    if(tro_is_bonus(&map->object[i]))
+      trm_remove_tro(map, i);
 }

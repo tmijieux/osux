@@ -88,4 +88,9 @@ void trm_print(struct tr_map * map);
 void trm_print_yaml(struct tr_map * map);
 void tr_print_yaml_init(void);
 void tr_print_yaml_exit(void);
+
+void trm_remove_tro(struct tr_map * map, int o);
+void trm_remove_bonus(struct tr_map * map);
+void trm_flat_big(struct tr_map * map);
+
 #endif

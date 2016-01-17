@@ -24,13 +24,19 @@
 #include "util/hash_table.h"
 
 #define ARG_OPT_DB           "-db"
+
+#define ARG_OPT_SCORE        "-score"
 #define ARG_OPT_SCORE_ACC    "-acc"
 #define ARG_OPT_SCORE_QUICK  "-quick"
+
 #define ARG_OPT_PRINT_TRO    "-ptro"
 #define ARG_OPT_PRINT_YAML   "-pyaml"
 #define ARG_OPT_PRINT_FILTER "-pfilter"
 #define ARG_OPT_PRINT_ORDER  "-porder"
+
 #define ARG_OPT_MODS         "-mods"
+#define ARG_OPT_NO_BONUS     "-no_bonus"
+#define ARG_OPT_FLAT         "-flat"
 
 static struct hash_table * ht_opt;
 
@@ -69,10 +75,23 @@ static int opt_db(int argc, const char ** argv)
   return 1;
 }
 
+//-----------------------------------------------------
+
+static int opt_score(int argc, const char ** argv)
+{
+  OPT_ARGC_ERR(argc, 1, ARG_OPT_SCORE);
+  OPT_SCORE = atoi(argv[0]);
+  if(OPT_SCORE)
+    config_score();
+  return 1;
+}
+
 static int opt_score_quick(int argc, const char ** argv)
 {
   OPT_ARGC_ERR(argc, 1, ARG_OPT_SCORE_QUICK);
   OPT_SCORE_QUICK = atoi(argv[0]);
+  OPT_SCORE = 1;
+  config_score();
   return 1;
 }
 
@@ -80,8 +99,12 @@ static int opt_score_acc(int argc, const char ** argv)
 {
   OPT_ARGC_ERR(argc, 1, ARG_OPT_SCORE_ACC);
   OPT_SCORE_ACC = atof(argv[0]) / COEFF_MAX_ACC;
+  OPT_SCORE = 1;
+  config_score();
   return 1;
 }
+
+//-----------------------------------------------------
 
 static int opt_print_tro(int argc, const char ** argv)
 {
@@ -110,10 +133,26 @@ static int opt_print_order(int argc, const char ** argv)
   return 1;
 }
 
+//-----------------------------------------------------
+
 static int opt_mods(int argc, const char ** argv)
 {
   OPT_ARGC_ERR(argc, 1, ARG_OPT_MODS);
   config_set_mods(argv[0]);
+  return 1;
+}
+
+static int opt_no_bonus(int argc, const char ** argv)
+{
+  OPT_ARGC_ERR(argc, 1, ARG_OPT_NO_BONUS);
+  OPT_NO_BONUS = atoi(argv[0]);
+  return 1;
+}
+
+static int opt_flat(int argc, const char ** argv)
+{
+  OPT_ARGC_ERR(argc, 1, ARG_OPT_FLAT);
+  OPT_FLAT = atoi(argv[0]);
   return 1;
 }
 
@@ -125,9 +164,15 @@ static void options_init(void)
   ht_opt = ht_create(0, NULL);
   
   ht_add_entry(ht_opt, ARG_OPT_DB,           opt_db);
+
   ht_add_entry(ht_opt, ARG_OPT_MODS,         opt_mods);
+  ht_add_entry(ht_opt, ARG_OPT_NO_BONUS,     opt_no_bonus);
+  ht_add_entry(ht_opt, ARG_OPT_FLAT,         opt_flat);
+
+  ht_add_entry(ht_opt, ARG_OPT_SCORE,        opt_score);
   ht_add_entry(ht_opt, ARG_OPT_SCORE_ACC,    opt_score_acc);
   ht_add_entry(ht_opt, ARG_OPT_SCORE_QUICK,  opt_score_quick);
+
   ht_add_entry(ht_opt, ARG_OPT_PRINT_TRO,    opt_print_tro);
   ht_add_entry(ht_opt, ARG_OPT_PRINT_YAML,   opt_print_yaml);
   ht_add_entry(ht_opt, ARG_OPT_PRINT_ORDER,  opt_print_order);

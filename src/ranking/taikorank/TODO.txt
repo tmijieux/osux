@@ -3,10 +3,9 @@ Todo:
 - min on alt[] and singletap[]
 - redo all reading computation...
 - 95% computation, other methods?
-- flatten & remove bonus?
 - offset_app... roll & spinner -> treatment check
 - pb with time on screen... -> invisble time not 0
-
+- pattern need improvement
 
 Other:		   
 - HDHR not supported

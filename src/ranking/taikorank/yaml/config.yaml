@@ -18,9 +18,13 @@ print_order: FP
 # P -> pattern
 # A -> accuracy
 
-### Mods
-mods: HD
-# no space between mods (ex: DTHR)
+### Others
+mods: __
+# no space between mods (ex: DTHR), use __ for no mod
+flat: 0
+# change D to d, etc
+no_bonus: 0
+# remove bonus objects
 
 ### Database
 database:  0
