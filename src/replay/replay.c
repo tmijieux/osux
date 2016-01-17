@@ -29,7 +29,7 @@
 #include "replay.h"
 #include "xz_decomp.h"
 
-#define read_string(buf_ptr_, file_) read_string_(buf_ptr_, file_)
+#define read_string(buf_ptr_, file_) read_string_ULEB128(buf_ptr_, file_)
 
 #define DATE_MAXSIZE 200
 
@@ -53,20 +53,6 @@ static unsigned int parse_replay_data(FILE *f, struct replay_data **repdata)
     }
     free(tab);
     return repdata_count;
-}
-
-static void read_string_(char **buf, FILE *f)
-{
-    uint8_t h;
-    fread(&h, 1, 1, f);
-    if (h == 0x0B) {
-	uint64_t s = read_ULEB128(f);
-	*buf = malloc(s+1);
-	fread(*buf, s, 1, f);
-	(*buf)[s] = 0;
-    } else {
-	*buf = NULL;
-    }
 }
 
 #define TICKS_PER_SECONDS 10000000L

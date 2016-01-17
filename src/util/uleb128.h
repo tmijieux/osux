@@ -16,20 +16,11 @@
 
 #ifndef CSSTRING_H
 #define CSSTRING_H
-    
+
+#include <stdio.h>
 #include <stdint.h>
 
-static inline uint64_t read_ULEB128( FILE * f )
-{
-    uint64_t value = 0;				
-    unsigned shift = 0;				
-    uint8_t p;					
-    do {						
-	fread(&p, 1, 1, f);				
-	value += (uint64_t)(p & 0x7f) << shift;	
-	shift += 7;					
-    } while (p >= 0x80);				
-    return value;						
-}							
+uint64_t read_ULEB128(FILE * f);
+void write_ULEB128(uint64_t value, FILE *output, unsigned padding);
 
 #endif //CSSTRING_H

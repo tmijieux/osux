@@ -20,6 +20,7 @@
 
 #include "list.h"
 #include "split.h"
+#include "util/uleb128.h"
 
 unsigned int string_split(const char *str, const char *delim, char ***buf_addr)
 {
@@ -43,9 +44,47 @@ unsigned int string_split(const char *str, const char *delim, char ***buf_addr)
 	*buf_addr = NULL;
     } else {
 	*buf_addr = malloc(sizeof(*buf_addr) * s);
-        for (int i = 1; i <= s; ++i)
+        for (unsigned i = 1; i <= s; ++i)
             (*buf_addr)[s - i] = list_get(li, i);
     }
     list_free(li);
     return s;
+}
+
+int string_have_extension(const char *filename, const char *extension)
+{
+    size_t l = strlen(filename);
+    size_t e = strlen(extension);
+    if (l < e)
+        return 0;
+    return (strcmp(extension, filename + l - e) == 0);
+}
+
+void read_string_ULEB128(char **buf, FILE *f)
+{
+    uint8_t h;
+    fread(&h, 1, 1, f);
+    if (h == 0x0B) {
+	uint64_t s = read_ULEB128(f);
+	*buf = malloc(s+1);
+	fread(*buf, s, 1, f);
+	(*buf)[s] = 0;
+    } else {
+	*buf = NULL;
+    }
+}
+
+void write_string_ULEB128(char *buf, FILE *f)
+{
+    uint8_t h = 0;
+    size_t len = strlen(buf);
+    if (0 == len) {
+        fwrite(&h, 1, 1, f);
+        return;
+    } else {
+        h = 0x0B;
+        fwrite(&h, 1, 1, f);
+        write_ULEB128(len, f, 0);
+        fwrite(buf, 1, len, f);
+    }
 }

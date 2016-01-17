@@ -14,10 +14,12 @@
  *  limitations under the License.
  */
 
-
 #ifndef SPLIT_H
 #define SPLIT_H
 
 unsigned int string_split(const char *str, const char *delim, char ***buf_addr);
+int string_have_extension(const char *filename, const char *extension);
+void read_string_ULEB128(char **buf, FILE *f);
+void write_string_ULEB128(char *buf, FILE *f);
 
 #endif //SPLIT_H

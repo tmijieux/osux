@@ -20,7 +20,7 @@ unsigned char *osux_md5_hash_file(FILE *f)
     while ((bytes = fread(data, 1, 1024, f)) != 0)
         MD5_Update(&mdContext, data, bytes);
     MD5_Final(c, &mdContext);
-    c[MD5_DIGEST_LENGTH] = '0';
+    c[MD5_DIGEST_LENGTH] = '\0';
     return c;
 }
 
@@ -38,6 +38,22 @@ unsigned char *osux_md5_hash_buf(size_t size, const unsigned char *buf)
         data += bytes;
     }
     MD5_Final(c, &mdContext);
-    c[MD5_DIGEST_LENGTH] = '0';
+    c[MD5_DIGEST_LENGTH] = '\0';
     return c;
+}
+
+char *osux_md5_string(unsigned char *md5)
+{
+    char *str = malloc(MD5_DIGEST_LENGTH * 2 + 1);
+    for(int i = 0; i < MD5_DIGEST_LENGTH; ++i)
+        sprintf(&str[i*2], "%02x", (unsigned int)md5[i]);
+    str[MD5_DIGEST_LENGTH * 2] = '\0';
+    return str;
+}
+
+void osux_md5_print(FILE *outfile, unsigned char *md5)
+{
+    char *str = osux_md5_string(md5);
+    fprintf(outfile, "%s", str);
+    free(str);
 }

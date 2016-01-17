@@ -16,6 +16,10 @@ struct osudb {
     struct beatmap_info *beatmaps;
 };
 
-void osux_rebuild_db(const char *directory_name, struct osudb *odb);
+int osux_db_build(const char *directory_name, struct osudb *odb);
+int osux_db_write(const char *filename, const struct osudb *odb);
+int osux_db_read(const char *filename, struct osudb *odb);
+void osux_db_dump(FILE *outfile, const struct osudb *odb);
+void osux_db_free(struct osudb *odb);
 
 #endif //OSUXDB_H

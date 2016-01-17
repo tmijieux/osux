@@ -7,9 +7,8 @@ libosux_la_LIBADD = \
 	beatmap/libbeatmap.la \
 	replay/libreplay.la \
 	util/libosux_util.la \
-	database/libosux_db.la
-
-#mod/libmod.la
+	database/libosux_db.la \
+	mod/libmod.la
 
 libosux_la_CFLAGS = $(PYTHON2_CFLAGS) $(AM_CFLAGS) -DPYTHON_PATH=\"$(pythondir)\"
 libosux_la_LDFLAGS = $(PYTHON2_LIBS) $(AM_LDFLAGS)
