@@ -21,6 +21,13 @@
 
 #include "taiko_ranking_object.h"
 
+struct tr_object * tro_copy(const struct tr_object * o, int nb)
+{
+  struct tr_object * copy = calloc(sizeof(struct tr_object), nb);
+  memcpy(copy, o, sizeof(struct tr_object) * nb);
+  return copy;
+}
+
 //--------------------------------------------------
 
 double mpb_to_bpm(double mpb)

@@ -44,6 +44,11 @@
  }
 
 #define TRM_SORT(FIELD)						\
+  void tro_sort_##FIELD (struct tr_object * o, int nb)		\
+  {								\
+    qsort(o, nb, sizeof(struct tr_object),			\
+	  tro_compare_##FIELD);					\
+  }								\
   void trm_sort_##FIELD (struct tr_map * map)			\
   {								\
     qsort(map->object, map->nb_object,				\
@@ -73,6 +78,7 @@
     return sum_compute(sum) / map->nb_object;		\
   }
 
+// /!\ does not support threading yet
 #define TRM_STATS(FIELD)					\
   struct stats * trm_stats_##FIELD (struct tr_map * map)	\
   {								\
@@ -104,11 +110,13 @@ double default_weight(int i, double val)
   {								\
     if(weight == NULL)						\
       weight = default_weight;					\
-    trm_sort_##FIELD (map);					\
+    struct tr_object * copy = tro_copy(map->object,		\
+				       map->nb_object);		\
+    tro_sort_##FIELD (copy, map->nb_object);			\
     double sum = 0;						\
     for(int i = 0; i < map->nb_object; i++)			\
-      sum += weight(map->nb_object - i, map->object[i].FIELD);	\
-    trm_sort_offset(map);					\
+      sum += weight(map->nb_object - i, copy[i].FIELD);		\
+    free(copy);							\
     return sum;							\
   }
 

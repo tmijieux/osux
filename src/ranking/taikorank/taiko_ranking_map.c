@@ -13,6 +13,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+#define ENABLE_STAR_THREAD
+
+#ifdef ENABLE_STAR_THREAD
+  #include <pthread.h>
+  #define NB_STARS_FIELD 4
+#endif
 
 #include <unistd.h>
 #include <stdio.h>
@@ -107,10 +113,37 @@ void trm_compute_stars(struct tr_map * map)
   trm_apply_mods(map);
   trm_treatment(map);
   
-  trm_compute_density(map);
+#ifdef ENABLE_STAR_THREAD
+
+  pthread_t th[NB_STARS_FIELD];
+  int r[NB_STARS_FIELD];
+  typedef void*(*fun)(void*);
+
+  r[0] = pthread_create(&th[0], NULL, (fun)trm_compute_density, map);
+  r[1] = pthread_create(&th[1], NULL, (fun)trm_compute_reading, map);
+  r[2] = pthread_create(&th[2], NULL, (fun)trm_compute_pattern, map);
+  r[3] = pthread_create(&th[3], NULL, (fun)trm_compute_accuracy,map);
+
+  for(int i = 0; i < NB_STARS_FIELD; i++)
+    if(r[i] < 0)
+      tr_error("Thread create %d failed.", i);
+
+  for(int i = 0; i < NB_STARS_FIELD; i++)
+    r[i] = pthread_join(th[i], NULL);
+
+  for(int i = 0; i < NB_STARS_FIELD; i++)
+    if(r[i] < 0)
+      tr_error("Thread join %d failed.", i);
+
+#else
+
+  trm_compute_density(map); 
   trm_compute_reading(map);
   trm_compute_pattern(map);
   trm_compute_accuracy(map);
+
+#endif
+
   trm_compute_final_star(map);
 }
 
@@ -121,9 +154,7 @@ struct tr_map * trm_copy(const struct tr_map * map)
   struct tr_map * copy = calloc(sizeof(*copy), 1);
   memcpy(copy, map, sizeof(*map));
 
-  copy->object = calloc(sizeof(map->object[0]), map->nb_object);
-  memcpy(copy->object, map->object,
-	 sizeof(map->object[0]) * map->nb_object);
+  copy->object = tro_copy(map->object, map->nb_object);
   
   copy->title   = strdup(map->title);
   copy->artist  = strdup(map->artist);
@@ -283,7 +314,7 @@ struct tr_map * trm_convert(char* file_name)
   tr_map->object = calloc(sizeof(struct tr_object), map->hoc);
 
   // set last uninherited
-  for(int i = 0; i < map->tpc; i++)
+  for(unsigned int i = 0; i < map->tpc; i++)
     {
       if(map->TimingPoints[i].uninherited)
 	map->TimingPoints[i].last_uninherited =
@@ -294,9 +325,9 @@ struct tr_map * trm_convert(char* file_name)
     }
 
   // set objects
-  int current_tp = 0;
+  unsigned int current_tp = 0;
   tr_map->max_combo = 0;
-  for(int i = 0; i < map->hoc; i++)
+  for(unsigned int i = 0; i < map->hoc; i++)
     {
       while(current_tp < (map->tpc - 1) &&
 	    map->TimingPoints[current_tp + 1].offset

@@ -17,6 +17,6 @@
 #ifndef DENSITY_H
 #define DENSITY_H
 
-void trm_compute_density (struct tr_map * map);
+void * trm_compute_density (struct tr_map * map);
 
 #endif

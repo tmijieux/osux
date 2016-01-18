@@ -85,6 +85,8 @@ struct tr_object
 
 //-------------------------------------------------------------
 
+struct tr_object * tro_copy(const struct tr_object * o, int nb);
+
 void tro_print_yaml(struct tr_object * o);
 void tro_print(struct tr_object * obj, int filter);
 

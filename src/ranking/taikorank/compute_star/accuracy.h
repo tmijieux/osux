@@ -17,6 +17,6 @@
 #ifndef ACCURACY_H
 #define ACCURACY_H
 
-void trm_compute_accuracy (struct tr_map * map);
+void * trm_compute_accuracy (struct tr_map * map);
 
 #endif //ACCURACY_H

@@ -287,16 +287,18 @@ static void trm_compute_reading_star(struct tr_map * map)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-void trm_compute_reading(struct tr_map * map)
+void * trm_compute_reading(struct tr_map * map)
 {
   if(!ht_cst)
     {
       tr_error("Unable to compute reading stars.");
-      return;
+      return NULL;
     }
   
   trm_compute_reading_hide(map);
   trm_compute_reading_fast(map);
   //trm_compute_reading_speed_change(map);
   trm_compute_reading_star(map);
+
+  return NULL;
 }

@@ -132,7 +132,7 @@ static void ht_pattern_init(void)
 	     "Pattern list is not a list.");
   
   struct list * pattern_l = yw_l->content.sequence;
-  for(int i = 1; i <= list_size(pattern_l); i++)
+  for(unsigned int i = 1; i <= list_size(pattern_l); i++)
     {
       struct yaml_wrap * yw_subl = list_get(pattern_l, i);
       cst_assert(yw_subl->type == YAML_SEQUENCE,
@@ -150,7 +150,7 @@ static void ht_pattern_init(void)
       struct pattern * p = calloc(sizeof(*p), 1);
       p->d = calloc(sizeof(double), LENGTH_PATTERN_USED);
       
-      for(int j = 2; j <= list_size(pattern_data); j++)
+      for(unsigned int j = 2; j <= list_size(pattern_data); j++)
 	{
 	  struct yaml_wrap * yw_s = list_get(pattern_data, j);
 	  cst_assert(yw_s->type == YAML_SCALAR,
@@ -297,12 +297,12 @@ static void trm_pattern_alloc(struct tr_map * map)
 
 //-----------------------------------------------------
 
-void trm_compute_pattern(struct tr_map * map)
+void * trm_compute_pattern(struct tr_map * map)
 {
   if(!pattern_set)
     {
       tr_error("Unable to compute pattern stars.");
-      return;
+      return NULL;
     }
   
   trm_pattern_alloc(map);
@@ -310,4 +310,6 @@ void trm_compute_pattern(struct tr_map * map)
   trm_compute_pattern_alt(map);
   
   trm_compute_pattern_star(map);
+
+  return NULL;
 }

@@ -210,15 +210,17 @@ static void trm_compute_density_star(struct tr_map * map)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-void trm_compute_density(struct tr_map * map)
+void * trm_compute_density(struct tr_map * map)
 {
   if(!ht_cst)
     {
       tr_error("Unable to compute density stars.");
-      return;
+      return NULL;
     }
   
   trm_compute_density_raw(map);
   trm_compute_density_color(map);
   trm_compute_density_star(map);
+
+  return NULL;
 }

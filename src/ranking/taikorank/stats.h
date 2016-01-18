@@ -19,7 +19,8 @@
 
 //-----------------------------------------------------
 
-#define TRM_SORT_HEADER(FIELD)			\
+#define TRM_SORT_HEADER(FIELD)				\
+  void tro_sort_##FIELD (struct tr_object * o, int nb);	\
   void trm_sort_##FIELD (struct tr_map * map);
 
 #define TRM_STATS_HEADER(FIELD)					\

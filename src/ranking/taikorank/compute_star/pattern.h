@@ -17,6 +17,6 @@
 #ifndef PATTERN_H
 #define PATTERN_H
 
-void trm_compute_pattern (struct tr_map * map);
+void * trm_compute_pattern (struct tr_map * map);
 
 #endif //PATTERN_H

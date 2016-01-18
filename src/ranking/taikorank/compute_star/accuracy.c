@@ -147,23 +147,25 @@ static int equal_i(int x, int y)
 static void trm_compute_spacing(struct tr_map * map)
 {
   struct list * l = spc_new();
-  trm_sort_rest(map);
+  struct tr_object * copy = tro_copy(map->object, map->nb_object);
+  tro_sort_rest(copy, map->nb_object);
 
   int last = 0;
-  spc_add(l, map->object[last].rest);
+  spc_add(l, copy[last].rest);
 
   for(int i = 1; i < map->nb_object; i++)
     {
-      if(equal_i(map->object[last].rest, map->object[i].rest))
-	spc_increase(l, map->object[last].rest);
+      if(equal_i(copy[last].rest, copy[i].rest))
+	spc_increase(l, copy[last].rest);
       else
 	{
-	  spc_add(l, map->object[i].rest);
+	  spc_add(l, copy[i].rest);
 	  last = i;
 	}
     }
   // TODO: do something
-  trm_sort_offset(map);
+
+  free(copy);
   spc_free(l);
 }
 
@@ -188,16 +190,18 @@ static void trm_compute_accuracy_star(struct tr_map * map)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-void trm_compute_accuracy(struct tr_map * map)
+void * trm_compute_accuracy(struct tr_map * map)
 {
   if(!ht_cst)
     {
       tr_error("Unable to compute accuracy stars.");
-      return;
+      return NULL;
     }
 
   trm_compute_hit_window(map);
   trm_compute_spacing(map);
   trm_compute_slow(map);
   trm_compute_accuracy_star(map);
+
+  return NULL;
 }
