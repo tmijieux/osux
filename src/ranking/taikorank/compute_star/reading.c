@@ -48,8 +48,8 @@ static int pt_is_in_tro(double x, double y, struct tr_object * o);
 static double tr_monte_carlo(int nb_pts,
 			     double x1, double y1,
 			     double x2, double y2,
-			     struct tr_object *o1,
-			     struct tr_object *o2);
+			     int (*is_in)(double, double, void *), 
+			     void * arg);
 /*
 static double tro_speed_change(struct tr_object * obj1,
 				struct tr_object * obj2);
@@ -134,20 +134,34 @@ static int pt_is_in_tro(double x, double y, struct tr_object * o)
   return 0;
 }
 
+static int pt_is_in_intersection(double x, double y,
+				 struct tro_table * t)
+{
+  for(int i = 0; i < t->l; i++)
+    {
+      if(t->t[i] == NULL)
+	continue;
+      if(!pt_is_in_tro(x, y, t->t[i]))
+	return 0;
+    }
+  return 1;
+}
+
 //-----------------------------------------------------
 
+typedef int (*mc_cond)(double, double, void *);
 static double tr_monte_carlo(int nb_pts,
 			     double x1, double y1,
 			     double x2, double y2,
-			     struct tr_object *o1,
-			     struct tr_object *o2)
+			     int (*is_in)(double, double, void *), 
+			     void * arg)
 {
   int ok = 0;
   for(int i = 0; i < nb_pts; i++)
     {
       double x = x1 + RAND_DOUBLE * (x2 - x1); // x1 <= x <= x2
       double y = y1 + RAND_DOUBLE * (y2 - y1); // y1 <= y <= y2
-      if(pt_is_in_tro(x, y, o1) && pt_is_in_tro(x, y, o2))
+      if(is_in(x, y, arg))
 	ok++;
     }
   return ((fabs(x1 - x2) * fabs(y1 - y2)) *
@@ -164,20 +178,81 @@ static double tro_hide(struct tr_object * o1, struct tr_object * o2)
   double x2 = min(o1->end_offset_dis, o2->end_offset_dis);
   double y1 = 0;
   double y2 = o1->bpm_app * o1->end_offset_dis + o1->c_app;
+
   if(equal(o1->bpm_app, o2->bpm_app))
-    // parallelogram
-    hide = ((fabs(x1 - x2) * fabs(y1 - y2)) -
-	    ((fabs(x1 - x2) -
-	      (o1->end_offset_app - o2->offset_app)) *
-	     fabs(y1 - y2)));
+    { // parallelogram
+      hide = ((fabs(x1 - x2) * fabs(y1 - y2)) -
+	      ((fabs(x1 - x2) -
+		(o1->end_offset_app - o2->offset_app)) *
+	       fabs(y1 - y2)));
+    }
   else
-    // complex figure
-    hide = tr_monte_carlo(MONTE_CARLO_NB_PT, x1, y1, x2, y2, o1, o2);
+    { // complex figure
+      struct tro_table * table = tro_table_from_vl(2, o1, o2);
+      hide = tr_monte_carlo(MONTE_CARLO_NB_PT, x1, y1, x2, y2, 
+			    (mc_cond)pt_is_in_intersection, 
+			    table);
+      tro_table_free(table);
+    }
+
   if(tro_is_big(o1))
     hide *= TRO_BIG_SIZE;
   else
     hide *= TRO_SMALL_SIZE;
   return vect_poly2(HIDE_VECT, hide);  
+}
+
+//-----------------------------------------------------
+
+static double tro_seen(struct tr_object * o, struct tr_object ** t,
+		       int l)
+{
+  // all t is hiding o
+  struct tr_object * copy = malloc(sizeof(*copy));
+  *copy = *o;
+
+  // same bpm_app because they are easy to compute
+  int done = 0;
+  for(int i = 0; i < l; i++)
+    if(equal(o->bpm_app, t[i]->bpm_app))
+      {
+	if(t[i]->offset_dis > copy->offset_app)
+	  {
+	    copy->offset_app     = t[i]->offset_dis;
+	    copy->end_offset_app = t[i]->end_offset_dis;
+	  }
+	t[i] = NULL;
+	done++;
+      }
+
+  // seen 
+  double seen = 
+    ((copy->end_offset_dis - copy->offset_app) * 
+     (copy->bpm_app * copy->end_offset_dis + copy->c_app)
+     -
+     (copy->end_offset_dis - copy->end_offset_app) * 
+     (copy->bpm_app * copy->end_offset_dis + copy->c_app));
+  if(tro_is_big(copy))
+    seen *= TRO_BIG_SIZE;
+  else
+    seen *= TRO_SMALL_SIZE;
+
+  // remove others superposition 
+  if(done != l)
+    {
+      double x1 = copy->offset_app;
+      double x2 = copy->end_offset_dis;
+      double y1 = 0;
+      double y2 = copy->bpm_app * copy->end_offset_dis + copy->c_app;
+      struct tro_table * table = tro_table_from_array(t, l);
+      seen -= tr_monte_carlo(MONTE_CARLO_NB_PT, x1, y1, x2, y2, 
+			     (mc_cond)pt_is_in_intersection, 
+			     table);
+      tro_table_free(table);
+    }
+
+  free(copy);
+  return seen;
 }
 
 //-----------------------------------------------------
@@ -213,26 +288,43 @@ static void trm_compute_reading_hide(struct tr_map * map)
 {
   for (int i = 0; i < map->nb_object; i++)
     {
-      struct sum * s_hidden = sum_new(i, DEFAULT);
-      for (int j = 0; j < i; j++)
-	{
-	  int hidden = (map->object[j].end_offset_app -
-			map->object[i].offset_app);
-	  if (hidden > 0) // here if i has appeared before j
-	    sum_add(s_hidden, tro_hide(&map->object[j],
-				       &map->object[i]));
-	}
-      map->object[i].hidden = sum_compute(s_hidden);
+      // list object that hide the i-th
+      struct tr_object ** t1 = malloc(sizeof(*t1) * i);
+      int l1 = 0;
 
-      struct sum * s_hide   = sum_new(map->nb_object - i, DEFAULT);
+      for (int j = 0; j < i; j++)
+	{ // here if i has appeared before j
+	  if(map->object[j].end_offset_app -
+	     map->object[i].offset_app > 0) 
+	    {
+	      t1[l1] = &map->object[j];
+	      l1++;
+	    }
+	}
+
+      struct sum * s_hidden = sum_new(l1, DEFAULT);
+      for(int k = 0; k < l1; k++)
+	sum_add(s_hidden, tro_hide(t1[k], &map->object[i]));
+      map->object[i].hidden = sum_compute(s_hidden);
+      map->object[i].seen = tro_seen(&map->object[i], t1, l1);
+
+      // list object that are hidden by the i-th
+      struct tr_object ** t2 = malloc(sizeof(*t2)*map->nb_object-i);
+      int l2 = 0;
+
       for (int j = i+1; j < map->nb_object; j++)
 	{
-	  int hide = (map->object[i].end_offset_app -
-		      map->object[j].offset_app);
-	  if (hide > 0)
-	    sum_add(s_hide, tro_hide(&map->object[i],
-				     &map->object[j]));
+	  if(map->object[i].end_offset_app -
+	     map->object[j].offset_app > 0)
+	    {
+	      t2[l2] = &map->object[j];
+	      l2++;
+	    }
 	}
+
+      struct sum * s_hide = sum_new(l2, DEFAULT);
+      for(int k = 0; k < l2; k++)
+	sum_add(s_hide, tro_hide(&map->object[i], t2[k]));
       map->object[i].hide = sum_compute(s_hide);
     }
 }

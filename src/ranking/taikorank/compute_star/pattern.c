@@ -139,7 +139,8 @@ static void ht_pattern_init(void)
 		 "Pattern structure is not a list.");
       struct list * pattern_data = yw_subl->content.sequence;
 
-      cst_assert(LENGTH_PATTERN_USED + 1 == list_size(pattern_data),
+      cst_assert((unsigned int) LENGTH_PATTERN_USED + 1 == 
+		 list_size(pattern_data),
 		 "Pattern structure does not have the right size.");
       
       struct yaml_wrap * yw_name = list_get(pattern_data, 1);

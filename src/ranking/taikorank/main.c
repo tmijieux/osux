@@ -52,10 +52,10 @@ int main(int argc, char* argv[])
       else
 	tr_main = trm_main;
       
-      for (int i = 0; i < nb_map; i++)
+      for(int i = 0; i < nb_map; i++)
 	{
 	  struct tr_map * map = trm_new(arg_map[i]);
-	  if (map == NULL)
+	  if(map == NULL)
 	    continue;
 	  
 	  tr_main(map, OPT_MODS);

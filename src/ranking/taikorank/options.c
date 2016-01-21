@@ -123,6 +123,7 @@ static int opt_print_yaml(int argc, const char ** argv)
 static int opt_print_filter(int argc, const char ** argv)
 {
   OPT_ARGC_ERR(argc, 1, ARG_OPT_PRINT_FILTER);
+  config_set_filter((char *) argv[0]);
   return 1;
 }
 

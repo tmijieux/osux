@@ -65,6 +65,7 @@ struct tr_object
   double density_color;
 
   // ---- reading data
+  double seen;
   double hidden;       // how it is hidden by others
   double hide;         // how it hide others
   double fast;         // fast, hard to see
@@ -107,5 +108,14 @@ int tro_are_same_type (struct tr_object * obj1,
 int tro_are_same_density (struct tr_object * obj1,
 			  struct tr_object * obj2);
 
+struct tro_table {
+  struct tr_object ** t;
+  int l;
+};
+
+struct tro_table * tro_table_new(int l);
+struct tro_table * tro_table_from_vl(int l, ...);
+struct tro_table * tro_table_from_array(struct tr_object ** t,int l);
+void tro_table_free(struct tro_table * t);
 
 #endif

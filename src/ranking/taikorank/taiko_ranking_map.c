@@ -13,13 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-#define ENABLE_STAR_THREAD
-
-#ifdef ENABLE_STAR_THREAD
-  #include <pthread.h>
-  #define NB_STARS_FIELD 4
-#endif
-
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -46,6 +39,11 @@
 #include "pattern.h"
 #include "accuracy.h"
 #include "final_star.h"
+
+#ifdef ENABLE_STAR_THREAD
+  #include <pthread.h>
+  #define NB_STARS_FIELD 4
+#endif
 
 #define BASIC_SV 1.4
 
@@ -401,9 +399,9 @@ void trm_print_tro(struct tr_map * map, int filter)
   if((filter & FILTER_DENSITY) != 0)
     fprintf(OUTPUT_INFO, "dnst rw\tdnst cl\tdnst*\t");
   if((filter & FILTER_READING) != 0)
-    fprintf(OUTPUT_INFO, "app\tdis\tvisi\tinvisi\thidden\thide\tfast\tspd chg\tread*\t");
+    fprintf(OUTPUT_INFO, "app\tdis\tvisi\tinvisi\tseen\thidden\thide\tfast\tspd chg\tread*\t");
   if((filter & FILTER_READING_PLUS) != 0)
-    fprintf(OUTPUT_INFO, "app\tend app\tdis\tend dis\tvisi\tinvisi\thidden\thide\tfast\tspd chg\tread*\t");
+    fprintf(OUTPUT_INFO, "app\tend app\tdis\tend dis\tvisi\tinvisi\tseen\thidden\thide\tfast\tspd chg\tread*\t");
   if((filter & FILTER_ACCURACY) != 0)
     fprintf(OUTPUT_INFO, "slow\thitwin\tacc*\t");
   if((filter & FILTER_PATTERN) != 0)
