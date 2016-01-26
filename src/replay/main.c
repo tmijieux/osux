@@ -16,28 +16,40 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
+#include "database/osuxdb.h"
 #include "replay.h"
 
 int main(int argc, char *argv[])
 {
     if (argc != 2)  {
-	fprintf(stderr, "Usage: %s replay.osr\n", argv[0]);
-	exit(EXIT_FAILURE);
+        fprintf(stderr, "Usage: %s replay.osr\n", argv[0]);
+        exit(EXIT_FAILURE);
     }
 
     FILE *f = fopen(argv[1], "r");
     if (!f) {
-	perror(argv[1]);
-	exit(EXIT_FAILURE);
+        perror(argv[1]);
+        exit(EXIT_FAILURE);
     }
 
     struct replay *r = replay_parse(f);
     fclose(f);
-	
+    if (r->invalid) {
+        printf("Invalid replay: are your sure this really is a replay?\n");
+        exit(EXIT_FAILURE);
+    }
+
+    struct osudb odb;
+    osux_db_read("./osu.db", &odb);
+    osux_db_hash(&odb);
+
+    printf("Replay map: %s\n",
+           osux_db_relpath_by_hash(&odb, r->bm_md5_hash));
+
     replay_print(stdout, r);
     replay_free(r);
-    
+    osux_db_free(&odb);
+
     return EXIT_SUCCESS;
 }
 

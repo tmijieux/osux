@@ -21,7 +21,7 @@ parse_beatmap_rec(const char *name, int level, struct list *beatmaps,
 
     assert( beatmaps != NULL );
 
-    
+
     if (!(dir = opendir(name)))
         return -1;
     if (!(entry = readdir(dir)))
@@ -69,6 +69,8 @@ parse_beatmap_rec(const char *name, int level, struct list *beatmaps,
 int osux_db_build(const char *directory_name, struct osudb *odb)
 {
     assert( NULL != odb );
+    memset(odb, 0, sizeof*odb);
+
     struct list *beatmaps = list_new(0);
     parse_beatmap_rec(directory_name, 0, beatmaps, strlen(directory_name));
 
@@ -106,6 +108,7 @@ int osux_db_read(const char *filename, struct osudb *odb)
 {
     FILE *f;
     assert( NULL != odb );
+    memset(odb, 0, sizeof*odb);
 
     if ((f = fopen(filename, "r")) == NULL) {
         odb->beatmaps_number = 0;
@@ -123,6 +126,7 @@ int osux_db_read(const char *filename, struct osudb *odb)
     return 0;
 }
 
+
 void osux_db_free(struct osudb *odb)
 {
     if (NULL != odb) {
@@ -131,6 +135,9 @@ void osux_db_free(struct osudb *odb)
             free(odb->beatmaps[i].md5_hash);
         }
         free(odb->beatmaps);
+        if (odb->db_hashed) {
+            ht_free(odb->hashmap);
+        }
     }
 }
 
@@ -148,11 +155,14 @@ void osux_db_dump(FILE *outfile, const struct osudb *odb)
 void osux_db_hash(struct osudb *odb)
 {
     struct hash_table *hashmap = ht_create(odb->beatmaps_number, NULL);
-    
-    for (unsigned i = 0; i < odb->beatmaps_number; ++i) {
+
+    for (unsigned i = 0; i < odb->beatmaps_number; ++i)
         ht_add_entry(hashmap,
-                     odb->beatmaps[i].md5_hash, odb->beatmaps[i].osu_file_path);
-    }
+                     odb->beatmaps[i].md5_hash,
+                     odb->beatmaps[i].osu_file_path);
+
+    odb->hashmap = hashmap;
+    odb->db_hashed = true;
 }
 
 const char*
@@ -168,6 +178,8 @@ osux_db_get_beatmap_by_hash(struct osudb *odb, const char *hash)
 {
     char *path = osux_prefix_path(osux_get_song_path(),
                                   osux_db_relpath_by_hash(odb, hash));
-    return osux_parse_beatmap(path);
+    struct map * m =  osux_parse_beatmap(path);
     free(path);
+
+    return m;
 }

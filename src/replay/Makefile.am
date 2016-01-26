@@ -13,4 +13,7 @@ bin_PROGRAMS = parse_replay
 parse_replay_SOURCES = \
 	main.c
 
-parse_replay_LDADD = libreplay.la ../mod/libmod.la
+parse_replay_LDADD = libreplay.la \
+		../mod/libmod.la \
+		../database/libosux_db.la \
+		../beatmap/libbeatmap.la

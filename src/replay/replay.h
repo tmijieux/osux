@@ -34,6 +34,8 @@ struct replay_life {
 };
 
 struct replay {
+    bool invalid;
+    
     uint8_t game_mode;
     uint32_t game_version;
     char *bm_md5_hash;

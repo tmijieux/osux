@@ -14,7 +14,9 @@ struct beatmap_info {
 struct osudb {
     uint32_t beatmaps_number;
     struct beatmap_info *beatmaps;
+    
     struct hash_table *hashmap;
+    bool db_hashed;
 };
 
 int osux_db_build(const char *directory_name, struct osudb *odb);

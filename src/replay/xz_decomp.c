@@ -115,7 +115,7 @@ static int lzma_legacy_decompress(FILE *in_file, FILE *out_file)
 		/* write decompressed data */
 		out_len = OUT_BUF_MAX - strm.avail_out;
 		fwrite (out_buf, 1, out_len, out_file);
-		if (ferror (out_file)) {
+		if (ferror(out_file)) {
 		    out_finished = true;
 		    ret = RET_ERROR_OUTPUT;
 		}
@@ -131,8 +131,14 @@ void lzma_decompress(FILE *f, uint8_t **buf)
 {
     struct stat st;
     FILE *out =  tmpfile();
+    int ret;
     
-    lzma_legacy_decompress(f, out);
+    ret = lzma_legacy_decompress(f, out);
+    if (RET_ERROR_DECOMPRESSION == ret || RET_ERROR_OUTPUT == ret) {
+        *buf = NULL;
+        return;
+    }
+        
     fflush(out);
     fstat(fileno(out), &st);
     *buf = malloc(st.st_size+1);

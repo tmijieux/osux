@@ -1,6 +1,6 @@
 include $(top_srcdir)/common.mk
 
-SUBDIRS = util beatmap mod replay database . ranking/taikorank
+SUBDIRS = util beatmap mod database replay . ranking/taikorank
 lib_LTLIBRARIES = libosux.la
 libosux_la_SOURCES = python.c
 libosux_la_LIBADD = \

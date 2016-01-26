@@ -39,6 +39,11 @@ static unsigned int parse_replay_data(FILE *f, struct replay_data **repdata)
     unsigned int repdata_count;
     
     lzma_decompress(f, (uint8_t**) &uncomp);
+    if (NULL == uncomp) {
+        *repdata = NULL;
+        return (unsigned) -1;
+    }
+    
     repdata_count = string_split(uncomp, ",", &tab);
     free(uncomp);
     
@@ -86,6 +91,7 @@ struct replay *replay_parse(FILE *f)
     char **life;
     uint64_t ticks;
     struct replay *r = calloc(sizeof(*r), 1);
+    r->invalid = false;
     rewind(f);
 
     fread(&r->game_mode, 1, 1, f);
@@ -121,7 +127,10 @@ struct replay *replay_parse(FILE *f)
     r->timestamp = from_win_timestamp(ticks);
 
     fread(&r->replay_length, 4, 1, f);
-    r->repdata_count = parse_replay_data(f, &r->repdata);
+    if ((r->repdata_count =
+         parse_replay_data(f, &r->repdata)) == (unsigned)-1) {
+        r->invalid = 1;
+    }
     
     return r;
 }
