@@ -191,15 +191,11 @@ static void ht_cst_init_config(void)
   global_init();
   if(OPT_DATABASE)
     tr_db_init();
-  if(OPT_PRINT_YAML)
-    tr_print_yaml_init();
 }
 
 __attribute__((destructor))
 static void ht_cst_exit_config(void)
 {
-  if(OPT_PRINT_YAML)
-    tr_print_yaml_exit();
-  if(yw)
-    yaml2_free(yw);
+  tr_print_yaml_exit();
+  yaml2_free(yw);
 }

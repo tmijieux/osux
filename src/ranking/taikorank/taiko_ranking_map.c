@@ -457,12 +457,16 @@ void tr_print_yaml_init(void)
 
 void tr_print_yaml_exit(void)
 {
-  fprintf(OUTPUT, "]\n");
+  if(OPT_PRINT_YAML)
+    fprintf(OUTPUT, "]\n");
 }
 
 void trm_print_yaml(struct tr_map * map)
 {
   static char * prefix = "";
+  if(prefix[0] == 0)
+    tr_print_yaml_init();
+
   char * mod = trm_mods_to_str(map);
 
   fprintf(OUTPUT, "%s{", prefix);
