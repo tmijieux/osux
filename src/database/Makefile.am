@@ -7,8 +7,8 @@ libosux_db_la_LIBADD = ../util/libosux_util.la
 
 bin_PROGRAMS = makedb readdb
 makedb_SOURCES = makedb.c
-makedb_LDADD = libosux_db.la
+makedb_LDADD = libosux_db.la ../beatmap/libbeatmap.la
 
 readdb_SOURCES = readdb.c
-readdb_LDADD = libosux_db.la
+readdb_LDADD = libosux_db.la ../beatmap/libbeatmap.la
 

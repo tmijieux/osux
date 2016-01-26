@@ -4,7 +4,6 @@
 
 #include "data.h"
 
-
 static FILE *
 osux_open_prefixed(const char *prefix, const char *path, const char *mode)
 {
@@ -32,4 +31,9 @@ char *osux_prefix_path(const char *prefix, const char *path)
     strcpy(prefixed_path, prefix);
     strcat(prefixed_path, path);
     return prefixed_path;
+}
+
+const char *osux_get_song_path(void)
+{
+    return "/mnt/windata/Songs";
 }
