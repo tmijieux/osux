@@ -255,7 +255,7 @@ static int tr_db_insert_update_score(struct tr_map * map,
 	     "combo, great, good, miss, "
 	     "density_star, pattern_star, reading_star, "
 	     "accuracy_star, final_star)"
-	     "VALUES(%d, %d, %.4g, %d, %d, %d, %d, %d, "
+	     "VALUES(%d, %d, %.4g, %d, %d, %d, %d, "
 	     "%.3g, %.3g, %.3g, %.3g, %.3g);",
 	     TR_DB_SCORE, diff_id, mod_id, map->acc * COEFF_MAX_ACC,
 	     map->combo, map->great, map->good, map->miss,
