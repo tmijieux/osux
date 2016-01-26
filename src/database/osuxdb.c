@@ -4,17 +4,23 @@
 #include <dirent.h>
 #include <string.h>
 
+#include "beatmap/parser/parser.h"
 #include "util/list.h"
+#include "util/hash_table.h"
 #include "util/split.h"
 #include "util/md5.h"
+#include "util/data.h"
 #include "osuxdb.h"
 
-static int parse_beatmap_rec(const char *name, int level, struct list *beatmaps)
+static int
+parse_beatmap_rec(const char *name, int level, struct list *beatmaps,
+                  const int base_path_length)
 {
     DIR *dir;
     struct dirent *entry;
 
     assert( beatmaps != NULL );
+
     
     if (!(dir = opendir(name)))
         return -1;
@@ -23,7 +29,7 @@ static int parse_beatmap_rec(const char *name, int level, struct list *beatmaps)
 
     do {
         char *path;
-        asprintf(&path, "%s/%s", name, entry->d_name);        
+        asprintf(&path, "%s/%s", name, entry->d_name);
         if (DT_DIR == entry->d_type) {
             if (strcmp(entry->d_name, ".") == 0 ||
                 strcmp(entry->d_name, "..") == 0) {
@@ -31,7 +37,7 @@ static int parse_beatmap_rec(const char *name, int level, struct list *beatmaps)
                 continue;
             }
             fprintf(stderr, "Entering directory %s\n", path);
-            parse_beatmap_rec(path, level + 1, beatmaps);
+            parse_beatmap_rec(path, level + 1, beatmaps, base_path_length);
             free(path);
         } else {
             if (!string_have_extension(path, ".osu")) {
@@ -40,7 +46,7 @@ static int parse_beatmap_rec(const char *name, int level, struct list *beatmaps)
             }
             fprintf(stderr, "Found osu file %s\n", path);
             struct beatmap_info *bi = malloc(sizeof*bi);
-            bi->osu_file_path = path;
+            bi->osu_file_path = strdup(path+base_path_length);
             FILE *f = fopen(path, "r");
             if (NULL != f) {
                 unsigned char *md5 = osux_md5_hash_file(f);
@@ -51,10 +57,10 @@ static int parse_beatmap_rec(const char *name, int level, struct list *beatmaps)
                 list_append(beatmaps, bi);
             } else {
                 fprintf(stderr, "osu file BUG: %s\n", path);
-                free(path);
             }
+            free(path);
         }
-    } while ( (entry = readdir(dir)) != NULL );
+    } while ((entry = readdir(dir)) != NULL);
     closedir(dir);
 
     return 0;
@@ -64,11 +70,11 @@ int osux_db_build(const char *directory_name, struct osudb *odb)
 {
     assert( NULL != odb );
     struct list *beatmaps = list_new(0);
-    parse_beatmap_rec(directory_name, 0, beatmaps);
+    parse_beatmap_rec(directory_name, 0, beatmaps, strlen(directory_name));
 
     size_t n = list_size(beatmaps);
     struct beatmap_info *bis = malloc(sizeof*bis * n);
-    for (unsigned int i = 1; i <= n; ++i) {
+    for (unsigned i = 1; i <= n; ++i) {
         struct beatmap_info *bm = list_get(beatmaps, i);
         bis[i-1] = *bm;
         free(bm);
@@ -137,4 +143,31 @@ void osux_db_dump(FILE *outfile, const struct osudb *odb)
                 i, odb->beatmaps[i].osu_file_path,
                 odb->beatmaps[i].md5_hash);
     }
+}
+
+void osux_db_hash(struct osudb *odb)
+{
+    struct hash_table *hashmap = ht_create(odb->beatmaps_number, NULL);
+    
+    for (unsigned i = 0; i < odb->beatmaps_number; ++i) {
+        ht_add_entry(hashmap,
+                     odb->beatmaps[i].md5_hash, odb->beatmaps[i].osu_file_path);
+    }
+}
+
+const char*
+osux_db_relpath_by_hash(struct osudb *odb, const char *hash)
+{
+    char *ret = NULL;
+    ht_get_entry(odb->hashmap, hash, &ret);
+    return ret;
+}
+
+struct map*
+osux_db_get_beatmap_by_hash(struct osudb *odb, const char *hash)
+{
+    char *path = osux_prefix_path(osux_get_song_path(),
+                                  osux_db_relpath_by_hash(odb, hash));
+    return osux_parse_beatmap(path);
+    free(path);
 }
