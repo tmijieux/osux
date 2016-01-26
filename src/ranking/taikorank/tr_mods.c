@@ -47,6 +47,8 @@ static void trm_apply_mods_HR(struct tr_map * map)
   for(int i = 0; i < map->nb_object; i++)
     {
       map->object[i].bpm_app *= HR_COEFF_SPEED; 
+      map->object[i].obj_app = HR_NB_OBJ_APP;
+      map->object[i].obj_dis = NM_NB_OBJ_DIS;
     }
 }
 
@@ -176,7 +178,7 @@ void trm_apply_mods(struct tr_map * map)
   if((map->mods & MODS_FL) != 0)
     trm_apply_mods_FL(map);
 
-  if((map->mods & (MODS_FL | MODS_HD)) == 0)
+  if((map->mods & (MODS_FL | MODS_HD | MODS_HR)) == 0)
     trm_apply_NM_app_dis(map);
   if((map->mods & (MODS_DT | MODS_HT)) == 0)
     trm_apply_NM_ms_coeff(map);

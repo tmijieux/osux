@@ -66,6 +66,7 @@ static void trm_compute_reading_star(struct tr_map * map);
 static int MONTE_CARLO_NB_PT;
 static struct vector * HIDE_VECT;
 static struct vector * FAST_VECT;
+static struct vector * SEEN_VECT;
 
 // speed change
 static double SPEED_CH_MAX;
@@ -73,6 +74,7 @@ static double SPEED_CH_TIME_0;
 static double SPEED_CH_VALUE_0;
 
 // coeff for star
+static double READING_STAR_COEFF_SEEN;
 static double READING_STAR_COEFF_HIDE;
 static double READING_STAR_COEFF_HIDDEN;
 static double READING_STAR_COEFF_SPEED_CH;
@@ -86,6 +88,7 @@ static void global_init(void)
   srand(time(NULL));
   MONTE_CARLO_NB_PT = cst_i(ht_cst, "monte_carlo_nb_pts");
 
+  SEEN_VECT  = cst_vect(ht_cst, "vect_seen");
   HIDE_VECT  = cst_vect(ht_cst, "vect_hide");
   FAST_VECT  = cst_vect(ht_cst, "vect_fast");  
   SCALE_VECT = cst_vect(ht_cst, "vect_scale");
@@ -94,6 +97,7 @@ static void global_init(void)
   SPEED_CH_TIME_0  = cst_f(ht_cst, "speed_ch_time_0");
   SPEED_CH_VALUE_0 = cst_f(ht_cst, "speed_ch_value_0");
 
+  READING_STAR_COEFF_SEEN       = cst_f(ht_cst, "star_seen");
   READING_STAR_COEFF_HIDE       = cst_f(ht_cst, "star_hide");
   READING_STAR_COEFF_HIDDEN     = cst_f(ht_cst, "star_hidden");   
   READING_STAR_COEFF_SPEED_CH   = cst_f(ht_cst, "star_speed_ch");
@@ -117,6 +121,7 @@ static void ht_cst_exit_reading(void)
   yaml2_free(yw);
   vect_free(HIDE_VECT);
   vect_free(FAST_VECT);
+  vect_free(SEEN_VECT);
   vect_free(SCALE_VECT);
 }
 
@@ -252,7 +257,8 @@ static double tro_seen(struct tr_object * o, struct tr_object ** t,
     }
 
   free(copy);
-  return seen;
+  //return seen;
+  return vect_poly2(SEEN_VECT, seen);
 }
 
 //-----------------------------------------------------
@@ -367,7 +373,8 @@ static void trm_compute_reading_star(struct tr_map * map)
     {
       map->object[i].reading_star = vect_poly2
 	(SCALE_VECT,
-	 (READING_STAR_COEFF_HIDE       * map->object[i].hide +
+	 (READING_STAR_COEFF_SEEN       * map->object[i].seen +
+	  READING_STAR_COEFF_HIDE       * map->object[i].hide +
 	  READING_STAR_COEFF_HIDDEN     * map->object[i].hidden +
 	  READING_STAR_COEFF_SPEED_CH  * map->object[i].speed_change+
 	  READING_STAR_COEFF_FAST       * map->object[i].fast));

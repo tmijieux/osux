@@ -143,7 +143,9 @@ static int tr_db_insert_user(struct tr_map * map)
   int user_id = tr_db_get_id(sql, TR_DB_USER, cond);
   if (user_id < 0)
     {
-      new_rq(sql, "INSERT INTO %s(name) VALUES('%s');",
+      new_rq(sql, "INSERT INTO %s(name, density_star, reading_star,"
+	     "pattern_star, accuracy_star, final_star)"
+	     "VALUES('%s', 0, 0, 0, 0, 0);",
 	     TR_DB_USER, map_creator);
       user_id = tr_db_get_id(sql, TR_DB_USER, cond);
       fprintf(OUTPUT_INFO, "New user: %s, ID: %d\n", 
@@ -200,9 +202,11 @@ static int tr_db_insert_diff(struct tr_map * map, int bms_id)
   int diff_id = tr_db_get_id(sql, TR_DB_DIFF, cond);
   if (diff_id < 0)
     {
-      new_rq(sql, "INSERT INTO %s(diff_name, bms_ID, osu_diff_ID)"
-	     "VALUES('%s', %d, %d);",
-	     TR_DB_DIFF, map_diff, bms_id, map->diff_osu_ID);
+      new_rq(sql, "INSERT INTO %s(diff_name, bms_ID, osu_diff_ID,"
+	     "max_combo, bonus)"
+	     "VALUES('%s', %d, %d, %d, %d);",
+	     TR_DB_DIFF, map_diff, bms_id, map->diff_osu_ID,
+	     map->max_combo, map->bonus);
       diff_id = tr_db_get_id(sql, TR_DB_DIFF, cond);
       fprintf(OUTPUT_INFO, "New diff: %s ID: %d\n",
 	      map_diff, diff_id);
@@ -240,22 +244,21 @@ static int tr_db_insert_update_score(struct tr_map * map,
 {
   char * cond = NULL;
   asprintf(&cond, "diff_ID = %d and mod_ID = %d and combo = %d and "
-	   "great = %d and good = %d and miss = %d and bonus = %d",
+	   "great = %d and good = %d and miss = %d",
 	   diff_id, mod_id, map->combo, map->great, map->good,
-	   map->miss, map->bonus);
+	   map->miss);
 
   int score_id = tr_db_get_id(sql, TR_DB_SCORE, cond);
   if (score_id < 0)
     {
       new_rq(sql, "INSERT INTO %s(diff_ID, mod_ID, accuracy, "
-	     "max_combo, combo, great, good, miss, bonus, "
+	     "combo, great, good, miss, "
 	     "density_star, pattern_star, reading_star, "
 	     "accuracy_star, final_star)"
-	     "VALUES(%d, %d, %.4g, %d, %d, %d, %d, %d, %d, "
+	     "VALUES(%d, %d, %.4g, %d, %d, %d, %d, %d, "
 	     "%.3g, %.3g, %.3g, %.3g, %.3g);",
 	     TR_DB_SCORE, diff_id, mod_id, map->acc * COEFF_MAX_ACC,
-	     map->max_combo, map->combo,
-	     map->great, map->good, map->miss, map->bonus, 
+	     map->combo, map->great, map->good, map->miss,
 	     map->density_star, map->pattern_star, map->reading_star,
 	     map->accuracy_star, map->final_star);
       score_id = tr_db_get_id(sql, TR_DB_SCORE, cond);

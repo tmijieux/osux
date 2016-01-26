@@ -32,6 +32,7 @@
 
 #define HR_COEFF_OD    1.4
 #define HR_COEFF_SPEED (4 / 3.)
+#define HR_NB_OBJ_APP  10.
 
 #define DT_COEFF_MS    (2 / 3.)
 #define DT_COEFF_SPEED 1.5
