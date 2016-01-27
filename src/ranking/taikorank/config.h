@@ -32,6 +32,9 @@ extern char * TR_DB_PASSWD;
 
 extern int OPT_SCORE;
 extern int OPT_SCORE_QUICK;
+extern int OPT_SCORE_INPUT;
+extern int OPT_SCORE_GOOD;
+extern int OPT_SCORE_MISS;
 extern double OPT_SCORE_ACC;
 extern int (* TRM_METHOD_GET_TRO)(struct tr_map *);
 

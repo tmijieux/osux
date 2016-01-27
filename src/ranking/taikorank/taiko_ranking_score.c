@@ -27,8 +27,10 @@
 #include "tr_mods.h"
 
 static void trs_print_and_db(struct tr_score * score);
-static void trs_prepare(struct tr_score * sc, int mods, double acc);
 static void trs_compute(struct tr_score * score);
+
+static void trs_prepare_acc(struct tr_score * sc, double acc);
+static void trs_prepare_ggm(struct tr_score * sc, int good, int miss);
 
 static struct tr_score * trs_new(const struct tr_map * map);
 static void trs_free(struct tr_score * score);
@@ -39,17 +41,47 @@ static void trs_print(struct tr_score * score);
 void trs_main(const struct tr_map * map, int mods)
 {
   struct tr_score * score = trs_new(map);
-  trs_prepare(score, mods, OPT_SCORE_ACC);
+  score->map = trm_copy(score->origin);
+  trm_set_mods(score->map, mods);
+
+  if(OPT_SCORE_INPUT == 1)
+    trs_prepare_ggm(score, OPT_SCORE_GOOD, OPT_SCORE_MISS);
+  else
+    trs_prepare_acc(score, OPT_SCORE_ACC);
+
   trs_compute(score);
   trs_free(score);
 }
 
 //--------------------------------------------------
 
-static void trs_prepare(struct tr_score * sc, int mods, double acc)
+static void trs_prepare_ggm(struct tr_score * sc, int good, int miss)
 {
-  sc->map = trm_copy(sc->origin);
-  trm_set_mods(sc->map, mods);
+  if(good < 0)
+    good = 0;
+  if(miss < 0)
+    miss = 0;
+
+  while(good + miss > sc->origin->great)
+    {
+      if(good > 0)
+	good--;
+      else
+	miss--;
+    }
+
+  sc->great = sc->origin->great - good - miss;
+  sc->good  = good;
+  sc->miss  = miss;
+  sc->acc   = compute_acc(sc->great, sc->good, sc->miss);
+}
+
+static void trs_prepare_acc(struct tr_score * sc, double acc)
+{
+  if(acc < 0)
+    acc = 0;
+  else if(acc > MAX_ACC * COEFF_MAX_ACC)
+    acc = MAX_ACC * COEFF_MAX_ACC;
 
   sc->acc   = sc->origin->acc; 
   sc->great = sc->origin->great;

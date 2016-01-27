@@ -58,6 +58,9 @@ struct osudb * ODB;
 
 int OPT_SCORE;
 int OPT_SCORE_QUICK;
+int OPT_SCORE_INPUT;
+int OPT_SCORE_GOOD;
+int OPT_SCORE_MISS;
 double OPT_SCORE_ACC;
 int (* TRM_METHOD_GET_TRO)(struct tr_map *);
 
@@ -105,6 +108,9 @@ static void global_init(void)
 void config_score(void)
 {
   OPT_SCORE_QUICK = cst_i(ht_conf, "score_quick");
+  OPT_SCORE_INPUT = cst_i(ht_conf, "score_input");
+  OPT_SCORE_GOOD  = cst_i(ht_conf, "score_good");
+  OPT_SCORE_MISS  = cst_i(ht_conf, "score_miss");
   OPT_SCORE_ACC   = cst_f(ht_conf, "score_acc") / COEFF_MAX_ACC;
   int i = cst_i(ht_conf, "score_method");
   switch(i)

@@ -26,8 +26,10 @@
 #define ARG_OPT_DB           "-db"
 
 #define ARG_OPT_SCORE        "-score"
-#define ARG_OPT_SCORE_ACC    "-acc"
 #define ARG_OPT_SCORE_QUICK  "-quick"
+#define ARG_OPT_SCORE_INPUT  "-input"
+#define ARG_OPT_SCORE_GGM    "-ggm"
+#define ARG_OPT_SCORE_ACC    "-acc"
 
 #define ARG_OPT_PRINT_TRO    "-ptro"
 #define ARG_OPT_PRINT_YAML   "-pyaml"
@@ -95,6 +97,15 @@ static int opt_score_quick(int argc, const char ** argv)
   return 1;
 }
 
+static int opt_score_input(int argc, const char ** argv)
+{
+  OPT_ARGC_ERR(argc, 1, ARG_OPT_SCORE_INPUT);
+  OPT_SCORE_INPUT = atoi(argv[0]);
+  OPT_SCORE = 1;
+  config_score();
+  return 1;  
+}
+
 static int opt_score_acc(int argc, const char ** argv)
 {
   OPT_ARGC_ERR(argc, 1, ARG_OPT_SCORE_ACC);
@@ -102,6 +113,16 @@ static int opt_score_acc(int argc, const char ** argv)
   OPT_SCORE = 1;
   config_score();
   return 1;
+}
+
+static int opt_score_ggm(int argc, const char ** argv)
+{
+  OPT_ARGC_ERR(argc, 2, ARG_OPT_SCORE_GGM);
+  OPT_SCORE_GOOD = atoi(argv[0]);
+  OPT_SCORE_MISS = atoi(argv[1]);
+  OPT_SCORE = 1;
+  config_score();
+  return 2;
 }
 
 //-----------------------------------------------------
@@ -171,8 +192,10 @@ static void options_init(void)
   ht_add_entry(ht_opt, ARG_OPT_FLAT,         opt_flat);
 
   ht_add_entry(ht_opt, ARG_OPT_SCORE,        opt_score);
-  ht_add_entry(ht_opt, ARG_OPT_SCORE_ACC,    opt_score_acc);
   ht_add_entry(ht_opt, ARG_OPT_SCORE_QUICK,  opt_score_quick);
+  ht_add_entry(ht_opt, ARG_OPT_SCORE_INPUT,  opt_score_input);
+  ht_add_entry(ht_opt, ARG_OPT_SCORE_ACC,    opt_score_acc);
+  ht_add_entry(ht_opt, ARG_OPT_SCORE_GGM,    opt_score_ggm);
 
   ht_add_entry(ht_opt, ARG_OPT_PRINT_TRO,    opt_print_tro);
   ht_add_entry(ht_opt, ARG_OPT_PRINT_YAML,   opt_print_yaml);

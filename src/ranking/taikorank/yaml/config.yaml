@@ -1,7 +1,7 @@
 ### Print 
 print_tro:  0
 print_yaml: 0
-print_filter: br
+print_filter: ba
 # b -> basic
 # B -> basic+
 # + -> additionnal
@@ -11,7 +11,7 @@ print_filter: br
 # p -> pattern
 # a -> accuracy
 # * -> star
-print_order: FP
+print_order: FDRPA
 # F -> final
 # D -> density
 # R -> reading
@@ -26,6 +26,11 @@ flat: 0
 no_bonus: 0
 # remove bonus objects
 
+### osux db
+osuxdb_path:     ./osuxdb
+osuxdb_build:    0
+osuxdb_song_dir: ./bb_maps
+
 ### Database
 database:  0
 db_ip:     localhost
@@ -33,13 +38,19 @@ db_login:  root
 db_passwd: NOPE
 
 ### Score
-score:        0
+score:        1
 score_quick:  1
-score_acc:    90
 score_method: 0
 # 0 -> hardest
 # 1 -> best influence
+score_input:  1
+# 0 -> acc
+# 1 -> good and miss
+score_acc:  100
+score_good: 0
+score_miss: 5
 
+# About score_methods:
 # quick is way less accurate
 #    I'm your daddy [Kantan]
 #    quick  + hardest 90% ~= normal + hardest 95%
