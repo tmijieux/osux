@@ -18,6 +18,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "database/osuxdb.h"
+#include "util/data.h"
+
 #include "util/hash_table.h"
 #include "util/list.h"
 #include "util/yaml2.h"
@@ -48,6 +51,11 @@ char * TR_DB_IP;
 char * TR_DB_LOGIN;
 char * TR_DB_PASSWD;
 
+char * OPT_ODB_PATH;
+char * OPT_ODB_BUILD_DIR;
+int OPT_ODB_BUILD;
+struct osudb * ODB;
+
 int OPT_SCORE;
 int OPT_SCORE_QUICK;
 double OPT_SCORE_ACC;
@@ -77,6 +85,19 @@ static void global_init(void)
   OPT_SCORE = cst_i(ht_conf, "score");
   if(OPT_SCORE)
     config_score();
+
+  OPT_ODB_PATH  = cst_str(ht_conf, "osuxdb_path");
+  OPT_ODB_BUILD = cst_i(ht_conf, "osuxdb_build");
+  char * song_dir = cst_str(ht_conf, "osuxdb_song_dir");
+  osux_set_song_path(song_dir);
+  if(OPT_ODB_BUILD)
+    config_odb_build(song_dir);
+  else
+    {
+      ODB = malloc(sizeof(*ODB));
+      osux_db_read(OPT_ODB_PATH, ODB);
+    }
+  osux_db_hash(ODB);
 }
 
 //-----------------------------------------------------
@@ -95,6 +116,23 @@ void config_score(void)
       TRM_METHOD_GET_TRO = trm_hardest_tro;
       break;
     }
+}
+
+//-----------------------------------------------------
+
+__attribute__((destructor))
+static void config_odb_exit(void)
+{
+  if(ODB != NULL)
+    osux_db_free(ODB);
+  free(ODB);
+}
+
+void config_odb_build(char * song_dir)
+{
+  ODB = malloc(sizeof(*ODB));
+  osux_db_build(song_dir, ODB);
+  osux_db_write(OPT_ODB_PATH, ODB);
 }
 
 //-----------------------------------------------------

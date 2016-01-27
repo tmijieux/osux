@@ -35,6 +35,9 @@ extern int OPT_SCORE_QUICK;
 extern double OPT_SCORE_ACC;
 extern int (* TRM_METHOD_GET_TRO)(struct tr_map *);
 
+extern struct osudb * ODB;
+
+void config_odb_build(char * song_dir);
 void config_set_mods(const char * mods);
 void config_set_filter(char * filter);
 void config_score(void);

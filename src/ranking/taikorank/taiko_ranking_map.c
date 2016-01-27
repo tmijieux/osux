@@ -24,6 +24,8 @@
 #include "beatmap/timingpoint.h"
 #include "beatmap/hitsound.h"
 
+#include "database/osuxdb.h"
+
 #include "taiko_ranking_object.h"
 #include "taiko_ranking_map.h"
 #include "print.h"
@@ -48,7 +50,7 @@
 #define BASIC_SV 1.4
 
 // mini patch
-#define strdup(X) X != NULL ? strdup(X) : NULL
+//#define strdup(X) X != NULL ? strdup(X) : NULL
 
 #define TYPE(type)    (type & (~HO_NEWCOMBO) & 0x0F)
 // this get rid of the 'new_combo' flag to get the hit object's type
@@ -64,6 +66,8 @@ static void trm_add_to_ps(struct tr_map * map,
 			  enum played_state ps, int i);
 
 static void trm_acc(struct tr_map * map);
+static struct tr_map * trm_convert_map(struct map * map);
+static struct tr_map * trm_convert(char * filename);
 
 //--------------------------------------------------
 
@@ -196,12 +200,20 @@ void trm_free(struct tr_map * map)
 
 //--------------------------------------------------
 
-struct tr_map * trm_new(char * file_name)
+struct tr_map * trm_new(char * filename)
 {
-  if(check_file(file_name) == 0)
-    return NULL;
-
-  return trm_convert(file_name);
+  int s = check_file(filename);
+  switch(s)
+    {
+    case 1:
+      return trm_convert(filename);
+    case 2:  
+      return trm_convert_map(osux_db_get_beatmap_by_hash(ODB, filename));
+    default:
+      tr_error("Could not load: %s", filename);
+      break;
+    }
+  return NULL;
 }
 
 //---------------------------------------------------------------
@@ -283,10 +295,16 @@ static int convert_get_end_offset(struct hit_object * ho, int type,
 //---------------------------------------------------------------
 //---------------------------------------------------------------
 
-struct tr_map * trm_convert(char* file_name)
+static struct tr_map * trm_convert(char * filename)
 {
-  struct map * map = osux_parse_beatmap(file_name);
-  
+  struct map * map = osux_parse_beatmap(filename);
+  return trm_convert_map(map);
+}
+
+//---------------------------------------------------------------
+
+static struct tr_map * trm_convert_map(struct map * map)
+{ 
   if(map->Mode != MODE_TAIKO)
     {
       switch(map->Mode)
