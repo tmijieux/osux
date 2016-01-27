@@ -83,6 +83,7 @@ void trm_main(const struct tr_map * map, int mods)
     trm_remove_bonus(map_copy);
 
   // compute
+  trm_apply_mods(map_copy);
   trm_compute_stars(map_copy);
   
   // printing
@@ -112,7 +113,6 @@ void trm_set_mods(struct tr_map * map, int mods)
 
 void trm_compute_stars(struct tr_map * map)
 {
-  trm_apply_mods(map);
   trm_treatment(map);
   
 #ifdef ENABLE_STAR_THREAD
@@ -614,7 +614,7 @@ void trm_set_tro_ps(struct tr_map * map, int x, enum played_state ps)
 
 double compute_acc(int great, int good, int miss)
 {
-  return ((great + good * 0.5) / (great + good + miss));
+  return (((double)(great + good * 0.5)) / (great + good + miss));
 }
 
 static void trm_acc(struct tr_map * map)

@@ -44,7 +44,14 @@ void trs_main(const struct tr_map * map, int mods)
   score->map = trm_copy(score->origin);
   trm_set_mods(score->map, mods);
 
-  if(OPT_SCORE_INPUT == 1)
+  // modifications
+  if(OPT_FLAT)
+    trm_flat_big(score->map);
+  if(OPT_NO_BONUS)
+    trm_remove_bonus(score->map);
+
+
+  if(OPT_SCORE_INPUT == SCORE_INPUT_ACC)
     trs_prepare_ggm(score, OPT_SCORE_GOOD, OPT_SCORE_MISS);
   else
     trs_prepare_acc(score, OPT_SCORE_ACC);
@@ -83,10 +90,10 @@ static void trs_prepare_acc(struct tr_score * sc, double acc)
   else if(acc > MAX_ACC * COEFF_MAX_ACC)
     acc = MAX_ACC * COEFF_MAX_ACC;
 
-  sc->acc   = sc->origin->acc; 
   sc->great = sc->origin->great;
   sc->good  = sc->origin->good;
   sc->miss  = sc->origin->miss;
+  sc->acc   = compute_acc(sc->great, sc->good, sc->miss); 
   while(sc->acc > acc)
     {
       double try = compute_acc(sc->great-1, sc->good+1, sc->miss);
@@ -152,6 +159,7 @@ static int trs_is_finished(struct tr_score * score)
 
 static void trs_compute(struct tr_score * score)
 {
+  trm_apply_mods(score->map);
   trm_compute_stars(score->map);
   trs_print_and_db(score);
 

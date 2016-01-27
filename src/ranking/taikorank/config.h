@@ -16,6 +16,16 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+enum score_input {
+  SCORE_INPUT_ACC = 0,
+  SCORE_INPUT_GGM = 1
+};
+
+enum score_method {
+  SCORE_INPUT_HARDEST   = 0,
+  SCORE_INPUT_INFLUENCE = 1
+};
+
 extern int OPT_DATABASE;
 extern int OPT_PRINT_TRO;
 extern int OPT_PRINT_YAML;
@@ -32,7 +42,7 @@ extern char * TR_DB_PASSWD;
 
 extern int OPT_SCORE;
 extern int OPT_SCORE_QUICK;
-extern int OPT_SCORE_INPUT;
+extern enum score_input OPT_SCORE_INPUT;
 extern int OPT_SCORE_GOOD;
 extern int OPT_SCORE_MISS;
 extern double OPT_SCORE_ACC;

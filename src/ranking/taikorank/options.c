@@ -110,6 +110,7 @@ static int opt_score_acc(int argc, const char ** argv)
 {
   OPT_ARGC_ERR(argc, 1, ARG_OPT_SCORE_ACC);
   OPT_SCORE_ACC = atof(argv[0]) / COEFF_MAX_ACC;
+  OPT_SCORE_INPUT = SCORE_INPUT_ACC;
   OPT_SCORE = 1;
   config_score();
   return 1;
@@ -120,6 +121,7 @@ static int opt_score_ggm(int argc, const char ** argv)
   OPT_ARGC_ERR(argc, 2, ARG_OPT_SCORE_GGM);
   OPT_SCORE_GOOD = atoi(argv[0]);
   OPT_SCORE_MISS = atoi(argv[1]);
+  OPT_SCORE_INPUT = SCORE_INPUT_GGM;
   OPT_SCORE = 1;
   config_score();
   return 2;
