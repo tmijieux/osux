@@ -25,9 +25,7 @@ int osux_db_read(const char *filename, struct osudb *odb);
 void osux_db_dump(FILE *outfile, const struct osudb *odb);
 void osux_db_free(struct osudb *odb);
 void osux_db_hash(struct osudb *odb);
-const char*
-osux_db_relpath_by_hash(struct osudb *odb, const char *hash);
-struct map*
-osux_db_get_beatmap_by_hash(struct osudb *odb, const char *hash);
+const char* osux_db_relpath_by_hash(struct osudb *odb, const char *hash);
+struct map* osux_db_get_beatmap_by_hash(struct osudb *odb, const char *hash);
 
 #endif //OSUXDB_H

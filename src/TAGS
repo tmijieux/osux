@@ -1,0 +1,1324 @@
+
+util/stack.c,350
+struct stack 5,60
+    unsigned int head;6,75
+    unsigned int buffer_size;7,98
+    STACK_TYPE buf[buf8,128
+size_t stack_size(11,154
+struct stack *stack_create(stack_create16,234
+void stack_push(25,463
+STACK_TYPE stack_peek(33,619
+STACK_TYPE stack_pop(38,709
+int stack_is_empty(48,883
+int stack_is_full(53,966
+void stack_destroy(58,1068
+
+util/split.c,138
+unsigned int string_split(25,754
+int string_have_extension(54,1417
+void read_string_ULEB128(63,1648
+void write_string_ULEB128(77,1883
+
+util/re.c,21
+int re_match(21,690
+
+util/re.h,20
+#define RE_H18,643
+
+util/heap.c,595
+struct heap 20,669
+    int (*cmp)cmp21,683
+    size_t heap_size;22,713
+    void **buf;buf23,735
+    int free_buf;24,751
+struct heap *heap_new(heap_new27,773
+void heap_free(45,1160
+static inline int heap_greater_child(52,1257
+static inline void heap_swap(61,1458
+static inline int heap_extract_problem(69,1621
+static int heap_extract_resolve(78,1929
+void *heap_extract_max(heap_extract_max85,2074
+void *heap_max(heap_max96,2317
+static inline int heap_insert_problem(101,2381
+static inline int heap_insert_resolve(106,2506
+void heap_insert(112,2620
+size_t heap_size(122,2809
+
+util/data.c,231
+osux_open_prefixed(8,93
+FILE *osux_open_resource(osux_open_resource17,301
+FILE *osux_open_config(osux_open_config22,424
+char *osux_prefix_path(osux_prefix_path27,547
+const char *osux_get_song_path(osux_get_song_path36,798
+
+util/uleb128.c,57
+uint64_t read_ULEB128(19,652
+void write_ULEB128(32,925
+
+util/data.h,20
+#define DATA_H2,15
+
+util/list.c,946
+struct list 24,737
+    struct list_node *front_sentinel;front_sentinel25,751
+    struct list_node *last;last26,789
+    void (*free_element)free_element27,817
+    struct list_node *cursor;cursor28,850
+    size_t size;29,880
+    unsigned int curpos;30,897
+    unsigned int flags;31,922
+static struct list_node *list_get_node(list_get_node34,950
+size_t list_size(49,1353
+struct list *list_new(list_new54,1423
+void list_free(79,2042
+void *list_get(list_get95,2467
+void list_add(100,2586
+void list_append(108,2821
+void list_append_list(114,2951
+void list_insert(120,3107
+void list_remove(129,3396
+struct list *list_copy(list_copy140,3739
+void *list_to_array(list_to_array147,3865
+struct hash_table *list_to_hashtable(list_to_hashtable156,4050
+static void *uncurry(uncurry168,4356
+struct list *list_map(list_map173,4446
+void list_each(178,4557
+struct list *list_map_r(list_map_r183,4677
+void list_each_r(193,4934
+
+util/hash_table.h,28
+#define HASH_TABLE_H18,651
+
+util/yaml2.c,179
+static void mapping_dump(11,157
+void yaml2_dump(17,290
+void parser_stack_push(42,889
+int yaml2_parse_file(63,1472
+static void mapping_free(163,4094
+void yaml2_free(168,4189
+
+util/list.h,123
+#define LIST_H18,645
+#define LI_ELEM 23,726
+#define LI_FREE 24,788
+#define list_addg(33,936
+#define list_getg(38,1085
+
+util/split.h,23
+#define SPLIT_H18,646
+
+util/uleb128.h,26
+#define CSSTRING_H18,649
+
+util/list_node.h,420
+#define LIST_NODE_H18,650
+struct list_node 22,692
+    const void *data;data23,711
+    struct list_node *next;next24,733
+    int is_sentinel;25,761
+#define SENTINEL_NODE 28,786
+#define DATA_NODE 29,810
+#define node_new(31,835
+#define node_free(39,1010
+#define node_get_next(40,1050
+#define node_set_next(41,1094
+#define node_get_data(42,1145
+#define node_set_data(43,1189
+#define node_is_sentinel(44,1240
+
+util/stack.h,46
+#define STACK_H2,16
+#define STACK_TYPE 7,73
+
+util/heap.h,22
+#define HEAP_H18,645
+
+util/yaml2.h,386
+#define YAML2_H2,16
+enum yaml_type 4,33
+    YAML_MAPPING 5,50
+    YAML_SEQUENCE 6,73
+    YAML_SCALAR 7,97
+union yaml_content 10,122
+    struct list *sequence;sequence11,143
+    struct hash_table *mapping;mapping12,170
+    char *scalar;scalar13,202
+    void *value;value14,220
+struct yaml_wrap 17,241
+    enum yaml_type type;18,260
+    union yaml_content content;19,285
+
+util/sum.h,182
+#define SUM_H18,644
+#define MAX_NB_WEIGHTED 30,813
+enum sum_type 32,841
+  DEFAULT,33,857
+  DEFAULT, PERF,33,857
+  DEFAULT, PERF, ACC,33,857
+  DEFAULT, PERF, ACC, WEIGHT33,857
+
+util/md5.h,19
+#define MD5_H2,14
+
+util/md5.c,214
+#define min(7,97
+unsigned char *osux_md5_hash_file(osux_md5_hash_file10,148
+unsigned char *osux_md5_hash_buf(osux_md5_hash_buf27,562
+char *osux_md5_string(osux_md5_string45,1065
+void osux_md5_print(54,1323
+
+util/sum.c,629
+struct sum37,1293
+  struct heap * h;39,1306
+  void (* add)40,1325
+  double (* compute)41,1365
+static int inferior(46,1458
+static int superior(53,1596
+static double weight 60,1734
+static struct heap * acc_sum_new 78,2202
+static void acc_sum_add 85,2352
+static double acc_sum_compute 94,2545
+static struct heap * perf_sum_new 128,3276
+static void perf_sum_add 137,3469
+static double perf_sum_compute 145,3628
+static struct heap * weight_sum_new 164,4046
+static void weight_sum_add 171,4199
+static double weight_sum_compute 180,4395
+struct sum * sum_new 218,5102
+void sum_add 252,5848
+double sum_compute 259,5963
+
+util/hash_table.c,768
+#define INITIAL_HASH_TABLE_SIZE 25,753
+struct ht_entry 27,794
+    char *key;key28,812
+    void *data;data29,827
+    struct ht_entry *next;next30,843
+struct hash_table 33,874
+    int (*hash)hash34,894
+    size_t size;35,925
+    struct ht_entry **buf;buf36,942
+    int entry_count;37,969
+static const unsigned char T[T40,994
+static int default_hash(61,2284
+        unsigned char hh[hh68,2462
+        uint32_t i;69,2491
+static struct ht_entry* new_entry(82,2706
+static void free_entry(91,2905
+struct hash_table* ht_create(99,3001
+int ht_add_entry(114,3367
+int ht_remove_entry(126,3618
+int ht_has_entry(148,4012
+int ht_get_entry(163,4273
+int ht_hash(181,4618
+void ht_free(186,4701
+void ht_for_each(202,4959
+struct list* ht_to_list(217,5235
+
+beatmap/timingpoint.h,349
+#define TIMING_POINT_H19,654
+struct timing_point 21,678
+    double offset;22,700
+	double mpb;25,732
+	double svm;26,770
+    int time_signature;29,834
+    int sample_type;30,858
+    int sample_set;31,879
+    int volume;32,899
+    int uninherited;34,920
+    int kiai;35,941
+    struct timing_point *last_uninherited;last_uninherited37,956
+
+beatmap/beatmap.h,1561
+#define MAP_H18,644
+struct map 27,752
+    uint32_t version;28,765
+    uint32_t bom;29,787
+    char *AudioFilename;AudioFilename32,862
+    uint32_t AudioLeadIn;33,887
+    uint32_t PreviewTime;34,913
+    uint32_t Countdown;35,939
+    char *SampleSet;SampleSet36,963
+    double StackLeniency;37,1002
+    uint32_t Mode;38,1028
+    uint32_t LetterboxInBreaks;39,1047
+    uint32_t WidescreenStoryboard;40,1079
+    uint32_t bkmkc;43,1138
+    uint32_t bkmkc;  uint32_t *Bookmarks;Bookmarks43,1138
+    double DistanceSpacing;44,1180
+    uint32_t BeatDivisor;45,1208
+    uint32_t GridSize;46,1234
+    double TimelineZoom;47,1257
+    char *Title;Title50,1299
+    char *TitleUnicode;TitleUnicode51,1316
+    char *Artist;Artist52,1340
+    char *ArtistUnicode;ArtistUnicode53,1358
+    char *Creator;Creator54,1383
+    char *Version;Version55,1402
+    char *Source;Source56,1440
+    uint32_t tagc;57,1458
+    uint32_t tagc;  char **Tags;Tags57,1458
+    uint32_t BeatmapID;58,1491
+    uint32_t BeatmapSetID;59,1515
+    double HPDrainRate;62,1561
+    double CircleSize;63,1585
+    double OverallDifficulty;64,1608
+    double ApproachRate;65,1638
+    double SliderMultiplier;66,1663
+    double SliderTickRate;67,1692
+    struct storyboard sb;69,1720
+    uint32_t tpc;71,1747
+    uint32_t tpc;  struct timing_point *TimingPoints;TimingPoints71,1747
+    uint32_t colc;72,1801
+    uint32_t colc; struct color *Colours;Colours72,1801
+    uint32_t hoc;73,1843
+    uint32_t hoc;  struct hit_object *HitObjects;HitObjects73,1843
+
+beatmap/color.c,23
+void col_print(20,669
+
+beatmap/hitobject.c,44
+void ho_print(22,694
+void ho_free(65,1771
+
+beatmap/storyboard.h,54
+#define STORYBOARD_H18,651
+struct storyboard 20,673
+
+beatmap/beatmap.c,363
+struct map DEFAULT_MAP 27,784
+#define PRINT_SECTION(31,838
+#define PRINT_STRING(34,914
+#define PRINT_DOUBLE(37,1007
+#define PRINT_INT(40,1099
+void map_print(44,1186
+#undef PRINT_STRING83,2120
+#undef PRINT_DOUBLE84,2140
+#undef PRINT_INT85,2160
+#define PRINT_STRING(87,2178
+#define PRINT_DOUBLE(90,2270
+#define PRINT_INT(93,2361
+void map_free(143,3663
+
+beatmap/parser/pyfetch.c,855
+#define _GNU_SOURCE18,631
+#define READ_VALUE(35,930
+#define READ_STRING(49,1347
+#define READ_DOUBLE(52,1467
+#define READ_INT(55,1580
+static void map_fetch_General(58,1694
+static void map_fetch_Editor(77,2235
+static void map_fetch_Metadata(98,2777
+static void map_fetch_Difficulty(125,3441
+static void col_py_fetch(139,3840
+static void map_fetch_Colours(148,4087
+#define TP_READ_DOUBLE(164,4484
+#define TP_READ_INT(171,4656
+static void tp_py_fetch(179,4823
+static void map_fetch_TimingPoints(191,5223
+#define HO_READ_DOUBLE(204,5604
+#define HO_READ_INT(215,5827
+#define HO_READ_STRING(226,6043
+static void ho_py_fetch(237,6306
+static void map_fetch_HitObjects(300,8332
+static void map_fetch_Events(312,8704
+#define FETCH_SECTION(322,8871
+static struct map *fetch_beatmap(fetch_beatmap329,9060
+static void plugin_register(362,10024
+
+beatmap/parser/cfetch.h,24
+#define PARSER_H18,647
+
+beatmap/parser/cparse.c,534
+#define line_is_empty(44,1126
+#define line_is_comment(47,1234
+#define LINE_SIZE 50,1330
+struct h_entry 52,1355
+    char *id;id53,1372
+    char *value;value54,1386
+static void default_parser(57,1407
+static struct hash_table *event_parse(event_parse66,1612
+static struct hash_table *col_c_parse(col_c_parse71,1684
+static struct hash_table *tp_c_parse(tp_c_parse76,1756
+static struct hash_table *ho_c_parse(ho_c_parse81,1827
+static void check_format(87,1899
+struct hash_table *cparse_osu_file(cparse_osu_file104,2221
+
+beatmap/parser/pyfetch.h,23
+#define PYFETCH_H2,18
+
+beatmap/parser/cparse.h,21
+#define OMP_H18,644
+
+beatmap/parser/main.c,17
+int main(27,786
+
+beatmap/parser/cfetch.c,804
+#define _GNU_SOURCE17,630
+#define LINE_SIZE 41,1100
+#define MAP_READ_INT(43,1124
+#define MAP_READ_DOUBLE(55,1382
+#define MAP_READ_STRING(67,1643
+static void fetch_general(80,1980
+static void fetch_editor(101,2522
+static void fetch_metadata(128,3200
+static void fetch_difficulty(156,3951
+static void col_c_fetch(176,4495
+static void fetch_colors(185,4705
+static void fetch_events(205,5143
+#define HO_READ_DOUBLE(217,5411
+#define HO_READ_INT(229,5638
+#define HO_READ_STRING(242,5860
+static void ho_c_fetch(252,6050
+static void fetch_hit_objects(321,8114
+#define TP_READ_DOUBLE(340,8656
+#define TP_READ_INT(353,8884
+static void tp_c_fetch(365,9105
+static void fetch_timing_points(377,9513
+static struct map *fetch_beatmap(fetch_beatmap394,10050
+static void plugin_register(431,10881
+
+beatmap/parser/parser.h,24
+#define PARSER_H18,647
+
+beatmap/timingpoint.c,43
+void tp_print(20,675
+void tp_free(33,913
+
+beatmap/hitsound.h,230
+#define HITSOUND_H18,649
+#define HS_NORMAL 21,681
+#define HS_WHISTLE 22,702
+#define HS_FINISH 23,723
+#define HS_CLAP 24,744
+#define HS_DEFAULT 27,790
+#define HS_NORMAL 28,857
+#define HS_SOFT 29,880
+#define HS_DRUM 30,903
+
+beatmap/color.h,191
+#define COLOR_H18,635
+struct color 23,702
+        unsigned int c;25,729
+	    unsigned char r;27,763
+	    unsigned char g;28,785
+	    unsigned char b;29,807
+	    unsigned char a;30,829
+
+beatmap/hitobject.h,1136
+#define HIT_OBJECT_H18,651
+#define HO_CIRCLE 23,717
+#define HO_SLIDER 24,739
+#define HO_NEWCOMBO 25,761
+#define HO_SPINNER 26,794
+#define SLIDER_LINE 29,832
+#define SLIDER_P 30,881
+#define SLIDER_BEZIER 31,933
+#define TYPE_OF(37,1124
+struct point 40,1276
+    int x;41,1291
+    int y;42,1302
+struct hitsound 45,1317
+    int sample;46,1335
+    int additional;49,1376
+    int st;51,1401
+    int st_additional;52,1413
+    int sample_set_index;53,1436
+    int volume;54,1462
+    char *sfx_filename;sfx_filename55,1478
+struct add_hs 58,1506
+    int sample;59,1522
+    int st;60,1538
+    int st_additional;61,1550
+struct slider 64,1577
+    int type;65,1593
+    uint32_t repeat;66,1607
+    double length;67,1628
+    uint32_t point_count;69,1652
+    struct point *pos;pos70,1678
+	int additional;72,1714
+	struct add_hs *dat;dat73,1731
+    } hs;74,1752
+struct spinner 77,1766
+    int end_offset;78,1783
+struct hit_object 81,1807
+    int x;82,1827
+    int y;83,1838
+    int offset;84,1849
+    int type;85,1865
+    struct slider sli;87,1888
+    struct spinner spi;88,1911
+    struct hitsound hs;89,1935
+
+replay/keys.h,527
+#define KEYS_H2,15
+enum replay_taiko_keys 5,40
+    LEFT_DON 6,65
+    LEFT_KAT 7,88
+    RIGHT_DON 8,111
+    RIGHT_KAT 9,134
+enum replay_std_keys 13,161
+    MOUSE_LEFT 14,184
+    MOUSE_RIGHT 15,207
+    KEY_LEFT 16,230
+    KEY_RIGHT 17,257
+    SMOKE 18,284
+enum replay_ctb_keys 22,312
+    CTB_DASH 23,335
+enum replay_mania_keys 26,356
+    MANIA_1 30,472
+    MANIA_2 31,492
+    MANIA_3 32,512
+    MANIA_4 33,532
+    MANIA_5 34,552
+    MANIA_6 35,573
+    MANIA_7 36,594
+    MANIA_8 37,615
+    MANIA_9 38,637
+
+replay/replay.h,1048
+#define REPLAY_H18,647
+struct replay_data 24,723
+    int64_t previous_time;25,744
+    double x;26,771
+    double y;27,785
+    uint32_t keys;28,799
+struct replay_life 31,822
+    uint64_t time_offset;32,843
+    double life_amount;33,869
+struct replay 36,897
+    bool invalid;37,913
+    uint8_t game_mode;39,936
+    uint32_t game_version;40,959
+    char *bm_md5_hash;bm_md5_hash41,986
+    char *player_name;player_name42,1009
+    char *replay_md5_hash;replay_md5_hash43,1032
+    uint16_t _300;45,1064
+    uint16_t _100;46,1137
+    uint16_t _50;47,1200
+    uint16_t _geki;48,1241
+    uint16_t _katu;49,1300
+    uint16_t _miss;50,1355
+    uint32_t score;52,1376
+    uint16_t max_combo;53,1396
+    uint8_t fc;55,1456
+    uint32_t mods;56,1472
+    char *lifebar_graph;lifebar_graph62,1705
+    uint32_t replife_size;63,1730
+    struct replay_life *replife;replife64,1757
+    time_t timestamp;67,1832
+    uint32_t replay_length;70,1911
+    uint64_t repdata_count;71,1939
+    struct replay_data *repdata;repdata72,1967
+
+replay/xz_decomp.c,319
+#define IN_BUF_MAX	28,571
+#define OUT_BUF_MAX	29,594
+#define RET_OK	32,637
+#define RET_ERROR_INIT	33,656
+#define RET_ERROR_INPUT	34,682
+#define RET_ERROR_OUTPUT	35,709
+#define RET_ERROR_DECOMPRESSION	36,736
+static void lzma_error(39,772
+static int lzma_legacy_decompress(59,1307
+void lzma_decompress(130,3245
+
+replay/main.c,17
+int main(22,719
+
+replay/replay.c,357
+#define read_string(32,913
+#define DATE_MAXSIZE 34,988
+static unsigned int parse_replay_data(36,1014
+#define TICKS_PER_SECONDS 63,1703
+#define TICKS_AT_EPOCH 64,1739
+static inline time_t from_win_timestamp(66,1784
+static void print_date(71,1902
+struct replay *replay_parse(replay_parse89,2350
+void replay_print(138,3652
+void replay_free(181,5147
+
+replay/xz_decomp.h,25
+#define XZ_DECOMP_H2,20
+
+editor/lol.c,31
+print_hello 4,34
+main 11,134
+
+editor/main.c,65
+#define _(7,102
+static void print_hello(9,142
+int main(14,235
+
+editor/resources.c,1522
+# define SECTION 4,105
+# define SECTION6,192
+static const SECTION union { const guint8 data[data9,217
+static const SECTION union { const guint8 data[7988]; const double alignment;9,217
+static const SECTION union { const guint8 data[7988]; const double alignment; void * const ptr;9,217
+static const SECTION union { const guint8 data[7988]; const double alignment; void * const ptr;}  resources_resource_data 9,217
+static GStaticResource static_resource 1011,51274
+GResource *resources_get_resource resources_get_resource1013,51455
+#define G_HAS_CONSTRUCTORS 1039,52168
+#define G_DEFINE_CONSTRUCTOR(1041,52198
+#define G_DEFINE_DESTRUCTOR(1042,52289
+#define G_HAS_CONSTRUCTORS 1047,52474
+#define G_DEFINE_CONSTRUCTOR(1049,52504
+#define G_DEFINE_DESTRUCTOR(1055,52766
+#define G_HAS_CONSTRUCTORS 1063,53068
+#define G_DEFINE_CONSTRUCTOR_NEEDS_PRAGMA 1066,53152
+#define G_DEFINE_DESTRUCTOR_NEEDS_PRAGMA 1067,53196
+#define G_DEFINE_CONSTRUCTOR_PRAGMA_ARGS(1069,53240
+#define G_DEFINE_CONSTRUCTOR(1071,53317
+#define G_DEFINE_DESTRUCTOR_PRAGMA_ARGS(1076,53525
+#define G_DEFINE_DESTRUCTOR(1078,53601
+#define G_HAS_CONSTRUCTORS 1089,54020
+#define G_DEFINE_CONSTRUCTOR_NEEDS_PRAGMA 1091,54050
+#define G_DEFINE_DESTRUCTOR_NEEDS_PRAGMA 1092,54094
+#define G_DEFINE_CONSTRUCTOR_PRAGMA_ARGS(1094,54138
+#define G_DEFINE_CONSTRUCTOR(1096,54202
+#define G_DEFINE_DESTRUCTOR_PRAGMA_ARGS(1099,54268
+#define G_DEFINE_DESTRUCTOR(1101,54331
+G_DEFINE_CONSTRUCTOR(1117,54634
+static void resource_destructor 1132,55021
+
+editor/ui/lol.c,31
+print_hello 4,34
+main 11,134
+
+python.c,127
+static void embed_python_init(20,690
+static void embed_python_exit(32,955
+embed_python_funcall(38,1026
+Py_GetPath(100,2735
+
+python.h,24
+#define PYTHON_H18,647
+
+mod/mods.h,2271
+#define MODS_H18,645
+enum mods 22,714
+    MOD_NOFAIL 23,726
+    MOD_EASY 24,756
+    MOD_NOVIDEO	25,784
+    MOD_HIDDEN	26,813
+    MOD_HARDROCK	27,841
+    MOD_SUDDENDEATH	28,870
+    MOD_DOUBLETIME	29,902
+    MOD_RELAX	30,933
+    MOD_HALFTIME	31,960
+    MOD_NIGHTCORE	32,989
+    MOD_FLASHLIGHT	33,1019
+    MOD_AUTOPLAY 34,1051
+    MOD_SPUNOUT 35,1094
+    MOD_AUTOPILOT	36,1137
+    MOD_PERFECT 37,1168
+    MOD_4K	39,1203
+    MOD_5K	40,1228
+    MOD_6K	41,1253
+    MOD_7K	42,1279
+    MOD_8K	43,1305
+    MOD_FADEIN	45,1331
+    MOD_RANDOM	46,1360
+    MOD_CINEMA	47,1389
+    MOD_TARGETPRACTICE	49,1420
+    MOD_9K	51,1461
+    MOD_COOP	52,1486
+    MOD_1K	54,1514
+    MOD_3K	55,1539
+    MOD_2K	56,1564
+    MOD_1K_COOP	58,1590
+    MOD_1K_COOP		=	MOD_2K,58,1590
+    MOD_2K_COOP	59,1617
+    MOD_2K_COOP		=	MOD_4K,59,1617
+    MOD_3K_COOP	60,1644
+    MOD_3K_COOP		=	MOD_6K,60,1644
+    MOD_4K_COOP	61,1671
+    MOD_4K_COOP		=	MOD_8K,61,1671
+    MOD_5K_COOP	63,1699
+    MOD_5K_COOP		=	(MOD_5K 63,1699
+    MOD_5K_COOP		=	(MOD_5K | MOD_COOP)63,1699
+    MOD_6K_COOP	64,1739
+    MOD_6K_COOP		=	(MOD_6K 64,1739
+    MOD_6K_COOP		=	(MOD_6K | MOD_COOP)64,1739
+    MOD_7K_COOP	65,1779
+    MOD_7K_COOP		=	(MOD_7K 65,1779
+    MOD_7K_COOP		=	(MOD_7K | MOD_COOP)65,1779
+    MOD_8K_COOP	66,1819
+    MOD_8K_COOP		=	(MOD_8K 66,1819
+    MOD_8K_COOP		=	(MOD_8K | MOD_COOP)66,1819
+    MOD_9K_COOP	67,1859
+    MOD_9K_COOP		=	(MOD_9K 67,1859
+    MOD_9K_COOP		=	(MOD_9K | MOD_COOP)67,1859
+enum mods_id 71,1903
+    IMOD_NOFAIL 72,1918
+    IMOD_EASY 73,1941
+    IMOD_NOVIDEO	74,1963
+    IMOD_HIDDEN	75,1985
+    IMOD_HARDROCK	76,2007
+    IMOD_SUDDENDEATH	77,2030
+    IMOD_DOUBLETIME	78,2056
+    IMOD_RELAX	79,2081
+    IMOD_HALFTIME	80,2102
+    IMOD_NIGHTCORE	81,2125
+    IMOD_FLASHLIGHT	82,2149
+    IMOD_AUTOPLAY	84,2176
+    IMOD_SPUNOUT	85,2200
+    IMOD_AUTOPILOT	86,2223
+    IMOD_PERFECT 87,2248
+    IMOD_4K	89,2277
+    IMOD_5K	90,2296
+    IMOD_6K	91,2315
+    IMOD_7K	92,2334
+    IMOD_8K	93,2353
+    IMOD_FADEIN	95,2373
+    IMOD_RANDOM	96,2396
+    IMOD_CINEMA	97,2419
+    IMOD_TARGETPRACTICE	99,2443
+    IMOD_9K	101,2474
+    IMOD_COOP	102,2493
+    IMOD_1K	104,2515
+    IMOD_3K	105,2534
+    IMOD_2K	106,2553
+    IMOD_MAX,107,2572
+
+mod/mods.c,202
+struct mod_designation 20,687
+    const char *long_;long_21,712
+    const char *short_;short_22,735
+struct mod_designation none 25,763
+struct mod_designation md[md27,817
+void mod_print(59,2398
+
+mod/game_mode.h,128
+#define GAME_MODE_H2,20
+enum game_mode 5,42
+    MODE_STD 6,59
+    MODE_TAIKO 7,80
+    MODE_CTB 8,101
+    MODE_MANIA 9,122
+
+ranking/taikorank/tr_mods.c,454
+static void trm_apply_mods_HR(41,1360
+static void trm_apply_mods_EZ(57,1736
+static void trm_apply_mods_DT(69,1973
+static void trm_apply_mods_HT(83,2319
+static void trm_apply_mods_HD(97,2665
+static void trm_apply_mods_FL(119,3133
+static void trm_apply_NM_app_dis(144,3736
+static void trm_apply_NM_ms_coeff(155,3990
+void trm_apply_mods(164,4229
+static int trm_print_one_mod(190,4922
+void trm_print_mods(204,5219
+char * trm_mods_to_str(213,5443
+
+ranking/taikorank/config.c,814
+#define CONFIG_FILE 33,938
+#define MOD_STR_LENGTH 35,974
+int OPT_DATABASE;37,1000
+int OPT_PRINT_TRO;38,1018
+int OPT_PRINT_YAML;39,1037
+int OPT_PRINT_FILTER;40,1057
+char * OPT_PRINT_ORDER;41,1079
+int OPT_MODS;43,1104
+int OPT_FLAT;44,1118
+int OPT_NO_BONUS;45,1132
+char * TR_DB_IP;47,1151
+char * TR_DB_LOGIN;48,1168
+char * TR_DB_PASSWD;49,1188
+int OPT_SCORE;51,1210
+int OPT_SCORE_QUICK;52,1225
+double OPT_SCORE_ACC;53,1246
+static struct yaml_wrap * yw;56,1314
+static struct hash_table * ht_conf;57,1344
+static void global_init(61,1438
+void config_score(84,2057
+#define CASE_FILTER(102,2471
+void config_set_filter(107,2565
+#define IF_MOD_SET(133,3141
+void config_set_mods(140,3303
+void ht_conf_db_init(172,4208
+static void ht_cst_init_config(182,4465
+static void ht_cst_exit_config(197,4758
+
+ranking/taikorank/spacing_count.c,190
+struct list * spc_new(24,810
+void spc_free(29,865
+void spc_add(35,945
+static void sp_if_increase(43,1094
+void spc_increase(49,1197
+static void sp_print(55,1339
+void spc_print(60,1437
+
+ranking/taikorank/vector.c,199
+#define _GNU_SOURCE17,635
+#define CST_VECT_DIM 28,804
+struct vector * vect_new(32,882
+void vect_free(46,1215
+struct vector * cst_vect(58,1414
+double vect_exp(84,2021
+double vect_poly2(91,2150
+
+ranking/taikorank/check_osu_file.h,26
+#define LOAD_OSU_H18,654
+
+ranking/taikorank/print.c,53
+void tr_error(27,808
+void print_string_size(36,991
+
+ranking/taikorank/cst_yaml.h,26
+#define CST_YAML_H17,653
+
+ranking/taikorank/interpolation.h,135
+#define INTERPOLATION_H18,659
+#define EXP_2_PT(24,768
+#define INV_2_PT(33,971
+#define POLY_2_PT(46,1297
+#define POLY_3_PT(51,1467
+
+ranking/taikorank/taiko_ranking_score.h,208
+#define TAIKO_RANKING_SCORE_H18,665
+struct tr_score22,712
+  const struct tr_map * origin;25,754
+  double acc;28,833
+  int great;29,854
+  int good;30,867
+  int miss;31,879
+  struct tr_map * map;34,908
+
+ranking/taikorank/vector.h,134
+#define VECTOR_H17,651
+struct vector 19,669
+  int len;20,685
+  int max_index;21,696
+  int min_index;22,713
+  double ** t;23,730
+
+ranking/taikorank/compute_star/pattern.c,1073
+struct pattern36,980
+  double * d;38,997
+static struct yaml_wrap * yw;41,1015
+static struct hash_table * ht_cst;42,1045
+static struct hash_table * ht_pattern;43,1080
+static int pattern_set;44,1119
+#define PATTERN_FILE 63,1734
+static struct vector * SINGLETAP_VECT;66,1805
+static int PROBA_START;68,1845
+static int PROBA_END;69,1869
+static int PROBA_STEP;70,1891
+static double PATTERN_STAR_COEFF_ALT;73,1933
+static struct vector * SCALE_VECT;74,1971
+static int MAX_PATTERN_LENGTH;77,2018
+static int LENGTH_PATTERN_USED;78,2049
+#define cst_assert(80,2082
+static void global_init(90,2287
+static void ht_cst_init_pattern(108,2832
+static void ht_pattern_init(124,3114
+static void remove_pattern(167,4549
+static void ht_cst_exit_pattern(176,4748
+static double tro_singletap_proba(189,5104
+static struct pattern * trm_get_pattern(196,5272
+static void trm_compute_pattern_proba(238,6314
+static void trm_compute_pattern_alt(248,6556
+static void trm_compute_pattern_star(270,7175
+static void trm_pattern_alloc(289,7739
+void * trm_compute_pattern(301,8063
+
+ranking/taikorank/compute_star/accuracy.h,26
+#define ACCURACY_H18,654
+
+ranking/taikorank/compute_star/density.c,810
+static struct yaml_wrap * yw;34,940
+static struct hash_table * ht_cst;35,970
+#define DENSITY_FILE 48,1379
+static struct vector * DENSITY_VECT;51,1442
+static double DENSITY_NORMAL;54,1529
+static double DENSITY_BIG;55,1559
+static double DENSITY_BONUS;56,1586
+static double DENSITY_LENGTH;59,1663
+static double DENSITY_STAR_COEFF_COLOR;62,1712
+static double DENSITY_STAR_COEFF_RAW;63,1752
+static struct vector * SCALE_VECT;64,1790
+static void global_init(68,1883
+static void ht_cst_init_density(86,2427
+static void ht_cst_exit_density(95,2590
+static double tro_coeff_density(106,2872
+static double tro_density(128,3278
+static void trm_compute_density_raw(142,3766
+static void trm_compute_density_color(168,4411
+static void trm_compute_density_star(197,5246
+void * trm_compute_density(213,5776
+
+ranking/taikorank/compute_star/reading.c,1296
+#define min(37,998
+#define max(38,1031
+#define RAND_DOUBLE 39,1064
+static struct yaml_wrap * yw;41,1114
+static struct hash_table * ht_cst;42,1144
+#define READING_FILE 64,1860
+static int MONTE_CARLO_NB_PT;66,1902
+static struct vector * HIDE_VECT;67,1932
+static struct vector * FAST_VECT;68,1966
+static struct vector * SEEN_VECT;69,2000
+static double SPEED_CH_MAX;72,2051
+static double SPEED_CH_TIME_0;73,2079
+static double SPEED_CH_VALUE_0;74,2110
+static double READING_STAR_COEFF_SEEN;77,2161
+static double READING_STAR_COEFF_HIDE;78,2200
+static double READING_STAR_COEFF_HIDDEN;79,2239
+static double READING_STAR_COEFF_SPEED_CH;80,2280
+static double READING_STAR_COEFF_FAST;81,2323
+static struct vector * SCALE_VECT;82,2362
+static void global_init(86,2455
+static void ht_cst_init_reading(110,3328
+static void ht_cst_exit_reading(119,3491
+static int pt_is_in_tro(132,3818
+static int pt_is_in_intersection(142,4067
+typedef int (*mc_cond)mc_cond157,4352
+static double tr_monte_carlo(158,4400
+static double tro_hide(178,4933
+static double tro_seen(212,5895
+static double tro_fast(266,7307
+static void trm_compute_reading_hide(293,8038
+static void trm_compute_reading_fast(340,9310
+static void trm_compute_reading_star(370,10086
+void * trm_compute_reading(389,10790
+
+ranking/taikorank/compute_star/density.h,25
+#define DENSITY_H18,653
+
+ranking/taikorank/compute_star/pattern.h,25
+#define PATTERN_H18,653
+
+ranking/taikorank/compute_star/final_star.c,300
+#define FINAL_FILE 38,1040
+static struct yaml_wrap * yw;40,1078
+static struct hash_table * ht_cst;41,1108
+static struct vector * SCALE_VECT;43,1144
+static void global_init(47,1237
+static void ht_cst_init_final(53,1348
+static void ht_cst_exit_final(62,1507
+void trm_compute_final_star(70,1648
+
+ranking/taikorank/compute_star/final_star.h,28
+#define FINAL_STAR_H18,656
+
+ranking/taikorank/compute_star/reading.h,25
+#define READING_H18,653
+
+ranking/taikorank/compute_star/accuracy.c,957
+static struct yaml_wrap * yw;35,968
+static struct hash_table * ht_cst;36,998
+#define ACCURACY_FILE 46,1303
+#define MS_GREAT 48,1347
+#define MS_COEFF_GREAT 49,1373
+#define MS_GOOD 50,1398
+#define MS_COEFF_GOOD 51,1425
+#define MS_MISS 52,1450
+#define MS_COEFF_MISS 53,1490
+static struct vector * SLOW_VECT;55,1531
+static struct vector * HIT_WINDOW_VECT;56,1565
+static double ACCURACY_STAR_COEFF_SLOW;58,1606
+static double ACCURACY_STAR_COEFF_HIT_WINDOW;59,1646
+static double ACCURACY_STAR_COEFF_SPACING;60,1692
+static struct vector * SCALE_VECT;61,1735
+static void global_init(65,1828
+static void ht_cst_init_accuracy(79,2308
+static void ht_cst_exit_accuracy(88,2473
+static double tro_slow(100,2785
+static void trm_compute_hit_window(109,3052
+static void trm_compute_slow(132,3811
+static int equal_i(142,4033
+static void trm_compute_spacing(147,4097
+static void trm_compute_accuracy_star(176,4761
+void * trm_compute_accuracy(193,5348
+
+ranking/taikorank/taiko_ranking_object.c,588
+struct tr_object * tro_copy(27,814
+double mpb_to_bpm(36,1077
+int equal(44,1254
+int tro_is_big(53,1508
+int tro_is_bonus(61,1687
+int tro_is_slider(68,1846
+int tro_is_circle(75,2004
+int tro_is_kat(82,2142
+int tro_is_don(89,2297
+int tro_are_same_hand(98,2562
+int tro_are_same_type(107,2791
+int tro_are_same_density(120,3214
+char * tro_str_state(131,3550
+void tro_print_yaml(150,3879
+void tro_print(164,4375
+struct tro_table * tro_table_new(245,6621
+struct tro_table * tro_table_from_vl(253,6802
+struct tro_table * tro_table_from_array(266,7056
+void tro_table_free(274,7230
+
+ranking/taikorank/options.h,56
+#define OPTIONS_H17,652
+#define OPTIONS_PREFIX 19,671
+
+ranking/taikorank/taiko_ranking_object.h,1296
+#define TRO_H18,649
+#define EPSILON 21,688
+#define MSEC_IN_MINUTE 23,708
+#define TRO_SMALL_SIZE 25,739
+#define TRO_BIG_SIZE 26,825
+enum played_state30,948
+  GREAT,32,968
+  GREAT, GOOD,32,968
+  GREAT, GOOD, MISS,32,968
+  GREAT, GOOD, MISS, BONUS32,968
+struct tr_object35,999
+  int offset;38,1039
+  int end_offset;39,1053
+  char type;40,1096
+  double bpm_app;41,1156
+  enum played_state ps;43,1177
+  int l_hand;46,1229
+  int r_hand;47,1253
+  int rest;48,1277
+  double obj_app;49,1320
+  double obj_dis;50,1396
+  int offset_app;51,1445
+  int end_offset_app;52,1511
+  int offset_dis;53,1578
+  int end_offset_dis;54,1648
+  int visible_time;55,1717
+  int invisible_time;56,1787
+  double c_app;57,1897
+  double c_end_app;58,1945
+  double proba;60,2012
+  double * alt;61,2028
+  double density_raw;64,2097
+  double density_color;65,2119
+  double seen;68,2167
+  double hidden;69,2182
+  double hide;70,2235
+  double fast;71,2280
+  double speed_change;72,2324
+  double slow;75,2372
+  double hit_window;76,2416
+  double spacing;77,2437
+  double density_star;80,2471
+  double reading_star;81,2494
+  double pattern_star;82,2517
+  double accuracy_star;83,2540
+  double final_star;84,2564
+struct tro_table 111,3385
+  struct tr_object ** t;112,3404
+  int l;113,3429
+
+ranking/taikorank/taiko_ranking_score.c,269
+void trs_main(39,1240
+static void trs_prepare(49,1476
+static struct tr_score * trs_new(78,2081
+static void trs_free(87,2279
+static void trs_print_and_db(97,2455
+static int trs_is_finished(112,2772
+static void trs_compute(121,3013
+static void trs_print(150,3662
+
+ranking/taikorank/treatment.c,398
+#define MAX_REST 32,1122
+#define OFFSET_MIN 35,1167
+#define OFFSET_MAX 36,1192
+static void tro_line(40,1313
+static void trm_treatment_hand(48,1511
+static void trm_treatment_rest(86,2227
+static void trm_treatment_app_dis_offset(102,2672
+static void trm_treatment_visible_time(155,4100
+static void trm_treatment_line(178,4691
+static void trm_set_combo(186,4878
+void trm_treatment(210,5428
+
+ranking/taikorank/taiko_ranking_map.h,809
+#define TRM_H18,647
+#define ENABLE_STAR_THREAD20,662
+#define MAX_ACC 22,690
+#define COEFF_MAX_ACC 23,709
+struct tr_map28,775
+  char * title;31,806
+  char * artist;32,822
+  char * source;33,839
+  char * creator;34,856
+  char * diff;35,874
+  char * title_uni;37,890
+  char * artist_uni;38,910
+  unsigned int bms_osu_ID;39,931
+  unsigned int diff_osu_ID;40,958
+  int mods;43,1004
+  double od;44,1016
+  double od_mod_mult;45,1029
+  int nb_object;48,1089
+  struct tr_object * object;49,1106
+  double density_star;52,1154
+  double reading_star;53,1177
+  double pattern_star;54,1200
+  double accuracy_star;55,1223
+  double final_star;56,1247
+  double acc;59,1278
+  int combo;60,1292
+  int max_combo;61,1305
+  int great;63,1324
+  int good;64,1337
+  int miss;65,1349
+  int bonus;66,1361
+
+ranking/taikorank/stats.c,454
+#define DEF_WEIGHT_X1 29,847
+#define DEF_WEIGHT_Y1 30,872
+#define DEF_WEIGHT_X2 31,897
+#define DEF_WEIGHT_Y2 32,925
+#define TRO_COMPARE(36,1012
+#define TRM_SORT(46,1313
+#define TRM_QUARTILE(59,1683
+#define TRM_MEAN(70,2060
+#define TRM_STATS(82,2416
+double default_weight(100,3125
+#define TRM_WEIGHT_SUM(107,3269
+#define TRM_SORT_FUNCTIONS(125,3823
+#define TRM_STATS_FUNCTIONS(129,3905
+TRM_SORT_FUNCTIONS(142,4312
+void stats_print(168,4988
+
+ranking/taikorank/stats.h,361
+#define STATS_H18,651
+#define TRM_SORT_HEADER(22,725
+#define TRM_STATS_HEADER(26,867
+struct stats35,1199
+  double min;37,1214
+  double max;38,1228
+  double spread;39,1242
+  double mean;41,1262
+  double d1;42,1277
+  double q1;43,1290
+  double median;44,1303
+  double q3;45,1320
+  double d9;46,1333
+  double scaling;48,1347
+TRM_SORT_HEADER(53,1426
+
+ranking/taikorank/print.h,449
+#define PRINT_H18,651
+#define OUTPUT 20,668
+#define OUTPUT_INFO 21,695
+#define OUTPUT_ERR 22,722
+#define FILTER_BASIC 24,750
+#define FILTER_BASIC_PLUS 25,787
+#define FILTER_ADDITIONNAL 26,824
+#define FILTER_DENSITY 27,861
+#define FILTER_READING 28,898
+#define FILTER_READING_PLUS 29,935
+#define FILTER_PATTERN 30,972
+#define FILTER_ACCURACY 31,1009
+#define FILTER_STAR 32,1046
+#define STR_MODS_LENGTH 34,1084
+#define MAX_MODS 35,1110
+
+ranking/taikorank/tr_db.h,23
+#define TR_DB_H18,651
+
+ranking/taikorank/treatment.h,27
+#define TREATMENT_H18,655
+
+ranking/taikorank/config.h,24
+#define CONFIG_H17,651
+
+ranking/taikorank/cst_yaml.c,177
+struct yaml_wrap * cst_get_yw(30,878
+struct hash_table * cst_get_ht(40,1110
+double cst_f(54,1397
+int cst_i(59,1490
+char * cst_str(64,1580
+struct stats * cst_stats(79,1966
+
+ranking/taikorank/main.c,17
+int main(28,867
+
+ranking/taikorank/tr_mods.h,859
+#define MODS_H18,645
+#define MODS_NONE 21,701
+#define MODS_EZ 22,721
+#define MODS_HT 23,748
+#define MODS_HR 24,775
+#define MODS_DT 25,802
+#define MODS_HD 26,829
+#define MODS_FL 27,856
+#define EZ_COEFF_OD 30,931
+#define EZ_COEFF_SPEED 31,958
+#define HR_COEFF_OD 33,991
+#define HR_COEFF_SPEED 34,1018
+#define HR_NB_OBJ_APP 35,1050
+#define DT_COEFF_MS 37,1078
+#define DT_COEFF_SPEED 38,1110
+#define DT_COEFF_BPM 39,1137
+#define HT_COEFF_MS 41,1165
+#define HT_COEFF_SPEED 42,1197
+#define HT_COEFF_BPM 43,1229
+#define HD_NB_OBJ_APP 45,1262
+#define HD_NB_OBJ_DIS 46,1289
+#define FL_NB_OBJ_APP1 48,1316
+#define FL_NB_OBJ_APP2 49,1342
+#define FL_NB_OBJ_APP3 50,1368
+#define FL_START_APP2 51,1395
+#define FL_START_APP3 52,1431
+#define NM_NB_OBJ_APP 55,1518
+#define NM_NB_OBJ_DIS 56,1545
+#define NM_COEFF_MS 58,1572
+#define MAX_OD 60,1598
+
+ranking/taikorank/check_osu_file.c,51
+static int compare(31,900
+int check_file(41,1093
+
+ranking/taikorank/tr_db.c,609
+#define _GNU_SOURCE17,635
+#define TR_DB_NAME 35,960
+#define TR_DB_USER 36,993
+#define TR_DB_BMS 37,1023
+#define TR_DB_DIFF 38,1060
+#define TR_DB_MOD 39,1090
+#define TR_DB_SCORE 40,1119
+static MYSQL * sql;42,1151
+void tr_db_init(57,1730
+static void tr_db_exit(82,2199
+static int new_rq(90,2327
+static int tr_db_get_id(111,2677
+static char * tr_db_escape_str(126,3024
+static int tr_db_insert_user(137,3288
+static int tr_db_insert_bms(161,3990
+static int tr_db_insert_diff(195,5200
+static int tr_db_insert_mod(221,5961
+static int tr_db_insert_update_score(242,6515
+void trm_db_insert(286,8083
+
+ranking/taikorank/options.c,900
+#define ARG_OPT_DB 26,795
+#define ARG_OPT_SCORE 28,831
+#define ARG_OPT_SCORE_ACC 29,869
+#define ARG_OPT_SCORE_QUICK 30,905
+#define ARG_OPT_PRINT_TRO 32,944
+#define ARG_OPT_PRINT_YAML 33,981
+#define ARG_OPT_PRINT_FILTER 34,1019
+#define ARG_OPT_PRINT_ORDER 35,1059
+#define ARG_OPT_MODS 37,1099
+#define ARG_OPT_NO_BONUS 38,1136
+#define ARG_OPT_FLAT 39,1177
+static struct hash_table * ht_opt;41,1215
+int options_set(45,1308
+#define OPT_ARGC_ERR(59,1641
+static int opt_db(66,1810
+static int opt_score(80,2077
+static int opt_score_quick(89,2250
+static int opt_score_acc(98,2440
+static int opt_print_tro(109,2697
+static int opt_print_yaml(116,2846
+static int opt_print_filter(123,2998
+static int opt_print_order(130,3159
+static int opt_mods(139,3374
+static int opt_no_bonus(146,3508
+static int opt_flat(153,3654
+static void options_init(163,3875
+static void options_exit(184,4634
+
+ranking/taikorank/taiko_ranking_map.c,992
+  #define NB_STARS_FIELD 45,1229
+#define BASIC_SV 48,1264
+#define strdup(51,1300
+#define TYPE(53,1348
+void trm_main(70,1943
+void trm_set_mods(102,2547
+void trm_compute_stars(109,2675
+  typedef void*(*fun)fun118,2853
+struct tr_map * trm_copy(150,3676
+void trm_pattern_free(170,4238
+void trm_free(180,4428
+struct tr_map * trm_new(199,4766
+static char convert_get_type(211,5096
+static double convert_get_bpm_app(250,5734
+static int convert_get_end_offset(265,6098
+struct tr_map * trm_convert(286,6662
+void trm_print_tro(391,9542
+#define CASE_PRINT(420,10745
+void trm_print(425,10840
+void tr_print_yaml_init(453,11514
+void tr_print_yaml_exit(458,11579
+void trm_print_yaml(464,11663
+int trm_hardest_tro(520,13411
+int trm_best_influence_tro(532,13703
+static void trm_add_to_ps(555,14216
+void trm_set_tro_ps(577,14603
+double compute_acc(597,15166
+static void trm_acc(602,15278
+void trm_flat_big(609,15438
+void trm_remove_tro(628,15751
+void trm_remove_bonus(635,15909
+
+ranking/taikorank/spacing_count.h,90
+#define SPACING_COUNT_H17,658
+struct spacing 21,697
+  int rest;22,714
+  int nb;23,726
+
+ranking/taikorank/path.h,22
+#define PATH_H17,649
+
+ranking/taikorank/path.c,96
+#define _GNU_SOURCE16,634
+static int app_dir 25,777
+void set_app_dir(26,802
+  int r 41,1120
+
+include/visibility.h,130
+#define VISIBILITY_H18,651
+#define __internal 22,690
+#define __export 23,752
+#define __internal27,819
+#define __export28,838
+
+database/osuxdb.c,287
+#define _GNU_SOURCE1,0
+parse_beatmap_rec(16,291
+int osux_db_build(69,1915
+int osux_db_write(91,2494
+int osux_db_read(107,2957
+void osux_db_free(130,3590
+void osux_db_dump(144,3932
+void osux_db_hash(155,4323
+osux_db_relpath_by_hash(169,4694
+osux_db_get_beatmap_by_hash(177,4854
+
+database/osuxdb.h,314
+#define OSUXDB_H2,17
+struct beatmap_info 9,116
+    char *osu_file_path;osu_file_path10,138
+    char *md5_hash;md5_hash11,163
+struct osudb 14,187
+    uint32_t beatmaps_number;15,202
+    struct beatmap_info *beatmaps;beatmaps16,232
+    struct hash_table *hashmap;hashmap18,272
+    bool db_hashed;19,304
+
+database/makedb.c,16
+int main(8,103
+
+database/scoredb.c,378
+struct score 8,109
+    struct replay score_replay;9,124
+    uint64_t OnlineScoreID;12,224
+struct score_beatmap 15,256
+    char *beatmap_hash;beatmap_hash16,279
+    uint32_t scores_number;17,303
+    struct score scores;18,331
+struct scoredb 21,360
+    uint32_t osu_version;22,377
+    uint32_t beatmaps_number;23,403
+    struct score_beatmap *beatmaps;beatmaps24,433
+
+database/readdb.c,16
+int main(8,103
+
+beatmap/parser/parser.c,0
+
+beatmap/storyboard.c,0
