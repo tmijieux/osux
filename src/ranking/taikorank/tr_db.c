@@ -203,10 +203,10 @@ static int tr_db_insert_diff(struct tr_map * map, int bms_id)
   if (diff_id < 0)
     {
       new_rq(sql, "INSERT INTO %s(diff_name, bms_ID, osu_diff_ID,"
-	     "max_combo, bonus)"
-	     "VALUES('%s', %d, %d, %d, %d);",
+	     "max_combo, bonus, hash)"
+	     "VALUES('%s', %d, %d, %d, %d, '%s');",
 	     TR_DB_DIFF, map_diff, bms_id, map->diff_osu_ID,
-	     map->max_combo, map->bonus);
+	     map->max_combo, map->bonus, map->hash);
       diff_id = tr_db_get_id(sql, TR_DB_DIFF, cond);
       fprintf(OUTPUT_INFO, "New diff: %s ID: %d\n",
 	      map_diff, diff_id);

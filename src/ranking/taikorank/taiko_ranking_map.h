@@ -38,6 +38,7 @@ struct tr_map
   char * artist_uni;
   unsigned int bms_osu_ID;
   unsigned int diff_osu_ID;
+  char * hash;
   
   // Song Info
   int mods;

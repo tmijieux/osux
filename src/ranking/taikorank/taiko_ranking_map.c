@@ -25,6 +25,7 @@
 #include "beatmap/hitsound.h"
 
 #include "database/osuxdb.h"
+#include "util/md5.h"
 
 #include "taiko_ranking_object.h"
 #include "taiko_ranking_map.h"
@@ -165,6 +166,7 @@ struct tr_map * trm_copy(const struct tr_map * map)
   copy->diff    = strdup(map->diff);
   copy->title_uni  = strdup(map->title_uni);
   copy->artist_uni = strdup(map->artist_uni);
+  copy->hash = strdup(map->hash);
   
   return copy;
 }
@@ -193,6 +195,7 @@ void trm_free(struct tr_map * map)
   free(map->diff);
   free(map->title_uni);
   free(map->artist_uni);
+  free(map->hash);
   
   free(map->object);
   free(map);
@@ -203,14 +206,23 @@ void trm_free(struct tr_map * map)
 struct tr_map * trm_new(char * filename)
 {
   int s = check_file(filename);
+  struct tr_map * res;
   switch(s)
     {
     case 1:
-      return trm_convert(filename);
+      res = trm_convert(filename);
+      FILE * f = fopen(filename, "r");
+      unsigned char * tmp = osux_md5_hash_file(f);
+      res->hash = osux_md5_string(tmp);
+      free(tmp);
+      fclose(f);
+      return res;
     case 2:  
-      return trm_convert_map(osux_db_get_beatmap_by_hash(ODB, filename));
+      res = trm_convert_map(osux_db_get_beatmap_by_hash(ODB, filename));
+      res->hash = filename;
+      return res;
     default:
-      tr_error("Could not load: %s", filename);
+      tr_error("Could not load: '%s'", filename);
       break;
     }
   return NULL;

@@ -255,6 +255,8 @@ static double tro_seen(struct tr_object * o, struct tr_object ** t,
 			     table);
       tro_table_free(table);
     }
+  else
+    free(t);
 
   free(copy);
   //return seen;
