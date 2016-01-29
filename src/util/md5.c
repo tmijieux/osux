@@ -9,7 +9,7 @@
 
 unsigned char *osux_md5_hash_file(FILE *f)
 {
-    unsigned char *c = malloc(MD5_DIGEST_LENGTH + 1);
+    unsigned char *c = malloc(MD5_DIGEST_LENGTH);
     MD5_CTX mdContext;
     int bytes = 0;
     unsigned char data[1024];
@@ -20,7 +20,7 @@ unsigned char *osux_md5_hash_file(FILE *f)
     while ((bytes = fread(data, 1, 1024, f)) != 0)
         MD5_Update(&mdContext, data, bytes);
     MD5_Final(c, &mdContext);
-    c[MD5_DIGEST_LENGTH] = '\0';
+    rewind(f);
     return c;
 }
 

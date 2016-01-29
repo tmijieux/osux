@@ -12,6 +12,8 @@ struct beatmap_info {
 };
 
 struct osudb {
+    sqlite3 *db;
+    
     uint32_t beatmaps_number;
     struct beatmap_info *beatmaps;
     
@@ -29,3 +31,5 @@ const char* osux_db_relpath_by_hash(struct osudb *odb, const char *hash);
 struct map* osux_db_get_beatmap_by_hash(struct osudb *odb, const char *hash);
 
 #endif //OSUXDB_H
+
+

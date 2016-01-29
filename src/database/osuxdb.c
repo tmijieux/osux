@@ -12,9 +12,37 @@
 #include "util/data.h"
 #include "osuxdb.h"
 
+static int 
+load_beatmap(struct osudb *odb, const char *filename, int base_path_length)
+{
+    char *errmsg, *md5_hash;
+    unsigned char *md5;
+    FILE *f;
+
+    f = fopen(path, "r");
+    if (NULL != f) {
+        printf("db_parse: osu file: %s\n", path);
+    } else {
+        osux_error("osu file BUG: %s\n", path);
+        return -1;
+    }
+
+    errmsg = NULL;
+    md5 = osux_md5_hash_file(f);
+    sqlite3_exec(odb->db, "INSERT INTO", NULL, NULL, &errmsg);
+    sqlite3_free(errmsg);
+    md5_hash = osux_md5_string(md5);
+    free(md5);
+    
+    fclose(f);
+    return 0;
+}
+
+
 static int
-parse_beatmap_rec(const char *name, int level, struct list *beatmaps,
-                  const int base_path_length)
+parse_beatmap_directory_rec(const char *name, struct osudb *odb,
+                            int base_path_length, int level)
+
 {
     DIR *dir;
     struct dirent *entry;
@@ -36,7 +64,6 @@ parse_beatmap_rec(const char *name, int level, struct list *beatmaps,
                 free(path);
                 continue;
             }
-            fprintf(stderr, "Entering directory %s\n", path);
             parse_beatmap_rec(path, level + 1, beatmaps, base_path_length);
             free(path);
         } else {
@@ -44,20 +71,7 @@ parse_beatmap_rec(const char *name, int level, struct list *beatmaps,
                 free(path);
                 continue;
             }
-            fprintf(stderr, "Found osu file %s\n", path);
-            struct beatmap_info *bi = malloc(sizeof*bi);
-            bi->osu_file_path = strdup(path+base_path_length);
-            FILE *f = fopen(path, "r");
-            if (NULL != f) {
-                unsigned char *md5 = osux_md5_hash_file(f);
-                fprintf(stderr, "osu file ok: %s\n", path);
-                bi->md5_hash = osux_md5_string(md5);
-                free(md5);
-                fclose(f);
-                list_append(beatmaps, bi);
-            } else {
-                fprintf(stderr, "osu file BUG: %s\n", path);
-            }
+            load_beatmap(odb, path, base_path_length);
             free(path);
         }
     } while ((entry = readdir(dir)) != NULL);
@@ -66,26 +80,33 @@ parse_beatmap_rec(const char *name, int level, struct list *beatmaps,
     return 0;
 }
 
-int osux_db_build(const char *directory_name, struct osudb *odb)
+
+int osux_db_init(struct osudb *odb)
 {
     assert( NULL != odb );
     memset(odb, 0, sizeof*odb);
-
-    struct list *beatmaps = list_new(0);
-    parse_beatmap_rec(directory_name, 0, beatmaps, strlen(directory_name));
-
-    size_t n = list_size(beatmaps);
-    struct beatmap_info *bis = malloc(sizeof*bis * n);
-    for (unsigned i = 1; i <= n; ++i) {
-        struct beatmap_info *bm = list_get(beatmaps, i);
-        bis[i-1] = *bm;
-        free(bm);
+    
+    ret = sqlite3_open(":memory:", &odb->db);
+    if (ret) {
+        fprintf(stderr, "%s:%s:%s:Can't open database: %s\n",
+                __PRETTY_FUNCTION__, __FILE__, __LINE__,
+                sqlite3_errmsg(odb->db));
+        sqlite3_close(db);
+        return -1;
     }
-    list_free(beatmaps);
 
-    odb->beatmaps_number = n;
-    odb->beatmaps = bis;
-    return 0;
+    char *errmsg = NULL;
+    sqlite3_exec(odb->db, "create table",
+                 NULL, NULL, &errmsg);
+}
+
+int osux_db_build(const char *directory_name, struct osudb *odb)
+{
+
+
+
+    return parse_beatmap_directory_rec(directory_name, odb,
+                                       strlen(directory_name), 0);
 }
 
 int osux_db_write(const char *filename, const struct osudb *odb)
