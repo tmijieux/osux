@@ -2,14 +2,19 @@
 #include <stdlib.h>
 #include <openssl/md5.h>
 #include <assert.h>
+#include "util/error.h"
 
 #ifndef min
 #define min(x, y)  ((x) < (y) ? (x) : (y))
 #endif
 
-unsigned char *osux_md5_hash_file(FILE *f)
+int osux_md5_hash_file(FILE *f, unsigned char *md5_hash)
 {
-    unsigned char *c = malloc(MD5_DIGEST_LENGTH);
+    if (f == NULL || md5_hash == NULL) {
+        osux_error("invalid argument");
+        return -1;
+    }
+
     MD5_CTX mdContext;
     int bytes = 0;
     unsigned char data[1024];
@@ -19,27 +24,33 @@ unsigned char *osux_md5_hash_file(FILE *f)
     MD5_Init(&mdContext);
     while ((bytes = fread(data, 1, 1024, f)) != 0)
         MD5_Update(&mdContext, data, bytes);
-    MD5_Final(c, &mdContext);
+    MD5_Final(md5_hash, &mdContext);
     rewind(f);
-    return c;
+    return 0;
 }
 
-unsigned char *osux_md5_hash_buf(size_t size, const unsigned char *buf)
+int osux_md5_hash_buf(size_t size,
+                      const unsigned char *buf, unsigned char *md5_hash)
 {
-    unsigned char *c = malloc(MD5_DIGEST_LENGTH + 1);
+    if (buf == NULL || md5_hash == NULL) {
+        osux_error("invalid argument");
+        return -1;
+    } else if (0 == size) {
+        return 0;
+    }
+    
     MD5_CTX mdContext;
     int bytes = 0;
     const unsigned char *data = buf;
-    assert( 0 == size || NULL != buf );
+    
     MD5_Init(&mdContext);
     while ( data < buf+size ) {
         bytes = min(1024, (buf+size)-data);
         MD5_Update(&mdContext, data, bytes);
         data += bytes;
     }
-    MD5_Final(c, &mdContext);
-    c[MD5_DIGEST_LENGTH] = '\0';
-    return c;
+    MD5_Final(md5_hash, &mdContext);
+    return 0;
 }
 
 char *osux_md5_string(unsigned char *md5)

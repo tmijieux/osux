@@ -19,6 +19,6 @@
 
 #include "beatmap/beatmap.h"
 
-extern struct map* (*osux_parse_beatmap)(const char*);
+extern osux_beatmap* (*osux_parse_beatmap)(const char*);
 
 #endif //PARSER_H

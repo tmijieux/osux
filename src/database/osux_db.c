@@ -5,37 +5,48 @@
 #include <string.h>
 #include <stdbool.h>
 
+#include <sqlite3.h>
+
 #include "beatmap/parser/parser.h"
 #include "util/list.h"
 #include "util/hash_table.h"
 #include "util/split.h"
 #include "util/md5.h"
 #include "util/data.h"
-#include "osuxdb.h"
+#include "util/error.h"
+#include "osux_db.h"
 
-static int 
-load_beatmap(struct osudb *odb, const char *filename, int base_path_length)
+static int osux_db_load_or_save(
+    sqlite3 *pInMemory, const char *zFilename, bool isSave);
+
+struct osux_db {
+    uint32_t beatmaps_number;
+    sqlite3 *sqlite_db;
+    bool db_hashed;
+    struct hash_table *hashmap;
+
+};
+
+static int
+load_beatmap(struct osux_db *db, const char *filename, int base_path_length)
 {
-    char *errmsg, *md5_hash;
-    unsigned char *md5;
     FILE *f;
-    struct osux_beatmap *bm;
-    
-    f = fopen(path, "r");
+    char *errmsg;
+    osux_beatmap *bm;
+
+    f = fopen(filename, "r");
     if (NULL != f) {
-        printf("db_parse: osu file: %s\n", path);
+        printf("db_parse: osu file: %s\n", filename);
     } else {
-        osux_error("osu file BUG: %s\n", path);
+        osux_error("osu file BUG: %s\n", filename);
         return -1;
     }
-
-    md5 = osux_md5_hash_file(f);
-    md5_hash = osux_md5_string(md5);
-    free(md5);
-    bm = osux_beatmap_open(filename);
+    
+    (void) osux_beatmap_open(filename, &bm);
+    (void) osux_md5_hash_file(f, bm->md5_hash);
 
     errmsg = NULL;
-    sqlite3_exec(odb->db,
+    sqlite3_exec(db->sqlite_db,
                  "INSERT INTO ",
 
                  NULL, NULL, &errmsg);
@@ -44,22 +55,21 @@ load_beatmap(struct osudb *odb, const char *filename, int base_path_length)
         osux_error("%s\n", errmsg);
         exit(EXIT_FAILURE);
     }
-        
+
     sqlite3_free(errmsg);
- 
+
     fclose(f);
     return 0;
 }
 
-
 static int
-parse_beatmap_directory_rec(const char *name, struct osudb *odb,
+parse_beatmap_directory_rec(const char *name, struct osux_db *db,
                             int base_path_length, int level)
 {
     DIR *dir;
     struct dirent *entry;
 
-    assert( beatmaps != NULL );
+    assert( db != NULL );
 
     if (!(dir = opendir(name)))
         return -1;
@@ -75,14 +85,14 @@ parse_beatmap_directory_rec(const char *name, struct osudb *odb,
                 free(path);
                 continue;
             }
-            parse_beatmap_rec(path, level + 1, beatmaps, base_path_length);
+            parse_beatmap_directory_rec(path, db, base_path_length, level+1);
             free(path);
         } else {
             if (!string_have_extension(path, ".osu")) {
                 free(path);
                 continue;
             }
-            load_beatmap(odb, path, base_path_length);
+            load_beatmap(db, path, base_path_length);
             free(path);
         }
     } while ((entry = readdir(dir)) != NULL);
@@ -91,50 +101,81 @@ parse_beatmap_directory_rec(const char *name, struct osudb *odb,
     return 0;
 }
 
-extern char _db_sql_data[];
-
-int osux_db_init(struct osudb *odb)
+int osux_db_create(struct osux_db **db)
 {
-    assert( NULL != odb );
-    memset(odb, 0, sizeof*odb);
-    
-    ret = sqlite3_open(":memory:", &odb->db);
+    int ret;
+    *db = osux_malloc(sizeof**db);
+    memset(*db, 0, sizeof**db);
+
+    ret = sqlite3_open(":memory:", &(*db)->sqlite_db);
     if (ret) {
-        fprintf(stderr, "%s:%s:%s:Can't open database: %s\n",
-                __PRETTY_FUNCTION__, __FILE__, __LINE__,
-                sqlite3_errmsg(odb->db));
-        sqlite3_close(db);
+        osux_error("Can't open database: %s\n", sqlite3_errmsg((*db)->sqlite_db));
+        sqlite3_close((*db)->sqlite_db);
         return -1;
     }
-
-    char *errmsg = NULL;
-    sqlite3_exec(odb->db, _db_sql_data,
-                 NULL, NULL, &errmsg);
-    if (errmsg != NULL) {
-        osux_error("%s", errmsg);
-        exit(EXIT_FAILURE);
-    }
-
+    return 0;
 }
 
-int osux_db_build(const char *directory_name, struct osudb *odb)
+int osux_db_init(struct osux_db *db)
 {
-    osux_db_init(odb);
-    return parse_beatmap_directory_rec(directory_name, odb,
-                                       strlen(directory_name), 0);
+    char *errmsg;
+    extern char _db_sql_data[];
+    sqlite3_exec(db->sqlite_db, _db_sql_data, NULL, NULL, &errmsg);
+    if (errmsg != NULL) {
+        osux_error("%s", errmsg);
+        return -1;
+    }
+    return 0;
+}
+
+static int db_print_row(void *context, int column_count,
+                        char **column_text, char **column_name)
+{
+    FILE *output = context;
+    for (int i = 0; i < column_count; ++i)
+        fprintf(output, "%s: %s\n", column_name[i], column_text[i]);
+    fprintf(output, "\n");
+    return 0;
+}
+
+int osux_db_query_print(FILE *output, const char *query, const osux_db *db)
+{
+    char *errmsg;
+    sqlite3_exec(db->sqlite_db, query, db_print_row, output, &errmsg);
+    if (NULL != errmsg) {
+        osux_error("sqlite3_exec: %s\n", errmsg);
+        sqlite3_free(errmsg);
+        return -1;
+    }
+    return 0;
+}
+
+int osux_db_build(const char *directory_name, osux_db **db)
+{
+    if (NULL == db || NULL == directory_name) {
+        osux_error("invalid argument");
+        return -1;
+    }
+    
+    osux_db_create(db);
+    osux_db_init(*db);
+
+    return 0;
+    return parse_beatmap_directory_rec(
+        directory_name, *db, strlen(directory_name), 0);
 }
 
 
 /* NICE FUNCTION HAPPILY TAKEN FROM  https://www.sqlite.org/backup.html:
-** This function is used to load the contents of a database file on disk 
+** This function is used to load the contents of a database file on disk
 ** into the "main" database of open database connection pInMemory, or
 ** to save the current contents of the database opened by pInMemory into
-** a database file on disk. pInMemory is probably an in-memory database, 
+** a database file on disk. pInMemory is probably an in-memory database,
 ** but this function will also work fine if it is not.
 **
 ** Parameter zFilename points to a nul-terminated string containing the
 ** name of the database file on disk to load from or save to. If parameter
-** isSave is non-zero, then the contents of the file zFilename are 
+** isSave is non-zero, then the contents of the file zFilename are
 ** overwritten with the contents of the database opened by pInMemory. If
 ** parameter isSave is zero, then the contents of the database opened by
 ** pInMemory are replaced by data loaded from the file zFilename.
@@ -142,7 +183,9 @@ int osux_db_build(const char *directory_name, struct osudb *odb)
 ** If the operation is successful, SQLITE_OK is returned. Otherwise, if
 ** an error occurs, an SQLite error code is returned.
 */
-int osux_db_load_or_save(sqlite3 *pInMemory, const char *zFilename, bool isSave){
+static int osux_db_load_or_save(
+    sqlite3 *pInMemory, const char *zFilename, bool isSave)
+{
     int rc;                   /* Function return code */
     sqlite3 *pFile;           /* Database connection opened on zFilename */
     sqlite3_backup *pBackup;  /* Backup object used to copy data */
@@ -155,14 +198,14 @@ int osux_db_load_or_save(sqlite3 *pInMemory, const char *zFilename, bool isSave)
     if (SQLITE_OK == rc) {
 
         /* If this is a 'load' operation (isSave==0), then data is copied
-        ** from the database file just opened to database pInMemory. 
+        ** from the database file just opened to database pInMemory.
         ** Otherwise, if this is a 'save' operation (isSave==1), then data
         ** is copied from pInMemory to pFile.  Set the variables pFrom and
         ** pTo accordingly. */
         pFrom = (isSave ? pInMemory : pFile);
         pTo   = (isSave ? pFile     : pInMemory);
 
-        /* Set up the backup procedure to copy from the "main" database of 
+        /* Set up the backup procedure to copy from the "main" database of
         ** connection pFile to the main database of connection pInMemory.
         ** If something goes wrong, pBackup will be set to NULL and an error
         ** code and  message left in connection pTo.
@@ -188,72 +231,69 @@ int osux_db_load_or_save(sqlite3 *pInMemory, const char *zFilename, bool isSave)
     return rc;
 }
 
-int osux_db_write(const char *filename, const struct osudb *odb)
+int osux_db_save(const char *filename, const osux_db *db)
 {
-    FILE *f;
-    assert( NULL != odb );
-    return osux_load_or_save(odb->db, filename, true) != SQLITE_OK;
+    assert( NULL != db );
+    return osux_db_load_or_save(db->sqlite_db, filename, true) != SQLITE_OK;
 }
 
 
-int osux_db_read(const char *filename, struct osudb *odb)
+int osux_db_load(const char *filename, struct osux_db **db)
 {
-    FILE *f;
-    assert( NULL != odb );
-    memset(odb, 0, sizeof*odb);
-    osux_db_init(odb);
-    return osux_load_or_save(odb->db, filename, false) != SQLITE_OK;
+    osux_db_create(db);
+    return osux_db_load_or_save((*db)->sqlite_db, filename, false) != SQLITE_OK;
 }
 
-void osux_db_free(struct osudb *odb)
+int osux_db_free(osux_db *db)
 {
-    if (NULL != odb) {
-        sqlite3_close(odb->db);
-        if (odb->db_hashed) {
-            ht_free(odb->hashmap);
+    if (NULL != db) {
+        sqlite3_close(db->sqlite_db);
+        if (db->db_hashed) {
+            ht_free(db->hashmap);
         }
+        return 0;
     }
+    return -1;
 }
 
-void osux_db_dump(FILE *outfile, const struct osudb *odb)
+int osux_db_dump(FILE *outfile, const osux_db *db)
 {
-    fprintf(outfile, "Number of maps: %d\n", odb->beatmaps_number);
-    for (uint32_t i = 0; i < odb->beatmaps_number; ++i) {
-        fprintf(outfile, "Beatmap #%d:\nfile_path: %s\n"
-                "beatmap md5 hash: %s\n\n",
-                i, odb->beatmaps[i].osu_file_path,
-                odb->beatmaps[i].md5_hash);
-    }
+    fprintf(outfile, "Number of maps: %d\n", db->beatmaps_number);
+    fprintf(outfile, "%s:%s NOT IMPLEMENTED\n",
+            __FILE__, __PRETTY_FUNCTION__);
+    return 0;
 }
 
-void osux_db_hash(struct osudb *odb)
+int osux_db_hash(osux_db *db)
 {
-    struct hash_table *hashmap = ht_create(odb->beatmaps_number, NULL);
+    if (NULL == db)
+        return -1;
+    
+    db->hashmap = ht_create(db->beatmaps_number, NULL);
+    db->db_hashed = true;
 
-    for (unsigned i = 0; i < odb->beatmaps_number; ++i)
-        ht_add_entry(hashmap,
-                     odb->beatmaps[i].md5_hash,
-                     odb->beatmaps[i].osu_file_path);
-
-    odb->hashmap = hashmap;
-    odb->db_hashed = true;
+    return 0;
 }
 
 const char*
-osux_db_relpath_by_hash(struct osudb *odb, const char *hash)
+osux_db_relpath_by_hash(osux_db *db, const char *hash)
 {
     char *ret = NULL;
-    ht_get_entry(odb->hashmap, hash, &ret);
+    ht_get_entry(db->hashmap, hash, &ret);
     return ret;
 }
 
-struct map*
-osux_db_get_beatmap_by_hash(struct osudb *odb, const char *hash)
+osux_beatmap *osux_db_get_beatmap_by_hash(osux_db *db, const char *hash)
 {
+    osux_beatmap *bm;
     char *path = osux_prefix_path(osux_get_song_path(),
-                                  osux_db_relpath_by_hash(odb, hash));
-    struct map * m =  osux_parse_beatmap(path);
+                                  osux_db_relpath_by_hash(db, hash));
+    
+    (void) osux_beatmap_open(path, &bm);
     free(path);
 
-    return m;
+    return bm;
 }
+
+
+

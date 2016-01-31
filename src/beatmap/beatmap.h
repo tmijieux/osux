@@ -18,14 +18,59 @@
 #define MAP_H
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <openssl/md5.h>
 
 #include "storyboard.h"
 #include "mod/game_mode.h"
 
-typedef struct map osux_beatmap;
+typedef struct osux_beatmap osux_beatmap;
 
-struct map {
+extern osux_beatmap DEFAULT_MAP;
+
+struct osux_beatmap {
+    uint32_t beatmap_id;
+    uint32_t beatmap_set_id;
+    
+    uint32_t osu_beatmap_id;
+    uint32_t osu_forum_thrd;
+
+    unsigned char md5_hash[MD5_DIGEST_LENGTH];
+    char *osufilename;
+    char *path;
+
+    time_t last_modification;
+    time_t last_checked;
+    
+    // stats
+    uint16_t circles;
+    uint16_t sliders;
+    uint16_t spinners;
+    uint32_t drain_time;
+    uint32_t total_time;
+    uint16_t bpm_avg;
+    uint16_t bpm_max;
+    uint16_t bpm_min;
+    bool already_played;
+    time_t last_played;
+    
+    //offsets
+    uint16_t local_offset;
+    uint16_t online_offset;
+
+    // misc
+    bool ignore_hitsound;
+    bool ignore_skin;
+    bool disable_sb;
+    bool disable_video;
+    bool visual_override;
+    uint8_t mania_scroll_speed;
+
+    
+    // .osu  SECTION :
+    
     uint32_t version;
     uint32_t bom; // byte order mark; utf-8 stuff
     
@@ -74,9 +119,10 @@ struct map {
     uint32_t hoc;  struct hit_object *HitObjects;
 };
 
+int osux_beatmap_open(const char *filename, osux_beatmap **beatmap);
+int osux_beatmap_save(const char *filename, const osux_beatmap* beatmap);
+int osux_beatmap_close(osux_beatmap *beatmap);
+int osux_beatmap_print(const osux_beatmap *m, FILE *f);
 
-extern struct map DEFAULT_MAP;
-void map_print(const struct map *m, FILE *f);
-void map_free(struct map*);
 
 #endif //MAP_H

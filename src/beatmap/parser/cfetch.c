@@ -35,8 +35,8 @@
 #include "beatmap/hitobject.h"
 #include "beatmap/timingpoint.h"
 
-#include "fetch.h"
-#include "parse.h"
+#include "cfetch.h"
+#include "parser.h"
 
 #define LINE_SIZE  512
 

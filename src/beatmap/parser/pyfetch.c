@@ -20,12 +20,11 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "visibility.h"
-
 #include "beatmap/beatmap.h"
 #include "beatmap/timingpoint.h"
 #include "beatmap/hitobject.h"
 #include "beatmap/color.h"
+#include "util/error.h"
 
 #include "python.h"
 #include "python2.7/Python.h"
@@ -55,7 +54,7 @@
 #define READ_INT(map, fieldName, pyObj)					\
     READ_VALUE(map, fieldName, pyObj, PyInt_AsLong, (uint32_t))		\
 
-static void map_fetch_General(PyObject *d, struct map *m)
+static void map_fetch_General(PyObject *d, osux_beatmap *m)
 {
     if (!d)
 	return;
@@ -74,7 +73,7 @@ static void map_fetch_General(PyObject *d, struct map *m)
     // StoryfireInFront
 }
 
-static void map_fetch_Editor(PyObject *d, struct map *m)
+static void map_fetch_Editor(PyObject *d, osux_beatmap *m)
 {
     if (!d)
 	return;
@@ -95,7 +94,7 @@ static void map_fetch_Editor(PyObject *d, struct map *m)
     
 }
 
-static void map_fetch_Metadata(PyObject *d, struct map *m)
+static void map_fetch_Metadata(PyObject *d, osux_beatmap *m)
 {
     if (!d)
 	return;
@@ -122,7 +121,7 @@ static void map_fetch_Metadata(PyObject *d, struct map *m)
     }
 }
 
-static void map_fetch_Difficulty(PyObject *d, struct map *m)
+static void map_fetch_Difficulty(PyObject *d, osux_beatmap *m)
 {
     if (!d)
 	return;
@@ -145,7 +144,7 @@ static void col_py_fetch(struct color *c, PyObject *p)
     c->b = PyInt_AsLong(PyList_GetItem(q, 2)) ;
 }
 
-static void map_fetch_Colours(PyObject *d, struct map *m)
+static void map_fetch_Colours(PyObject *d, osux_beatmap *m)
 {
     if (!d)
 	return;
@@ -188,7 +187,7 @@ static void tp_py_fetch(struct timing_point *tp, PyObject *tp_dict)
     TP_READ_INT(tp, tp_dict, kiai);
 }
 
-static void map_fetch_TimingPoints(PyObject *d, struct map *m)
+static void map_fetch_TimingPoints(PyObject *d, osux_beatmap *m)
 {
     if (!d)
 	return;
@@ -297,7 +296,7 @@ static void ho_py_fetch(struct hit_object *ho, PyObject *ho_dict)
     HO_READ_INT(ho, ho_dict, spi.end_offset);
 }
 
-static void map_fetch_HitObjects(PyObject *d, struct map *m)
+static void map_fetch_HitObjects(PyObject *d, osux_beatmap *m)
 {
     if (!d)
 	return;
@@ -309,7 +308,7 @@ static void map_fetch_HitObjects(PyObject *d, struct map *m)
 
 /******************************************************************************/
 
-static void map_fetch_Events(PyObject *d, struct map *m)
+static void map_fetch_Events(PyObject *d, osux_beatmap *m)
 {
     if (!d)
 	return;
@@ -326,7 +325,7 @@ static void map_fetch_Events(PyObject *d, struct map *m)
 	map_fetch_##sect(pyobjtmp, map);			\
     })
 
-static struct map *fetch_beatmap(const char *filename)
+static osux_beatmap *fetch_beatmap(const char *filename)
 {
     
     PyObject *data =
@@ -336,7 +335,7 @@ static struct map *fetch_beatmap(const char *filename)
 	fprintf(stderr, "Error parsing with omp python module");
 	return NULL;
     }
-    struct map *m = calloc(sizeof(*m), 1);
+    osux_beatmap *m = calloc(sizeof(*m), 1);
 
     m->version = PyInt_AsLong(PyDict_GetItemString(data, "version"));
     m->bom = PyInt_AsLong(PyDict_GetItemString(data, "BOM"));
@@ -359,9 +358,13 @@ static struct map *fetch_beatmap(const char *filename)
 /******************************************************************************/
 
 __attribute__((constructor))
-static void plugin_register(void)
+static void plugin_register(int lol)
 {
-    struct map* (**parse_beatmap)(const char *)
+    osux_beatmap* (**parse_beatmap)(const char *)
         = dlsym(RTLD_DEFAULT, "osux_parse_beatmap");
+    if (NULL == parse_beatmap) {
+        osux_error("dlsym: %s\n", dlerror());
+        exit(EXIT_FAILURE);
+    }
     *parse_beatmap = &fetch_beatmap;
 }

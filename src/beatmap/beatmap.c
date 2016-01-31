@@ -17,16 +17,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "util/error.h"
 #include "beatmap.h"
+#include "parser/parser.h"
 #include "hitobject.h"
 #include "timingpoint.h"
 
 #include "storyboard.h"
 #include "color.h"
 
-struct map DEFAULT_MAP = {
-    .TimelineZoom = 1.
-};
+
+osux_beatmap DEFAULT_MAP = { 0 };
 
 #define PRINT_SECTION(section)		\
     fprintf(f, "\r\n["#section"]\r\n")	\
@@ -40,8 +41,7 @@ struct map DEFAULT_MAP = {
 #define PRINT_INT(map, file, Field)		\
     fprintf(f, #Field ": %d\r\n", m->Field)	\
 
-
-void map_print(const struct map *m, FILE *f)
+int osux_beatmap_print(const osux_beatmap *m, FILE *f)
 {
     if (m->bom) {
 	fprintf(f, "%c%c%c", 0xef, 0xbb, 0xbf);
@@ -56,12 +56,10 @@ void map_print(const struct map *m, FILE *f)
     PRINT_INT(m, f, Countdown);
     PRINT_STRING(m, f, SampleSet);  // THIS IS SAMPLE TYPE! ;(
 
-
     PRINT_DOUBLE(m, f, StackLeniency);
     PRINT_INT(m, f, Mode);
     PRINT_INT(m, f, LetterboxInBreaks);
     PRINT_INT(m, f, WidescreenStoryboard);
-    
 
     PRINT_SECTION( Editor );
     if (m->bkmkc) {
@@ -72,7 +70,6 @@ void map_print(const struct map *m, FILE *f)
 	}
 	fputs("\r\n", f);
     }
-
     
     PRINT_DOUBLE(m, f, DistanceSpacing);
     PRINT_INT(m, f, BeatDivisor);
@@ -137,19 +134,30 @@ void map_print(const struct map *m, FILE *f)
     PRINT_SECTION( HitObjects );
     for (unsigned int i = 0; i < m->hoc; ++i)
 	ho_print(&m->HitObjects[i], m->version);
+    return 0;
 }
 
-osux_beatmap osux_beatmap_open(const char *filename)
+int osux_beatmap_save(const char *filename, const osux_beatmap* bm)
 {
-    return osux_parse_beatmap(filename);
+    FILE *f = fopen(filename, "w+");
+    if (NULL == f) {
+        osux_error("%s: %s\n", filename, strerror(errno));
+        return -1;
+    }
+    osux_beatmap_print(bm, f);
+    fclose(f);
+    return 0;
 }
 
-int osux_beatmap_close(osux_beatmap *beatmap)
+int osux_beatmap_open(const char *filename, osux_beatmap **beatmap)
 {
-    map_free(beatmap);
+    *beatmap = osux_parse_beatmap(filename);
+    if (NULL == *beatmap)
+        return -1;
+    return 0;
 }
 
-void map_free(struct map *m)
+static void osux_beatmap_free(osux_beatmap *m)
 {
     free(m->AudioFilename);
     free(m->SampleSet);
@@ -178,3 +186,13 @@ void map_free(struct map *m)
 
     free(m);
 }
+
+int osux_beatmap_close(osux_beatmap *beatmap)
+{
+    if (NULL != beatmap) {
+        osux_beatmap_free(beatmap);
+        return 0;
+    }
+    return -1;
+}
+

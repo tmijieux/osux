@@ -66,3 +66,4 @@ create table beatmap
         foreign key(beatmap_set_id) references beatmap(beatmap_set_id)  
 );
 
+
