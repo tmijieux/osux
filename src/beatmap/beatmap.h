@@ -23,6 +23,7 @@
 #include "storyboard.h"
 #include "mod/game_mode.h"
 
+typedef struct map osux_beatmap;
 
 struct map {
     uint32_t version;

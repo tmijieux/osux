@@ -18,3 +18,5 @@
 #include "beatmap/beatmap.h"
 
 struct map* (*osux_parse_beatmap)(const char*) = NULL;
+
+

@@ -139,6 +139,15 @@ void map_print(const struct map *m, FILE *f)
 	ho_print(&m->HitObjects[i], m->version);
 }
 
+osux_beatmap osux_beatmap_open(const char *filename)
+{
+    return osux_parse_beatmap(filename);
+}
+
+int osux_beatmap_close(osux_beatmap *beatmap)
+{
+    map_free(beatmap);
+}
 
 void map_free(struct map *m)
 {

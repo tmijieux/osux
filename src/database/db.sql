@@ -18,7 +18,7 @@ create table beatmap_set
 
 create table beatmap
 (
-        beatmap_id      int primary key not null,
+        beatmap_id      integer primary key not null,
         osu_beatmap_id  int,
         osu_forum_thrd  int,
         beatmap_set_id  int,
@@ -47,9 +47,12 @@ create table beatmap
         total_time      int,
         preview_time    int,
         
-        timing_points   int,
+        bpm_avg         int,
+        bpm_max         int,
+        bpm_min         int,
+
         local_offset    int,
-        global_offset   int,
+        online_offset   int,
 
         already_played  int,
         last_played     text,
@@ -63,8 +66,3 @@ create table beatmap
         foreign key(beatmap_set_id) references beatmap(beatmap_set_id)  
 );
 
-create table timing_points
-(
-        beatmap_id      int primary key,
-        foreign key(beatmap_id) references beatmap(beatmap_id)
-);
