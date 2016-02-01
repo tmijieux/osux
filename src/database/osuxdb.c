@@ -13,10 +13,78 @@
 #include "util/data.h"
 #include "osuxdb.h"
 
-static int 
-load_beatmap(struct osudb *odb, const char *filename, int base_path_length)
+
+static int beatmap_db_insert(osux_beatmap *bm, osux_db *db)
 {
-    char *errmsg, *md5_hash;
+    char *query, *errmsg;
+    asprintf(&query,
+             "INSERT INTO beatmap "
+             "(osu_beatmap_id, game_mode, audio_filename, diff_name,"
+             "circles, sliders, spinners, last_modification, last_checked,"
+             "approach_rate, circle_size, hp_drain, overall_diff,"
+             "slider_velocity, stack_leniency, drain_time, total_time,"
+             "preview_time, bpm_avg, bpm_max, bpm_min, local_offset,"
+             "online_offset, already_played, last_played, ignore_hitsound,"
+             "ignore_skin, disable_sb, disable_video, visual_override,"
+             "mania_scroll_speed"
+             ")"
+             " VALUES"
+             "(%d, %d, %s, %s, %d, %d, %d, datetime(%d), datetime(%d))");
+
+    errmsg = NULL;
+    sqlite3_exec(odb->db, query, NULL, NULL, &errmsg);
+    free(query);
+
+    if (NULL != errmsg) {
+        osux_error("%s\n", errmsg);
+        exit(EXIT_FAILURE);
+    }
+}
+
+
+static int beatmap_db_get_callback(
+    void *context__, int count, char **column_text, char **column_name)
+{
+    struct list *bm_list = context__;
+    struct osux_beatmap *bm = calloc(sizeof*bm);
+
+    struct hash_table *ht = ht_create(0, NULL);
+    while (count != 0) {
+        ht_add_entry(ht, column_name[i], column_text[i]);
+        --count;
+    }
+
+    bm->AudioFilename = aaaa;
+
+    
+    ht_free(ht);
+    return 0;
+}
+
+static int beatmap_db_get(char *md5_hash, osux_db *db)
+{
+    char *query, *errmsg;
+    asprintf(&query,
+             "select * from beatmap where md5_hash = '%s'", md5_hash);
+
+    errmsg = NULL;
+    sqlite3_exec(odb->db, query,
+                 beatmap_db_get_callback, list_new(0), &errmsg);
+    free(query);
+
+    if (NULL != errmsg) {
+        osux_error("%s\n", errmsg);
+        exit(EXIT_FAILURE);
+    }
+}
+
+// TODO think of beatmap_set
+// idea : pass a beatmap_set as an argument and when it is NULL,
+// create it and return it to the caller
+static int load_beatmap(
+    struct osudb *odb, const char *filename, int base_path_length)
+{
+    char *md5_hash;
     unsigned char *md5;
     FILE *f;
     struct osux_beatmap *bm;
@@ -33,18 +101,10 @@ load_beatmap(struct osudb *odb, const char *filename, int base_path_length)
     md5_hash = osux_md5_string(md5);
     free(md5);
     bm = osux_beatmap_open(filename);
-
-    errmsg = NULL;
-    sqlite3_exec(odb->db,
-                 "INSERT INTO ",
-
-                 NULL, NULL, &errmsg);
+    
+    beatmap_db_insert(bm, odb);
+                   
     osux_beatmap_close(bm);
-    if (NULL != errmsg) {
-        osux_error("%s\n", errmsg);
-        exit(EXIT_FAILURE);
-    }
-        
     sqlite3_free(errmsg);
  
     fclose(f);
@@ -142,7 +202,8 @@ int osux_db_build(const char *directory_name, struct osudb *odb)
 ** If the operation is successful, SQLITE_OK is returned. Otherwise, if
 ** an error occurs, an SQLite error code is returned.
 */
-int osux_db_load_or_save(sqlite3 *pInMemory, const char *zFilename, bool isSave){
+int osux_db_load_or_save(sqlite3 *pInMemory, const char *zFilename, bool isSave)
+{
     int rc;                   /* Function return code */
     sqlite3 *pFile;           /* Database connection opened on zFilename */
     sqlite3_backup *pBackup;  /* Backup object used to copy data */
@@ -194,7 +255,6 @@ int osux_db_write(const char *filename, const struct osudb *odb)
     assert( NULL != odb );
     return osux_load_or_save(odb->db, filename, true) != SQLITE_OK;
 }
-
 
 int osux_db_read(const char *filename, struct osudb *odb)
 {
