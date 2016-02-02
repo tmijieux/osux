@@ -63,7 +63,7 @@ create table beatmap
         disable_video   int,
         visual_override int,
         mania_scroll_speed      int,
-        foreign key(beatmap_set_id) references beatmap(beatmap_set_id)  
+        foreign key(beatmap_set_id) references beatmap_set(beatmap_set_id)  
 );
 
 
