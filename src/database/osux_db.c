@@ -41,18 +41,18 @@ load_beatmap(struct osux_db *db, const char *filename, int base_path_length)
         osux_error("osu file BUG: %s\n", filename);
         return -1;
     }
-    
+
     (void) osux_beatmap_open(filename, &bm);
     (void) osux_md5_hash_file(f, bm->md5_hash);
 
     errmsg = NULL;
     sqlite3_exec(db->sqlite_db,
                  "INSERT INTO ",
-
                  NULL, NULL, &errmsg);
     osux_beatmap_close(bm);
     if (NULL != errmsg) {
         osux_error("%s\n", errmsg);
+        sqlite3_free(errmsg);
         exit(EXIT_FAILURE);
     }
 
@@ -122,7 +122,8 @@ int osux_db_init(struct osux_db *db)
     extern char _db_sql_data[];
     sqlite3_exec(db->sqlite_db, _db_sql_data, NULL, NULL, &errmsg);
     if (errmsg != NULL) {
-        osux_error("%s", errmsg);
+        osux_error("%s\n", errmsg);
+        sqlite3_free(errmsg);
         return -1;
     }
     return 0;
@@ -134,7 +135,7 @@ static int db_print_row(void *context, int column_count,
     FILE *output = context;
     for (int i = 0; i < column_count; ++i)
         fprintf(output, "%s: %s\n", column_name[i], column_text[i]);
-    fprintf(output, "\n");
+    fprintf(output, "----\n");
     return 0;
 }
 
@@ -156,7 +157,7 @@ int osux_db_build(const char *directory_name, osux_db **db)
         osux_error("invalid argument");
         return -1;
     }
-    
+
     osux_db_create(db);
     osux_db_init(*db);
 
@@ -237,7 +238,6 @@ int osux_db_save(const char *filename, const osux_db *db)
     return osux_db_load_or_save(db->sqlite_db, filename, true) != SQLITE_OK;
 }
 
-
 int osux_db_load(const char *filename, struct osux_db **db)
 {
     osux_db_create(db);
@@ -251,6 +251,7 @@ int osux_db_free(osux_db *db)
         if (db->db_hashed) {
             ht_free(db->hashmap);
         }
+        osux_free(db);
         return 0;
     }
     return -1;
@@ -268,7 +269,7 @@ int osux_db_hash(osux_db *db)
 {
     if (NULL == db)
         return -1;
-    
+
     db->hashmap = ht_create(db->beatmaps_number, NULL);
     db->db_hashed = true;
 
@@ -288,12 +289,9 @@ osux_beatmap *osux_db_get_beatmap_by_hash(osux_db *db, const char *hash)
     osux_beatmap *bm;
     char *path = osux_prefix_path(osux_get_song_path(),
                                   osux_db_relpath_by_hash(db, hash));
-    
+
     (void) osux_beatmap_open(path, &bm);
     free(path);
 
     return bm;
 }
-
-
-
