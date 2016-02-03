@@ -5,9 +5,9 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-#define osux_error(format, ...)                                 \
-    fprintf(stderr, "\e[31;1mERROR: %s\e[32m:\e[31;1m"          \
-            "%d\e[32m|\e[31;1m%s:\e[0m " format, __FILE__ ,     \
+#define osux_error(format, ...)                                      \
+    fprintf(stderr, "\e[31;1mERROR: %s\e[32m:\e[31;1m"               \
+            "%d\e[32m|\e[31;1m%s:\e[0m " format, __FILE__ ,          \
             __LINE__, __PRETTY_FUNCTION__, ##__VA_ARGS__);
 
 #define osux_malloc(size__) malloc(size__)

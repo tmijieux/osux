@@ -48,7 +48,7 @@ extern int OPT_SCORE_MISS;
 extern double OPT_SCORE_ACC;
 extern int (* TRM_METHOD_GET_TRO)(struct tr_map *);
 
-extern struct osudb * ODB;
+extern struct osux_db * ODB;
 
 void config_odb_build(char * song_dir);
 void config_set_mods(const char * mods);

@@ -22,17 +22,17 @@ static int inferior(void * x, void * y);
 static int superior(void * x, void * y);
 static double weight (double x, int i);
 
-static struct heap * acc_sum_new (unsigned int size);
-static void acc_sum_add (struct heap * heap, double x);
-static double acc_sum_compute (struct heap * heap);
+static struct heap * acc_sum_new(unsigned int size);
+static void acc_sum_add(struct heap * heap, double x);
+static double acc_sum_compute(struct heap * heap);
 
-static struct heap * perf_sum_new (unsigned int size);
-static void perf_sum_add (struct heap * heap, double x);
-static double perf_sum_compute (struct heap * heap);
+static struct heap * perf_sum_new(unsigned int size);
+static void perf_sum_add(struct heap * heap, double x);
+static double perf_sum_compute(struct heap * heap);
 
-static struct heap * weight_sum_new (unsigned int size);
-static void weight_sum_add (struct heap * heap, double x);
-static double weight_sum_compute (struct heap * heap);
+static struct heap * weight_sum_new(unsigned int size);
+static void weight_sum_add(struct heap * heap, double x);
+static double weight_sum_compute(struct heap * heap);
 
 struct sum
 {
@@ -125,7 +125,8 @@ static double acc_sum_compute (struct heap * heap)
 
 //-----------------------------------------------
 
-static struct heap * perf_sum_new (unsigned int size)
+static struct heap *perf_sum_new(
+    unsigned int size __attribute__((unused)))
 {
   double * sum = malloc(sizeof(double));
   *sum = 0;

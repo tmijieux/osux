@@ -308,8 +308,10 @@ static void map_fetch_HitObjects(PyObject *d, osux_beatmap *m)
 
 /******************************************************************************/
 
-static void map_fetch_Events(PyObject *d, osux_beatmap *m)
+static void map_fetch_Events(
+    PyObject *d, osux_beatmap *m  __attribute__((unused)))
 {
+
     if (!d)
 	return;
 }
@@ -328,9 +330,8 @@ static void map_fetch_Events(PyObject *d, osux_beatmap *m)
 static osux_beatmap *fetch_beatmap(const char *filename)
 {
     
-    PyObject *data =
-	embed_python_funcall("./scripts/python", "osux_parse", "parse",
-			     1, (const char*[]) { filename });
+    PyObject *data = embed_python_funcall(
+        "osux_parse", "parse", 1, (const char*[]) { filename });
     if (!data) {
 	fprintf(stderr, "Error parsing with omp python module");
 	return NULL;

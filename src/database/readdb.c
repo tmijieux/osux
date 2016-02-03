@@ -2,17 +2,17 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "osuxdb.h"
+#include "osux_db.h"
 #include "util/md5.h"
 
-int main(int argc, char *argv[]) 
+int main(void)
 {
 
-    struct osudb odb;
-    osux_db_read("./osu.db", &odb);
-    osux_db_dump(stdout, &odb);
+    struct osux_db *db;
+    osux_db_load("./osu.db", &db);
+    osux_db_dump(stdout, db);
 
-    osux_db_free(&odb);
+    osux_db_free(db);
     
     return EXIT_SUCCESS;
 }

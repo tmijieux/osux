@@ -5,6 +5,7 @@
 
 #ifndef STACK_TYPE
 #define STACK_TYPE void*
+#define STACK_TYPE_INITIALIZER NULL
 #endif
 
 struct stack;

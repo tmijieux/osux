@@ -20,3 +20,10 @@
 osux_beatmap* (*osux_parse_beatmap)(const char*) = NULL;
 
 
+/*
+__attribute__((constructor)) 
+static void parser_init(void)
+{
+    dlopen("plugin/ *parser.so");
+}
+*/

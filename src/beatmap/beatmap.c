@@ -149,12 +149,20 @@ int osux_beatmap_save(const char *filename, const osux_beatmap* bm)
     return 0;
 }
 
+
 int osux_beatmap_open(const char *filename, osux_beatmap **beatmap)
 {
     *beatmap = osux_parse_beatmap(filename);
     if (NULL == *beatmap)
         return -1;
     return 0;
+}
+
+int osux_beatmap_reopen(osux_beatmap *bm_in, osux_beatmap **bm_out)
+{
+    osux_error("not implemented\n");
+    *bm_out = bm_in;
+    return -1;
 }
 
 static void osux_beatmap_free(osux_beatmap *m)

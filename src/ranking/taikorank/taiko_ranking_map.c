@@ -24,7 +24,7 @@
 #include "beatmap/timingpoint.h"
 #include "beatmap/hitsound.h"
 
-#include "database/osuxdb.h"
+#include "database/osux_db.h"
 #include "util/md5.h"
 
 #include "taiko_ranking_object.h"
@@ -67,7 +67,7 @@ static void trm_add_to_ps(struct tr_map * map,
 			  enum played_state ps, int i);
 
 static void trm_acc(struct tr_map * map);
-static struct tr_map * trm_convert_map(struct map * map);
+static struct tr_map * trm_convert_map(struct osux_beatmap * map);
 static struct tr_map * trm_convert(char * filename);
 
 //--------------------------------------------------
@@ -166,7 +166,6 @@ struct tr_map * trm_copy(const struct tr_map * map)
   copy->diff    = strdup(map->diff);
   copy->title_uni  = strdup(map->title_uni);
   copy->artist_uni = strdup(map->artist_uni);
-  copy->hash = strdup(map->hash);
   
   return copy;
 }
@@ -195,7 +194,6 @@ void trm_free(struct tr_map * map)
   free(map->diff);
   free(map->title_uni);
   free(map->artist_uni);
-  free(map->hash);
   
   free(map->object);
   free(map);
@@ -212,14 +210,15 @@ struct tr_map * trm_new(char * filename)
     case 1:
       res = trm_convert(filename);
       FILE * f = fopen(filename, "r");
-      unsigned char * tmp = osux_md5_hash_file(f);
-      res->hash = osux_md5_string(tmp);
-      free(tmp);
+      unsigned char tmp[MD5_DIGEST_LENGTH];
+      osux_md5_hash_file(f, tmp);
+      osux_md5_string(tmp, res->hash);
+
       fclose(f);
       return res;
     case 2:  
       res = trm_convert_map(osux_db_get_beatmap_by_hash(ODB, filename));
-      res->hash = filename;
+      strncpy(res->hash, filename, MD5_DIGEST_LENGTH*2+1);
       return res;
     default:
       tr_error("Could not load: '%s'", filename);
@@ -309,13 +308,13 @@ static int convert_get_end_offset(struct hit_object * ho, int type,
 
 static struct tr_map * trm_convert(char * filename)
 {
-  struct map * map = osux_parse_beatmap(filename);
+  struct osux_beatmap * map = osux_parse_beatmap(filename);
   return trm_convert_map(map);
 }
 
 //---------------------------------------------------------------
 
-static struct tr_map * trm_convert_map(struct map * map)
+static struct tr_map * trm_convert_map(struct osux_beatmap * map)
 { 
   if(map->Mode != MODE_TAIKO)
     {
@@ -333,7 +332,7 @@ static struct tr_map * trm_convert_map(struct map * map)
 	  tr_error("Taiko is not 2k.");
 	  break;
 	}
-      map_free(map);
+      osux_beatmap_close(map);
       return NULL;
     }
   
@@ -410,7 +409,7 @@ static struct tr_map * trm_convert_map(struct map * map)
   else
     tr_map->acc = 0; 
 
-  map_free(map);
+  osux_beatmap_close(map);
   return tr_map;
 }
 

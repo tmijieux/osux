@@ -19,9 +19,7 @@
 
 #include <python2.7/Python.h>
 
-PyObject *embed_python_funcall(const char *path,
-                               const char *module,
-                               const char *fun,
-                               int argc, const char *argv[]);
+PyObject *embed_python_funcall(
+    const char *module, const char *fun, int argc, const char *argv[]);
 
 #endif //PYTHON_H

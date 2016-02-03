@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "database/osuxdb.h"
+#include "database/osux_db.h"
 #include "util/data.h"
 
 #include "util/hash_table.h"
@@ -54,7 +54,7 @@ char * TR_DB_PASSWD;
 char * OPT_ODB_PATH;
 char * OPT_ODB_BUILD_DIR;
 int OPT_ODB_BUILD;
-struct osudb * ODB;
+struct osux_db * ODB;
 
 int OPT_SCORE;
 int OPT_SCORE_QUICK;
@@ -97,10 +97,8 @@ static void global_init(void)
     config_odb_build(song_dir);
   else
     {
-      ODB = malloc(sizeof(*ODB));
-      osux_db_read(OPT_ODB_PATH, ODB);
+      osux_db_load(OPT_ODB_PATH, &ODB);
     }
-  osux_db_hash(ODB);
 }
 
 //-----------------------------------------------------
@@ -131,14 +129,12 @@ static void config_odb_exit(void)
 {
   if(ODB != NULL)
     osux_db_free(ODB);
-  free(ODB);
 }
 
 void config_odb_build(char * song_dir)
 {
-  ODB = malloc(sizeof(*ODB));
-  osux_db_build(song_dir, ODB);
-  osux_db_write(OPT_ODB_PATH, ODB);
+  osux_db_build(song_dir, &ODB);
+  osux_db_save(OPT_ODB_PATH, ODB);
 }
 
 //-----------------------------------------------------

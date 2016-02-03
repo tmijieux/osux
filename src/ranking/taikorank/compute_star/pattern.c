@@ -164,7 +164,10 @@ static void ht_pattern_init(void)
   
 //-----------------------------------------------------
 
-static void remove_pattern(const char * s, void * p, void * null)
+static void remove_pattern(
+    const char * s __attribute__((unused)),
+    void * p,
+    void * null  __attribute__((unused)))
 {
   free(((struct pattern *) p)->d);
   free(p);

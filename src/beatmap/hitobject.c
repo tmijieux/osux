@@ -27,17 +27,17 @@ void ho_print(struct hit_object *ho, int version)
     switch ( TYPE_OF(ho) ) {
     case HO_SLIDER:
 	printf(",%c", ho->sli.type);
-	for (int i = 0; i < ho->sli.point_count; ++i)
+	for (unsigned i = 0; i < ho->sli.point_count; ++i)
 	    printf("|%d:%d", ho->sli.pos[i].x, ho->sli.pos[i].y);
 	printf(",%d,%.15g", ho->sli.repeat, ho->sli.length);
 	if (ho->sli.hs.additional) {
 	    printf(",");
-	    for (int i = 0; i < ho->sli.repeat+1; ++i) {
+	    for (unsigned i = 0; i < ho->sli.repeat+1; ++i) {
 		if (i >= 1) printf("|");
 		printf("%d", ho->sli.hs.dat[i].sample);
 	    }
 	    printf(",");
-	    for (int i = 0; i < ho->sli.repeat+1; ++i) {
+	    for (unsigned i = 0; i < ho->sli.repeat+1; ++i) {
 		if (i >= 1) printf("|");
 		printf("%d:%d", ho->sli.hs.dat[i].st,
 		       ho->sli.hs.dat[i].st_additional);

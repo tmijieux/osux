@@ -6,6 +6,9 @@
 #include <stdbool.h>
 #include <stdarg.h>
 #include <time.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <errno.h>
 
 #include <sqlite3.h>
 
@@ -18,14 +21,10 @@
 #include "util/error.h"
 #include "osux_db.h"
 
-static int osux_db_load_or_save(
-    sqlite3 *pInMemory, const char *zFilename, bool isSave);
 
 struct osux_db {
     uint32_t beatmaps_number;
     sqlite3 *sqlite_db;
-    bool db_hashed;
-    struct hash_table *hashmap;
 };
 
 static int db_query(
@@ -36,7 +35,7 @@ static int db_query(
     va_list ap;
 
     va_start(ap, format);
-    vasprintf(&query, format, ap);
+    (void) vasprintf(&query, format, ap);
     ret = sqlite3_exec(db, query, callback, context, &errmsg);
     va_end(ap);
     free(query);
@@ -140,7 +139,8 @@ static int beatmap_db_insert(osux_beatmap *bm, osux_db *db)
         bm->mania_scroll_speed);
 }
 
-int osux_db_beatmap_get(char *md5_hash, osux_db *db, struct osux_beatmap **bm)
+int osux_db_beatmap_get(
+    const char *md5_hash, osux_db *db, struct osux_beatmap **bm)
 {
     int ret; size_t s;
     struct list *bm_l = list_new(0);
@@ -185,6 +185,7 @@ static int load_beatmap(
 
     (void) osux_beatmap_open(filename, &bm);
     osux_md5_hash_file(f, bm->md5_hash);
+    bm->path = strdup(filename + base_path_length);
     beatmap_db_insert(bm, odb);
     osux_beatmap_close(bm);
 
@@ -207,7 +208,7 @@ static int parse_beatmap_directory_rec(
 
     do {
         char *path;
-        asprintf(&path, "%s/%s", name, entry->d_name);
+        (void) asprintf(&path, "%s/%s", name, entry->d_name);
         if (DT_DIR == entry->d_type) {
             if (strcmp(entry->d_name, ".") == 0 ||
                 strcmp(entry->d_name, "..") == 0) {
@@ -291,7 +292,6 @@ int osux_db_build(const char *directory_name, osux_db **db)
     osux_db_create(db);
     osux_db_init(*db);
 
-    return 0;
     return parse_beatmap_directory_rec(
         directory_name, *db, strlen(directory_name), 0);
 }
@@ -314,7 +314,7 @@ int osux_db_build(const char *directory_name, osux_db **db)
 ** If the operation is successful, SQLITE_OK is returned. Otherwise, if
 ** an error occurs, an SQLite error code is returned.
 */
-static int osux_db_load_or_save(
+static int db_load_or_save(
     sqlite3 *pInMemory, const char *zFilename, bool isSave)
 {
     int rc;                   /* Function return code */
@@ -365,22 +365,24 @@ static int osux_db_load_or_save(
 int osux_db_save(const char *filename, const osux_db *db)
 {
     assert( NULL != db );
-    return osux_db_load_or_save(db->sqlite_db, filename, true) != SQLITE_OK;
+    return db_load_or_save(db->sqlite_db, filename, true) != SQLITE_OK;
 }
 
 int osux_db_load(const char *filename, struct osux_db **db)
 {
+    if (access(filename, R_OK | W_OK) < 0) {
+        osux_error("%s: %s\n", filename, strerror(errno));
+        *db = NULL;
+        return -1;
+    }
     osux_db_create(db);
-    return osux_db_load_or_save((*db)->sqlite_db, filename, false) != SQLITE_OK;
+    return db_load_or_save((*db)->sqlite_db, filename, false) != SQLITE_OK;
 }
 
 int osux_db_free(osux_db *db)
 {
     if (NULL != db) {
         sqlite3_close(db->sqlite_db);
-        if (db->db_hashed) {
-            ht_free(db->hashmap);
-        }
         osux_free(db);
         return 0;
     }
@@ -390,25 +392,29 @@ int osux_db_free(osux_db *db)
 int osux_db_dump(FILE *outfile, const osux_db *db)
 {
     fprintf(outfile, "Number of maps: %d\n", db->beatmaps_number);
-    fprintf(outfile, "%s:%s NOT IMPLEMENTED\n",
-            __FILE__, __PRETTY_FUNCTION__);
+    (void) db_query(db->sqlite_db, db_print_row, NULL, "select * from beatmap");
     return 0;
 }
 
-
 const char*
-osux_db_relpath_by_hash(osux_db *db, const char *hash)
+osux_db_relative_path_by_hash(osux_db *db, const char *hash)
 {
-    char *ret = NULL;
-    ht_get_entry(db->hashmap, hash, &ret);
-    return ret;
+    char *path;
+    struct osux_beatmap *bm;
+    osux_db_beatmap_get(hash, db, &bm);
+    path = strdup(bm->AudioFilename);
+    osux_beatmap_close(bm);
+
+    return path;
 }
 
 osux_beatmap *osux_db_get_beatmap_by_hash(osux_db *db, const char *hash)
 {
     osux_beatmap *bm;
-    char *path = osux_prefix_path(osux_get_song_path(),
-                                  osux_db_relpath_by_hash(db, hash));
+    char *path = osux_prefix_path(
+        osux_get_song_path(),
+        osux_db_relative_path_by_hash(db, hash)
+    );
 
     osux_db_beatmap_get(hash, db, &bm);
     osux_beatmap_reopen(bm, &bm);

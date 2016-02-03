@@ -3,8 +3,8 @@
 #include "stack.h"
 
 struct stack {
-    unsigned int head;
-    unsigned int buffer_size;
+    int head;
+    unsigned buffer_size;
     STACK_TYPE buf[];
 };
 
@@ -37,7 +37,7 @@ STACK_TYPE stack_peek(const struct stack *stack)
 
 STACK_TYPE stack_pop(struct stack *stack)
 {
-    STACK_TYPE tmp;
+    STACK_TYPE tmp = STACK_TYPE_INITIALIZER;
     if ( !stack_is_empty(stack) ) {
 	tmp = stack->buf[stack->head];
 	stack->head --;
@@ -52,7 +52,7 @@ int stack_is_empty(const struct stack *stack)
 
 int stack_is_full(const struct stack *stack)
 {
-    return (stack->head == stack->buffer_size - 1);
+    return ((unsigned) stack->head == stack->buffer_size - 1);
 }
 
 void stack_destroy(struct stack *stack)

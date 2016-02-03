@@ -49,7 +49,7 @@ void heap_free(struct heap *heap)
     free(heap);
 }
 
-static inline int heap_greater_child(struct heap *heap, int i)
+static inline int heap_greater_child(struct heap *heap, unsigned i)
 {
     if (2*i == heap->heap_size)
 	return 2*i;
@@ -66,7 +66,7 @@ static inline void heap_swap(struct heap *heap, int i, int k)
     heap->buf[k] = tmp;
 }
 
-static inline int heap_extract_problem(struct heap *heap, int i)
+static inline int heap_extract_problem(struct heap *heap, unsigned i)
 {
     return ((2*i == heap->heap_size &&
 	     heap->cmp(heap->buf[2*i], heap->buf[i]) > 0) ||

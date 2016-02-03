@@ -17,6 +17,8 @@
 #ifndef TRM_H
 #define TRM_H
 
+#include "util/md5.h"
+
 #define ENABLE_STAR_THREAD
 
 #define MAX_ACC 1.
@@ -38,7 +40,7 @@ struct tr_map
   char * artist_uni;
   unsigned int bms_osu_ID;
   unsigned int diff_osu_ID;
-  char * hash;
+  char hash[MD5_DIGEST_LENGTH*2+1];
   
   // Song Info
   int mods;

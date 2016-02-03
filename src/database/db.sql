@@ -12,7 +12,7 @@ create table beatmap_set
         display_font        text,
         tags                text,
         source              text,
-        folder              text,
+        directory           text,
         status              int
 );
 

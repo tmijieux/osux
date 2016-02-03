@@ -16,7 +16,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "database/osuxdb.h"
+#include "database/osux_db.h"
 #include "replay.h"
 
 int main(int argc, char *argv[])
@@ -39,17 +39,14 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    struct osudb odb;
-    osux_db_read("./osu.db", &odb);
-    osux_db_hash(&odb);
-
+    struct osux_db *db;
+    osux_db_load("./osu.db", &db);
     printf("Replay map: %s\n",
-           osux_db_relpath_by_hash(&odb, r->bm_md5_hash));
+           osux_db_relative_path_by_hash(db, r->bm_md5_hash));
 
     replay_print(stdout, r);
     replay_free(r);
-    osux_db_free(&odb);
+    osux_db_free(db);
 
     return EXIT_SUCCESS;
 }
-

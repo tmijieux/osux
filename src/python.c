@@ -34,11 +34,8 @@ static void embed_python_exit(void)
     Py_Finalize();
 }
 
-PyObject *
-embed_python_funcall(const char *path,
-		     const char *module,
-		     const char *fun,
-		     int argc, const char *argv[])
+PyObject *embed_python_funcall(
+    const char *module, const char *fun, int argc, const char *argv[])
 {			   
     PyObject *pName, *pModule, *pFunc;
     PyObject *pArgs, *pValue = NULL;

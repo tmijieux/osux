@@ -120,9 +120,9 @@ struct osux_beatmap {
 };
 
 int osux_beatmap_open(const char *filename, osux_beatmap **beatmap);
+int osux_beatmap_reopen(osux_beatmap *bm_in, osux_beatmap **bm_out);
 int osux_beatmap_save(const char *filename, const osux_beatmap* beatmap);
 int osux_beatmap_close(osux_beatmap *beatmap);
 int osux_beatmap_print(const osux_beatmap *m, FILE *f);
-
 
 #endif //MAP_H

@@ -186,7 +186,7 @@ int ht_hash(struct hash_table *ht, const char *key)
 void ht_free(struct hash_table* ht)
 {
     if (ht) {
-	for (int i = 0; i < ht->size; ++i) {
+	for (unsigned i = 0; i < ht->size; ++i) {
 	    struct ht_entry *he = ht->buf[i];
 	    while (he) {
 		struct ht_entry *tmp = he;
@@ -203,7 +203,7 @@ void ht_for_each(struct hash_table* ht,
 		 void (*fun)(const char *, void*, void*), void *args)
 {
     if (ht) {
-	for (int i = 0; i < ht->size; ++i) {
+	for (unsigned i = 0; i < ht->size; ++i) {
 	    struct ht_entry *he = ht->buf[i];
 	    while (he) {
 		fun(he->key, he->data, args);
@@ -218,7 +218,7 @@ struct list* ht_to_list(const struct hash_table *ht)
 {
     struct list *l = list_new(0);
     if (ht) {
-	for (unsigned int i = 0; i < ht->size; ++i) {
+	for (unsigned i = 0; i < ht->size; ++i) {
 	    struct ht_entry *he = ht->buf[i];
 	    while (he) {
 		list_append(l, he->data);
