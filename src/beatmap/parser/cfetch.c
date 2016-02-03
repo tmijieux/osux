@@ -77,7 +77,8 @@
 
 /******************************************************************************/
 
-static void fetch_general(struct hash_table *ht, struct map *m)
+static void map_fetch_general_section(
+    struct hash_table *ht, struct osux_beatmap *m)
 {
     // General info
     struct hash_table *g = NULL;
@@ -98,7 +99,8 @@ static void fetch_general(struct hash_table *ht, struct map *m)
     }
 }
 
-static void fetch_editor(struct hash_table *ht, struct map *m)
+static void map_fetch_editor_section(
+    struct hash_table *ht, struct osux_beatmap *m)
 {
     // Editor
     struct hash_table *ed = NULL;
@@ -125,7 +127,8 @@ static void fetch_editor(struct hash_table *ht, struct map *m)
     }
 }
 
-static void fetch_metadata(struct hash_table *ht, struct map *m)
+static void map_fetch_metadata_section(
+    struct hash_table *ht, struct osux_beatmap *m)
 {
     struct hash_table *me = NULL;
     if (ht_get_entry(ht, "Metadata", &me) != -1) {
@@ -153,7 +156,7 @@ static void fetch_metadata(struct hash_table *ht, struct map *m)
 }
 
 
-static void fetch_difficulty(struct hash_table *ht, struct map *m)
+static void map_fetch_difficulty_section(struct hash_table *ht, struct osux_beatmap *m)
 {
 
     struct hash_table *d = NULL;
@@ -182,7 +185,7 @@ static void col_c_fetch(struct color *c, struct  list *h)
     c->b = * (int*)list_get(q, 3);
 }
 
-static void fetch_colors(struct hash_table *ht, struct map *m)
+static void map_fetch_colors_section(struct hash_table *ht, struct osux_beatmap *m)
 {
 
    struct list *color = NULL;
@@ -202,7 +205,7 @@ static void fetch_colors(struct hash_table *ht, struct map *m)
 
 /******************************************************************************/
 
-static void fetch_events(struct hash_table *ht, struct map *m)
+static void map_fetch_events_section(struct hash_table *ht, struct osux_beatmap *m)
 {
     struct hash_table *ev = NULL;
     if (ht_get_entry(ht, "Events", &ev) != -1) {
@@ -318,7 +321,8 @@ static void ho_c_fetch(struct hit_object *ho, struct hash_table *ho_dict)
     HO_READ_INT(ho, ho_dict, spi.end_offset);
 }
 
-static void fetch_hit_objects(struct hash_table *ht, struct map *m)
+static void map_fetch_hit_objects_section(
+    struct hash_table *ht, struct osux_beatmap *m)
 {
     struct list *HO = NULL;
     ht_get_entry(ht, "HitObjects", &HO);
@@ -374,7 +378,8 @@ static void tp_c_fetch(struct timing_point *tp, struct hash_table *tp_dict)
     TP_READ_INT(tp, tp_dict, kiai);
 }
 
-static void fetch_timing_points(struct hash_table *ht, struct map *m)
+static void map_fetch_timing_points_section(
+    struct hash_table *ht, struct osux_beatmap *m)
 {
     struct list *TP;
     ht_get_entry(ht, "TimingPoints", &TP);
@@ -391,7 +396,7 @@ static void fetch_timing_points(struct hash_table *ht, struct map *m)
 /******************************************************************************/
 
 // GLOBAL 
-static struct map *fetch_beatmap(const char *filename)
+static struct osux_beatmap *fetch_beatmap(const char *filename)
 {
     FILE *f = fopen(filename, "r");
     if (!f) {
@@ -406,22 +411,22 @@ static struct map *fetch_beatmap(const char *filename)
 	return NULL;
     }
     
-    struct map *m = malloc(sizeof(*m));
-    *m = (struct map) { 0 };
+    struct osux_beatmap *m = malloc(sizeof(*m));
+    *m = (struct osux_beatmap) { 0 };
     
     MAP_READ_INT(m, ht, version);
     MAP_READ_INT(m, ht, bom);
 
-    fetch_general(ht, m);
-    fetch_editor(ht, m);
-    fetch_metadata(ht, m);
-    fetch_difficulty(ht, m);
-    fetch_events(ht, m);
-    fetch_timing_points(ht, m);
-    fetch_colors(ht, m);
-    fetch_hit_objects(ht, m);
+    map_fetch_general_section(ht, m);
+    map_fetch_editor_section(ht, m);
+    map_fetch_metadata_section(ht, m);
+    map_fetch_difficulty_section(ht, m);
+    map_fetch_events_section(ht, m);
+    map_fetch_timing_points_section(ht, m);
+    map_fetch_colors_section(ht, m);
+    map_fetch_hit_objects_section(ht, m);
 
-     ht_free(ht);
+    ht_free(ht);
     return m;
 }
 
@@ -430,7 +435,7 @@ static struct map *fetch_beatmap(const char *filename)
 __attribute__((constructor))
 static void plugin_register(void)
 {
-    struct map* (**parse_beatmap)(const char *)
+    struct osux_beatmap* (**parse_beatmap)(const char *)
         = dlsym(RTLD_DEFAULT, "osux_parse_beatmap");
     *parse_beatmap = &fetch_beatmap;
 }

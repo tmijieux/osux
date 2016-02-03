@@ -358,7 +358,7 @@ static osux_beatmap *fetch_beatmap(const char *filename)
 /******************************************************************************/
 
 __attribute__((constructor))
-static void plugin_register(int lol)
+static void plugin_register(void)
 {
     osux_beatmap* (**parse_beatmap)(const char *)
         = dlsym(RTLD_DEFAULT, "osux_parse_beatmap");

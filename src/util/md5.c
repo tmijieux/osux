@@ -29,8 +29,8 @@ int osux_md5_hash_file(FILE *f, unsigned char *md5_hash)
     return 0;
 }
 
-int osux_md5_hash_buf(size_t size,
-                      const unsigned char *buf, unsigned char *md5_hash)
+int osux_md5_hash_buf(
+    size_t size, const unsigned char *buf, unsigned char *md5_hash)
 {
     if (buf == NULL || md5_hash == NULL) {
         osux_error("invalid argument");
@@ -53,18 +53,16 @@ int osux_md5_hash_buf(size_t size,
     return 0;
 }
 
-char *osux_md5_string(unsigned char *md5)
+char *osux_md5_string(unsigned char *md5, char *buf)
 {
-    char *str = malloc(MD5_DIGEST_LENGTH * 2 + 1);
     for(int i = 0; i < MD5_DIGEST_LENGTH; ++i)
-        sprintf(&str[i*2], "%02x", (unsigned int)md5[i]);
-    str[MD5_DIGEST_LENGTH * 2] = '\0';
-    return str;
+        sprintf(&buf[i*2], "%02x", (unsigned int)md5[i]);
+    buf[MD5_DIGEST_LENGTH * 2] = '\0';
+    return buf;
 }
 
 void osux_md5_print(FILE *outfile, unsigned char *md5)
 {
-    char *str = osux_md5_string(md5);
-    fprintf(outfile, "%s", str);
-    free(str);
+    char buf[MD5_DIGEST_LENGTH * 2 + 1];
+    fprintf(outfile, "%s", osux_md5_string(md5, buf));
 }

@@ -117,11 +117,13 @@ struct hash_table *cparse_osu_file(FILE *f)
     sections = ht_create(0, NULL);
     ht_add_entry(sections, "version", ver);
     ht_add_entry(sections, "bom", bom);
+
+    struct list *hit_objects, *timing_points, *colors, *events;
+    hit_objects = list_new(0);
+    timing_points = list_new(0);
+    colors = list_new(0);
+    events = list_new(0);
     
-    struct list *hit_objects = list_new(0);
-    struct list *timing_points = list_new(0);
-    struct list *colors = list_new(0);
-    struct list *events = list_new(0);
     ht_add_entry(sections, "HitObjects", hit_objects);
     ht_add_entry(sections, "TimingPoints", timing_points);
     ht_add_entry(sections, "Colours", colors);

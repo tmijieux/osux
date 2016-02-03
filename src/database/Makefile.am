@@ -1,7 +1,8 @@
 include $(top_srcdir)/common.mk
 
+BUILT_SOURCES = _db_sql_data.c
 noinst_LTLIBRARIES = libosux_db.la
-libosux_db_la_SOURCES = osuxdb.c
+libosux_db_la_SOURCES = osux_db.c _db_sql_data.c db.sql
 
 libosux_db_la_LIBADD = ../util/libosux_util.la
 
