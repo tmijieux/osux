@@ -43,6 +43,8 @@
 #include "accuracy.h"
 #include "final_star.h"
 
+//#define ENABLE_STAR_THREAD
+
 #ifdef ENABLE_STAR_THREAD
   #include <pthread.h>
   #define NB_STARS_FIELD 4
@@ -219,7 +221,7 @@ struct tr_map * trm_new(char * filename)
       return res;
     case 2:  
       res = trm_convert_map(osux_db_get_beatmap_by_hash(ODB, filename));
-      res->hash = filename;
+      res->hash = strdup(filename);
       return res;
     default:
       tr_error("Could not load: '%s'", filename);

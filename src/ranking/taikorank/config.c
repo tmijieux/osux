@@ -86,8 +86,7 @@ static void global_init(void)
     ht_conf_db_init();
 
   OPT_SCORE = cst_i(ht_conf, "score");
-  if(OPT_SCORE)
-    config_score();
+  config_score();
 
   OPT_ODB_PATH  = cst_str(ht_conf, "osuxdb_path");
   OPT_ODB_BUILD = cst_i(ht_conf, "osuxdb_build");

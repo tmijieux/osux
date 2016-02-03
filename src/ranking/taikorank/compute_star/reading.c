@@ -42,7 +42,6 @@ static struct yaml_wrap * yw;
 static struct hash_table * ht_cst;
 
 static double tro_hide(struct tr_object * o1, struct tr_object * o2);
-static double tro_fast(struct tr_object * obj);
 static int pt_is_in_tro(double x, double y, struct tr_object * o);
 
 static double tr_monte_carlo(int nb_pts,
@@ -55,7 +54,6 @@ static double tro_speed_change(struct tr_object * obj1,
 				struct tr_object * obj2);
 */
 static void trm_compute_reading_hide(struct tr_map * map);
-static void trm_compute_reading_fast(struct tr_map * map);
 
 static void trm_compute_reading_star(struct tr_map * map);
 
@@ -65,7 +63,6 @@ static void trm_compute_reading_star(struct tr_map * map);
 
 static int MONTE_CARLO_NB_PT;
 static struct vector * HIDE_VECT;
-static struct vector * FAST_VECT;
 static struct vector * SEEN_VECT;
 
 // speed change
@@ -78,7 +75,6 @@ static double READING_STAR_COEFF_SEEN;
 static double READING_STAR_COEFF_HIDE;
 static double READING_STAR_COEFF_HIDDEN;
 static double READING_STAR_COEFF_SPEED_CH;
-static double READING_STAR_COEFF_FAST;
 static struct vector * SCALE_VECT;
 
 //-----------------------------------------------------
@@ -90,7 +86,6 @@ static void global_init(void)
 
   SEEN_VECT  = cst_vect(ht_cst, "vect_seen");
   HIDE_VECT  = cst_vect(ht_cst, "vect_hide");
-  FAST_VECT  = cst_vect(ht_cst, "vect_fast");  
   SCALE_VECT = cst_vect(ht_cst, "vect_scale");
 
   SPEED_CH_MAX     = cst_f(ht_cst, "speed_ch_max");
@@ -101,7 +96,6 @@ static void global_init(void)
   READING_STAR_COEFF_HIDE       = cst_f(ht_cst, "star_hide");
   READING_STAR_COEFF_HIDDEN     = cst_f(ht_cst, "star_hidden");   
   READING_STAR_COEFF_SPEED_CH   = cst_f(ht_cst, "star_speed_ch");
-  READING_STAR_COEFF_FAST       = cst_f(ht_cst, "star_fast");
 }
 
 //-----------------------------------------------------
@@ -120,7 +114,6 @@ static void ht_cst_exit_reading(void)
 {
   yaml2_free(yw);
   vect_free(HIDE_VECT);
-  vect_free(FAST_VECT);
   vect_free(SEEN_VECT);
   vect_free(SCALE_VECT);
 }
@@ -264,14 +257,6 @@ static double tro_seen(struct tr_object * o, struct tr_object ** t,
 }
 
 //-----------------------------------------------------
-
-static double tro_fast(struct tr_object * obj)
-{
-  return vect_poly2(FAST_VECT, 
-		    obj->visible_time + obj->invisible_time);
-}
-
-//-----------------------------------------------------
 /*
 static double tro_speed_change(struct tr_object * obj1,
 			       struct tr_object * obj2)
@@ -296,14 +281,23 @@ static void trm_compute_reading_hide(struct tr_map * map)
 {
   for (int i = 0; i < map->nb_object; i++)
     {
+      if(map->object[i].ps == MISS)
+	{
+	  map->object[i].hidden = 0;
+	  map->object[i].hide = 0;
+	  map->object[i].seen = 0;
+	  continue;
+	}
+
       // list object that hide the i-th
       struct tr_object ** t1 = malloc(sizeof(*t1) * i);
       int l1 = 0;
 
       for (int j = 0; j < i; j++)
 	{ // here if i has appeared before j
-	  if(map->object[j].end_offset_app -
-	     map->object[i].offset_app > 0) 
+	  if((map->object[j].end_offset_app -
+	      map->object[i].offset_app > 0) &&
+	     map->object[j].ps != MISS)
 	    {
 	      t1[l1] = &map->object[j];
 	      l1++;
@@ -322,8 +316,9 @@ static void trm_compute_reading_hide(struct tr_map * map)
 
       for (int j = i+1; j < map->nb_object; j++)
 	{
-	  if(map->object[i].end_offset_app -
-	     map->object[j].offset_app > 0)
+	  if((map->object[i].end_offset_app -
+	      map->object[j].offset_app > 0) &&
+	     map->object[j].ps != MISS)
 	    {
 	      t2[l2] = &map->object[j];
 	      l2++;
@@ -334,16 +329,6 @@ static void trm_compute_reading_hide(struct tr_map * map)
       for(int k = 0; k < l2; k++)
 	sum_add(s_hide, tro_hide(&map->object[i], t2[k]));
       map->object[i].hide = sum_compute(s_hide);
-    }
-}
-
-//-----------------------------------------------------
-
-static void trm_compute_reading_fast(struct tr_map * map)
-{
-  for (int i = 0; i < map->nb_object; i++)
-    {
-      map->object[i].fast = tro_fast(&map->object[i]);
     }
 }
 
@@ -378,8 +363,7 @@ static void trm_compute_reading_star(struct tr_map * map)
 	 (READING_STAR_COEFF_SEEN       * map->object[i].seen +
 	  READING_STAR_COEFF_HIDE       * map->object[i].hide +
 	  READING_STAR_COEFF_HIDDEN     * map->object[i].hidden +
-	  READING_STAR_COEFF_SPEED_CH  * map->object[i].speed_change+
-	  READING_STAR_COEFF_FAST       * map->object[i].fast));
+	  READING_STAR_COEFF_SPEED_CH  * map->object[i].speed_change));
     }
   map->reading_star = trm_weight_sum_reading_star(map, NULL);
 }
@@ -397,7 +381,6 @@ void * trm_compute_reading(struct tr_map * map)
     }
   
   trm_compute_reading_hide(map);
-  trm_compute_reading_fast(map);
   //trm_compute_reading_speed_change(map);
   trm_compute_reading_star(map);
 

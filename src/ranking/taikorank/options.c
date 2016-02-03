@@ -83,47 +83,41 @@ static int opt_score(int argc, const char ** argv)
 {
   OPT_ARGC_ERR(argc, 1, ARG_OPT_SCORE);
   OPT_SCORE = atoi(argv[0]);
-  if(OPT_SCORE)
-    config_score();
   return 1;
 }
 
 static int opt_score_quick(int argc, const char ** argv)
 {
   OPT_ARGC_ERR(argc, 1, ARG_OPT_SCORE_QUICK);
-  OPT_SCORE_QUICK = atoi(argv[0]);
   OPT_SCORE = 1;
-  config_score();
+  OPT_SCORE_QUICK = atoi(argv[0]);
   return 1;
 }
 
 static int opt_score_input(int argc, const char ** argv)
 {
   OPT_ARGC_ERR(argc, 1, ARG_OPT_SCORE_INPUT);
-  OPT_SCORE_INPUT = atoi(argv[0]);
   OPT_SCORE = 1;
-  config_score();
+  OPT_SCORE_INPUT = atoi(argv[0]);
   return 1;  
 }
 
 static int opt_score_acc(int argc, const char ** argv)
 {
   OPT_ARGC_ERR(argc, 1, ARG_OPT_SCORE_ACC);
+  OPT_SCORE = 1;
   OPT_SCORE_ACC = atof(argv[0]) / COEFF_MAX_ACC;
   OPT_SCORE_INPUT = SCORE_INPUT_ACC;
-  OPT_SCORE = 1;
-  config_score();
   return 1;
 }
 
 static int opt_score_ggm(int argc, const char ** argv)
 {
   OPT_ARGC_ERR(argc, 2, ARG_OPT_SCORE_GGM);
+  OPT_SCORE = 1;
   OPT_SCORE_GOOD = atoi(argv[0]);
   OPT_SCORE_MISS = atoi(argv[1]);
   OPT_SCORE_INPUT = SCORE_INPUT_GGM;
-  OPT_SCORE = 1;
-  config_score();
   return 2;
 }
 

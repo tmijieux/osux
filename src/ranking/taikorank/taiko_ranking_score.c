@@ -51,7 +51,7 @@ void trs_main(const struct tr_map * map, int mods)
     trm_remove_bonus(score->map);
 
 
-  if(OPT_SCORE_INPUT == SCORE_INPUT_ACC)
+  if(OPT_SCORE_INPUT == SCORE_INPUT_GGM)
     trs_prepare_ggm(score, OPT_SCORE_GOOD, OPT_SCORE_MISS);
   else
     trs_prepare_acc(score, OPT_SCORE_ACC);

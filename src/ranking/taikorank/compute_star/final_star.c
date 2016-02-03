@@ -77,6 +77,15 @@ void trm_compute_final_star(struct tr_map * map)
   
   for(int i = 0; i < map->nb_object; i++)
     {
+      if(map->object[i].ps == GOOD)
+	{
+	  map->object[i].density_star = 0;
+	  map->object[i].reading_star = 0;
+	  map->object[i].pattern_star = 0;
+	  map->object[i].accuracy_star = 0;
+	  map->object[i].final_star = 0;
+	  continue;
+	}
       map->object[i].final_star = 
 	vect_poly2(SCALE_VECT,
 		   map->object[i].density_star *

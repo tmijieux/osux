@@ -133,6 +133,11 @@ static void trm_compute_slow(struct tr_map * map)
 {
   for (int i = 0; i < map->nb_object; i++)
     {
+      if(map->object[i].ps == MISS)
+	{
+	  map->object[i].slow = 0;
+	  continue;
+	}
       map->object[i].slow = tro_slow(&map->object[i]);
     }
 }

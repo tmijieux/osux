@@ -17,8 +17,6 @@
 #ifndef TRM_H
 #define TRM_H
 
-#define ENABLE_STAR_THREAD
-
 #define MAX_ACC 1.
 #define COEFF_MAX_ACC 100.
 
