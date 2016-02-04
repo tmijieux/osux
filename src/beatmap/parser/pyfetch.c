@@ -26,9 +26,7 @@
 #include "beatmap/color.h"
 #include "util/error.h"
 
-#include "python.h"
-#include "python2.7/Python.h"
-
+#include "python/python.h"
 #include "pyfetch.h"
 
 #define READ_VALUE(map, fieldName, pyObj, pyMethod, convMethod)		\
@@ -42,11 +40,13 @@
 	}								\
 	else								\
 	    map->fieldName = DEFAULT_MAP.fieldName;			\
-    })									\
+    })	       
 
+
+#define PY_OBJ_TO_STR(X) PyString_AsString(PyObject_Str((X)))
 
 #define READ_STRING(map, fieldName, pyObj)				\
-    READ_VALUE(map, fieldName, pyObj, PyString_AsString, strdup)	\
+    READ_VALUE(map, fieldName, pyObj, PY_OBJ_TO_STR, strdup)            \
     
 #define READ_DOUBLE(map, fieldName, pyObj)				\
     READ_VALUE(map, fieldName, pyObj, PyFloat_AsDouble,)		\
@@ -333,7 +333,7 @@ static osux_beatmap *fetch_beatmap(const char *filename)
     PyObject *data = embed_python_funcall(
         "osux_parse", "parse", 1, (const char*[]) { filename });
     if (!data) {
-	fprintf(stderr, "Error parsing with omp python module");
+	fputs("Error parsing with omp python module\n", stderr);
 	return NULL;
     }
     osux_beatmap *m = calloc(sizeof(*m), 1);

@@ -7,11 +7,13 @@
 
 int main(void)
 {
-
     struct osux_db *db;
+    
     osux_db_load("./osu.db", &db);
-    osux_db_dump(stdout, db);
 
+    osux_db_update_stat(db);
+    osux_db_print_stat(stdout, db);
+    osux_db_dump(stdout, db);
     osux_db_free(db);
     
     return EXIT_SUCCESS;

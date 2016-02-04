@@ -21,9 +21,14 @@
 #include "util/error.h"
 #include "osux_db.h"
 
+struct osux_db_stat {
+    uint32_t beatmap_count;
+    uint32_t beatmap_set_count;
+    time_t last_stat_time;
+};
 
 struct osux_db {
-    uint32_t beatmaps_number;
+    struct osux_db_stat db_stat;
     sqlite3 *sqlite_db;
 };
 
@@ -38,17 +43,42 @@ static int db_query(
     (void) vasprintf(&query, format, ap);
     ret = sqlite3_exec(db, query, callback, context, &errmsg);
     va_end(ap);
-    free(query);
 
     if (NULL != errmsg) {
-        osux_error("%s\n", errmsg);
+        osux_error("%s\nquery: %s\n", errmsg, query);
         sqlite3_free(errmsg);
+        free(query);
         exit(EXIT_FAILURE);
     }
+    free(query);
     return ret;
 }
 
-#define DATE(X) ({struct tm tmp__; strptime((X), NULL, &tmp__); mktime(&tmp__);})
+
+static int db_callback_get_uint32(
+    void *context__,
+    int count __attribute__((unused)),
+    char **column_text,
+    char **column_name __attribute__((unused))  )
+{
+    uint32_t *value_ptr = context__;
+    *value_ptr = atoi(column_text[0]);
+    return 0;
+}
+
+int osux_db_update_stat(struct osux_db *db)
+{
+    db_query(
+        db->sqlite_db, db_callback_get_uint32,
+        &db->db_stat.beatmap_count, "select count(*) from beatmap;");
+    db_query(
+        db->sqlite_db, db_callback_get_uint32,
+        &db->db_stat.beatmap_set_count, "select count(*) from beatmap_set;");
+    db->db_stat.last_stat_time = time(NULL);
+    return 0;
+}
+
+#define DATE(X) ({struct tm tmp__; strptime((X), "%c", &tmp__); mktime(&tmp__);})
 #define FLOAT(X) atof((X))
 #define INT(X) atoi((X));
 #define STRING(X) strdup((X));
@@ -65,7 +95,9 @@ static int beatmap_db_get_callback(
     for (int i = 0; i < count; ++i)
         ht_add_entry(ht, column_name[i], column_text[i]);
 
-    bm->osu_beatmap_id = HT_GET("osu_beatmap_id", INT);
+    bm->beatmap_id = HT_GET("beatmap_id", INT);
+    bm->BeatmapID = HT_GET("osu_beatmap_id", INT);
+    bm->BeatmapSetID = HT_GET("osu_beatmap_id", INT);
     bm->Mode = HT_GET("game_mode", INT);
     bm->AudioFilename = HT_GET("audio_filename", STRING);
     bm->Version = HT_GET("diff_name", STRING);
@@ -101,42 +133,102 @@ static int beatmap_db_get_callback(
     return 0;
 }
 
+#define DB_BIND_TEXT(STMT, NAME, TEXT)                                  \
+    if (sqlite3_bind_text(                                              \
+        STMT,                                                           \
+        sqlite3_bind_parameter_index(STMT, ":"NAME),                    \
+        TEXT,                                                           \
+        -1,                                                             \
+        NULL                                                            \
+    ) != SQLITE_OK) {osux_error("error binding text\n");exit(1);}
+
+#define DB_BIND_INT(STMT, NAME, TEXT)                                   \
+    if(sqlite3_bind_int(                                                \
+        STMT,                                                           \
+        sqlite3_bind_parameter_index(STMT, ":"NAME),                    \
+        TEXT                                                            \
+    ) != SQLITE_OK) {osux_error("error binding int\n");exit(1);}
+
+#define DB_BIND_DOUBLE(STMT, NAME, TEXT)                                \
+    if (sqlite3_bind_double(                                            \
+        STMT,                                                           \
+        sqlite3_bind_parameter_index(STMT, ":"NAME),                    \
+        TEXT                                                            \
+    ) != SQLITE_OK) {osux_error("error binding double\n");exit(1);}
+
 static int beatmap_db_insert(osux_beatmap *bm, osux_db *db)
 {
-    return db_query(
-        db->sqlite_db, NULL, NULL,
+    int ret;
+    struct sqlite3_stmt *stmt;
+    ret = sqlite3_prepare_v2(
+        db->sqlite_db,
         "INSERT INTO beatmap "
         "(osu_beatmap_id, game_mode, audio_filename, diff_name,"
+        "md5_hash, osu_filename,"
         "circles, sliders, spinners, last_modification, last_checked,"
         "approach_rate, circle_size, hp_drain, overall_diff,"
         "slider_velocity, stack_leniency, drain_time, total_time,"
         "preview_time, bpm_avg, bpm_max, bpm_min, local_offset,"
         "online_offset, already_played, last_played, ignore_hitsound,"
         "ignore_skin, disable_sb, disable_video, visual_override,"
-        "mania_scroll_speed"
-        ")"
+        "mania_scroll_speed)"
         " VALUES"
-        "(%d, %d, %s, %s,"
-        " %d, %d, %d, datetime(%d), datetime(%d)"
-        " %g, %g, %g, %g,"
-        " %g, %g, %d, %d,"
-        " %d, %d, %d, %d, %d"
-        " %d, %d, datetime(%d), %d,"
-        " %d, %d, %d, %d,"
-        " %d)",
-        bm->osu_beatmap_id,  bm->Mode,            bm->AudioFilename,
-        bm->Version,         bm->circles,         bm->sliders,
-        bm->spinners,        bm->last_modification,
-        bm->last_checked,    bm->ApproachRate,
-        bm->CircleSize,      bm->HPDrainRate,
-        bm->OverallDifficulty, bm->SliderMultiplier,
-        bm->StackLeniency,     bm->drain_time,
-        bm->total_time,        bm->PreviewTime,
-        bm->bpm_avg,         bm->bpm_max,         bm->bpm_min,
-        bm->local_offset,    bm->online_offset,   bm->already_played,
-        bm->last_played,     bm->ignore_hitsound, bm->ignore_skin,
-        bm->disable_sb,      bm->disable_video,   bm->visual_override,
-        bm->mania_scroll_speed);
+        "(:osu_beatmap_id, :game_mode, :audio_filename, :diff_name,"
+        ":md5_hash, :osu_filename,"
+        ":circles, :sliders, :spinners, :last_modification, :last_checked,"
+        ":approach_rate, :circle_size, :hp_drain, :overall_diff,"
+        ":slider_velocity, :stack_leniency, :drain_time, :total_time,"
+        ":preview_time, :bpm_avg, :bpm_max, :bpm_min, :local_offset,"
+        ":online_offset, :already_played, :last_played, :ignore_hitsound,"
+        ":ignore_skin, :disable_sb, :disable_video, :visual_override,"
+        ":mania_scroll_speed)", -1, &stmt, NULL);
+    
+    if (ret != SQLITE_OK) {
+        osux_error("%s\n", sqlite3_errmsg(db->sqlite_db));
+        return -1;
+    }
+    
+    DB_BIND_INT(stmt, "osu_beatmap_id", bm->BeatmapID);
+    DB_BIND_INT(stmt, "game_mode", bm->Mode);
+    DB_BIND_TEXT(stmt, "audio_filename", bm->AudioFilename);
+    DB_BIND_TEXT(stmt, "md5_hash", bm->md5_hash);
+    DB_BIND_TEXT(stmt, "osu_filename", bm->osu_filename);
+    DB_BIND_TEXT(stmt, "diff_name", bm->Version);
+    DB_BIND_INT(stmt, "circles", bm->circles);
+    DB_BIND_INT(stmt, "sliders", bm->sliders);
+    DB_BIND_INT(stmt, "spinners", bm->spinners);
+    DB_BIND_INT(stmt, "last_modification", bm->last_modification);
+    DB_BIND_INT(stmt, "last_checked", bm->last_checked);
+    DB_BIND_DOUBLE(stmt, "approach_rate", bm->ApproachRate);
+    DB_BIND_DOUBLE(stmt, "circle_size", bm->CircleSize);
+    DB_BIND_DOUBLE(stmt, "hp_drain", bm->HPDrainRate);
+    DB_BIND_DOUBLE(stmt, "overall_diff", bm->OverallDifficulty);
+    DB_BIND_DOUBLE(stmt, "slider_velocity", bm->SliderMultiplier);
+    DB_BIND_DOUBLE(stmt, "stack_leniency", bm->StackLeniency);
+    DB_BIND_INT(stmt, "drain_time", bm->drain_time);
+    DB_BIND_INT(stmt, "total_time", bm->total_time);
+    DB_BIND_INT(stmt, "preview_time", bm->PreviewTime);
+    DB_BIND_INT(stmt, "bpm_avg", bm->bpm_avg);
+    DB_BIND_INT(stmt, "bpm_min", bm->bpm_min);
+    DB_BIND_INT(stmt, "bpm_max", bm->bpm_max);
+    DB_BIND_INT(stmt, "local_offset", bm->local_offset);
+    DB_BIND_INT(stmt, "online_offset", bm->online_offset);
+    DB_BIND_INT(stmt, "already_played", bm->already_played);
+    DB_BIND_INT(stmt, "last_played", bm->last_played);
+    DB_BIND_INT(stmt, "ignore_hitsound", bm->ignore_hitsound);
+    DB_BIND_INT(stmt, "ignore_skin", bm->ignore_skin);
+    DB_BIND_INT(stmt, "disable_sb", bm->disable_sb);
+    DB_BIND_INT(stmt, "disable_video", bm->disable_video);
+    DB_BIND_INT(stmt, "visual_override", bm->visual_override);
+    DB_BIND_INT(stmt, "mania_scroll_speed", bm->mania_scroll_speed);
+
+    ret = sqlite3_step(stmt);
+    if (ret != SQLITE_DONE) {
+        osux_error("%s\n", sqlite3_errmsg(db->sqlite_db));
+    }
+
+    sqlite3_finalize(stmt);
+    return 0;
 }
 
 int osux_db_beatmap_get(
@@ -157,6 +249,7 @@ int osux_db_beatmap_get(
         return -1;
     }
     *bm = list_get(bm_l, 1);
+    printf("BM L: %p\n", *bm);
     if (s > 1) {
         osux_error("HASH COLLISION? %s\n", md5_hash);
         list_free(bm_l);
@@ -184,10 +277,14 @@ static int load_beatmap(
     }
 
     (void) osux_beatmap_open(filename, &bm);
-    osux_md5_hash_file(f, bm->md5_hash);
-    bm->path = strdup(filename + base_path_length);
-    beatmap_db_insert(bm, odb);
-    osux_beatmap_close(bm);
+    if (NULL != bm) {
+        osux_md5_hash_file(f, &bm->md5_hash);
+        bm->path = strdup(filename + base_path_length);
+        beatmap_db_insert(bm, odb);
+        osux_beatmap_close(bm);
+    } else {
+        osux_error("Cannot parse `%s´ map. Skipping.\n", filename);
+    }
 
     fclose(f);
     return 0;
@@ -389,10 +486,17 @@ int osux_db_free(osux_db *db)
     return -1;
 }
 
+int osux_db_print_stat(FILE *outfile, const struct osux_db *db)
+{
+    fprintf(outfile, "Number of beatmaps: %d\n", db->db_stat.beatmap_count);
+    fprintf(outfile, "Number of beatmap sets: %d\n",
+            db->db_stat.beatmap_set_count);
+    return 0;
+}
+
 int osux_db_dump(FILE *outfile, const osux_db *db)
 {
-    fprintf(outfile, "Number of maps: %d\n", db->beatmaps_number);
-    (void) db_query(db->sqlite_db, db_print_row, NULL, "select * from beatmap");
+    (void) db_query(db->sqlite_db, db_print_row, outfile, "select * from beatmap");
     return 0;
 }
 
@@ -408,17 +512,13 @@ osux_db_relative_path_by_hash(osux_db *db, const char *hash)
     return path;
 }
 
-osux_beatmap *osux_db_get_beatmap_by_hash(osux_db *db, const char *hash)
+struct osux_beatmap *
+osux_db_get_beatmap_by_hash(osux_db *db, const char *hash)
 {
     osux_beatmap *bm;
-    char *path = osux_prefix_path(
-        osux_get_song_path(),
-        osux_db_relative_path_by_hash(db, hash)
-    );
 
     osux_db_beatmap_get(hash, db, &bm);
     osux_beatmap_reopen(bm, &bm);
-    free(path);
 
     return bm;
 }

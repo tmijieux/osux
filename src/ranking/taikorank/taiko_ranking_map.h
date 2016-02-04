@@ -40,7 +40,7 @@ struct tr_map
   char * artist_uni;
   unsigned int bms_osu_ID;
   unsigned int diff_osu_ID;
-  char hash[MD5_DIGEST_LENGTH*2+1];
+  char * hash;
   
   // Song Info
   int mods;

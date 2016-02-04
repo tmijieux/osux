@@ -7,7 +7,7 @@
 int main(void)
 {
     osux_db *db;
-    osux_db_build("/mnt/windata/Songs", &db);
+    osux_db_build("/mnt/windata/Songs2", &db);
     /* osux_db_load("osu.db", &db); */
     /* osux_db_init(db); */
     /* osux_db_query_print(stdout, "select * from beatmap", db); */

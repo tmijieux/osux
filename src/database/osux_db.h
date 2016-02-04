@@ -19,6 +19,9 @@ int osux_db_build(const char *song_path, osux_db **odb);
 int osux_db_save(const char *filename, const osux_db *odb);
 int osux_db_load(const char *filename, osux_db **odb);
 
+int osux_db_print_stat(FILE *outfile, const struct osux_db *db);
+int osux_db_update_stat(struct osux_db *db);
+
 int osux_db_query_print(FILE *output, const char *query, const osux_db *db);
 
 int osux_db_dump(FILE *outfile, const osux_db *odb);

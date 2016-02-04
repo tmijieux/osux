@@ -1,5 +1,4 @@
 
-
 create table beatmap_set
 (
         beatmap_set_id      int primary key not null,
@@ -65,5 +64,3 @@ create table beatmap
         mania_scroll_speed      int,
         foreign key(beatmap_set_id) references beatmap_set(beatmap_set_id)  
 );
-
-

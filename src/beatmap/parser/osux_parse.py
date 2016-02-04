@@ -46,8 +46,8 @@ def parse_colour(line):
 def parse_hitobject(line):
     ho = {}
     v = line.split(",")
-    mm = lambda x,y: {x:Float(y)}
-    k = map(mm, ["x", "y", "offset", "type", "hs.sample"], v[:5])
+    k = map(lambda x,y: {x:Float(y)},
+            ["x", "y", "offset", "type", "hs.sample"], v[:5])
     map(ho.update, k)
     wc = lambda x: Int(x) & ~HO_NEWCOMBO & 0x0F
 
@@ -57,9 +57,8 @@ def parse_hitobject(line):
         ho["spi.end_offset"] = int(v[5])
     elif wc(ho["type"]) is HO_SLIDER:
         a = v[5].split("|")
-        ll = lambda x: map(int, x.split(":"))
         k = []
-        map(k.append, map(ll, a[1:]))
+        map(k.append, map(lambda x: map(int, x.split(":")), a[1:]))
         ho.update({
             'sli.repeat': Int(v[6]),
             'sli.length': Float(v[7]),
@@ -81,11 +80,11 @@ def parse_hitobject(line):
 
     if ":" in v[-1] and "|" not in v[-1]: # additionals
         u = v[-1].split(":")
-        nn = lambda x,y: {x:Int(y)}
         ho['hs.additional'] = True
         map(ho.update,
-             map(nn ,["hs.st", "hs.st_additional", "hs.sample_set_index",
-                      "hs.volume", "hs.sfx_filename"], u))
+             map(lambda x,y: {x:Int(y)},
+                 ["hs.st", "hs.st_additional", "hs.sample_set_index",
+                  "hs.volume", "hs.sfx_filename"], u))
     else:
         ho['hs.additional'] = False
     return ho
@@ -190,9 +189,12 @@ def parse(osufilename):
                 m = map(str.strip, line.split(":", 1))
                 if len(m) == 2:
                     keyword, value = m[0], m[1]
-                    if keyword in  ["Bookmarks", "Tags"]:
+                    if keyword == "Bookmarks":
                         value = map(Int, value.split(","))
-                    value = Float(value)
+                    elif keyword == "Tags":
+                        value = map(str, value.split(","))
+                    else:
+                        value = Float(value)
                     data[current_section][keyword] = value
     return data
 

@@ -5,10 +5,8 @@
 #include <stdlib.h>
 #include <openssl/md5.h>
 
-int osux_md5_hash_file(FILE *f, unsigned char *md5_hash);
-int osux_md5_hash_buf(size_t size,
-                      const unsigned char *buf, unsigned char *md5_hash);
-void osux_md5_print(FILE *outifle, unsigned char *md5);
-char *osux_md5_string(unsigned char *md5, char *buf);
+int osux_md5_hash_file(FILE *f, char **md5_hash_str);
+int osux_md5_hash_buf(
+    size_t size, const unsigned char *buf, unsigned char *md5_hash);
 
 #endif //MD5_H

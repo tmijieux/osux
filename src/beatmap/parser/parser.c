@@ -14,16 +14,14 @@
  *  limitations under the License.
  */
 
-
+#include <dlfcn.h>
 #include "beatmap/beatmap.h"
+#include "util/data.h"
 
 osux_beatmap* (*osux_parse_beatmap)(const char*) = NULL;
 
-
-/*
 __attribute__((constructor)) 
 static void parser_init(void)
 {
-    dlopen("plugin/ *parser.so");
+    void *handle = dlopen(PKG_LIB_DIR"/libpyparser.so", RTLD_LOCAL|RTLD_NOW);
 }
-*/

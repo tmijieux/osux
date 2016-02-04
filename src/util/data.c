@@ -33,7 +33,7 @@ char *osux_prefix_path(const char *prefix, const char *path)
     return prefixed_path;
 }
 
-static const char *song_path = "/mnt/windata/Songs";
+static const char *song_path = "/mnt/windata/Songs2";
 
 void osux_set_song_path(const char *path)
 {

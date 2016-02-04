@@ -166,6 +166,7 @@ struct tr_map * trm_copy(const struct tr_map * map)
   copy->diff    = strdup(map->diff);
   copy->title_uni  = strdup(map->title_uni);
   copy->artist_uni = strdup(map->artist_uni);
+  copy->hash = strdup(map->hash);
   
   return copy;
 }
@@ -194,6 +195,7 @@ void trm_free(struct tr_map * map)
   free(map->diff);
   free(map->title_uni);
   free(map->artist_uni);
+  free(map->hash);
   
   free(map->object);
   free(map);
@@ -210,9 +212,7 @@ struct tr_map * trm_new(char * filename)
     case 1:
       res = trm_convert(filename);
       FILE * f = fopen(filename, "r");
-      unsigned char tmp[MD5_DIGEST_LENGTH];
-      osux_md5_hash_file(f, tmp);
-      osux_md5_string(tmp, res->hash);
+      osux_md5_hash_file(f, &res->hash);
 
       fclose(f);
       return res;

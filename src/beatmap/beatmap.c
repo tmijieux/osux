@@ -26,7 +26,6 @@
 #include "storyboard.h"
 #include "color.h"
 
-
 osux_beatmap DEFAULT_MAP = { 0 };
 
 #define PRINT_SECTION(section)		\
@@ -149,12 +148,35 @@ int osux_beatmap_save(const char *filename, const osux_beatmap* bm)
     return 0;
 }
 
+int osux_beatmap_prepare(osux_beatmap *bm, const char *filename)
+{
+    bm->circles = bm->sliders = bm->spinners = 0;
+    
+    for (unsigned i = 0; i < bm->hoc; ++i) {
+        if (HO_IS_CIRCLE(bm->HitObjects[i]))
+            ++ bm->circles ;
+        else if (HO_IS_SLIDER(bm->HitObjects[i]))
+            bm->sliders ++;
+        else if (HO_IS_SPINNER(bm->HitObjects[i]))
+            bm->spinners ++;
+    }
+    int l = strlen(filename);
+    for (int i = l; i >= 0; --i) {
+        if ('/' == filename[i]) {
+            bm->osu_filename = strdup(&filename[i+1]);
+            bm->path = strndup(filename, i-1);
+            break;
+        }
+    }
+    return 0;
+}
 
 int osux_beatmap_open(const char *filename, osux_beatmap **beatmap)
 {
     *beatmap = osux_parse_beatmap(filename);
     if (NULL == *beatmap)
         return -1;
+    osux_beatmap_prepare(*beatmap, filename);
     return 0;
 }
 

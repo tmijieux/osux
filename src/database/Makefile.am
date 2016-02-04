@@ -10,7 +10,6 @@ _db_sql_data.c:
 CLEAN_FILES = _db_sql_data.c
 
 libosux_db_la_LIBADD = ../util/libosux_util.la
-
 libosux_db_la_CFLAGS = $(SQLITE_CFLAGS) $(AM_CFLAGS)
 libosux_db_la_LDFLAGS = $(SQLITE_LIBS) $(AM_LDFLAGS)
 

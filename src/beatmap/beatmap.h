@@ -33,17 +33,16 @@ extern osux_beatmap DEFAULT_MAP;
 struct osux_beatmap {
     uint32_t beatmap_id;
     uint32_t beatmap_set_id;
-    
-    uint32_t osu_beatmap_id;
+
     uint32_t osu_forum_thrd;
 
-    unsigned char md5_hash[MD5_DIGEST_LENGTH];
-    char *osufilename;
+    char *md5_hash;
+    char *osu_filename;
     char *path;
 
     time_t last_modification;
     time_t last_checked;
-    
+
     // stats
     uint16_t circles;
     uint16_t sliders;
@@ -55,7 +54,7 @@ struct osux_beatmap {
     uint16_t bpm_min;
     bool already_played;
     time_t last_played;
-    
+
     //offsets
     uint16_t local_offset;
     uint16_t online_offset;
@@ -68,12 +67,10 @@ struct osux_beatmap {
     bool visual_override;
     uint8_t mania_scroll_speed;
 
-    
     // .osu  SECTION :
-    
     uint32_t version;
     uint32_t bom; // byte order mark; utf-8 stuff
-    
+
     // general info
     char *AudioFilename;
     uint32_t AudioLeadIn;

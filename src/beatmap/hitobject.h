@@ -34,9 +34,16 @@
   but the formulas for the L and P types are simpler than
   the general case.
  */
-#define TYPE_OF(ho_ptr)    ((ho_ptr)->type & (~HO_NEWCOMBO) & 0x0F)
+#define HO_TYPE_OF(ho_ptr)    ((ho_ptr)->type & (~HO_NEWCOMBO) & 0x0F)
 // this get rid of the 'new_combo' flag to get the hit object's type
 // more easily
+
+#define TYPE_OF HO_TYPE_OF
+
+#define HO_IS_SPINNER(x) (HO_TYPE_OF(&(x)) == HO_SPINNER)
+#define HO_IS_CIRCLE(x)  (HO_TYPE_OF(&(x)) == HO_CIRCLE)
+#define HO_IS_SLIDER(x)  (HO_TYPE_OF(&(x)) == HO_SLIDER)
+
 struct point {
     int x;
     int y;
