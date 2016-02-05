@@ -213,12 +213,11 @@ struct tr_map * trm_new(char * filename)
       res = trm_convert(filename);
       FILE * f = fopen(filename, "r");
       osux_md5_hash_file(f, &res->hash);
-
       fclose(f);
       return res;
     case 2:  
       res = trm_convert_map(osux_db_get_beatmap_by_hash(ODB, filename));
-      strncpy(res->hash, filename, MD5_DIGEST_LENGTH*2+1);
+      res->hash = strdup(filename);
       return res;
     default:
       tr_error("Could not load: '%s'", filename);

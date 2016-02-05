@@ -29,7 +29,7 @@ no_bonus: 0
 ### osux db
 osuxdb_path:     ./osuxdb
 osuxdb_build:    0
-osuxdb_song_dir: ./bb_maps
+osuxdb_song_dir: ./bb_maps/
 
 ### Database
 database:  0

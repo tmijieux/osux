@@ -98,6 +98,8 @@ static int beatmap_db_get_callback(
     bm->beatmap_id = HT_GET("beatmap_id", INT);
     bm->BeatmapID = HT_GET("osu_beatmap_id", INT);
     bm->BeatmapSetID = HT_GET("osu_beatmap_id", INT);
+    bm->osu_filename = HT_GET("osu_filename", STRING);
+    bm->md5_hash = HT_GET("md5_hash", STRING);
     bm->Mode = HT_GET("game_mode", INT);
     bm->AudioFilename = HT_GET("audio_filename", STRING);
     bm->Version = HT_GET("diff_name", STRING);
@@ -249,7 +251,6 @@ int osux_db_beatmap_get(
         return -1;
     }
     *bm = list_get(bm_l, 1);
-    printf("BM L: %p\n", *bm);
     if (s > 1) {
         osux_error("HASH COLLISION? %s\n", md5_hash);
         list_free(bm_l);
@@ -262,7 +263,7 @@ int osux_db_beatmap_get(
 // TODO think of beatmap_set
 // idea : pass a beatmap_set as an argument and when it is NULL,
 // create it and return it to the caller
-static int load_beatmap(
+static int load_beatmap_from_disk(
     struct osux_db *odb, const char *filename, int base_path_length)
 {
     FILE *f;
@@ -319,7 +320,7 @@ static int parse_beatmap_directory_rec(
                 free(path);
                 continue;
             }
-            load_beatmap(db, path, base_path_length);
+            load_beatmap_from_disk(db, path, base_path_length);
             free(path);
         }
     } while ((entry = readdir(dir)) != NULL);

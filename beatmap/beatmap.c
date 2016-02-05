@@ -18,6 +18,7 @@
 #include <stdlib.h>
 
 #include "util/error.h"
+#include "util/data.h"
 #include "beatmap.h"
 #include "parser/parser.h"
 #include "hitobject.h"
@@ -182,9 +183,12 @@ int osux_beatmap_open(const char *filename, osux_beatmap **beatmap)
 
 int osux_beatmap_reopen(osux_beatmap *bm_in, osux_beatmap **bm_out)
 {
-    osux_error("not implemented\n");
-    *bm_out = bm_in;
-    return -1;
+    int ret;
+    char *path;
+    path = osux_prefix_path(osux_get_song_path(), bm_in->osu_filename);
+    ret = osux_beatmap_open(path, bm_out);
+    free(path);
+    return ret;
 }
 
 static void osux_beatmap_free(osux_beatmap *m)
@@ -213,7 +217,6 @@ static void osux_beatmap_free(osux_beatmap *m)
 	ho_free(&m->HitObjects[i]);
 
     free(m->HitObjects);
-
     free(m);
 }
 
