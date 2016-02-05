@@ -5,7 +5,7 @@ noinst_LTLIBRARIES = libosux_db.la
 libosux_db_la_SOURCES = osux_db.c _db_sql_data.c db.sql
 
 _db_sql_data.c:
-	$(top_srcdir)/src/scripts/embedder.py $(srcdir)/db.sql > $@
+	$(top_srcdir)/scripts/embedder.py $(srcdir)/db.sql > $@
 
 CLEAN_FILES = _db_sql_data.c
 

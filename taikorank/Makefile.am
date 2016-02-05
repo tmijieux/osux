@@ -20,8 +20,8 @@ taiko_ranking_SOURCES = \
 	vector.c \
 	spacing_count.c
 
-taiko_ranking_LDADD = ../../libosux.la \
-		../../util/libosux_util.la \
+taiko_ranking_LDADD = ../libosux.la \
+		../util/libosux_util.la \
 		compute_star/libtr_star.la
 
 taiko_ranking_CFLAGS = -I $(srcdir)/compute_star $(AM_CFLAGS)

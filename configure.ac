@@ -16,11 +16,13 @@ PKG_CHECK_MODULES(SQLITE, sqlite3)
 AC_CONFIG_FILES([
 		  Makefile
 		  util/Makefile
-		  beatmap/Makefile
+		  python/Makefile
 		  mod/Makefile
+		  beatmap/Makefile
 		  beatmap/parser/Makefile
 		  editor/Makefile
 		  replay/Makefile
+		  database/Makefile
 		  taikorank/Makefile
 		  taikorank/compute_star/Makefile
 		  taikorank/yaml/Makefile
