@@ -15,18 +15,15 @@ PKG_CHECK_MODULES(SQLITE, sqlite3)
 
 AC_CONFIG_FILES([
 		  Makefile
-		  src/Makefile
-                  src/python/Makefile
-		  src/util/Makefile
-		  src/beatmap/Makefile
-		  src/mod/Makefile
-                  src/database/Makefile      
-		  src/beatmap/parser/Makefile
-		  src/editor/Makefile
-		  src/replay/Makefile
-		  src/ranking/taikorank/Makefile
-		  src/ranking/taikorank/compute_star/Makefile
-		  src/ranking/taikorank/yaml/Makefile
+		  util/Makefile
+		  beatmap/Makefile
+		  mod/Makefile
+		  beatmap/parser/Makefile
+		  editor/Makefile
+		  replay/Makefile
+		  taikorank/Makefile
+		  taikorank/compute_star/Makefile
+		  taikorank/yaml/Makefile
 ])
 
 AC_OUTPUT
