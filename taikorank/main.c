@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
 	  nb_map++;
 	}
     }
-
+  
   // checking arguments
   if(nb_map > 0)
     { 
@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
 	    continue;
 	  
 	  tr_main(map, OPT_MODS);
-	  trm_free(map);	    
+	  trm_free(map);
 	}
     }
   else

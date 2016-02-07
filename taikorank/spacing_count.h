@@ -20,13 +20,17 @@ struct list;
 
 struct spacing {
   int rest;
-  int nb;
+  double nb;
 };
 
 struct list * spc_new(void);
 void spc_free(struct list * spc);
+
+void spc_add_f(struct list * spc, int rest, double val);
 void spc_add(struct list * spc, int rest);
+void spc_increase_f(struct list * spc, int rest, double val);
 void spc_increase(struct list * spc, int rest);
+
 void spc_print(struct list * spc);
 
 #endif //SPACING_COUNT_H

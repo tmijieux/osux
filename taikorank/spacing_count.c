@@ -18,6 +18,7 @@
 #include "spacing_count.h"
 #include "util/list.h"
 
+static void sp_if_increase_f(struct spacing * sp, int ** data);
 static void sp_if_increase(struct spacing * sp, int * rest);
 static void sp_print(struct spacing * sp);
 
@@ -40,6 +41,14 @@ void spc_add(struct list * spc, int rest)
   list_append(spc, sp);
 }
 
+void spc_add_f(struct list * spc, int rest, double val)
+{
+  struct spacing * sp = malloc(sizeof(*sp));
+  sp->rest = rest;
+  sp->nb = val;
+  list_append(spc, sp);
+}
+
 static void sp_if_increase(struct spacing * sp, int * rest)
 {
   if(sp->rest == *rest)
@@ -52,9 +61,27 @@ void spc_increase(struct list * spc, int rest)
   list_each_r(spc, (void (*)(void *, void *))sp_if_increase, &value);
 }
 
+static void sp_if_increase_f(struct spacing * sp, int ** data)
+{
+  int rest = *(data[0]);
+  double i = *((double *) (data[1]));
+  if(sp->rest == rest)
+    sp->nb += i;
+}
+
+void spc_increase_f(struct list * spc, int rest, double val)
+{
+  int rest_2 = rest;
+  double i = val;
+  void * data[2];
+  data[0] = &rest_2;
+  data[1] = &i;
+  list_each_r(spc, (void (*)(void *, void *))sp_if_increase_f, data);
+}
+
 static void sp_print(struct spacing * sp)
 {
-  printf("space: %d \t (%d)\n", sp->rest, sp->nb);
+  printf("space: %d \t (%g)\n", sp->rest, sp->nb);
 }
 
 void spc_print(struct list * spc)

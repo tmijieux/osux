@@ -13,6 +13,14 @@ vect_slow_y1: 1000.
 vect_slow_x2: 140.
 vect_slow_y2: 0.
 
+### spacing
+# x is in ms
+vect_spacing_length: 2
+vect_spacing_x1: 0.
+vect_spacing_y1: 1000.
+vect_spacing_x2: 10000.
+vect_spacing_y2: 0.
+
 ### hit_window
 # x is in ms
 vect_hit_window_length: 2

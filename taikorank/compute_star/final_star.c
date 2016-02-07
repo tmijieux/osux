@@ -77,7 +77,7 @@ void trm_compute_final_star(struct tr_map * map)
   
   for(int i = 0; i < map->nb_object; i++)
     {
-      if(map->object[i].ps == GOOD)
+      if(map->object[i].ps != GREAT)
 	{
 	  map->object[i].density_star = 0;
 	  map->object[i].reading_star = 0;

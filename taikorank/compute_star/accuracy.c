@@ -32,6 +32,8 @@
 #include "accuracy.h"
 #include "spacing_count.h"
 
+#define TIME_EQUAL_MS 12
+
 static struct yaml_wrap * yw;
 static struct hash_table * ht_cst;
 
@@ -54,6 +56,7 @@ static void trm_compute_spacing(struct tr_map * map);
 
 static struct vector * SLOW_VECT;
 static struct vector * HIT_WINDOW_VECT;
+static struct vector * SPC_VECT;
 
 static double ACCURACY_STAR_COEFF_SLOW;
 static double ACCURACY_STAR_COEFF_HIT_WINDOW;
@@ -66,6 +69,7 @@ static void global_init(void)
 {
   SLOW_VECT       = cst_vect(ht_cst, "vect_slow");
   HIT_WINDOW_VECT = cst_vect(ht_cst, "vect_hit_window");
+  SPC_VECT        = cst_vect(ht_cst, "vect_spacing");
   SCALE_VECT      = cst_vect(ht_cst, "vect_scale");
 
   ACCURACY_STAR_COEFF_SLOW       = cst_f(ht_cst, "star_slow");
@@ -88,7 +92,8 @@ __attribute__((destructor))
 static void ht_cst_exit_accuracy(void)
 {
   yaml2_free(yw);
-  vect_free(SLOW_VECT);  
+  vect_free(SLOW_VECT);
+  vect_free(SPC_VECT);
   vect_free(HIT_WINDOW_VECT);
   vect_free(SCALE_VECT);
 }
@@ -100,6 +105,15 @@ static void ht_cst_exit_accuracy(void)
 static double tro_slow(struct tr_object * obj)
 {
   return vect_poly2(SLOW_VECT, obj->bpm_app);
+}
+
+//-----------------------------------------------------
+
+static double tro_spacing(struct tr_object * o1, 
+			  struct tr_object * o2)
+{
+  int diff = o2->offset - o1->offset;
+  return vect_poly2(SPC_VECT, diff);
 }
 
 //-----------------------------------------------------
@@ -146,32 +160,36 @@ static void trm_compute_slow(struct tr_map * map)
 
 static int equal_i(int x, int y)
 {
-  return abs(x - y) < 12;
+  return abs(x - y) < TIME_EQUAL_MS;
 }
 
 static void trm_compute_spacing(struct tr_map * map)
 {
-  struct list * l = spc_new();
-  struct tr_object * copy = tro_copy(map->object, map->nb_object);
-  tro_sort_rest(copy, map->nb_object);
-
-  int last = 0;
-  spc_add(l, copy[last].rest);
-
-  for(int i = 1; i < map->nb_object; i++)
+  for(int i = 0; i < map->nb_object; i++)
     {
-      if(equal_i(copy[last].rest, copy[i].rest))
-	spc_increase(l, copy[last].rest);
-      else
-	{
-	  spc_add(l, copy[i].rest);
-	  last = i;
-	}
-    }
-  // TODO: do something
+      struct tr_object * copy = tro_copy(map->object, i+1);
+      tro_sort_rest(copy, i+1);
 
-  free(copy);
-  spc_free(l);
+      struct list * l = spc_new();
+      int last = 0;
+      spc_add_f(l, copy[last].rest, tro_spacing(&copy[last], &map->object[i]));
+
+      for(int j = 1; j < i+1; j++)
+	{
+	  if(equal_i(copy[last].rest, copy[j].rest))
+	    spc_increase_f(l, copy[last].rest, tro_spacing(&copy[j], &map->object[i]));
+	  else
+	    {
+	      spc_add_f(l, copy[j].rest, tro_spacing(&copy[j], &map->object[i]));
+	      last = j;
+	    }
+	}
+      // TODO: do something
+      spc_print(l);
+
+      spc_free(l);
+      free(copy);
+    }
 }
 
 //-----------------------------------------------------
