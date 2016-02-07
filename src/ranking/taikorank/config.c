@@ -52,7 +52,7 @@ char * TR_DB_LOGIN;
 char * TR_DB_PASSWD;
 
 char * OPT_ODB_PATH;
-char * OPT_ODB_BUILD_DIR;
+char * OPT_ODB_SGDIR;
 int OPT_ODB_BUILD;
 struct osudb * ODB;
 
@@ -90,10 +90,10 @@ static void global_init(void)
 
   OPT_ODB_PATH  = cst_str(ht_conf, "osuxdb_path");
   OPT_ODB_BUILD = cst_i(ht_conf, "osuxdb_build");
-  char * song_dir = cst_str(ht_conf, "osuxdb_song_dir");
-  osux_set_song_path(song_dir);
+  OPT_ODB_SGDIR = cst_str(ht_conf, "osuxdb_song_dir");
+  osux_set_song_path(OPT_ODB_SGDIR);
   if(OPT_ODB_BUILD)
-    config_odb_build(song_dir);
+    config_odb_build(OPT_ODB_SGDIR);
   else
     {
       ODB = malloc(sizeof(*ODB));

@@ -49,6 +49,9 @@ extern double OPT_SCORE_ACC;
 extern int (* TRM_METHOD_GET_TRO)(struct tr_map *);
 
 extern struct osudb * ODB;
+extern char * OPT_ODB_PATH;
+extern char * OPT_ODB_SGDIR;
+extern int OPT_ODB_BUILD;
 
 void config_odb_build(char * song_dir);
 void config_set_mods(const char * mods);

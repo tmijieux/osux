@@ -21,6 +21,6 @@ taiko_ranking_SOURCES = \
 	spacing_count.c
 
 taiko_ranking_LDADD = ../../libosux.la ../../util/libosux_util.la compute_star/libtr_star.la
-taiko_ranking_CFLAGS = -I $(srcdir)/compute_star $(AM_CFLAGS)
-taiko_ranking_LDFLAGS = -pthread -lmysqlclient -lm $(AM_LDFLAGS)
+taiko_ranking_CFLAGS = -pg -O0 -g -I $(srcdir)/compute_star $(AM_CFLAGS)
+taiko_ranking_LDFLAGS = -pg -O0 -g -pthread -lmysqlclient -lm $(AM_LDFLAGS)
 

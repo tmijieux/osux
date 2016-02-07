@@ -116,6 +116,8 @@ void trm_set_mods(struct tr_map * map, int mods)
 
 void trm_compute_stars(struct tr_map * map)
 {
+  if((map->mods & MODS_FL) != 0)
+    trm_apply_mods_FL(map);
   trm_treatment(map);
   
 #ifdef ENABLE_STAR_THREAD
