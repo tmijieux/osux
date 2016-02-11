@@ -170,12 +170,10 @@ static double tro_density(struct tr_object * obj1, struct tr_object * obj2)
       tro_set_density_##TYPE (map->object, i);			\
   }
 
-static int tro_true(struct tr_object * o1, struct tr_object * o2)
+static int tro_true(struct tr_object * o1 __attribute__((unused)),
+		    struct tr_object * o2 __attribute__((unused)))
 {
   return 1;
-  // Unreachable code only to remove warning 
-  __builtin_unreachable();
-  o1 = o2 = o1;
 }
 
 TRO_SET_DENSITY_TYPE(raw,   tro_true)

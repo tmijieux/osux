@@ -33,4 +33,7 @@ void spc_increase(struct list * spc, int rest);
 
 void spc_print(struct list * spc);
 
+double spc_get_total(struct list * spc);
+double spc_get_nb(struct list * spc, int rest, int (*eq)(int, int));
+
 #endif //SPACING_COUNT_H

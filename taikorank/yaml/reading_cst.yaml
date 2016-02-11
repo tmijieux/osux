@@ -23,23 +23,7 @@ vect_hide_y1: 0.
 vect_hide_x2: 50e+3.
 vect_hide_y2: 100.
 
-### fast
-# x is in ms
-vect_fast_length: 2
-vect_fast_x1: 0.
-vect_fast_y1: 1000.
-vect_fast_x2: 5000.
-vect_fast_y2: 0.
-
-### speed change
-speed_ch_max:     1000000
-speed_ch_time_0:  1000.
-speed_ch_value_0: 0.000000001
-
 ### coeff for star
-star_superpos: 0   
-star_seen:     0.
-star_hide:     0   
-star_hidden:   0.7
-star_speed_ch: 0   
-star_fast:     0.4
+star_seen:     1.
+star_hide:     0.  
+star_hidden:   0.

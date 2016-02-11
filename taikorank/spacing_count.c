@@ -89,3 +89,27 @@ void spc_print(struct list * spc)
   printf("spacing\n");
   list_each(spc, (void (*)(void *))sp_print);
 }
+
+double spc_get_total(struct list * spc)
+{
+  double res = 0;
+  unsigned int len = list_size(spc);
+  for(unsigned int i = 1; i <= len; i++)
+    {
+      struct spacing * sp = list_get(spc, i);
+      res += sp->nb;
+    }
+  return res;
+}
+
+double spc_get_nb(struct list * spc, int rest, int (*eq)(int, int))
+{
+  unsigned int len = list_size(spc);
+  for(unsigned int i = 1; i <= len; i++)
+    {
+      struct spacing * sp = list_get(spc, i);
+      if(eq(sp->rest, rest))
+	return sp->nb;
+    }
+  return 0;
+}

@@ -38,6 +38,8 @@
 #define max(x, y) x > y ? x : y;
 #define RAND_DOUBLE ((double) rand() / RAND_MAX)
 
+typedef int (*mc_cond)(double, double, void *);
+
 static struct yaml_wrap * yw;
 static struct hash_table * ht_cst;
 
@@ -49,10 +51,7 @@ static double tr_monte_carlo(int nb_pts,
 			     double x2, double y2,
 			     int (*is_in)(double, double, void *), 
 			     void * arg);
-/*
-static double tro_speed_change(struct tr_object * obj1,
-				struct tr_object * obj2);
-*/
+
 static void trm_compute_reading_hide(struct tr_map * map);
 
 static void tro_set_reading_star(struct tr_object * obj);
@@ -66,16 +65,10 @@ static int MONTE_CARLO_NB_PT;
 static struct vector * HIDE_VECT;
 static struct vector * SEEN_VECT;
 
-// speed change
-static double SPEED_CH_MAX;
-static double SPEED_CH_TIME_0;
-static double SPEED_CH_VALUE_0;
-
 // coeff for star
 static double READING_STAR_COEFF_SEEN;
 static double READING_STAR_COEFF_HIDE;
 static double READING_STAR_COEFF_HIDDEN;
-static double READING_STAR_COEFF_SPEED_CH;
 static struct vector * SCALE_VECT;
 
 //-----------------------------------------------------
@@ -89,14 +82,9 @@ static void global_init(void)
   HIDE_VECT  = cst_vect(ht_cst, "vect_hide");
   SCALE_VECT = cst_vect(ht_cst, "vect_scale");
 
-  SPEED_CH_MAX     = cst_f(ht_cst, "speed_ch_max");
-  SPEED_CH_TIME_0  = cst_f(ht_cst, "speed_ch_time_0");
-  SPEED_CH_VALUE_0 = cst_f(ht_cst, "speed_ch_value_0");
-
   READING_STAR_COEFF_SEEN       = cst_f(ht_cst, "star_seen");
   READING_STAR_COEFF_HIDE       = cst_f(ht_cst, "star_hide");
   READING_STAR_COEFF_HIDDEN     = cst_f(ht_cst, "star_hidden");   
-  READING_STAR_COEFF_SPEED_CH   = cst_f(ht_cst, "star_speed_ch");
 }
 
 //-----------------------------------------------------
@@ -146,7 +134,6 @@ static int pt_is_in_intersection(double x, double y,
 
 //-----------------------------------------------------
 
-typedef int (*mc_cond)(double, double, void *);
 static double tr_monte_carlo(int nb_pts,
 			     double x1, double y1,
 			     double x2, double y2,
@@ -249,23 +236,6 @@ static double tro_seen(struct tr_object * o, struct tr_object ** t,
 }
 
 //-----------------------------------------------------
-/*
-static double tro_speed_change(struct tr_object * obj1,
-			       struct tr_object * obj2)
-{
-  int rest = obj2->offset - obj1->end_offset;
-  double coeff = obj1->bpm_app / obj2->bpm_app;
-  if (coeff < 1) 
-    coeff = obj2->bpm_app / obj1->bpm_app;
-
-  return (SPEED_CH_MAX *
-	  sqrt(coeff - 1) *
-	  exp(log(SPEED_CH_VALUE_0) *
-	      rest /
-	      SPEED_CH_TIME_0));
-}
-*/
-//-----------------------------------------------------
 //-----------------------------------------------------
 //-----------------------------------------------------
 
@@ -325,24 +295,6 @@ static void trm_compute_reading_hide(struct tr_map * map)
 }
 
 //-----------------------------------------------------
-/*
-static void trm_compute_reading_speed_change(struct tr_map * map)
-{
-  map->object[0].speed_change = 0;
-  for (int i = 1; i < map->nb_object; i++)
-    {
-      struct tr_object * obj = &map->object[i];
-      obj->speed_change = 0;
-      for (int j = 0; j < i; j++)
-	{
-	    obj->speed_change +=
-	      tro_speed_change(&map->object[j],
-			       &map->object[i]);
-	}
-    }
-}
-*/
-//-----------------------------------------------------
 //-----------------------------------------------------
 //-----------------------------------------------------
 
@@ -352,8 +304,7 @@ static void tro_set_reading_star(struct tr_object * obj)
     (SCALE_VECT,
      (READING_STAR_COEFF_SEEN       * obj->seen +
       READING_STAR_COEFF_HIDE       * obj->hide +
-      READING_STAR_COEFF_HIDDEN     * obj->hidden +
-      READING_STAR_COEFF_SPEED_CH   * obj->speed_change));
+      READING_STAR_COEFF_HIDDEN     * obj->hidden));
 }
 
 //-----------------------------------------------------
@@ -378,6 +329,5 @@ void trm_compute_reading(struct tr_map * map)
     }
   
   trm_compute_reading_hide(map);
-  //trm_compute_reading_speed_change(map);
   trm_set_reading_star(map);
 }

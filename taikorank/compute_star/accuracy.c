@@ -42,8 +42,11 @@ static double tro_slow(struct tr_object * obj);
 static void tro_set_slow(struct tr_object * obj);
 static void trm_set_slow(struct tr_map * map);
 
-static void trm_compute_hit_window(struct tr_map * map);
-static void trm_compute_spacing(struct tr_map * map);
+static void tro_set_hit_window(struct tr_object * obj, int ggm_ms[]);
+static void trm_set_hit_window(struct tr_map * map);
+
+static void tro_set_spacing(struct tr_object * objs, int i);
+static void trm_set_spacing(struct tr_map * map);
 
 static void tro_set_accuracy_star(struct tr_object * obj);
 static void trm_set_accuracy_star(struct tr_map * map);
@@ -61,7 +64,8 @@ static void trm_set_accuracy_star(struct tr_map * map);
 
 static struct vector * SLOW_VECT;
 static struct vector * HIT_WINDOW_VECT;
-static struct vector * SPC_VECT;
+static struct vector * SPC_FREQ_VECT;
+static struct vector * SPC_INFLU_VECT;
 
 static double ACCURACY_STAR_COEFF_SLOW;
 static double ACCURACY_STAR_COEFF_HIT_WINDOW;
@@ -74,7 +78,8 @@ static void global_init(void)
 {
   SLOW_VECT       = cst_vect(ht_cst, "vect_slow");
   HIT_WINDOW_VECT = cst_vect(ht_cst, "vect_hit_window");
-  SPC_VECT        = cst_vect(ht_cst, "vect_spacing");
+  SPC_FREQ_VECT   = cst_vect(ht_cst, "vect_spacing_frequency");
+  SPC_INFLU_VECT  = cst_vect(ht_cst, "vect_spacing_influence");
   SCALE_VECT      = cst_vect(ht_cst, "vect_scale");
 
   ACCURACY_STAR_COEFF_SLOW       = cst_f(ht_cst, "star_slow");
@@ -98,7 +103,8 @@ static void ht_cst_exit_accuracy(void)
 {
   yaml2_free(yw);
   vect_free(SLOW_VECT);
-  vect_free(SPC_VECT);
+  vect_free(SPC_FREQ_VECT);
+  vect_free(SPC_INFLU_VECT);
   vect_free(HIT_WINDOW_VECT);
   vect_free(SCALE_VECT);
 }
@@ -126,36 +132,94 @@ static void tro_set_slow(struct tr_object * obj)
 
 //-----------------------------------------------------
 
-static double tro_spacing(struct tr_object * o1, 
-			  struct tr_object * o2)
+static void tro_set_hit_window(struct tr_object * obj, int ggm_ms[])
+{
+  switch(obj->ps)
+    {
+    case GREAT:
+      obj->hit_window = ggm_ms[0];
+      break;
+    case GOOD:
+      obj->hit_window = ggm_ms[1];
+      break;
+    default:
+      obj->hit_window = ggm_ms[2];
+      break;
+    }
+  obj->hit_window = vect_exp(HIT_WINDOW_VECT, obj->hit_window);
+}
+
+//-----------------------------------------------------
+
+static int equal_i(int x, int y)
+{
+  return abs(x - y) < TIME_EQUAL_MS;
+}
+
+//-----------------------------------------------------
+
+static double tro_spacing_influence(struct tr_object * o1, 
+				    struct tr_object * o2)
 {
   int diff = o2->offset - o1->offset;
-  return vect_poly2(SPC_VECT, diff);
+  return vect_poly2(SPC_INFLU_VECT, diff);
+}
+
+//-----------------------------------------------------
+
+static struct list * tro_spacing_init(struct tr_object * objs, int i)
+{
+  struct tr_object * copy = tro_copy(objs, i+1);
+  tro_sort_rest(copy, i+1);
+
+  struct list * l = spc_new();
+  int last = 0;
+  spc_add_f(l, copy[last].rest,
+	    tro_spacing_influence(&copy[last], &objs[i]));
+
+  for(int j = 1; j < i+1; j++)
+    {
+      if(copy[j].ps == MISS)
+	continue;
+      if(equal_i(copy[last].rest, copy[j].rest))
+	spc_increase_f(l, copy[last].rest, 
+		       tro_spacing_influence(&copy[j], &objs[i]));
+      else
+	{
+	  spc_add_f(l, copy[j].rest, 
+		    tro_spacing_influence(&copy[j], &objs[i]));
+	  last = j;
+	}
+    }
+  //spc_print(l);
+  free(copy);
+  return l;
+}
+
+//-----------------------------------------------------
+
+static double tro_spacing(struct tr_object * obj, struct list * spc)
+{
+  double freq = (spc_get_nb(spc, obj->rest, equal_i) / 
+		 spc_get_total(spc));
+  return vect_poly2(SPC_FREQ_VECT, freq);;
 }
 
 //-----------------------------------------------------
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static void trm_compute_hit_window(struct tr_map * map)
+static void trm_set_hit_window(struct tr_map * map)
 {
-  int great_ms = (int)(map->od_mod_mult *
-		       (MS_GREAT - (MS_COEFF_GREAT * map->od)));
-  int good_ms =  (int)(map->od_mod_mult *
-		       (MS_GOOD  - (MS_COEFF_GOOD  * map->od)));
-  int miss_ms =  (int)(map->od_mod_mult *
-		       (MS_MISS  - (MS_COEFF_MISS  * map->od)));
+  int ggm_ms[3];
+  ggm_ms[0] = (int)(map->od_mod_mult *
+		    (MS_GREAT - (MS_COEFF_GREAT * map->od)));
+  ggm_ms[1] = (int)(map->od_mod_mult *
+		    (MS_GOOD  - (MS_COEFF_GOOD  * map->od)));
+  ggm_ms[2] = (int)(map->od_mod_mult *
+		    (MS_MISS  - (MS_COEFF_MISS  * map->od)));
   for(int i = 0; i < map->nb_object; i++)
-    {
-      if(map->object[i].ps == GREAT)
-	map->object[i].hit_window = great_ms;
-      else if(map->object[i].ps == GOOD)
-	map->object[i].hit_window = good_ms;
-      else // also bonus
-	map->object[i].hit_window = miss_ms;
-      map->object[i].hit_window = vect_exp
-	(HIT_WINDOW_VECT, map->object[i].hit_window);
-    }
+    tro_set_hit_window(&map->object[i], ggm_ms);
 }
 
 //-----------------------------------------------------
@@ -168,38 +232,17 @@ static void trm_set_slow(struct tr_map * map)
 
 //-----------------------------------------------------
 
-static int equal_i(int x, int y)
+static void tro_set_spacing(struct tr_object * objs, int i)
 {
-  return abs(x - y) < TIME_EQUAL_MS;
+  struct list * l = tro_spacing_init(objs, i);
+  objs[i].spacing = tro_spacing(&objs[i], l);
+  spc_free(l);
 }
 
-static void trm_compute_spacing(struct tr_map * map)
+static void trm_set_spacing(struct tr_map * map)
 {
   for(int i = 0; i < map->nb_object; i++)
-    {
-      struct tr_object * copy = tro_copy(map->object, i+1);
-      tro_sort_rest(copy, i+1);
-
-      struct list * l = spc_new();
-      int last = 0;
-      spc_add_f(l, copy[last].rest, tro_spacing(&copy[last], &map->object[i]));
-
-      for(int j = 1; j < i+1; j++)
-	{
-	  if(equal_i(copy[last].rest, copy[j].rest))
-	    spc_increase_f(l, copy[last].rest, tro_spacing(&copy[j], &map->object[i]));
-	  else
-	    {
-	      spc_add_f(l, copy[j].rest, tro_spacing(&copy[j], &map->object[i]));
-	      last = j;
-	    }
-	}
-      // TODO: do something
-      //spc_print(l);
-
-      spc_free(l);
-      free(copy);
-    }
+    tro_set_spacing(map->object, i);
 }
 
 //-----------------------------------------------------
@@ -236,8 +279,8 @@ void trm_compute_accuracy(struct tr_map * map)
       return;
     }
 
-  trm_compute_hit_window(map);
-  trm_compute_spacing(map);
+  trm_set_hit_window(map);
+  trm_set_spacing(map);
   trm_set_slow(map);
   trm_set_accuracy_star(map);
 }
