@@ -19,30 +19,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "taiko_ranking_map.h"
 #include "print.h"
 
 #include "check_osu_file.h"
-
-static int compare(char* s, char* t, int length);
-
-//--------------------------------------------------
-
-static int compare(char* s, char* t, int length)
-{
-  for (int i = 0; i < length; ++i)
-    if (s[i] != t[i])
-      return 0;
-  return 1;
-}
-
-//--------------------------------------------------
 
 int check_file(char * file_name)
 {
   // cheking that it's a .osu file
   int length = strlen(file_name);
-  if (!compare(".osu", &file_name[length-4], 5))
+  if (strncmp(".osu", &file_name[length-4], 5) != 0)
     return 2; // that's a hash
   // check that the file existence
   if (access(file_name, F_OK) == -1)

@@ -8,4 +8,4 @@ libtr_star_la_SOURCES = \
 	accuracy.c \
 	final_star.c
 
-libtr_star_la_CFLAGS = -I$(srcdir)/.. $(AM_CFLAGS)
+libtr_star_la_CFLAGS = -Wall -fopenmp -I$(srcdir)/.. $(AM_CFLAGS)

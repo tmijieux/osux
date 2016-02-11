@@ -301,12 +301,12 @@ static void trm_pattern_alloc(struct tr_map * map)
 
 //-----------------------------------------------------
 
-void * trm_compute_pattern(struct tr_map * map)
+void trm_compute_pattern(struct tr_map * map)
 {
   if(!pattern_set)
     {
       tr_error("Unable to compute pattern stars.");
-      return NULL;
+      return;
     }
   
   trm_pattern_alloc(map);
@@ -314,6 +314,4 @@ void * trm_compute_pattern(struct tr_map * map)
   trm_compute_pattern_alt(map);
   
   trm_compute_pattern_star(map);
-
-  return NULL;
 }

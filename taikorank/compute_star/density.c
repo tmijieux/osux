@@ -34,14 +34,18 @@
 static struct yaml_wrap * yw;
 static struct hash_table * ht_cst;
 
-static double tro_coeff_density(struct tr_object * obj);
+static double tro_get_coeff_density(struct tr_object * obj);
 static double tro_density(struct tr_object * obj1,
 			  struct tr_object * obj2);
 
-static void trm_compute_density_raw(struct tr_map * map);
-static void trm_compute_density_color(struct tr_map * map);
+static void tro_set_density_raw(struct tr_object * objs, int i);
+static void trm_set_density_raw(struct tr_map * map);
 
-static void trm_compute_density_star(struct tr_map * map);
+static void tro_set_density_color(struct tr_object * objs, int i);
+static void trm_set_density_color(struct tr_map * map);
+
+static void tro_set_density_star(struct tr_object * obj);
+static void trm_set_density_star(struct tr_map * map);
 
 //--------------------------------------------------
 
@@ -103,7 +107,7 @@ static void ht_cst_exit_density(void)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static double tro_coeff_density(struct tr_object * obj)
+static double tro_get_coeff_density(struct tr_object * obj)
 {
   switch(obj->type)
     {
@@ -127,82 +131,75 @@ static double tro_coeff_density(struct tr_object * obj)
 
 static double tro_density(struct tr_object * obj1, struct tr_object * obj2)
 {
-  int rest = obj2->offset - obj1->end_offset;
-  int length = obj1->end_offset - obj1->offset;
-  double coeff = tro_coeff_density(obj1);
-  double value = vect_exp(DENSITY_VECT,
-			  rest + DENSITY_LENGTH * length);
-  return coeff * value;
+  double length = tro_get_length(obj1);
+  double value  = vect_exp(DENSITY_VECT,
+			   ((double) obj2->rest) + 
+			   DENSITY_LENGTH * length);
+  return tro_get_coeff_density(obj1) * value;
 }
 
 //-----------------------------------------------------
-//-----------------------------------------------------
-//-----------------------------------------------------
 
-static void trm_compute_density_raw(struct tr_map * map)
+#define TRO_SET_DENSITY_TYPE(TYPE, TRO_TEST)			\
+  static void tro_set_density_##TYPE (struct tr_object * objs,	\
+				      int i)			\
+  {								\
+    if(objs[i].ps == MISS)					\
+      {								\
+	objs[i].density_##TYPE = 0;				\
+	return;							\
+      }								\
+								\
+    struct sum * sum = sum_new(i, DEFAULT);			\
+    for(int j = 0; j < i; j++)					\
+      {								\
+	if(objs[j].ps == MISS)					\
+	  continue;						\
+	if(TRO_TEST(&objs[i], &objs[j]))			\
+	  sum_add(sum, tro_density(&objs[j], &objs[i]));	\
+      }								\
+    double density = sum_compute(sum);				\
+    density *= tro_get_coeff_density(&objs[i]);			\
+    objs[i].density_##TYPE = density;				\
+  }								\
+								\
+  static void trm_set_density_##TYPE(struct tr_map * map)	\
+  {								\
+    map->object[0].density_##TYPE = 0;				\
+    for(int i = 1; i < map->nb_object; i++)			\
+      tro_set_density_##TYPE (map->object, i);			\
+  }
+
+static int tro_true(struct tr_object * o1, struct tr_object * o2)
 {
-  map->object[0].density_raw = 0;
-  for(int i = 1; i < map->nb_object; i++)
-    {
-      if(map->object[i].ps == MISS)
-	{
-	  map->object[i].density_raw = 0;
-	  continue;
-	}
-
-      struct sum * sum = sum_new(i, DEFAULT);
-      for(int j = 0; j < i; j++)
-	{
-	  if(map->object[j].ps == MISS)
-	    continue;
-	  sum_add(sum, tro_density(&map->object[j], &map->object[i]));
-	}
-      double density_raw = sum_compute(sum);
-      density_raw *= tro_coeff_density(&map->object[i]);
-      map->object[i].density_raw = density_raw;
-    }
+  return 1;
+  // Unreachable code only to remove warning 
+  __builtin_unreachable();
+  o1 = o2 = o1;
 }
 
+TRO_SET_DENSITY_TYPE(raw,   tro_true)
+TRO_SET_DENSITY_TYPE(color, tro_are_same_density)
+
+//-----------------------------------------------------
+//-----------------------------------------------------
 //-----------------------------------------------------
 
-static void trm_compute_density_color(struct tr_map * map)
+static void tro_set_density_star(struct tr_object * obj)
 {
-  map->object[0].density_color = 0;
-  for(int i = 1; i < map->nb_object; i++)
-    {
-      if(map->object[i].ps == MISS)
-	{
-	  map->object[i].density_color = 0;
-	  continue;
-	}
+  obj->density_star = vect_poly2
+    (SCALE_VECT,
+     (DENSITY_STAR_COEFF_COLOR * obj->density_color +
+      DENSITY_STAR_COEFF_RAW   * obj->density_raw));
 
-      struct sum * sum = sum_new(i, DEFAULT);
-      for(int j = 0; j < i; j++)
-	{
-	  if(map->object[j].ps == MISS)
-	    continue;
-	  if(tro_are_same_density(&map->object[i], &map->object[j]))
-	    sum_add(sum, tro_density(&map->object[j], &map->object[i]));
-	}
-      double density_color = sum_compute(sum);
-      density_color *= tro_coeff_density(&map->object[i]);
-      map->object[i].density_color = density_color;
-    }
 }
 
 //-----------------------------------------------------
-//-----------------------------------------------------
-//-----------------------------------------------------
 
-static void trm_compute_density_star(struct tr_map * map)
+static void trm_set_density_star(struct tr_map * map)
 {
   for(int i = 0; i < map->nb_object; i++)
-    {
-      map->object[i].density_star = vect_poly2
-	(SCALE_VECT,
-	 (DENSITY_STAR_COEFF_COLOR * map->object[i].density_color +
-	  DENSITY_STAR_COEFF_RAW   * map->object[i].density_raw));
-    }
+    tro_set_density_star(&map->object[i]);
   map->density_star = trm_weight_sum_density_star(map, NULL);
 }
 
@@ -210,17 +207,15 @@ static void trm_compute_density_star(struct tr_map * map)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-void * trm_compute_density(struct tr_map * map)
+void trm_compute_density(struct tr_map * map)
 {
   if(!ht_cst)
     {
       tr_error("Unable to compute density stars.");
-      return NULL;
+      return;
     }
   
-  trm_compute_density_raw(map);
-  trm_compute_density_color(map);
-  trm_compute_density_star(map);
-
-  return NULL;
+  trm_set_density_raw(map);
+  trm_set_density_color(map);
+  trm_set_density_star(map);
 }

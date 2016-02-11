@@ -55,7 +55,8 @@ static double tro_speed_change(struct tr_object * obj1,
 */
 static void trm_compute_reading_hide(struct tr_map * map);
 
-static void trm_compute_reading_star(struct tr_map * map);
+static void tro_set_reading_star(struct tr_object * obj);
+static void trm_set_reading_star(struct tr_map * map);
 
 //--------------------------------------------------
 
@@ -126,10 +127,8 @@ static int pt_is_in_tro(double x, double y, struct tr_object * o)
 {
   // y(x) = bpm_app * x + c_app
   // y(x) = bpm_app * x + c_end_app
-  if(o->bpm_app * x + o->c_end_app <= y &&
-     o->bpm_app * x + o->c_app     >= y)
-    return 1;
-  return 0;
+  return (o->bpm_app * x + o->c_end_app <= y &&
+	  o->bpm_app * x + o->c_app     >= y);
 }
 
 static int pt_is_in_intersection(double x, double y,
@@ -193,10 +192,7 @@ static double tro_hide(struct tr_object * o1, struct tr_object * o2)
       tro_table_free(table);
     }
 
-  if(tro_is_big(o1))
-    hide *= TRO_BIG_SIZE;
-  else
-    hide *= TRO_SMALL_SIZE;
+  hide *= tro_get_size(o1);
   return vect_poly2(HIDE_VECT, hide);  
 }
 
@@ -230,10 +226,7 @@ static double tro_seen(struct tr_object * o, struct tr_object ** t,
      -
      (copy->end_offset_dis - copy->end_offset_app) * 
      (copy->bpm_app * copy->end_offset_dis + copy->c_app));
-  if(tro_is_big(copy))
-    seen *= TRO_BIG_SIZE;
-  else
-    seen *= TRO_SMALL_SIZE;
+  seen *= tro_get_size(copy);
 
   // remove others superposition 
   if(done != l)
@@ -252,7 +245,6 @@ static double tro_seen(struct tr_object * o, struct tr_object ** t,
     free(t);
 
   free(copy);
-  //return seen;
   return vect_poly2(SEEN_VECT, seen);
 }
 
@@ -354,17 +346,22 @@ static void trm_compute_reading_speed_change(struct tr_map * map)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static void trm_compute_reading_star(struct tr_map * map)
+static void tro_set_reading_star(struct tr_object * obj)
+{
+  obj->reading_star = vect_poly2
+    (SCALE_VECT,
+     (READING_STAR_COEFF_SEEN       * obj->seen +
+      READING_STAR_COEFF_HIDE       * obj->hide +
+      READING_STAR_COEFF_HIDDEN     * obj->hidden +
+      READING_STAR_COEFF_SPEED_CH   * obj->speed_change));
+}
+
+//-----------------------------------------------------
+
+static void trm_set_reading_star(struct tr_map * map)
 {
   for (int i = 0; i < map->nb_object; i++)
-    {
-      map->object[i].reading_star = vect_poly2
-	(SCALE_VECT,
-	 (READING_STAR_COEFF_SEEN       * map->object[i].seen +
-	  READING_STAR_COEFF_HIDE       * map->object[i].hide +
-	  READING_STAR_COEFF_HIDDEN     * map->object[i].hidden +
-	  READING_STAR_COEFF_SPEED_CH  * map->object[i].speed_change));
-    }
+    tro_set_reading_star(&map->object[i]);
   map->reading_star = trm_weight_sum_reading_star(map, NULL);
 }
 
@@ -372,17 +369,15 @@ static void trm_compute_reading_star(struct tr_map * map)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-void * trm_compute_reading(struct tr_map * map)
+void trm_compute_reading(struct tr_map * map)
 {
   if(!ht_cst)
     {
       tr_error("Unable to compute reading stars.");
-      return NULL;
+      return;
     }
   
   trm_compute_reading_hide(map);
   //trm_compute_reading_speed_change(map);
-  trm_compute_reading_star(map);
-
-  return NULL;
+  trm_set_reading_star(map);
 }

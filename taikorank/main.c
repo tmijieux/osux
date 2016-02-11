@@ -27,9 +27,13 @@
 
 int main(int argc, char* argv[])
 {
-  //set_app_dir(argv[0]);
   int nb_map = 0;
-  char ** arg_map = malloc(sizeof(char*) * argc-1);
+  void (* tr_main)(const struct tr_map *, int);
+  if(OPT_SCORE)
+    tr_main = trs_main;
+  else
+    tr_main = trm_main;
+
   for(int i = 1; i < argc; i++)
     {
       if(argv[i][0] == OPTIONS_PREFIX)
@@ -38,23 +42,8 @@ int main(int argc, char* argv[])
 	}
       else
 	{
-	  arg_map[nb_map] = argv[i];
 	  nb_map++;
-	}
-    }
-  
-  // checking arguments
-  if(nb_map > 0)
-    { 
-      void (* tr_main)(const struct tr_map *, int);
-      if(OPT_SCORE)
-	tr_main = trs_main;
-      else
-	tr_main = trm_main;
-      
-      for(int i = 0; i < nb_map; i++)
-	{
-	  struct tr_map * map = trm_new(arg_map[i]);
+	  struct tr_map * map = trm_new(argv[i]);
 	  if(map == NULL)
 	    continue;
 	  
@@ -62,9 +51,9 @@ int main(int argc, char* argv[])
 	  trm_free(map);
 	}
     }
-  else
+  
+  if(nb_map == 0)
     tr_error("No osu file D:");
-
-  free(arg_map);
+  
   return EXIT_SUCCESS;
 }

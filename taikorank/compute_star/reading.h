@@ -17,6 +17,6 @@
 #ifndef READING_H
 #define READING_H
 
-void * trm_compute_reading (struct tr_map * map);
+void trm_compute_reading (struct tr_map * map);
 
 #endif

@@ -17,15 +17,7 @@
 #ifndef TRO_H
 #define TRO_H
 
-// percentage for equal
-#define EPSILON 1.
-
 #define MSEC_IN_MINUTE 60000.
-
-#define TRO_SMALL_SIZE 0.49        /* slightly smaller to avoid false superposition*/
-#define TRO_BIG_SIZE   0.707106781 /* sqrt(2.) / 2. */
-
-//---------------------------------------------------------------
 
 enum played_state
 {
@@ -52,8 +44,6 @@ struct tr_object
   int end_offset_app;  // printed in reading+, border right appear
   int offset_dis;      // printed in reading,  border right disappear
   int end_offset_dis;  // printed in reading+, border left disappear
-  int visible_time;    // printed in reading, time visible on screen 
-  int invisible_time;  // printed in reading, time not visible on screen (HD -> after the object disappeared)
   double c_app;     // bpm_app * end_offset_app
   double c_end_app; // bpm_app * offset_app
   // ---- pattern data
@@ -93,6 +83,9 @@ void tro_print(struct tr_object * obj, int filter);
 
 double mpb_to_bpm (double mpb);
 int equal (double x, double y);
+
+int tro_get_length(struct tr_object * obj);
+double tro_get_size(struct tr_object * obj);
 
 int tro_is_big (struct tr_object * obj);
 int tro_is_bonus (struct tr_object * obj);

@@ -39,9 +39,14 @@ static struct hash_table * ht_cst;
 
 static double tro_slow(struct tr_object * obj);
 
-static void trm_compute_slow(struct tr_map * map);
+static void tro_set_slow(struct tr_object * obj);
+static void trm_set_slow(struct tr_map * map);
+
 static void trm_compute_hit_window(struct tr_map * map);
 static void trm_compute_spacing(struct tr_map * map);
+
+static void tro_set_accuracy_star(struct tr_object * obj);
+static void trm_set_accuracy_star(struct tr_map * map);
 
 //-----------------------------------------------------
 
@@ -109,6 +114,18 @@ static double tro_slow(struct tr_object * obj)
 
 //-----------------------------------------------------
 
+static void tro_set_slow(struct tr_object * obj)
+{
+  if(obj->ps == MISS)
+    {
+      obj->slow = 0;
+      return;
+    }
+  obj->slow = tro_slow(obj);
+}
+
+//-----------------------------------------------------
+
 static double tro_spacing(struct tr_object * o1, 
 			  struct tr_object * o2)
 {
@@ -143,17 +160,10 @@ static void trm_compute_hit_window(struct tr_map * map)
 
 //-----------------------------------------------------
 
-static void trm_compute_slow(struct tr_map * map)
+static void trm_set_slow(struct tr_map * map)
 {
   for (int i = 0; i < map->nb_object; i++)
-    {
-      if(map->object[i].ps == MISS)
-	{
-	  map->object[i].slow = 0;
-	  continue;
-	}
-      map->object[i].slow = tro_slow(&map->object[i]);
-    }
+    tro_set_slow(&map->object[i]);
 }
 
 //-----------------------------------------------------
@@ -185,7 +195,7 @@ static void trm_compute_spacing(struct tr_map * map)
 	    }
 	}
       // TODO: do something
-      spc_print(l);
+      //spc_print(l);
 
       spc_free(l);
       free(copy);
@@ -196,16 +206,21 @@ static void trm_compute_spacing(struct tr_map * map)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static void trm_compute_accuracy_star(struct tr_map * map)
+static void tro_set_accuracy_star(struct tr_object * obj)
+{
+  obj->accuracy_star = vect_poly2
+    (SCALE_VECT,
+     (ACCURACY_STAR_COEFF_SLOW       * obj->slow +
+      ACCURACY_STAR_COEFF_SPACING    * obj->spacing +
+      ACCURACY_STAR_COEFF_HIT_WINDOW * obj->hit_window));
+}
+
+//-----------------------------------------------------
+
+static void trm_set_accuracy_star(struct tr_map * map)
 {
   for (int i = 0; i < map->nb_object; i++)
-    {
-      map->object[i].accuracy_star = vect_poly2
-	(SCALE_VECT,
-	 (ACCURACY_STAR_COEFF_SLOW * map->object[i].slow +
-	  ACCURACY_STAR_COEFF_SPACING * map->object[i].spacing +
-	  ACCURACY_STAR_COEFF_HIT_WINDOW*map->object[i].hit_window));
-    }
+    tro_set_accuracy_star(&map->object[i]);
   map->accuracy_star = trm_weight_sum_accuracy_star(map, NULL);
 }
 
@@ -213,18 +228,16 @@ static void trm_compute_accuracy_star(struct tr_map * map)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-void * trm_compute_accuracy(struct tr_map * map)
+void trm_compute_accuracy(struct tr_map * map)
 {
   if(!ht_cst)
     {
       tr_error("Unable to compute accuracy stars.");
-      return NULL;
+      return;
     }
 
   trm_compute_hit_window(map);
   trm_compute_spacing(map);
-  trm_compute_slow(map);
-  trm_compute_accuracy_star(map);
-
-  return NULL;
+  trm_set_slow(map);
+  trm_set_accuracy_star(map);
 }

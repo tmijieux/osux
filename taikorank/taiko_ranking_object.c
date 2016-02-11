@@ -24,11 +24,32 @@
 
 #include "taiko_ranking_object.h"
 
+// percentage for equal
+#define EPSILON 1.
+
+#define TRO_SMALL_SIZE 0.49        /* slightly smaller to avoid false superposition*/
+#define TRO_BIG_SIZE   0.707106781 /* sqrt(2.) / 2. */
+
 struct tr_object * tro_copy(const struct tr_object * o, int nb)
 {
   struct tr_object * copy = calloc(sizeof(struct tr_object), nb);
   memcpy(copy, o, sizeof(struct tr_object) * nb);
   return copy;
+}
+
+//--------------------------------------------------
+
+int tro_get_length(struct tr_object * obj)
+{
+  return obj->end_offset - obj->offset;
+}
+
+double tro_get_size(struct tr_object * obj)
+{
+  if(tro_is_big(obj))
+    return TRO_BIG_SIZE;
+  else
+    return TRO_SMALL_SIZE;
 }
 
 //--------------------------------------------------
@@ -190,11 +211,9 @@ void tro_print(struct tr_object * obj, int filter)
 	    obj->density_color,
 	    obj->density_star);
   if((filter & FILTER_READING) != 0)
-    fprintf(OUTPUT_INFO, "%d\t%d\t%d\t%d\t%.0f.\t%.0f\t%.0f.\t%.0f.\t%.0f.\t%.3g\t",
+    fprintf(OUTPUT_INFO, "%d\t%d\t%.0f.\t%.0f\t%.0f.\t%.0f.\t%.0f.\t%.3g\t",
 	    obj->offset_app,
 	    obj->offset_dis,
-	    obj->visible_time,
-	    obj->invisible_time,
 	    obj->seen,
 	    obj->hidden,
 	    obj->hide,
@@ -202,13 +221,11 @@ void tro_print(struct tr_object * obj, int filter)
 	    obj->speed_change,
 	    obj->reading_star);
   if((filter & FILTER_READING_PLUS) != 0)
-    fprintf(OUTPUT_INFO, "%d\t%d\t%d\t%d\t%d\t%d\t%.2g\t%.2g\t%.2g\t%.2g\t%.2g\t%.3g\t",
+    fprintf(OUTPUT_INFO, "%d\t%d\t%d\t%d\t%.2g\t%.2g\t%.2g\t%.2g\t%.2g\t%.3g\t",
 	    obj->offset_app,
 	    obj->end_offset_app,
 	    obj->offset_dis,
 	    obj->end_offset_dis,
-	    obj->visible_time,
-	    obj->invisible_time,
 	    obj->seen,
 	    obj->hidden,
 	    obj->hide,

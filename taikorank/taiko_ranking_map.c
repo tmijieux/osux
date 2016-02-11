@@ -43,17 +43,7 @@
 #include "accuracy.h"
 #include "final_star.h"
 
-//#define ENABLE_STAR_THREAD
-
-#ifdef ENABLE_STAR_THREAD
-  #include <pthread.h>
-  #define NB_STARS_FIELD 4
-#endif
-
 #define BASIC_SV 1.4
-
-// mini patch
-//#define strdup(X) X != NULL ? strdup(X) : NULL
 
 #define TYPE(type)    (type & (~HO_NEWCOMBO) & 0x0F)
 // this get rid of the 'new_combo' flag to get the hit object's type
@@ -120,37 +110,19 @@ void trm_compute_stars(struct tr_map * map)
     trm_apply_mods_FL(map);
   trm_treatment(map);
   
-#ifdef ENABLE_STAR_THREAD
-
-  pthread_t th[NB_STARS_FIELD];
-  int r[NB_STARS_FIELD];
-  typedef void*(*fun)(void*);
-
-  r[0] = pthread_create(&th[0], NULL, (fun)trm_compute_density, map);
-  r[1] = pthread_create(&th[1], NULL, (fun)trm_compute_reading, map);
-  r[2] = pthread_create(&th[2], NULL, (fun)trm_compute_pattern, map);
-  r[3] = pthread_create(&th[3], NULL, (fun)trm_compute_accuracy,map);
-
-  for(int i = 0; i < NB_STARS_FIELD; i++)
-    if(r[i] < 0)
-      tr_error("Thread create %d failed.", i);
-
-  for(int i = 0; i < NB_STARS_FIELD; i++)
-    r[i] = pthread_join(th[i], NULL);
-
-  for(int i = 0; i < NB_STARS_FIELD; i++)
-    if(r[i] < 0)
-      tr_error("Thread join %d failed.", i);
-
-#else
-
-  trm_compute_density(map); 
-  trm_compute_reading(map);
-  trm_compute_pattern(map);
-  trm_compute_accuracy(map);
-
-#endif
-
+  #pragma omp parallel
+  #pragma omp single
+  {
+    #pragma omp task
+    trm_compute_density(map);
+    #pragma omp task
+    trm_compute_reading(map);
+    #pragma omp task
+    trm_compute_pattern(map);
+    #pragma omp task
+    trm_compute_accuracy(map);
+  }
+  
   trm_compute_final_star(map);
 }
 
