@@ -71,17 +71,17 @@ static struct vector * SCALE_VECT;
 
 static void global_init(void)
 {
-  DENSITY_VECT = cst_vect(ht_cst, "vect_density");
-  SCALE_VECT   = cst_vect(ht_cst, "vect_scale");
+    DENSITY_VECT = cst_vect(ht_cst, "vect_density");
+    SCALE_VECT   = cst_vect(ht_cst, "vect_scale");
 
-  DENSITY_NORMAL = cst_f(ht_cst, "density_normal");
-  DENSITY_BIG    = cst_f(ht_cst, "density_big");
-  DENSITY_BONUS  = cst_f(ht_cst, "density_bonus");
+    DENSITY_NORMAL = cst_f(ht_cst, "density_normal");
+    DENSITY_BIG    = cst_f(ht_cst, "density_big");
+    DENSITY_BONUS  = cst_f(ht_cst, "density_bonus");
 
-  DENSITY_LENGTH = cst_f(ht_cst, "density_length");
+    DENSITY_LENGTH = cst_f(ht_cst, "density_length");
   
-  DENSITY_STAR_COEFF_COLOR = cst_f(ht_cst, "star_color");
-  DENSITY_STAR_COEFF_RAW   = cst_f(ht_cst, "star_raw");
+    DENSITY_STAR_COEFF_COLOR = cst_f(ht_cst, "star_color");
+    DENSITY_STAR_COEFF_RAW   = cst_f(ht_cst, "star_raw");
 }
 
 //-----------------------------------------------------
@@ -89,18 +89,18 @@ static void global_init(void)
 __attribute__((constructor))
 static void ht_cst_init_density(void)
 {
-  yw = cst_get_yw(DENSITY_FILE);
-  ht_cst = cst_get_ht(yw);
-  if(ht_cst)
-    global_init();
+    yw = cst_get_yw(DENSITY_FILE);
+    ht_cst = cst_get_ht(yw);
+    if(ht_cst)
+	global_init();
 }
 
 __attribute__((destructor))
 static void ht_cst_exit_density(void)
 {
-  yaml2_free(yw);
-  vect_free(DENSITY_VECT);
-  vect_free(SCALE_VECT);
+    yaml2_free(yw);
+    vect_free(DENSITY_VECT);
+    vect_free(SCALE_VECT);
 }
 
 //-----------------------------------------------------
@@ -109,71 +109,69 @@ static void ht_cst_exit_density(void)
 
 static double tro_get_coeff_density(struct tr_object * obj)
 {
-  switch(obj->type)
-    {
+    switch(obj->type) {
     case 'd':
     case 'k':
-      return DENSITY_NORMAL;
+	return DENSITY_NORMAL;
     case 'D':
     case 'K':
-      return DENSITY_BIG;
+	return DENSITY_BIG;
     case 'r':
     case 'R':
     case 's':
-      return DENSITY_BONUS;
+	return DENSITY_BONUS;
     default:
-      tr_error("Wrong type %c.", obj->type);
-      return -1;
+	tr_error("Wrong type %c.", obj->type);
+	return -1;
     }
 }
 
 //-----------------------------------------------------
 
-static double tro_density(struct tr_object * obj1, struct tr_object * obj2)
+static double tro_density(struct tr_object * obj1, 
+			  struct tr_object * obj2)
 {
-  double length = tro_get_length(obj1);
-  double value  = vect_exp(DENSITY_VECT,
-			   ((double) obj2->rest) + 
-			   DENSITY_LENGTH * length);
-  return tro_get_coeff_density(obj1) * value;
+    double length = tro_get_length(obj1);
+    double value  = vect_exp(DENSITY_VECT,
+			     ((double) obj2->rest) + 
+			     DENSITY_LENGTH * length);
+    return tro_get_coeff_density(obj1) * value;
 }
 
 //-----------------------------------------------------
 
 #define TRO_SET_DENSITY_TYPE(TYPE, TRO_TEST)			\
-  static void tro_set_density_##TYPE (struct tr_object * objs,	\
-				      int i)			\
-  {								\
-    if(objs[i].ps == MISS)					\
-      {								\
-	objs[i].density_##TYPE = 0;				\
-	return;							\
-      }								\
+    static void tro_set_density_##TYPE(struct tr_object * objs,	\
+				       int i)			\
+    {								\
+	if(objs[i].ps == MISS) {				\
+	    objs[i].density_##TYPE = 0;				\
+	    return;						\
+	}							\
 								\
-    struct sum * sum = sum_new(i, DEFAULT);			\
-    for(int j = 0; j < i; j++)					\
-      {								\
-	if(objs[j].ps == MISS)					\
-	  continue;						\
-	if(TRO_TEST(&objs[i], &objs[j]))			\
-	  sum_add(sum, tro_density(&objs[j], &objs[i]));	\
-      }								\
-    double density = sum_compute(sum);				\
-    density *= tro_get_coeff_density(&objs[i]);			\
-    objs[i].density_##TYPE = density;				\
-  }								\
-								\
-  static void trm_set_density_##TYPE(struct tr_map * map)	\
-  {								\
-    map->object[0].density_##TYPE = 0;				\
-    for(int i = 1; i < map->nb_object; i++)			\
-      tro_set_density_##TYPE (map->object, i);			\
-  }
+	struct sum * sum = sum_new(i, DEFAULT);			\
+	for(int j = 0; j < i; j++) {				\
+	    if(objs[j].ps == MISS)				\
+		continue;					\
+	    if(TRO_TEST(&objs[i], &objs[j]))			\
+		sum_add(sum, tro_density(&objs[j], &objs[i]));	\
+	}							\
+	double density = sum_compute(sum);			\
+	density *= tro_get_coeff_density(&objs[i]);		\
+	objs[i].density_##TYPE = density;			\
+    }								\
+    								\
+    static void trm_set_density_##TYPE(struct tr_map * map)	\
+    {								\
+	map->object[0].density_##TYPE = 0;			\
+	for(int i = 1; i < map->nb_object; i++)			\
+	    tro_set_density_##TYPE (map->object, i);		\
+    }
 
 static int tro_true(struct tr_object * o1 __attribute__((unused)),
 		    struct tr_object * o2 __attribute__((unused)))
 {
-  return 1;
+    return 1;
 }
 
 TRO_SET_DENSITY_TYPE(raw,   tro_true)
@@ -185,10 +183,10 @@ TRO_SET_DENSITY_TYPE(color, tro_are_same_density)
 
 static void tro_set_density_star(struct tr_object * obj)
 {
-  obj->density_star = vect_poly2
-    (SCALE_VECT,
-     (DENSITY_STAR_COEFF_COLOR * obj->density_color +
-      DENSITY_STAR_COEFF_RAW   * obj->density_raw));
+    obj->density_star = vect_poly2
+	(SCALE_VECT,
+	 (DENSITY_STAR_COEFF_COLOR * obj->density_color +
+	  DENSITY_STAR_COEFF_RAW   * obj->density_raw));
 
 }
 
@@ -196,9 +194,9 @@ static void tro_set_density_star(struct tr_object * obj)
 
 static void trm_set_density_star(struct tr_map * map)
 {
-  for(int i = 0; i < map->nb_object; i++)
-    tro_set_density_star(&map->object[i]);
-  map->density_star = trm_weight_sum_density_star(map, NULL);
+    for(int i = 0; i < map->nb_object; i++)
+	tro_set_density_star(&map->object[i]);
+    map->density_star = trm_weight_sum_density_star(map, NULL);
 }
 
 //-----------------------------------------------------
@@ -207,13 +205,12 @@ static void trm_set_density_star(struct tr_map * map)
 
 void trm_compute_density(struct tr_map * map)
 {
-  if(!ht_cst)
-    {
-      tr_error("Unable to compute density stars.");
-      return;
+    if(!ht_cst) {
+	tr_error("Unable to compute density stars.");
+	return;
     }
   
-  trm_set_density_raw(map);
-  trm_set_density_color(map);
-  trm_set_density_star(map);
+    trm_set_density_raw(map);
+    trm_set_density_color(map);
+    trm_set_density_star(map);
 }

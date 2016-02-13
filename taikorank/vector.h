@@ -17,10 +17,10 @@
 #define VECTOR_H
 
 struct vector {
-  int len;
-  int max_index;
-  int min_index;
-  double ** t;
+    int len;
+    int max_index;
+    int min_index;
+    double ** t;
 };
 
 struct vector * vect_new(int length, int dim);

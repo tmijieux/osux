@@ -21,42 +21,42 @@
 
 // f(X1) == Y1 && f(X2) == Y2
 // x is the parameter
-#define EXP_2_PT(x, X1, Y1, X2, Y2)			\
-  ((Y1) * exp(((x) - (X1)) /				\
-	      ((X2) - (X1)) *				\
-	      log((Y2) / (Y1))))
+#define EXP_2_PT(x, X1, Y1, X2, Y2)		\
+    ((Y1) * exp(((x) - (X1)) /			\
+		((X2) - (X1)) *			\
+		log((Y2) / (Y1))))
 
 // ---- Inverse ----
 
 // f(X1) == Y1 && f(X2) == Y2
 // x is the parameter
 #define INV_2_PT(x, X1, Y1, X2, Y2)			\
-  (1. /							\
-   ((x) /						\
-    ((Y1) *						\
-     ((X1) +						\
-      (((Y2) - (Y1)) / ((X1) * (Y1) - (X2) * (Y2)))))	\
-    +							\
-    (((Y2) - (Y1)) / ((X1) * (Y1) - (X2) * (Y2)))))
+    (1. /						\
+     ((x) /						\
+      ((Y1) *						\
+       ((X1) +						\
+	(((Y2) - (Y1)) / ((X1) * (Y1) - (X2) * (Y2)))))	\
+      +							\
+      (((Y2) - (Y1)) / ((X1) * (Y1) - (X2) * (Y2)))))
 
 // ---- Lagrangian Interpolation ----
 
 // f(X1) == Y1 && f(X2) == Y2
 // x is the parameter
 #define POLY_2_PT(x, X1, Y1, X2, Y2)				\
-  ((Y1) + ((((Y2) - (Y1)) / ((X1) - (X2)))) * ((X1) - (x)))
+    ((Y1) + ((((Y2) - (Y1)) / ((X1) - (X2)))) * ((X1) - (x)))
 
 // f(X1) == Y1 && f(X2) == Y2 && f(X3) == Y3
 // x is the parameter
-#define POLY_3_PT(x, X1, Y1, X2, Y2, X3, Y3)		\
-  ((Y1) * ((((x) - (X2)) / ((X1) - (X2))) *		\
-	   (((x) - (X3)) / ((X1) - (X3))))		\
-   +							\
-   (Y2) * ((((x) - (X1)) / ((X2) - (X1))) *		\
-	   (((x) - (X3)) / ((X2) - (X3))))		\
-   +							\
-   (Y3) * ((((x) - (X1)) / ((X3) - (X1))) *		\
-	   (((x) - (X2)) / ((X3) - (X2)))))
+#define POLY_3_PT(x, X1, Y1, X2, Y2, X3, Y3)	\
+    ((Y1) * ((((x) - (X2)) / ((X1) - (X2))) *	\
+	     (((x) - (X3)) / ((X1) - (X3))))	\
+     +						\
+     (Y2) * ((((x) - (X1)) / ((X2) - (X1))) *	\
+	     (((x) - (X3)) / ((X2) - (X3))))	\
+     +						\
+     (Y3) * ((((x) - (X1)) / ((X3) - (X1))) *	\
+	     (((x) - (X2)) / ((X3) - (X2)))))
 
 // ---- Scaling ----
 /*
@@ -65,7 +65,7 @@
 // POW is the power used
 // (x == Y) => (f(x) == Y)
 #define SCALING(x, POW, Y)			\
-  (pow(x, POW) / pow(Y, POW - 1))
+(pow(x, POW) / pow(Y, POW - 1))
 // ^ work weirdly
 */
 #endif //INTERPOLATION_H

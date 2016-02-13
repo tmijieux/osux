@@ -24,92 +24,90 @@ static void sp_print(struct spacing * sp);
 
 struct list * spc_new(void)
 {
-  return list_new(0);
+    return list_new(0);
 }
 
 void spc_free(struct list * spc)
 {
-  list_each(spc, free);
-  list_free(spc);
+    list_each(spc, free);
+    list_free(spc);
 }
 
 void spc_add(struct list * spc, int rest)
 {
-  struct spacing * sp = malloc(sizeof(*sp));
-  sp->rest = rest;
-  sp->nb = 1;
-  list_append(spc, sp);
+    struct spacing * sp = malloc(sizeof(*sp));
+    sp->rest = rest;
+    sp->nb = 1;
+    list_append(spc, sp);
 }
 
 void spc_add_f(struct list * spc, int rest, double val)
 {
-  struct spacing * sp = malloc(sizeof(*sp));
-  sp->rest = rest;
-  sp->nb = val;
-  list_append(spc, sp);
+    struct spacing * sp = malloc(sizeof(*sp));
+    sp->rest = rest;
+    sp->nb = val;
+    list_append(spc, sp);
 }
 
 static void sp_if_increase(struct spacing * sp, int * rest)
 {
-  if(sp->rest == *rest)
-    sp->nb++;
+    if(sp->rest == *rest)
+	sp->nb++;
 }
 
 void spc_increase(struct list * spc, int rest)
 {
-  int value = rest;
-  list_each_r(spc, (void (*)(void *, void *))sp_if_increase, &value);
+    int value = rest;
+    list_each_r(spc, (void (*)(void *, void *))sp_if_increase, &value);
 }
 
 static void sp_if_increase_f(struct spacing * sp, int ** data)
 {
-  int rest = *(data[0]);
-  double i = *((double *) (data[1]));
-  if(sp->rest == rest)
-    sp->nb += i;
+    int rest = *(data[0]);
+    double i = *((double *) (data[1]));
+    if(sp->rest == rest)
+	sp->nb += i;
 }
 
 void spc_increase_f(struct list * spc, int rest, double val)
 {
-  int rest_2 = rest;
-  double i = val;
-  void * data[2];
-  data[0] = &rest_2;
-  data[1] = &i;
-  list_each_r(spc, (void (*)(void *, void *))sp_if_increase_f, data);
+    int rest_2 = rest;
+    double i = val;
+    void * data[2];
+    data[0] = &rest_2;
+    data[1] = &i;
+    list_each_r(spc, (void (*)(void *, void *))sp_if_increase_f, data);
 }
 
 static void sp_print(struct spacing * sp)
 {
-  printf("space: %d \t (%g)\n", sp->rest, sp->nb);
+    printf("space: %d \t (%g)\n", sp->rest, sp->nb);
 }
 
 void spc_print(struct list * spc)
 {
-  printf("spacing\n");
-  list_each(spc, (void (*)(void *))sp_print);
+    printf("spacing\n");
+    list_each(spc, (void (*)(void *))sp_print);
 }
 
 double spc_get_total(struct list * spc)
 {
-  double res = 0;
-  unsigned int len = list_size(spc);
-  for(unsigned int i = 1; i <= len; i++)
-    {
-      struct spacing * sp = list_get(spc, i);
-      res += sp->nb;
+    double res = 0;
+    unsigned int len = list_size(spc);
+    for(unsigned int i = 1; i <= len; i++) {
+	struct spacing * sp = list_get(spc, i);
+	res += sp->nb;
     }
-  return res;
+    return res;
 }
 
 double spc_get_nb(struct list * spc, int rest, int (*eq)(int, int))
 {
-  unsigned int len = list_size(spc);
-  for(unsigned int i = 1; i <= len; i++)
-    {
-      struct spacing * sp = list_get(spc, i);
-      if(eq(sp->rest, rest))
-	return sp->nb;
+    unsigned int len = list_size(spc);
+    for(unsigned int i = 1; i <= len; i++) {
+	struct spacing * sp = list_get(spc, i);
+	if(eq(sp->rest, rest))
+	    return sp->nb;
     }
-  return 0;
+    return 0;
 }

@@ -50,157 +50,154 @@ static struct hash_table * ht_opt;
 
 int options_set(int argc, const char ** argv)
 {
-  int (* opt)(int, const char **) = NULL;
-  ht_get_entry(ht_opt, argv[0], &opt);
-  if(opt == NULL)
-    {
-      tr_error("Unknown option: '%s'.", argv[0]);
-      return 0;
+    int (* opt)(int, const char **) = NULL;
+    ht_get_entry(ht_opt, argv[0], &opt);
+    if(opt == NULL) {
+	tr_error("Unknown option: '%s'.", argv[0]);
+	return 0;
     }
-  return opt(argc-1, (const char **) &argv[1]);
+    return opt(argc-1, (const char **) &argv[1]);
 }
 
 //-----------------------------------------------------
 
 #define OPT_ARGC_ERR(argc, n, opt)				\
-  if(argc < n)							\
-    {								\
-      tr_error("Option '%s' need %d arguments.", opt, n);	\
-      return 0; 						\
+    if(argc < n) {						\
+	tr_error("Option '%s' need %d arguments.", opt, n);	\
+	return 0; 						\
     }
 
 static int opt_db(int argc, const char ** argv)
 {
-  OPT_ARGC_ERR(argc, 1, ARG_OPT_DB);
-  OPT_DATABASE = atoi(argv[0]);
-  if(OPT_DATABASE)
-    {
-      ht_conf_db_init();
-      tr_db_init();
+    OPT_ARGC_ERR(argc, 1, ARG_OPT_DB);
+    OPT_DATABASE = atoi(argv[0]);
+    if(OPT_DATABASE) {
+	ht_conf_db_init();
+	tr_db_init();
     }
-  return 1;
+    return 1;
 }
 
 //-----------------------------------------------------
 
 static int opt_score(int argc, const char ** argv)
 {
-  OPT_ARGC_ERR(argc, 1, ARG_OPT_SCORE);
-  OPT_SCORE = atoi(argv[0]);
-  return 1;
+    OPT_ARGC_ERR(argc, 1, ARG_OPT_SCORE);
+    OPT_SCORE = atoi(argv[0]);
+    return 1;
 }
 
 static int opt_score_quick(int argc, const char ** argv)
 {
-  OPT_ARGC_ERR(argc, 1, ARG_OPT_SCORE_QUICK);
-  OPT_SCORE = 1;
-  OPT_SCORE_QUICK = atoi(argv[0]);
-  return 1;
+    OPT_ARGC_ERR(argc, 1, ARG_OPT_SCORE_QUICK);
+    OPT_SCORE = 1;
+    OPT_SCORE_QUICK = atoi(argv[0]);
+    return 1;
 }
 
 static int opt_score_input(int argc, const char ** argv)
 {
-  OPT_ARGC_ERR(argc, 1, ARG_OPT_SCORE_INPUT);
-  OPT_SCORE = 1;
-  OPT_SCORE_INPUT = atoi(argv[0]);
-  return 1;  
+    OPT_ARGC_ERR(argc, 1, ARG_OPT_SCORE_INPUT);
+    OPT_SCORE = 1;
+    OPT_SCORE_INPUT = atoi(argv[0]);
+    return 1;  
 }
 
 static int opt_score_acc(int argc, const char ** argv)
 {
-  OPT_ARGC_ERR(argc, 1, ARG_OPT_SCORE_ACC);
-  OPT_SCORE = 1;
-  OPT_SCORE_ACC = atof(argv[0]) / COEFF_MAX_ACC;
-  OPT_SCORE_INPUT = SCORE_INPUT_ACC;
-  return 1;
+    OPT_ARGC_ERR(argc, 1, ARG_OPT_SCORE_ACC);
+    OPT_SCORE = 1;
+    OPT_SCORE_ACC = atof(argv[0]) / COEFF_MAX_ACC;
+    OPT_SCORE_INPUT = SCORE_INPUT_ACC;
+    return 1;
 }
 
 static int opt_score_ggm(int argc, const char ** argv)
 {
-  OPT_ARGC_ERR(argc, 2, ARG_OPT_SCORE_GGM);
-  OPT_SCORE = 1;
-  OPT_SCORE_GOOD = atoi(argv[0]);
-  OPT_SCORE_MISS = atoi(argv[1]);
-  OPT_SCORE_INPUT = SCORE_INPUT_GGM;
-  return 2;
+    OPT_ARGC_ERR(argc, 2, ARG_OPT_SCORE_GGM);
+    OPT_SCORE = 1;
+    OPT_SCORE_GOOD = atoi(argv[0]);
+    OPT_SCORE_MISS = atoi(argv[1]);
+    OPT_SCORE_INPUT = SCORE_INPUT_GGM;
+    return 2;
 }
 
 //-----------------------------------------------------
 
 static int opt_print_tro(int argc, const char ** argv)
 {
-  OPT_ARGC_ERR(argc, 1, ARG_OPT_PRINT_TRO);
-  OPT_PRINT_TRO = atoi(argv[0]);
-  return 1;
+    OPT_ARGC_ERR(argc, 1, ARG_OPT_PRINT_TRO);
+    OPT_PRINT_TRO = atoi(argv[0]);
+    return 1;
 }
 
 static int opt_print_yaml(int argc, const char ** argv)
 {
-  OPT_ARGC_ERR(argc, 1, ARG_OPT_PRINT_YAML);
-  OPT_PRINT_YAML = atoi(argv[0]);
-  return 1;
+    OPT_ARGC_ERR(argc, 1, ARG_OPT_PRINT_YAML);
+    OPT_PRINT_YAML = atoi(argv[0]);
+    return 1;
 }
 
 static int opt_print_filter(int argc, const char ** argv)
 {
-  OPT_ARGC_ERR(argc, 1, ARG_OPT_PRINT_FILTER);
-  config_set_filter((char *) argv[0]);
-  return 1;
+    OPT_ARGC_ERR(argc, 1, ARG_OPT_PRINT_FILTER);
+    config_set_filter((char *) argv[0]);
+    return 1;
 }
 
 static int opt_print_order(int argc, const char ** argv)
 {
-  OPT_ARGC_ERR(argc, 1, ARG_OPT_PRINT_ORDER);
-  OPT_PRINT_ORDER = (char *) argv[0];
-  return 1;
+    OPT_ARGC_ERR(argc, 1, ARG_OPT_PRINT_ORDER);
+    OPT_PRINT_ORDER = (char *) argv[0];
+    return 1;
 }
 
 //-----------------------------------------------------
 
 static int opt_mods(int argc, const char ** argv)
 {
-  OPT_ARGC_ERR(argc, 1, ARG_OPT_MODS);
-  config_set_mods(argv[0]);
-  return 1;
+    OPT_ARGC_ERR(argc, 1, ARG_OPT_MODS);
+    config_set_mods(argv[0]);
+    return 1;
 }
 
 static int opt_no_bonus(int argc, const char ** argv)
 {
-  OPT_ARGC_ERR(argc, 1, ARG_OPT_NO_BONUS);
-  OPT_NO_BONUS = atoi(argv[0]);
-  return 1;
+    OPT_ARGC_ERR(argc, 1, ARG_OPT_NO_BONUS);
+    OPT_NO_BONUS = atoi(argv[0]);
+    return 1;
 }
 
 static int opt_flat(int argc, const char ** argv)
 {
-  OPT_ARGC_ERR(argc, 1, ARG_OPT_FLAT);
-  OPT_FLAT = atoi(argv[0]);
-  return 1;
+    OPT_ARGC_ERR(argc, 1, ARG_OPT_FLAT);
+    OPT_FLAT = atoi(argv[0]);
+    return 1;
 }
 
 //-----------------------------------------------------
 
 static int opt_odb_build(int argc, const char ** argv)
 {
-  OPT_ARGC_ERR(argc, 1, ARG_OPT_ODB_BUILD);
-  OPT_ODB_BUILD = atoi(argv[0]);
-  if(OPT_ODB_BUILD)
-    config_odb_build(OPT_ODB_SGDIR);
-  return 1;
+    OPT_ARGC_ERR(argc, 1, ARG_OPT_ODB_BUILD);
+    OPT_ODB_BUILD = atoi(argv[0]);
+    if(OPT_ODB_BUILD)
+	config_odb_build(OPT_ODB_SGDIR);
+    return 1;
 }
 
 static int opt_odb_sgdir(int argc, const char ** argv)
 {
-  OPT_ARGC_ERR(argc, 1, ARG_OPT_ODB_SGDIR);
-  OPT_ODB_SGDIR = (char*) argv[0];
-  return 1;
+    OPT_ARGC_ERR(argc, 1, ARG_OPT_ODB_SGDIR);
+    OPT_ODB_SGDIR = (char*) argv[0];
+    return 1;
 }
 
 static int opt_odb_path(int argc, const char ** argv)
 {
-  OPT_ARGC_ERR(argc, 1, ARG_OPT_ODB_PATH);
-  OPT_ODB_PATH = (char*) argv[0];
-  return 1;
+    OPT_ARGC_ERR(argc, 1, ARG_OPT_ODB_PATH);
+    OPT_ODB_PATH = (char*) argv[0];
+    return 1;
 }
 
 //-----------------------------------------------------
@@ -208,32 +205,32 @@ static int opt_odb_path(int argc, const char ** argv)
 __attribute__ ((constructor))
 static void options_init(void)
 {
-  ht_opt = ht_create(0, NULL);
+    ht_opt = ht_create(0, NULL);
   
-  ht_add_entry(ht_opt, ARG_OPT_DB,           opt_db);
+    ht_add_entry(ht_opt, ARG_OPT_DB,           opt_db);
 
-  ht_add_entry(ht_opt, ARG_OPT_MODS,         opt_mods);
-  ht_add_entry(ht_opt, ARG_OPT_NO_BONUS,     opt_no_bonus);
-  ht_add_entry(ht_opt, ARG_OPT_FLAT,         opt_flat);
+    ht_add_entry(ht_opt, ARG_OPT_MODS,         opt_mods);
+    ht_add_entry(ht_opt, ARG_OPT_NO_BONUS,     opt_no_bonus);
+    ht_add_entry(ht_opt, ARG_OPT_FLAT,         opt_flat);
 
-  ht_add_entry(ht_opt, ARG_OPT_SCORE,        opt_score);
-  ht_add_entry(ht_opt, ARG_OPT_SCORE_QUICK,  opt_score_quick);
-  ht_add_entry(ht_opt, ARG_OPT_SCORE_INPUT,  opt_score_input);
-  ht_add_entry(ht_opt, ARG_OPT_SCORE_ACC,    opt_score_acc);
-  ht_add_entry(ht_opt, ARG_OPT_SCORE_GGM,    opt_score_ggm);
+    ht_add_entry(ht_opt, ARG_OPT_SCORE,        opt_score);
+    ht_add_entry(ht_opt, ARG_OPT_SCORE_QUICK,  opt_score_quick);
+    ht_add_entry(ht_opt, ARG_OPT_SCORE_INPUT,  opt_score_input);
+    ht_add_entry(ht_opt, ARG_OPT_SCORE_ACC,    opt_score_acc);
+    ht_add_entry(ht_opt, ARG_OPT_SCORE_GGM,    opt_score_ggm);
 
-  ht_add_entry(ht_opt, ARG_OPT_PRINT_TRO,    opt_print_tro);
-  ht_add_entry(ht_opt, ARG_OPT_PRINT_YAML,   opt_print_yaml);
-  ht_add_entry(ht_opt, ARG_OPT_PRINT_ORDER,  opt_print_order);
-  ht_add_entry(ht_opt, ARG_OPT_PRINT_FILTER, opt_print_filter);
+    ht_add_entry(ht_opt, ARG_OPT_PRINT_TRO,    opt_print_tro);
+    ht_add_entry(ht_opt, ARG_OPT_PRINT_YAML,   opt_print_yaml);
+    ht_add_entry(ht_opt, ARG_OPT_PRINT_ORDER,  opt_print_order);
+    ht_add_entry(ht_opt, ARG_OPT_PRINT_FILTER, opt_print_filter);
 
-  ht_add_entry(ht_opt, ARG_OPT_ODB_BUILD,    opt_odb_build);
-  ht_add_entry(ht_opt, ARG_OPT_ODB_SGDIR,    opt_odb_sgdir);
-  ht_add_entry(ht_opt, ARG_OPT_ODB_PATH,     opt_odb_path);
+    ht_add_entry(ht_opt, ARG_OPT_ODB_BUILD,    opt_odb_build);
+    ht_add_entry(ht_opt, ARG_OPT_ODB_SGDIR,    opt_odb_sgdir);
+    ht_add_entry(ht_opt, ARG_OPT_ODB_PATH,     opt_odb_path);
 }
 
 __attribute__ ((destructor))
 static void options_exit(void)
 {
-  ht_free(ht_opt);
+    ht_free(ht_opt);
 }

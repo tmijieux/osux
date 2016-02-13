@@ -29,72 +29,70 @@
 
 struct yaml_wrap * cst_get_yw(const char * file_name)
 {
-  struct yaml_wrap * yw = NULL;
-  if(0 != yaml2_parse_file(&yw, file_name))
-    tr_error("Unable to parse yaml file '%s'.", file_name);
-  else
-    return yw;
-  return NULL;
+    struct yaml_wrap * yw = NULL;
+    if(0 != yaml2_parse_file(&yw, file_name))
+	tr_error("Unable to parse yaml file '%s'.", file_name);
+    else
+	return yw;
+    return NULL;
 }
 
 struct hash_table * cst_get_ht(struct yaml_wrap * yw)
 {
-  if(yw != NULL)
-    {
-      if(yw->type != YAML_MAPPING)
-	tr_error("Yaml file does not begin with a mapping.");
-      else
-	return yw->content.mapping;
+    if(yw != NULL) {
+	if(yw->type != YAML_MAPPING)
+	    tr_error("Yaml file does not begin with a mapping.");
+	else
+	    return yw->content.mapping;
     }
-  return NULL;
+    return NULL;
 }
 
 //--------------------------------------------------
 
 double cst_f(struct hash_table * ht, const char * key)
 {
-  return atof(cst_str(ht, key));
+    return atof(cst_str(ht, key));
 }
 
 int cst_i(struct hash_table * ht, const char * key)
 {
-  return atoi(cst_str(ht, key));
+    return atoi(cst_str(ht, key));
 }
 
 char * cst_str(struct hash_table * ht, const char * key)
 {
-  struct yaml_wrap * yw = NULL;
-  ht_get_entry(ht, key, &yw);
-  if(yw == NULL)
-    tr_error("Constant '%s' not found.", key);
-  else if(yw->type != YAML_SCALAR) 
-    tr_error("Constant '%s' is not a scalar.", key);
-  else 
-    return yw->content.scalar;
-  return "-1"; 
+    struct yaml_wrap * yw = NULL;
+    ht_get_entry(ht, key, &yw);
+    if(yw == NULL)
+	tr_error("Constant '%s' not found.", key);
+    else if(yw->type != YAML_SCALAR) 
+	tr_error("Constant '%s' is not a scalar.", key);
+    else 
+	return yw->content.scalar;
+    return "-1"; 
 }
 
 //--------------------------------------------------
 
 struct stats * cst_stats(struct hash_table * ht, const char * key)
 {
-  struct stats * stats = calloc(sizeof(*stats), 1);
-  struct yaml_wrap * yw = NULL;
-  ht_get_entry(ht, key, &yw);
-  if(yw == NULL)
-    tr_error("Stats '%s' not found.", key);
-  else if(yw->type != YAML_MAPPING)
-    tr_error("Stats '%s' is not a mapping.", key);
-  else
-    {
-      struct hash_table * ht_stats = yw->content.mapping;
-      stats->scaling = cst_f(ht_stats, "scaling");
-      stats->median  = cst_f(ht_stats, "median");
-      stats->mean    = cst_f(ht_stats, "mean");
-      stats->d1 = cst_f(ht_stats, "d1");
-      stats->d9 = cst_f(ht_stats, "d9");
-      stats->q1 = cst_f(ht_stats, "q1");
-      stats->q3 = cst_f(ht_stats, "q3");
+    struct stats * stats = calloc(sizeof(*stats), 1);
+    struct yaml_wrap * yw = NULL;
+    ht_get_entry(ht, key, &yw);
+    if(yw == NULL) {
+	tr_error("Stats '%s' not found.", key);
+    } else if(yw->type != YAML_MAPPING) {
+	tr_error("Stats '%s' is not a mapping.", key);
+    } else {
+	struct hash_table * ht_stats = yw->content.mapping;
+	stats->scaling = cst_f(ht_stats, "scaling");
+	stats->median  = cst_f(ht_stats, "median");
+	stats->mean    = cst_f(ht_stats, "mean");
+	stats->d1 = cst_f(ht_stats, "d1");
+	stats->d9 = cst_f(ht_stats, "d9");
+	stats->q1 = cst_f(ht_stats, "q1");
+	stats->q3 = cst_f(ht_stats, "q3");
     }
-  return stats;
+    return stats;
 }

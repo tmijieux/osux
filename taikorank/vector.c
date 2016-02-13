@@ -31,72 +31,70 @@
 
 struct vector * vect_new(int length, int dim)
 {
-  if(length < 0)
-    length = 0;
-  struct vector * v = malloc(sizeof(*v));
-  v->len = length;
-  v->t = malloc(sizeof(double *) * v->len);
-  for(int i = 0; i < v->len; i++)
-    v->t[i] = malloc(sizeof(double) * dim);
-  return v;
+    if(length < 0)
+	length = 0;
+    struct vector * v = malloc(sizeof(*v));
+    v->len = length;
+    v->t = malloc(sizeof(double *) * v->len);
+    for(int i = 0; i < v->len; i++)
+	v->t[i] = malloc(sizeof(double) * dim);
+    return v;
 }
 
 //--------------------------------------------------
 
 void vect_free(struct vector * v)
 {
-  if(v == NULL)
-    return;
-  for(int i = 0; i < v->len; i++)
-    free(v->t[i]);
-  free(v->t);
-  free(v);
+    if(v == NULL)
+	return;
+    for(int i = 0; i < v->len; i++)
+	free(v->t[i]);
+    free(v->t);
+    free(v);
 }
 
 //--------------------------------------------------
 
 struct vector * cst_vect(struct hash_table * ht, const char * key)
 {
-  char * s = NULL;
-  asprintf(&s, "%s_length", key);
-  struct vector * v = vect_new(cst_i(ht, s), CST_VECT_DIM);
-  free(s);
-  v->max_index = 0;
-  v->min_index = 0;
-  for(int i = 0; i < v->len; i++)
-    {
-      for(int j = 0; j < v->len; j++)
-	{
-	  asprintf(&s, "%s_%c%d", key, 'x'+j, i+1);
-	  v->t[i][j] = cst_f(ht, s);
-	  free(s);
+    char * s = NULL;
+    asprintf(&s, "%s_length", key);
+    struct vector * v = vect_new(cst_i(ht, s), CST_VECT_DIM);
+    free(s);
+    v->max_index = 0;
+    v->min_index = 0;
+    for(int i = 0; i < v->len; i++) {
+	for(int j = 0; j < v->len; j++) {
+	    asprintf(&s, "%s_%c%d", key, 'x'+j, i+1);
+	    v->t[i][j] = cst_f(ht, s);
+	    free(s);
 	}
-      if(v->t[i][0] > v->t[v->max_index][0])
-	v->max_index = i;
-      if(v->t[i][0] < v->t[v->min_index][0])
-	v->min_index = i;
+	if(v->t[i][0] > v->t[v->max_index][0])
+	    v->max_index = i;
+	if(v->t[i][0] < v->t[v->min_index][0])
+	    v->min_index = i;
     }
-  return v;
+    return v;
 }
 
 //--------------------------------------------------
 
 double vect_exp(struct vector * v, double x)
 {
-  return EXP_2_PT(x, 
-		  v->t[0][0], v->t[0][1],
-		  v->t[1][0], v->t[1][1]);
+    return EXP_2_PT(x, 
+		    v->t[0][0], v->t[0][1],
+		    v->t[1][0], v->t[1][1]);
 }
 
 double vect_poly2(struct vector * v, double x)
 {
-  if(x > v->t[v->max_index][0])
-    return v->t[v->max_index][1];
-  if(x < v->t[v->min_index][0])
-    return v->t[v->min_index][1];
+    if(x > v->t[v->max_index][0])
+	return v->t[v->max_index][1];
+    if(x < v->t[v->min_index][0])
+	return v->t[v->min_index][1];
 
-  return POLY_2_PT(x, 
-		   v->t[0][0], v->t[0][1],
-		   v->t[1][0], v->t[1][1]);
+    return POLY_2_PT(x, 
+		     v->t[0][0], v->t[0][1],
+		     v->t[1][0], v->t[1][1]);
 }
 

@@ -17,13 +17,13 @@
 #define CONFIG_H
 
 enum score_input {
-  SCORE_INPUT_ACC = 0,
-  SCORE_INPUT_GGM = 1
+    SCORE_INPUT_ACC = 0,
+    SCORE_INPUT_GGM = 1
 };
 
 enum score_method {
-  SCORE_INPUT_HARDEST   = 0,
-  SCORE_INPUT_INFLUENCE = 1
+    SCORE_INPUT_HARDEST   = 0,
+    SCORE_INPUT_INFLUENCE = 1
 };
 
 extern int OPT_DATABASE;

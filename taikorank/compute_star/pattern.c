@@ -35,7 +35,7 @@
 
 struct pattern
 {
-  double * d;
+    double * d;
 };
 
 static struct yaml_wrap * yw;
@@ -78,28 +78,27 @@ static int MAX_PATTERN_LENGTH;
 static int LENGTH_PATTERN_USED;
 
 #define cst_assert(COND, MSG)			\
-  if(!(COND))					\
-    {						\
-      tr_error(MSG);				\
-      pattern_set = 0;				\
-      return;					\
+    if(!(COND)) {				\
+	tr_error(MSG);				\
+	pattern_set = 0;			\
+	return;					\
     }
 
 //-----------------------------------------------------
 
 static void global_init(void)
 {
-  SINGLETAP_VECT = cst_vect(ht_cst, "vect_singletap");
-  SCALE_VECT     = cst_vect(ht_cst, "vect_scale");
+    SINGLETAP_VECT = cst_vect(ht_cst, "vect_singletap");
+    SCALE_VECT     = cst_vect(ht_cst, "vect_scale");
 
-  PROBA_START = cst_f(ht_cst, "proba_start");
-  PROBA_END   = cst_f(ht_cst, "proba_end");
-  PROBA_STEP  = cst_f(ht_cst, "proba_step");
+    PROBA_START = cst_f(ht_cst, "proba_start");
+    PROBA_END   = cst_f(ht_cst, "proba_end");
+    PROBA_STEP  = cst_f(ht_cst, "proba_step");
 
-  MAX_PATTERN_LENGTH = cst_i(ht_cst, "max_pattern_length");
-  LENGTH_PATTERN_USED = cst_i(ht_cst, "length_pattern_used");
+    MAX_PATTERN_LENGTH = cst_i(ht_cst, "max_pattern_length");
+    LENGTH_PATTERN_USED = cst_i(ht_cst, "length_pattern_used");
     
-  PATTERN_STAR_COEFF_ALT = cst_f(ht_cst, "star_alt");
+    PATTERN_STAR_COEFF_ALT = cst_f(ht_cst, "star_alt");
 }
 
 //-----------------------------------------------------
@@ -107,70 +106,66 @@ static void global_init(void)
 __attribute__((constructor))
 static void ht_cst_init_pattern(void)
 {
-  yw = cst_get_yw(PATTERN_FILE);
-  ht_cst = cst_get_ht(yw);
-  if(ht_cst)
-    {
-      global_init();
-      pattern_set = 1;
-      ht_pattern_init();
+    yw = cst_get_yw(PATTERN_FILE);
+    ht_cst = cst_get_ht(yw);
+    if(ht_cst) {
+	global_init();
+	pattern_set = 1;
+	ht_pattern_init();
     }
-  else
-    pattern_set = 0;
+    else
+	pattern_set = 0;
 }
 
 //-----------------------------------------------------
 
 static void ht_pattern_init(void)
 {  
-  ht_pattern = ht_create(0, NULL);
+    ht_pattern = ht_create(0, NULL);
 
-  struct yaml_wrap * yw_l = NULL;
-  ht_get_entry(ht_cst, "patterns", &yw_l);
-  cst_assert(yw_l != NULL, "Pattern list not found.");
-  cst_assert(yw_l->type == YAML_SEQUENCE,
-	     "Pattern list is not a list.");
+    struct yaml_wrap * yw_l = NULL;
+    ht_get_entry(ht_cst, "patterns", &yw_l);
+    cst_assert(yw_l != NULL, "Pattern list not found.");
+    cst_assert(yw_l->type == YAML_SEQUENCE,
+	       "Pattern list is not a list.");
   
-  struct list * pattern_l = yw_l->content.sequence;
-  for(unsigned int i = 1; i <= list_size(pattern_l); i++)
-    {
-      struct yaml_wrap * yw_subl = list_get(pattern_l, i);
-      cst_assert(yw_subl->type == YAML_SEQUENCE,
-		 "Pattern structure is not a list.");
-      struct list * pattern_data = yw_subl->content.sequence;
+    struct list * pattern_l = yw_l->content.sequence;
+    for(unsigned int i = 1; i <= list_size(pattern_l); i++) {
+	struct yaml_wrap * yw_subl = list_get(pattern_l, i);
+	cst_assert(yw_subl->type == YAML_SEQUENCE,
+		   "Pattern structure is not a list.");
+	struct list * pattern_data = yw_subl->content.sequence;
 
-      cst_assert((unsigned int) LENGTH_PATTERN_USED + 1 == 
-		 list_size(pattern_data),
-		 "Pattern structure does not have the right size.");
+	cst_assert((unsigned int) LENGTH_PATTERN_USED + 1 == 
+		   list_size(pattern_data),
+		   "Pattern structure does not have the right size.");
       
-      struct yaml_wrap * yw_name = list_get(pattern_data, 1);
-      cst_assert(yw_name->type == YAML_SCALAR,
-		 "Pattern name is not a scalar.");
-      char * name = yw_name->content.scalar;
+	struct yaml_wrap * yw_name = list_get(pattern_data, 1);
+	cst_assert(yw_name->type == YAML_SCALAR,
+		   "Pattern name is not a scalar.");
+	char * name = yw_name->content.scalar;
 
-      struct pattern * p = calloc(sizeof(*p), 1);
-      p->d = calloc(sizeof(double), LENGTH_PATTERN_USED);
+	struct pattern * p = calloc(sizeof(*p), 1);
+	p->d = calloc(sizeof(double), LENGTH_PATTERN_USED);
       
-      for(unsigned int j = 2; j <= list_size(pattern_data); j++)
-	{
-	  struct yaml_wrap * yw_s = list_get(pattern_data, j);
-	  cst_assert(yw_s->type == YAML_SCALAR,
-		     "Pattern value is not a scalar.");
-	  p->d[j-2] = atof(yw_s->content.scalar);
+	for(unsigned int j = 2; j <= list_size(pattern_data); j++) {
+	    struct yaml_wrap * yw_s = list_get(pattern_data, j);
+	    cst_assert(yw_s->type == YAML_SCALAR,
+		       "Pattern value is not a scalar.");
+	    p->d[j-2] = atof(yw_s->content.scalar);
 	}
-      ht_add_entry(ht_pattern, name, p);
+	ht_add_entry(ht_pattern, name, p);
     }
 }
   
 //-----------------------------------------------------
 
-static void remove_pattern(
-    const char * s __attribute__((unused)),
-    void * p,
-    void * null  __attribute__((unused)))
+static void remove_pattern(const char * s __attribute__((unused)),
+			   void * p,
+			   void * null  __attribute__((unused)))
 {
-  free(((struct pattern *) p)->d);
-  free(p);
+    free(((struct pattern *) p)->d);
+    free(p);
 }
 
 //--------------------------------------------------
@@ -178,11 +173,11 @@ static void remove_pattern(
 __attribute__((destructor))
 static void ht_cst_exit_pattern(void)
 {
-  yaml2_free(yw);
-  ht_for_each(ht_pattern, remove_pattern, NULL);
-  ht_free(ht_pattern);
-  vect_free(SCALE_VECT);
-  vect_free(SINGLETAP_VECT);
+    yaml2_free(yw);
+    ht_for_each(ht_pattern, remove_pattern, NULL);
+    ht_free(ht_pattern);
+    vect_free(SCALE_VECT);
+    vect_free(SINGLETAP_VECT);
 }
 
 //-----------------------------------------------------
@@ -191,7 +186,7 @@ static void ht_cst_exit_pattern(void)
 
 static double tro_singletap_proba(struct tr_object * obj)
 {
-  return vect_poly2(SINGLETAP_VECT, obj->rest);
+    return vect_poly2(SINGLETAP_VECT, obj->rest);
 }
 
 //-----------------------------------------------------
@@ -199,39 +194,35 @@ static double tro_singletap_proba(struct tr_object * obj)
 static struct pattern * trm_get_pattern(struct tr_map * map,
 					int i, double proba_alt)
 {
-  char * s = calloc(sizeof(char), MAX_PATTERN_LENGTH + 1);
-  for (int j = 0; (j < MAX_PATTERN_LENGTH &&
-		   i + j < map->nb_object); j++)
-    {
-      if (tro_is_bonus(&map->object[i+j]) ||
-	  map->object[i+j].ps == MISS)
-	{
-	  s[j] = 0;
-	  break; // continue ? for bonus ?
+    char * s = calloc(sizeof(char), MAX_PATTERN_LENGTH + 1);
+    for (int j = 0; (j < MAX_PATTERN_LENGTH &&
+		     i + j < map->nb_object); j++) {
+	if (tro_is_bonus(&map->object[i+j]) ||
+	    map->object[i+j].ps == MISS) {
+	    s[j] = 0;
+	    break; // continue ? for bonus ?
 	}
-      else if (tro_is_don(&map->object[i+j]))
-	s[j] = 'd';
-      else // if (tro_is_kat(&map->object[i+j]))
-	s[j] = 'k';
+	else if (tro_is_don(&map->object[i+j]))
+	    s[j] = 'd';
+	else // if (tro_is_kat(&map->object[i+j]))
+	    s[j] = 'k';
       
-      if (tro_is_big(&map->object[i+j]) ||
-	  map->object[i+j].proba > proba_alt)
-	{
-	  s[j+1] = 0;
-	  break;
+	if (tro_is_big(&map->object[i+j]) ||
+	    map->object[i+j].proba > proba_alt) {
+	    s[j+1] = 0;
+	    break;
 	}
     }
 
-  struct pattern * p = NULL;
-  int ret = ht_get_entry(ht_pattern, s, &p);
-  if (ret != 0) // when s[0] = 0 (bonus) or not found (error)
-    {
-      if (s[0] != 0)
-	tr_error("Could not find pattern :%s", s);
-      p = NULL;
+    struct pattern * p = NULL;
+    int ret = ht_get_entry(ht_pattern, s, &p);
+    if (ret != 0) { // when s[0] = 0 (bonus) or not found (error)
+	if (s[0] != 0)
+	    tr_error("Could not find pattern :%s", s);
+	p = NULL;
     }
-  free(s);
-  return p;
+    free(s);
+    return p;
 }
 
 //-----------------------------------------------------
@@ -240,9 +231,8 @@ static struct pattern * trm_get_pattern(struct tr_map * map,
 
 static void trm_compute_pattern_proba(struct tr_map * map)
 {
-  for(int i = 0; i < map->nb_object; i++)
-    {
-      map->object[i].proba = tro_singletap_proba(&map->object[i]);
+    for(int i = 0; i < map->nb_object; i++) {
+	map->object[i].proba = tro_singletap_proba(&map->object[i]);
     }
 }
 
@@ -250,18 +240,16 @@ static void trm_compute_pattern_proba(struct tr_map * map)
 
 static void trm_compute_pattern_alt(struct tr_map * map)
 {
-  for(int pro = PROBA_START; pro <= PROBA_END; pro += PROBA_STEP)
-    {
-      double pro_p = pro / 100.;
-      for(int i = 0; i < map->nb_object; i++)
-	{
-	  struct pattern * p = trm_get_pattern(map, i, pro_p);
-	  if (p == NULL)
-	    continue;
+    for(int pro = PROBA_START; pro <= PROBA_END; pro += PROBA_STEP) {
+	double pro_p = pro / 100.;
+	for(int i = 0; i < map->nb_object; i++) {
+	    struct pattern * p = trm_get_pattern(map, i, pro_p);
+	    if (p == NULL)
+		continue;
 	  
-	  for (int j = 0; (j < LENGTH_PATTERN_USED &&
-			   i + j < map->nb_object); j++)
-	    map->object[i+j].alt[j] += pro_p * p->d[j];
+	    for (int j = 0; (j < LENGTH_PATTERN_USED &&
+			     i + j < map->nb_object); j++)
+		map->object[i+j].alt[j] += pro_p * p->d[j];
 	}
     }
 }
@@ -272,17 +260,15 @@ static void trm_compute_pattern_alt(struct tr_map * map)
 
 static void trm_compute_pattern_star(struct tr_map * map)
 {
-  for (int i = 0; i < map->nb_object; i++)
-    {
-      map->object[i].pattern_star = 0;
-      for (int j = 0; j < LENGTH_PATTERN_USED; j++)
-	{
-	  map->object[i].pattern_star += vect_poly2
-	    (SCALE_VECT,
-	     PATTERN_STAR_COEFF_ALT * map->object[i].alt[j]);
+    for (int i = 0; i < map->nb_object; i++) {
+	map->object[i].pattern_star = 0;
+	for (int j = 0; j < LENGTH_PATTERN_USED; j++) {
+	    map->object[i].pattern_star += vect_poly2
+		(SCALE_VECT,
+		 PATTERN_STAR_COEFF_ALT * map->object[i].alt[j]);
 	}
     }
-  map->pattern_star = trm_weight_sum_pattern_star(map, NULL);
+    map->pattern_star = trm_weight_sum_pattern_star(map, NULL);
 }
 
 //-----------------------------------------------------
@@ -291,11 +277,11 @@ static void trm_compute_pattern_star(struct tr_map * map)
 
 static void trm_pattern_alloc(struct tr_map * map)
 {
-  for (int i = 0; i < map->nb_object; i++)
-    { // end with negative value
-      map->object[i].alt =
-	calloc(sizeof(double), LENGTH_PATTERN_USED+1);
-      map->object[i].alt[LENGTH_PATTERN_USED] = -1;
+    for (int i = 0; i < map->nb_object; i++) { 
+	// end with negative value
+	map->object[i].alt =
+	    calloc(sizeof(double), LENGTH_PATTERN_USED+1);
+	map->object[i].alt[LENGTH_PATTERN_USED] = -1;
     }  
 }
 
@@ -303,15 +289,14 @@ static void trm_pattern_alloc(struct tr_map * map)
 
 void trm_compute_pattern(struct tr_map * map)
 {
-  if(!pattern_set)
-    {
-      tr_error("Unable to compute pattern stars.");
-      return;
+    if(!pattern_set) {
+	tr_error("Unable to compute pattern stars.");
+	return;
     }
   
-  trm_pattern_alloc(map);
-  trm_compute_pattern_proba(map);
-  trm_compute_pattern_alt(map);
+    trm_pattern_alloc(map);
+    trm_compute_pattern_proba(map);
+    trm_compute_pattern_alt(map);
   
-  trm_compute_pattern_star(map);
+    trm_compute_pattern_star(map);
 }

@@ -19,8 +19,8 @@
 struct list;
 
 struct spacing {
-  int rest;
-  double nb;
+    int rest;
+    double nb;
 };
 
 struct list * spc_new(void);

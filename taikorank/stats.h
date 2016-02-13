@@ -19,33 +19,33 @@
 
 //-----------------------------------------------------
 
-#define TRM_SORT_HEADER(FIELD)				\
-  void tro_sort_##FIELD (struct tr_object * o, int nb);	\
-  void trm_sort_##FIELD (struct tr_map * map);
+#define TRM_SORT_HEADER(FIELD)					\
+    void tro_sort_##FIELD (struct tr_object * o, int nb);	\
+    void trm_sort_##FIELD (struct tr_map * map);
 
 #define TRM_STATS_HEADER(FIELD)					\
-  TRM_SORT_HEADER(FIELD)					\
-  double trm_mean_##FIELD (struct tr_map * map);		\
-  struct stats * trm_stats_##FIELD (struct tr_map * map);	\
-  double trm_weight_sum_##FIELD (struct tr_map * map,		\
-				 double (*weight)(int,double));
+    TRM_SORT_HEADER(FIELD)					\
+    double trm_mean_##FIELD (struct tr_map * map);		\
+    struct stats * trm_stats_##FIELD (struct tr_map * map);	\
+    double trm_weight_sum_##FIELD(struct tr_map * map,		\
+				  double(*weight)(int,double));
 
 //-----------------------------------------------------
 
 struct stats
 {
-  double min;
-  double max;
-  double spread;
+    double min;
+    double max;
+    double spread;
   
-  double mean;
-  double d1;
-  double q1;
-  double median;
-  double q3;
-  double d9;
+    double mean;
+    double d1;
+    double q1;
+    double median;
+    double q3;
+    double d9;
 
-  double scaling;
+    double scaling;
 };
 
 //-----------------------------------------------------

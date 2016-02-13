@@ -25,15 +25,14 @@
 
 int check_file(char * file_name)
 {
-  // cheking that it's a .osu file
-  int length = strlen(file_name);
-  if (strncmp(".osu", &file_name[length-4], 5) != 0)
-    return 2; // that's a hash
-  // check that the file existence
-  if (access(file_name, F_OK) == -1)
-    {
-      tr_error("%s: Please let me open your file :S", file_name);
-      return 0;
+    // cheking that it's a .osu file
+    int length = strlen(file_name);
+    if (strncmp(".osu", &file_name[length-4], 5) != 0)
+	return 2; // that's a hash
+    // check that the file existence
+    if (access(file_name, F_OK) == -1) {
+	tr_error("%s: Please let me open your file :S", file_name);
+	return 0;
     }
-  return 1;
+    return 1;
 }

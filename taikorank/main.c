@@ -27,33 +27,29 @@
 
 int main(int argc, char* argv[])
 {
-  int nb_map = 0;
-  void (* tr_main)(const struct tr_map *, int);
-  if(OPT_SCORE)
-    tr_main = trs_main;
-  else
-    tr_main = trm_main;
+    int nb_map = 0;
+    void (* tr_main)(const struct tr_map *, int);
+    if(OPT_SCORE)
+	tr_main = trs_main;
+    else
+	tr_main = trm_main;
 
-  for(int i = 1; i < argc; i++)
-    {
-      if(argv[i][0] == OPTIONS_PREFIX)
-	{
-	  i += options_set(argc - i, (const char **) &argv[i]);
-	}
-      else
-	{
-	  nb_map++;
-	  struct tr_map * map = trm_new(argv[i]);
-	  if(map == NULL)
-	    continue;
-	  
-	  tr_main(map, OPT_MODS);
-	  trm_free(map);
+    for(int i = 1; i < argc; i++) {
+	if(argv[i][0] == OPTIONS_PREFIX) {
+	    i += options_set(argc - i, (const char **) &argv[i]);
+	} else {
+	    nb_map++;
+	    struct tr_map * map = trm_new(argv[i]);
+	    if(map == NULL)
+		continue;
+	    
+	    tr_main(map, OPT_MODS);
+	    trm_free(map);
 	}
     }
   
-  if(nb_map == 0)
-    tr_error("No osu file D:");
-  
-  return EXIT_SUCCESS;
+    if(nb_map == 0)
+	tr_error("No osu file D:");
+    
+    return EXIT_SUCCESS;
 }

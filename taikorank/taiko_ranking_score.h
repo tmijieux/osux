@@ -21,17 +21,17 @@ struct tr_map;
 
 struct tr_score
 {
-  // if need to restart
-  const struct tr_map * origin; // map 100% acc
+    // if need to restart
+    const struct tr_map * origin; // map 100% acc
 
-  // values to get at the end
-  double acc; // acc
-  int great;
-  int good;
-  int miss;
+    // values to get at the end
+    double acc; // acc
+    int great;
+    int good;
+    int miss;
   
-  // working:
-  struct tr_map * map; // current map
+    // working:
+    struct tr_map * map; // current map
 };
 
 void trs_main(const struct tr_map * map, int mods);

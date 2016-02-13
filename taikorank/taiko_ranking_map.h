@@ -25,44 +25,44 @@ enum played_state;
 
 struct tr_map
 {
-  // Name info
-  char * title;
-  char * artist;
-  char * source;
-  char * creator;
-  char * diff;
+    // Name info
+    char * title;
+    char * artist;
+    char * source;
+    char * creator;
+    char * diff;
 
-  char * title_uni;
-  char * artist_uni;
-  unsigned int bms_osu_ID;
-  unsigned int diff_osu_ID;
-  char * hash;
+    char * title_uni;
+    char * artist_uni;
+    unsigned int bms_osu_ID;
+    unsigned int diff_osu_ID;
+    char * hash;
   
-  // Song Info
-  int mods;
-  double od;
-  double od_mod_mult; // DT and HT...
+    // Song Info
+    int mods;
+    double od;
+    double od_mod_mult; // DT and HT...
   
-  // Taiko objects
-  int nb_object;
-  struct tr_object * object; 
+    // Taiko objects
+    int nb_object;
+    struct tr_object * object; 
   
-  // stars *-*
-  double density_star;
-  double reading_star;
-  double pattern_star;
-  double accuracy_star;
-  double final_star;
+    // stars *-*
+    double density_star;
+    double reading_star;
+    double pattern_star;
+    double accuracy_star;
+    double final_star;
 
-  // acc
-  double acc;
-  int combo;
-  int max_combo; 
+    // acc
+    double acc;
+    int combo;
+    int max_combo; 
 
-  int great;
-  int good;
-  int miss;
-  int bonus;
+    int great;
+    int good;
+    int miss;
+    int bonus;
 };
 
 //----------------------------------------

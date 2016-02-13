@@ -46,54 +46,51 @@ static struct vector * SCALE_VECT;
 
 static void global_init(void)
 {
-  SCALE_VECT = cst_vect(ht_cst, "vect_scale");
+    SCALE_VECT = cst_vect(ht_cst, "vect_scale");
 }
 
 __attribute__((constructor))
 static void ht_cst_init_final(void)
 {
-  yw = cst_get_yw(FINAL_FILE);
-  ht_cst = cst_get_ht(yw);
-  if(ht_cst)
-    global_init();
+    yw = cst_get_yw(FINAL_FILE);
+    ht_cst = cst_get_ht(yw);
+    if(ht_cst)
+	global_init();
 }
 
 __attribute__((destructor))
 static void ht_cst_exit_final(void)
 {
-  yaml2_free(yw);
-  vect_free(SCALE_VECT);
+    yaml2_free(yw);
+    vect_free(SCALE_VECT);
 }
 
 //-----------------------------------------------------
 
 void trm_compute_final_star(struct tr_map * map)
 {
-  if(!ht_cst)
-    {
-      tr_error("Unable to compute final stars.");
-      return;
+    if(!ht_cst) {
+	tr_error("Unable to compute final stars.");
+	return;
     }
   
-  #pragma omp parallel
-  #pragma omp for
-  for(int i = 0; i < map->nb_object; i++)
-    {
-      if(map->object[i].ps != GREAT)
-	{
-	  map->object[i].density_star = 0;
-	  map->object[i].reading_star = 0;
-	  map->object[i].pattern_star = 0;
-	  map->object[i].accuracy_star = 0;
-	  map->object[i].final_star = 0;
-	  continue;
+#pragma omp parallel
+#pragma omp for
+    for(int i = 0; i < map->nb_object; i++) {
+	if(map->object[i].ps != GREAT) {
+	    map->object[i].density_star = 0;
+	    map->object[i].reading_star = 0;
+	    map->object[i].pattern_star = 0;
+	    map->object[i].accuracy_star = 0;
+	    map->object[i].final_star = 0;
+	    continue;
 	}
-      map->object[i].final_star = 
-	vect_poly2(SCALE_VECT,
-		   map->object[i].density_star *
-		   map->object[i].reading_star *
-		   map->object[i].pattern_star * 
-		   map->object[i].accuracy_star);
+	map->object[i].final_star = 
+	    vect_poly2(SCALE_VECT,
+		       map->object[i].density_star *
+		       map->object[i].reading_star *
+		       map->object[i].pattern_star * 
+		       map->object[i].accuracy_star);
     }
-  map->final_star = trm_weight_sum_final_star(map, NULL);
+    map->final_star = trm_weight_sum_final_star(map, NULL);
 }
