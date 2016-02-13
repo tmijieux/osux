@@ -234,7 +234,7 @@ static struct tro_table * tro_get_obj_hiding(struct tr_object * objs,
     // list object that hide the i-th
     struct tro_table * obj_h = tro_table_new(i);
 
-    for(int j = 0; j < i; j++) { 
+    for(int j = 0; j < i; j++) {
 	if(objs[j].ps == MISS)
 	    continue;
 	// if i has appeared before j

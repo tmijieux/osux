@@ -24,6 +24,6 @@ taiko_ranking_LDADD = ../libosux.la \
 		../util/libosux_util.la \
 		compute_star/libtr_star.la
 
-taiko_ranking_CFLAGS = -Wall -fopenmp -I $(srcdir)/compute_star $(AM_CFLAGS)
+taiko_ranking_CFLAGS = -I $(srcdir)/compute_star $(AM_CFLAGS)
 taiko_ranking_LDFLAGS = -pthread -lmysqlclient -lm $(AM_LDFLAGS)
 

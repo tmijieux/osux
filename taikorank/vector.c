@@ -88,10 +88,12 @@ double vect_exp(struct vector * v, double x)
 
 double vect_poly2(struct vector * v, double x)
 {
-    if(x > v->t[v->max_index][0])
+    if(x > v->t[v->max_index][0]) {
 	return v->t[v->max_index][1];
-    if(x < v->t[v->min_index][0])
+    }
+    if(x < v->t[v->min_index][0]) {
 	return v->t[v->min_index][1];
+    }
 
     return POLY_2_PT(x, 
 		     v->t[0][0], v->t[0][1],

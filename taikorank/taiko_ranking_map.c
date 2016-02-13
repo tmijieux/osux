@@ -185,6 +185,8 @@ struct tr_map * trm_new(char * filename)
     switch(s) {
     case 1:
 	res = trm_convert(filename);
+	if(res == NULL)
+	    return NULL;
 	FILE * f = fopen(filename, "r");
 	osux_md5_hash_file(f, &res->hash);
 	fclose(f);

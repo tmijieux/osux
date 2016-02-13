@@ -160,7 +160,7 @@ static double tro_spacing_influence(struct tr_object * o1,
 				    struct tr_object * o2)
 {
     int diff = o2->offset - o1->offset;
-    return vect_poly2(SPC_INFLU_VECT, diff);
+    return vect_exp(SPC_INFLU_VECT, diff);
 }
 
 //-----------------------------------------------------
