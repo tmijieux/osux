@@ -56,10 +56,6 @@ struct tr_object
 
   // ---- reading data
   double seen;
-  double hidden;       // how it is hidden by others
-  double hide;         // how it hide others
-  double fast;         // fast, hard to see
-  double speed_change;
 
   // ---- accuracy star
   double slow;         // slow, hard to acc
@@ -108,6 +104,8 @@ struct tro_table {
 
 struct tro_table * tro_table_new(int l);
 struct tro_table * tro_table_from_vl(int l, ...);
+
+void tro_table_add(struct tro_table * t, struct tr_object * obj);
 struct tro_table * tro_table_from_array(struct tr_object ** t,int l);
 void tro_table_free(struct tro_table * t);
 

@@ -388,9 +388,9 @@ void trm_print_tro(struct tr_map * map, int filter)
     if((filter & FILTER_DENSITY) != 0)
 	fprintf(OUTPUT_INFO, "dnst rw\tdnst cl\tdnst*\t");
     if((filter & FILTER_READING) != 0)
-	fprintf(OUTPUT_INFO, "app\tdis\tvisi\tinvisi\tseen\thidden\thide\tfast\tspd chg\tread*\t");
+	fprintf(OUTPUT_INFO, "app\tdis\tseen\tread*\t");
     if((filter & FILTER_READING_PLUS) != 0)
-	fprintf(OUTPUT_INFO, "app\tend app\tdis\tend dis\tvisi\tinvisi\tseen\thidden\thide\tfast\tspd chg\tread*\t");
+	fprintf(OUTPUT_INFO, "app\tend app\tdis\tend dis\tseen\tread*\t");
     if((filter & FILTER_ACCURACY) != 0)
 	fprintf(OUTPUT_INFO, "slow\thitwin\tspc\tacc*\t");
     if((filter & FILTER_PATTERN) != 0)

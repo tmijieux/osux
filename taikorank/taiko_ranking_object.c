@@ -210,26 +210,18 @@ void tro_print(struct tr_object * obj, int filter)
 		obj->density_color,
 		obj->density_star);
     if((filter & FILTER_READING) != 0)
-	fprintf(OUTPUT_INFO, "%d\t%d\t%.0f.\t%.0f\t%.0f.\t%.0f.\t%.0f.\t%.3g\t",
+	fprintf(OUTPUT_INFO, "%d\t%d\t%.0f.\t%.3g\t",
 		obj->offset_app,
 		obj->offset_dis,
 		obj->seen,
-		obj->hidden,
-		obj->hide,
-		obj->fast,
-		obj->speed_change,
 		obj->reading_star);
     if((filter & FILTER_READING_PLUS) != 0)
-	fprintf(OUTPUT_INFO, "%d\t%d\t%d\t%d\t%.2g\t%.2g\t%.2g\t%.2g\t%.2g\t%.3g\t",
+	fprintf(OUTPUT_INFO, "%d\t%d\t%d\t%d\t%.2g\t%.3g\t",
 		obj->offset_app,
 		obj->end_offset_app,
 		obj->offset_dis,
 		obj->end_offset_dis,
 		obj->seen,
-		obj->hidden,
-		obj->hide,
-		obj->fast,
-		obj->speed_change,
 		obj->reading_star);
     if((filter & FILTER_ACCURACY) != 0)
 	fprintf(OUTPUT_INFO, "%.3g\t%.3g\t%.3g\t%.3g\t",
@@ -261,7 +253,7 @@ void tro_print(struct tr_object * obj, int filter)
 struct tro_table * tro_table_new(int l)
 {
     struct tro_table * res = malloc(sizeof(*res));
-    res->l = l;
+    res->l = 0;
     res->t = malloc(sizeof(struct tr_object *) * l);
     return res;
 }
@@ -269,6 +261,7 @@ struct tro_table * tro_table_new(int l)
 struct tro_table * tro_table_from_vl(int l, ...)
 {
     struct tro_table * res = tro_table_new(l);
+    res->l = l;
   
     va_list vl;
     va_start(vl, l);
@@ -277,6 +270,12 @@ struct tro_table * tro_table_from_vl(int l, ...)
     va_end(vl);
 
     return res;
+}
+
+void tro_table_add(struct tro_table * t, struct tr_object * obj)
+{
+    t->t[t->l] = obj;
+    t->l++;
 }
 
 struct tro_table * tro_table_from_array(struct tr_object ** t, int l)

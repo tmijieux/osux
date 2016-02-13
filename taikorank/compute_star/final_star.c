@@ -74,8 +74,8 @@ void trm_compute_final_star(struct tr_map * map)
 	return;
     }
   
-#pragma omp parallel
-#pragma omp for
+    #pragma omp parallel
+    #pragma omp for
     for(int i = 0; i < map->nb_object; i++) {
 	if(map->object[i].ps != GREAT) {
 	    map->object[i].density_star = 0;

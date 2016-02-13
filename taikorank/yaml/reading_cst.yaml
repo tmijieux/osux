@@ -15,15 +15,5 @@ vect_seen_y1: 5e+2.
 vect_seen_x2: 10e+8.
 vect_seen_y2: 0.
 
-### hide
-# x is in ms
-vect_hide_length: 2
-vect_hide_x1: 0.
-vect_hide_y1: 0.
-vect_hide_x2: 50e+3.
-vect_hide_y2: 100.
-
 ### coeff for star
 star_seen:     1.
-star_hide:     0.  
-star_hidden:   0.
