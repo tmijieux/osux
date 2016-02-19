@@ -11,14 +11,20 @@ static void print_hello(GtkWidget *widget, gpointer data)
     g_print("Hello World\n");
 }
 
-int main(int argc, char *argv[])
+void init_locale_settings(void)
 {
     putenv("LANG=fr_FR.utf-8");
     setlocale(LC_ALL, "fr_FR.utf-8");
     bindtextdomain("messages", "./locale/");
     textdomain("messages");
 
+    // test:
     puts(_("Hello World"));
+}
+
+int main(int argc, char *argv[])
+{
+    init_locale_settings();
 
     gtk_init(&argc, &argv);
 
