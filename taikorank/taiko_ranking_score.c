@@ -38,11 +38,11 @@ static void trs_print(struct tr_score * score);
 
 //--------------------------------------------------
 
-void trs_main(const struct tr_map * map, int mods)
+void trs_main(const struct tr_map * map)
 {
     struct tr_score * score = trs_new(map);
     score->map = trm_copy(score->origin);
-    trm_set_mods(score->map, mods);
+    trm_set_mods(score->map, map->conf->mods);
 
     // modifications
     if(OPT_FLAT)
@@ -50,11 +50,10 @@ void trs_main(const struct tr_map * map, int mods)
     if(OPT_NO_BONUS)
 	trm_remove_bonus(score->map);
 
-
-    if(OPT_SCORE_INPUT == SCORE_INPUT_GGM)
-	trs_prepare_ggm(score, OPT_SCORE_GOOD, OPT_SCORE_MISS);
+    if(map->conf->input == SCORE_INPUT_GGM)
+	trs_prepare_ggm(score, map->conf->good, map->conf->miss);
     else
-	trs_prepare_acc(score, OPT_SCORE_ACC);
+	trs_prepare_acc(score, map->conf->acc);
 
     trs_compute(score);
     trs_free(score);
@@ -159,17 +158,17 @@ static void trs_compute(struct tr_score * score)
     trs_print_and_db(score);
 
     while(!trs_is_finished(score)) {
-	if(OPT_SCORE_QUICK == 0)      
+	if(score->map->conf->quick == 0)      
 	    trm_pattern_free(score->map);
 
-	int i = TRM_METHOD_GET_TRO(score->map);
+	int i = score->map->conf->trm_method_get_tro(score->map);
 	if(score->miss != score->map->miss)
 	    trm_set_tro_ps(score->map, i, MISS);
 	else
 	    trm_set_tro_ps(score->map, i, GOOD);
 
-	if(OPT_SCORE_QUICK == 0 || trs_is_finished(score)) {
-	    if(OPT_SCORE_QUICK)      
+	if(score->map->conf->quick == 0 || trs_is_finished(score)) {
+	    if(score->map->conf->quick)
 		trm_pattern_free(score->map);
 
 	    trm_compute_stars(score->map);

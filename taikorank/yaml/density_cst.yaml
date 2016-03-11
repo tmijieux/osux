@@ -2,15 +2,15 @@
 vect_scale_length: 2
 vect_scale_x1: 0.
 vect_scale_y1: 0.
-vect_scale_x2: 15e+5
+vect_scale_x2: 1e5.
 vect_scale_y2: 10.
 
 # coeff for density
 vect_density_length: 2
 vect_density_x1: 0.
-vect_density_y1: 10000.
+vect_density_y1: 1e2.
 vect_density_x2: 5000.
-vect_density_y2: 0.00001
+vect_density_y2: 1e-5.
 
 # coefficient for object type, 1 is the maximum
 density_normal: 1.

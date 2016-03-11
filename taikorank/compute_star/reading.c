@@ -284,7 +284,6 @@ static void trm_set_reading_star(struct tr_map * map)
 {
     for (int i = 0; i < map->nb_object; i++)
 	tro_set_reading_star(&map->object[i]);
-    map->reading_star = trm_weight_sum_reading_star(map, NULL);
 }
 
 //-----------------------------------------------------

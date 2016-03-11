@@ -28,11 +28,6 @@
 int main(int argc, char* argv[])
 {
     int nb_map = 0;
-    void (* tr_main)(const struct tr_map *, int);
-    if(OPT_SCORE)
-	tr_main = trs_main;
-    else
-	tr_main = trm_main;
 
     for(int i = 1; i < argc; i++) {
 	if(argv[i][0] == OPTIONS_PREFIX) {
@@ -42,8 +37,10 @@ int main(int argc, char* argv[])
 	    struct tr_map * map = trm_new(argv[i]);
 	    if(map == NULL)
 		continue;
-	    
-	    tr_main(map, OPT_MODS);
+
+	    map->conf = tr_config_copy(CONF);
+	    map->conf->tr_main(map);
+	    tr_config_free(map->conf);
 	    trm_free(map);
 	}
     }

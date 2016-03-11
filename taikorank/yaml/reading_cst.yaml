@@ -1,9 +1,9 @@
 ### scale
 vect_scale_length: 2
 vect_scale_x1: 0.
-vect_scale_y1: 0.
-vect_scale_x2: 10e+4.
-vect_scale_y2: 10.
+vect_scale_y1: 10.
+vect_scale_x2: 1e7.
+vect_scale_y2: 0.
 
 monte_carlo_nb_pts: 5000
 
@@ -11,9 +11,9 @@ monte_carlo_nb_pts: 5000
 # x is in ms
 vect_seen_length: 2
 vect_seen_x1: 0.
-vect_seen_y1: 5e+2.
-vect_seen_x2: 10e+8.
-vect_seen_y2: 0.
+vect_seen_y1: 0.
+vect_seen_x2: 1e10.
+vect_seen_y2: 1e10.
 
 ### coeff for star
 star_seen:     1.

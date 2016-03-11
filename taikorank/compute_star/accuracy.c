@@ -260,7 +260,6 @@ static void trm_set_accuracy_star(struct tr_map * map)
 {
     for (int i = 0; i < map->nb_object; i++)
 	tro_set_accuracy_star(&map->object[i]);
-    map->accuracy_star = trm_weight_sum_accuracy_star(map, NULL);
 }
 
 //-----------------------------------------------------

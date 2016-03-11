@@ -25,6 +25,8 @@ enum played_state;
 
 struct tr_map
 {
+    struct tr_config * conf;
+
     // Name info
     char * title;
     char * artist;
@@ -81,7 +83,7 @@ double compute_acc(int great, int good, int miss);
 void trm_set_mods(struct tr_map * map, int mods);
 void trm_compute_stars(struct tr_map * map);
 
-void trm_main(const struct tr_map * map, int mods);
+void trm_main(const struct tr_map * map);
 
 void trm_print_tro(struct tr_map * map, int filter);
 void trm_print(struct tr_map * map);

@@ -26,13 +26,24 @@ enum score_method {
     SCORE_INPUT_INFLUENCE = 1
 };
 
+struct tr_config {
+    int mods;
+    int quick;
+    void (* tr_main)(const struct tr_map *);
+    int (* trm_method_get_tro)(struct tr_map *);
+
+    enum score_input input;
+    double acc;
+    int good;
+    int miss;
+};
+
 extern int OPT_DATABASE;
 extern int OPT_PRINT_TRO;
 extern int OPT_PRINT_YAML;
 extern int OPT_PRINT_FILTER;
 extern char * OPT_PRINT_ORDER;
 
-extern int OPT_MODS;
 extern int OPT_FLAT;
 extern int OPT_NO_BONUS;
 
@@ -40,22 +51,20 @@ extern char * TR_DB_IP;
 extern char * TR_DB_LOGIN;
 extern char * TR_DB_PASSWD;
 
-extern int OPT_SCORE;
-extern int OPT_SCORE_QUICK;
-extern enum score_input OPT_SCORE_INPUT;
-extern int OPT_SCORE_GOOD;
-extern int OPT_SCORE_MISS;
-extern double OPT_SCORE_ACC;
-extern int (* TRM_METHOD_GET_TRO)(struct tr_map *);
-
 extern struct osux_db * ODB;
 extern char * OPT_ODB_PATH;
 extern char * OPT_ODB_SGDIR;
 extern int OPT_ODB_BUILD;
 
+extern struct tr_config * CONF;
+
+void tr_config_free(struct tr_config * conf);
+struct tr_config * tr_config_copy(struct tr_config * conf);
+
 void config_odb_build(char * song_dir);
 void config_set_mods(const char * mods);
 void config_set_filter(char * filter);
+void config_set_tr_main(int score);
 void config_score(void);
 
 void ht_conf_db_init(void);

@@ -47,16 +47,26 @@ static int pattern_set;
 
 static void remove_pattern(const char * s, void * p, void * null);
 static void ht_pattern_init();
+static struct pattern * get_pattern(char * s);
 
 static double tro_singletap_proba(struct tr_object * obj);
+
+static char * trm_extract_pattern(struct tr_map * map,
+				  int i, double proba_alt);
 static struct pattern * trm_get_pattern(struct tr_map * map,
 					int i, double proba_alt);
 
+static void tro_pattern_alloc(struct tr_object * obj);
 static void trm_pattern_alloc(struct tr_map * map);
-static void trm_compute_pattern_proba(struct tr_map * map);
-static void trm_compute_pattern_alt(struct tr_map * map);
 
-static void trm_compute_pattern_star(struct tr_map * map);
+static void tro_set_pattern_proba(struct tr_object * obj);
+static void trm_set_pattern_proba(struct tr_map * map);
+
+static void trm_add_pattern_alt(struct tr_map * map, double pro_p);
+static void trm_set_pattern_alt(struct tr_map * map);
+
+static void tro_set_pattern_star(struct tr_object * obj);
+static void trm_set_pattern_star(struct tr_map * map);
 
 //--------------------------------------------------
 
@@ -147,7 +157,7 @@ static void ht_pattern_init(void)
 
 	struct pattern * p = calloc(sizeof(*p), 1);
 	p->d = calloc(sizeof(double), LENGTH_PATTERN_USED);
-      
+	
 	for(unsigned int j = 2; j <= list_size(pattern_data); j++) {
 	    struct yaml_wrap * yw_s = list_get(pattern_data, j);
 	    cst_assert(yw_s->type == YAML_SCALAR,
@@ -191,8 +201,8 @@ static double tro_singletap_proba(struct tr_object * obj)
 
 //-----------------------------------------------------
 
-static struct pattern * trm_get_pattern(struct tr_map * map,
-					int i, double proba_alt)
+static char * trm_extract_pattern(struct tr_map * map,
+				  int i, double proba_alt)
 {
     char * s = calloc(sizeof(char), MAX_PATTERN_LENGTH + 1);
     for (int j = 0; (j < MAX_PATTERN_LENGTH &&
@@ -213,75 +223,116 @@ static struct pattern * trm_get_pattern(struct tr_map * map,
 	    break;
 	}
     }
+    return s;
+}
 
+//-----------------------------------------------------
+
+static struct pattern * get_pattern(char * s)
+{
     struct pattern * p = NULL;
     int ret = ht_get_entry(ht_pattern, s, &p);
     if (ret != 0) { // when s[0] = 0 (bonus) or not found (error)
 	if (s[0] != 0)
-	    tr_error("Could not find pattern :%s", s);
-	p = NULL;
+	    tr_error("Could not find pattern: %s", s);
+	return NULL;
     }
+    return p;
+}
+
+//-----------------------------------------------------
+
+static struct pattern * trm_get_pattern(struct tr_map * map,
+					int i, double proba_alt)
+{
+    char * s = trm_extract_pattern(map, i, proba_alt);
+    struct pattern * p = get_pattern(s);
     free(s);
     return p;
 }
 
 //-----------------------------------------------------
+
+static void tro_set_pattern_proba(struct tr_object * obj)
+{
+    obj->proba = tro_singletap_proba(obj);
+}
+
+//-----------------------------------------------------
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static void trm_compute_pattern_proba(struct tr_map * map)
+static void trm_set_pattern_proba(struct tr_map * map)
 {
     for(int i = 0; i < map->nb_object; i++) {
-	map->object[i].proba = tro_singletap_proba(&map->object[i]);
+	tro_set_pattern_proba(&map->object[i]);
     }
 }
 
 //-----------------------------------------------------
 
-static void trm_compute_pattern_alt(struct tr_map * map)
-{
-    for(int pro = PROBA_START; pro <= PROBA_END; pro += PROBA_STEP) {
-	double pro_p = pro / 100.;
-	for(int i = 0; i < map->nb_object; i++) {
-	    struct pattern * p = trm_get_pattern(map, i, pro_p);
-	    if (p == NULL)
-		continue;
-	  
-	    for (int j = 0; (j < LENGTH_PATTERN_USED &&
-			     i + j < map->nb_object); j++)
-		map->object[i+j].alt[j] += pro_p * p->d[j];
-	}
-    }
-}
-
-//-----------------------------------------------------
-//-----------------------------------------------------
-//-----------------------------------------------------
-
-static void trm_compute_pattern_star(struct tr_map * map)
+static void trm_add_pattern_alt(struct tr_map * map, double pro_p)
 {
     for (int i = 0; i < map->nb_object; i++) {
-	map->object[i].pattern_star = 0;
-	for (int j = 0; j < LENGTH_PATTERN_USED; j++) {
-	    map->object[i].pattern_star += vect_poly2
-		(SCALE_VECT,
-		 PATTERN_STAR_COEFF_ALT * map->object[i].alt[j]);
-	}
+	struct pattern * p = trm_get_pattern(map, i, pro_p);
+	if (p == NULL)
+	    continue;
+	
+	for (int j = 0; (j < LENGTH_PATTERN_USED &&
+			 i + j < map->nb_object); j++)
+	    map->object[i+j].alt[j] += pro_p * p->d[j];
     }
-    map->pattern_star = trm_weight_sum_pattern_star(map, NULL);
+    
+}
+
+//-----------------------------------------------------
+
+static void trm_set_pattern_alt(struct tr_map * map)
+{
+    for(int pro = PROBA_START; pro <= PROBA_END; pro += PROBA_STEP) {
+	trm_add_pattern_alt(map, pro / 100.);
+    }
 }
 
 //-----------------------------------------------------
 //-----------------------------------------------------
+//-----------------------------------------------------
+
+static void tro_set_pattern_star(struct tr_object * obj)
+{
+    obj->pattern_star = 0;
+    for (int j = 0; j < LENGTH_PATTERN_USED; j++) {
+	obj->pattern_star += vect_poly2
+	    (SCALE_VECT, PATTERN_STAR_COEFF_ALT * obj->alt[j]);
+    }
+}
+
+//-----------------------------------------------------
+
+static void trm_set_pattern_star(struct tr_map * map)
+{
+    for (int i = 0; i < map->nb_object; i++) {
+	tro_set_pattern_star(&map->object[i]);
+    }
+}
+
+//-----------------------------------------------------
+//-----------------------------------------------------
+//-----------------------------------------------------
+
+static void tro_pattern_alloc(struct tr_object * obj)
+{
+    // end with negative value
+    obj->alt = calloc(sizeof(double), LENGTH_PATTERN_USED+1);
+    obj->alt[LENGTH_PATTERN_USED] = -1;
+}
+
 //-----------------------------------------------------
 
 static void trm_pattern_alloc(struct tr_map * map)
 {
     for (int i = 0; i < map->nb_object; i++) { 
-	// end with negative value
-	map->object[i].alt =
-	    calloc(sizeof(double), LENGTH_PATTERN_USED+1);
-	map->object[i].alt[LENGTH_PATTERN_USED] = -1;
+	tro_pattern_alloc(&map->object[i]);
     }  
 }
 
@@ -295,8 +346,8 @@ void trm_compute_pattern(struct tr_map * map)
     }
   
     trm_pattern_alloc(map);
-    trm_compute_pattern_proba(map);
-    trm_compute_pattern_alt(map);
+    trm_set_pattern_proba(map);
+    trm_set_pattern_alt(map);
   
-    trm_compute_pattern_star(map);
+    trm_set_pattern_star(map);
 }

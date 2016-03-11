@@ -64,10 +64,10 @@ static struct tr_map * trm_convert(char * filename);
 
 //--------------------------------------------------
 
-void trm_main(const struct tr_map * map, int mods)
+void trm_main(const struct tr_map * map)
 {
     struct tr_map * map_copy = trm_copy(map);
-    trm_set_mods(map_copy, mods);
+    trm_set_mods(map_copy, map->conf->mods);
 
     // modifications
     if(OPT_FLAT)
@@ -162,6 +162,7 @@ void trm_free(struct tr_map * map)
 {
     if(map == NULL)
 	return;
+
     trm_pattern_free(map);
     free(map->title);
     free(map->artist);
@@ -182,6 +183,7 @@ struct tr_map * trm_new(char * filename)
 {
     int s = check_file(filename);
     struct tr_map * res;
+    struct osux_beatmap * map;
     switch(s) {
     case 1:
 	res = trm_convert(filename);
@@ -191,15 +193,17 @@ struct tr_map * trm_new(char * filename)
 	osux_md5_hash_file(f, &res->hash);
 	fclose(f);
 	return res;
-    case 2:  
-	res = trm_convert_map(osux_db_get_beatmap_by_hash(ODB, 
-							  filename));
+    case 2:
+	if (ODB == NULL)
+	    break;
+	map = osux_db_get_beatmap_by_hash(ODB, filename);
+	if (map == NULL)
+	    break;
+	res = trm_convert_map(map);
 	res->hash = strdup(filename);
 	return res;
-    default:
-	tr_error("Could not load: '%s'", filename);
-	break;
     }
+    tr_error("Could not load: '%s'", filename);
     return NULL;
 }
 
@@ -355,13 +359,14 @@ static struct tr_map * trm_convert_map(struct osux_beatmap * map)
     tr_map->diff       = strdup(map->Version);
     tr_map->bms_osu_ID  = map->BeatmapSetID;
     tr_map->diff_osu_ID = map->BeatmapID;
-    tr_map->title_uni  = strdup(map->TitleUnicode);
-    tr_map->artist_uni = strdup(map->ArtistUnicode);
-    if(tr_map->title_uni == NULL)
+    if(map->TitleUnicode == NULL)
 	tr_map->title_uni = strdup(tr_map->title);
-    if(tr_map->artist_uni == NULL)
+    else	
+	tr_map->title_uni  = strdup(map->TitleUnicode);
+    if(map->ArtistUnicode == NULL)
 	tr_map->artist_uni = strdup(tr_map->artist);
-
+    else
+	tr_map->artist_uni = strdup(map->ArtistUnicode);
     tr_map->great = tr_map->max_combo;
     tr_map->good  = 0;
     tr_map->miss  = 0;
