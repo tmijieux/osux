@@ -34,7 +34,7 @@ struct tr_score
     struct tr_map * map; // current map
 };
 
-void trs_main(const struct tr_map * map, int mods);
+void trs_main(const struct tr_map * map);
 void trs_main_replay(char * replay_file_name, struct tr_map * map);
 
 #endif //TAIKO_RANKING_SCORE_H

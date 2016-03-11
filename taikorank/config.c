@@ -43,7 +43,6 @@ int OPT_PRINT_YAML;
 int OPT_PRINT_FILTER;
 char * OPT_PRINT_ORDER;
 
-int OPT_MODS;
 int OPT_FLAT;
 int OPT_NO_BONUS;
 
@@ -56,28 +55,42 @@ char * OPT_ODB_SGDIR;
 int OPT_ODB_BUILD;
 struct osux_db * ODB;
 
-int OPT_SCORE;
-int OPT_SCORE_QUICK;
-enum score_input OPT_SCORE_INPUT;
-int OPT_SCORE_GOOD;
-int OPT_SCORE_MISS;
-double OPT_SCORE_ACC;
-int (* TRM_METHOD_GET_TRO)(struct tr_map *);
+struct tr_config * CONF;
 
 static struct yaml_wrap * yw;
 static struct hash_table * ht_conf;
 
 //-----------------------------------------------------
 
+static struct tr_config * tr_config_new(void)
+{
+    return malloc(sizeof(struct tr_config));
+}
+
+void tr_config_free(struct tr_config * conf)
+{
+    free(conf);
+}
+
+struct tr_config * tr_config_copy(struct tr_config * conf)
+{
+    struct tr_config * copy = tr_config_new();
+    memcpy(copy, conf, sizeof(*conf));
+    return copy;
+}
+
+//-----------------------------------------------------
+
 static void global_init(void)
 {
+    CONF = tr_config_new();
+
     OPT_PRINT_TRO   = cst_i(ht_conf, "print_tro");
     OPT_PRINT_YAML  = cst_i(ht_conf, "print_yaml");
     OPT_PRINT_ORDER = cst_str(ht_conf, "print_order");
     config_set_filter(cst_str(ht_conf, "print_filter"));
   
-    char * mods = cst_str(ht_conf, "mods");
-    config_set_mods(mods);
+    config_set_mods(cst_str(ht_conf, "mods"));
     OPT_FLAT     = cst_i(ht_conf, "flat");
     OPT_NO_BONUS = cst_i(ht_conf, "no_bonus");
 
@@ -85,7 +98,6 @@ static void global_init(void)
     if(OPT_DATABASE)
 	ht_conf_db_init();
 
-    OPT_SCORE = cst_i(ht_conf, "score");
     config_score();
 
     OPT_ODB_PATH  = cst_str(ht_conf, "osuxdb_path");
@@ -101,20 +113,30 @@ static void global_init(void)
 
 //-----------------------------------------------------
 
+void config_set_tr_main(int score)
+{
+    if (score)
+	CONF->tr_main = trs_main;
+    else
+	CONF->tr_main = trm_main;
+}
+
 void config_score(void)
 {
-    OPT_SCORE_QUICK = cst_i(ht_conf, "score_quick");
-    OPT_SCORE_INPUT = cst_i(ht_conf, "score_input");
-    OPT_SCORE_GOOD  = cst_i(ht_conf, "score_good");
-    OPT_SCORE_MISS  = cst_i(ht_conf, "score_miss");
-    OPT_SCORE_ACC   = cst_f(ht_conf, "score_acc") / COEFF_MAX_ACC;
+    config_set_tr_main(cst_i(ht_conf, "score"));
+
+    CONF->quick = cst_i(ht_conf, "score_quick");
+    CONF->input = cst_i(ht_conf, "score_input");
+    CONF->good  = cst_i(ht_conf, "score_good");
+    CONF->miss  = cst_i(ht_conf, "score_miss");
+    CONF->acc   = cst_f(ht_conf, "score_acc") / COEFF_MAX_ACC;
     enum score_method i = cst_i(ht_conf, "score_method");
     switch(i) {
     case SCORE_INPUT_INFLUENCE:
-	TRM_METHOD_GET_TRO = trm_best_influence_tro;
+	CONF->trm_method_get_tro = trm_best_influence_tro;
 	break;
     default:
-	TRM_METHOD_GET_TRO = trm_hardest_tro;
+	CONF->trm_method_get_tro = trm_hardest_tro;
 	break;
     }
 }
@@ -167,13 +189,13 @@ void config_set_filter(char * filter)
 
 #define IF_MOD_SET(STR, MOD, i)				\
     if(strncmp(STR, &mods[i], MOD_STR_LENGTH) == 0) {	\
-	OPT_MODS |= MOD;				\
+	CONF->mods |= MOD;				\
 	continue;					\
     }
 
 void config_set_mods(const char * mods)
 {
-    OPT_MODS = MODS_NONE;
+    CONF->mods = MODS_NONE;
     for(int i = 0; mods[i]; i += MOD_STR_LENGTH) {
 	IF_MOD_SET("EZ", MODS_EZ, i);
 	IF_MOD_SET("HR", MODS_HR, i);
@@ -192,11 +214,11 @@ void config_set_mods(const char * mods)
     }
  break2:
     
-    if((OPT_MODS & MODS_EZ) && (OPT_MODS & MODS_HR))
+    if((CONF->mods & MODS_EZ) && (CONF->mods & MODS_HR))
 	tr_error("Incompatible mods EZ and HR");
-    if((OPT_MODS & MODS_HT) && (OPT_MODS & MODS_DT))
+    if((CONF->mods & MODS_HT) && (CONF->mods & MODS_DT))
 	tr_error("Incompatible mods HT and DT");
-    if((OPT_MODS & MODS_HD) && (OPT_MODS & MODS_HR))
+    if((CONF->mods & MODS_HD) && (CONF->mods & MODS_HR))
 	tr_error("HDHR is unsupported for now.");
 }
 
@@ -229,5 +251,6 @@ __attribute__((destructor))
 static void ht_cst_exit_config(void)
 {
     tr_print_yaml_exit();
+    tr_config_free(CONF);
     yaml2_free(yw);
 }

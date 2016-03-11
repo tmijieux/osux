@@ -196,7 +196,6 @@ static void trm_set_density_star(struct tr_map * map)
 {
     for(int i = 0; i < map->nb_object; i++)
 	tro_set_density_star(&map->object[i]);
-    map->density_star = trm_weight_sum_density_star(map, NULL);
 }
 
 //-----------------------------------------------------
