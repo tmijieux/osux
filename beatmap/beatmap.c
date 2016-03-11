@@ -185,6 +185,10 @@ int osux_beatmap_reopen(osux_beatmap *bm_in, osux_beatmap **bm_out)
 {
     int ret;
     char *path;
+    if (NULL == bm_in) {
+        *bm_out = NULL;
+        return -1;
+    }
     path = osux_prefix_path(osux_get_song_path(), bm_in->osu_filename);
     ret = osux_beatmap_open(path, bm_out);
     free(path);
