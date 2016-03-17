@@ -58,14 +58,4 @@
      (Y3) * ((((x) - (X1)) / ((X3) - (X1))) *	\
 	     (((x) - (X2)) / ((X3) - (X2)))))
 
-// ---- Scaling ----
-/*
-// increase or decrease scaling
-// x is the parameter
-// POW is the power used
-// (x == Y) => (f(x) == Y)
-#define SCALING(x, POW, Y)			\
-(pow(x, POW) / pow(Y, POW - 1))
-// ^ work weirdly
-*/
 #endif //INTERPOLATION_H

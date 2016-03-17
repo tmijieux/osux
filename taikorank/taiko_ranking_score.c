@@ -45,10 +45,7 @@ void trs_main(const struct tr_map * map)
     trm_set_mods(score->map, map->conf->mods);
 
     // modifications
-    if(OPT_FLAT)
-	trm_flat_big(score->map);
-    if(OPT_NO_BONUS)
-	trm_remove_bonus(score->map);
+    trm_add_modifier(score->map);
 
     if(map->conf->input == SCORE_INPUT_GGM)
 	trs_prepare_ggm(score, map->conf->good, map->conf->miss);

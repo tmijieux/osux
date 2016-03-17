@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 #define _GNU_SOURCE
 
 #include <stdio.h>
@@ -64,7 +63,7 @@ struct vector * cst_vect(struct hash_table * ht, const char * key)
     v->max_index = 0;
     v->min_index = 0;
     for(int i = 0; i < v->len; i++) {
-	for(int j = 0; j < v->len; j++) {
+	for(int j = 0; j < CST_VECT_DIM; j++) {
 	    asprintf(&s, "%s_%c%d", key, 'x'+j, i+1);
 	    v->t[i][j] = cst_f(ht, s);
 	    free(s);

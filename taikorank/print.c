@@ -22,13 +22,24 @@
 
 #include "print.h"
 
+#define TR_PREFIX "[Taiko Ranking] "
+
 //-------------------------------------------------
 
 void tr_error(const char * s, ...)
 {
     va_list vl;
     va_start(vl, s);
-    fprintf(OUTPUT_ERR, "[Taiko Ranking] Error: ");
+    fprintf(OUTPUT_ERR, TR_PREFIX "Error: ");
+    vfprintf(OUTPUT_ERR, s, vl);
+    fprintf(OUTPUT_ERR, "\n");
+}
+
+void tr_warning(const char * s, ...)
+{
+    va_list vl;
+    va_start(vl, s);
+    fprintf(OUTPUT_ERR, TR_PREFIX "Warning: ");
     vfprintf(OUTPUT_ERR, s, vl);
     fprintf(OUTPUT_ERR, "\n");
 }

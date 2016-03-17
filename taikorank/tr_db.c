@@ -94,7 +94,7 @@ static int new_rq(MYSQL * sql, const char * rq, ...)
     va_end(va);
 
     if (mysql_query(sql, buf)) {
-	tr_error("%s", mysql_error(sql));
+	tr_error("%srequest:%s\n", mysql_error(sql), buf);
 	free(buf);
 	return -1;
     }
@@ -262,7 +262,7 @@ static int tr_db_insert_update_score(struct tr_map * map,
     } else {
 	new_rq(sql, "UPDATE %s SET density_star = %.3g, "
 	       "reading_star = %.3g, pattern_star = %.3g,"
-	       "accuracy_star = %.3g, final_star = %.3g"
+	       "accuracy_star = %.3g, final_star = %.3g "
 	       "WHERE ID = %d;",
 	       TR_DB_SCORE, map->density_star, map->reading_star,
 	       map->pattern_star, map->accuracy_star,

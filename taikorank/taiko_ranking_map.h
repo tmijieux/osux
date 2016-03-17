@@ -20,6 +20,9 @@
 #define MAX_ACC 1.
 #define COEFF_MAX_ACC 100.
 
+#define min(x, y) x < y ? x : y;
+#define max(x, y) x > y ? x : y;
+
 struct tr_object;
 enum played_state;
 
@@ -81,6 +84,7 @@ void trm_set_tro_ps(struct tr_map * map, int x, enum played_state ps);
 double compute_acc(int great, int good, int miss);
 
 void trm_set_mods(struct tr_map * map, int mods);
+void trm_add_modifier(struct tr_map * map);
 void trm_compute_stars(struct tr_map * map);
 
 void trm_main(const struct tr_map * map);

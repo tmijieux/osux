@@ -26,7 +26,7 @@
 #include "taiko_ranking_object.h"
 #include "stats.h"
 #include "cst_yaml.h"
-#include "vector.h"
+#include "linear_fun.h"
 #include "print.h"
 
 #include "density.h"
@@ -52,7 +52,7 @@ static void trm_set_density_star(struct tr_map * map);
 #define DENSITY_FILE  "density_cst.yaml"
 
 // coeff for density
-static struct vector * DENSITY_VECT;
+static struct linear_fun * DENSITY_VECT;
 
 // coefficient for object type, 1 is the maximum
 static double DENSITY_NORMAL;
@@ -65,14 +65,14 @@ static double DENSITY_LENGTH;
 // coeff for star
 static double DENSITY_STAR_COEFF_COLOR;
 static double DENSITY_STAR_COEFF_RAW;
-static struct vector * SCALE_VECT;
+static struct linear_fun * SCALE_VECT;
 
 //-----------------------------------------------------
 
 static void global_init(void)
 {
-    DENSITY_VECT = cst_vect(ht_cst, "vect_density");
-    SCALE_VECT   = cst_vect(ht_cst, "vect_scale");
+    DENSITY_VECT = cst_lf(ht_cst, "vect_density");
+    SCALE_VECT   = cst_lf(ht_cst, "vect_scale");
 
     DENSITY_NORMAL = cst_f(ht_cst, "density_normal");
     DENSITY_BIG    = cst_f(ht_cst, "density_big");
@@ -99,8 +99,8 @@ __attribute__((destructor))
 static void ht_cst_exit_density(void)
 {
     yaml2_free(yw);
-    vect_free(DENSITY_VECT);
-    vect_free(SCALE_VECT);
+    lf_free(DENSITY_VECT);
+    lf_free(SCALE_VECT);
 }
 
 //-----------------------------------------------------
@@ -132,9 +132,9 @@ static double tro_density(struct tr_object * obj1,
 			  struct tr_object * obj2)
 {
     double length = tro_get_length(obj1);
-    double value  = vect_exp(DENSITY_VECT,
-			     ((double) obj2->rest) + 
-			     DENSITY_LENGTH * length);
+    double value  = lf_eval(DENSITY_VECT,
+			    ((double) obj2->end_offset - obj1->offset) + 
+			    DENSITY_LENGTH * length);
     return tro_get_coeff_density(obj1) * value;
 }
 
@@ -183,7 +183,7 @@ TRO_SET_DENSITY_TYPE(color, tro_are_same_density)
 
 static void tro_set_density_star(struct tr_object * obj)
 {
-    obj->density_star = vect_poly2
+    obj->density_star = lf_eval
 	(SCALE_VECT,
 	 (DENSITY_STAR_COEFF_COLOR * obj->density_color +
 	  DENSITY_STAR_COEFF_RAW   * obj->density_raw));

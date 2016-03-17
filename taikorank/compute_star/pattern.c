@@ -28,7 +28,7 @@
 #include "taiko_ranking_object.h"
 #include "stats.h"
 #include "cst_yaml.h"
-#include "vector.h"
+#include "linear_fun.h"
 #include "print.h"
 
 #include "pattern.h"
@@ -73,7 +73,7 @@ static void trm_set_pattern_star(struct tr_map * map);
 #define PATTERN_FILE  "pattern_cst.yaml"
 
 // coeff for singletap proba
-static struct vector * SINGLETAP_VECT;
+static struct linear_fun * SINGLETAP_VECT;
 
 static int PROBA_START;
 static int PROBA_END;
@@ -81,7 +81,7 @@ static int PROBA_STEP;
 
 // coeff for star
 static double PATTERN_STAR_COEFF_ALT;
-static struct vector * SCALE_VECT;
+static struct linear_fun * SCALE_VECT;
 
 // pattern
 static int MAX_PATTERN_LENGTH;
@@ -98,8 +98,8 @@ static int LENGTH_PATTERN_USED;
 
 static void global_init(void)
 {
-    SINGLETAP_VECT = cst_vect(ht_cst, "vect_singletap");
-    SCALE_VECT     = cst_vect(ht_cst, "vect_scale");
+    SINGLETAP_VECT = cst_lf(ht_cst, "vect_singletap");
+    SCALE_VECT     = cst_lf(ht_cst, "vect_scale");
 
     PROBA_START = cst_f(ht_cst, "proba_start");
     PROBA_END   = cst_f(ht_cst, "proba_end");
@@ -186,8 +186,8 @@ static void ht_cst_exit_pattern(void)
     yaml2_free(yw);
     ht_for_each(ht_pattern, remove_pattern, NULL);
     ht_free(ht_pattern);
-    vect_free(SCALE_VECT);
-    vect_free(SINGLETAP_VECT);
+    lf_free(SCALE_VECT);
+    lf_free(SINGLETAP_VECT);
 }
 
 //-----------------------------------------------------
@@ -196,7 +196,7 @@ static void ht_cst_exit_pattern(void)
 
 static double tro_singletap_proba(struct tr_object * obj)
 {
-    return vect_poly2(SINGLETAP_VECT, obj->rest);
+    return lf_eval(SINGLETAP_VECT, obj->rest);
 }
 
 //-----------------------------------------------------
@@ -280,9 +280,9 @@ static void trm_add_pattern_alt(struct tr_map * map, double pro_p)
 	
 	for (int j = 0; (j < LENGTH_PATTERN_USED &&
 			 i + j < map->nb_object); j++)
-	    map->object[i+j].alt[j] += pro_p * p->d[j];
-    }
-    
+	    map->object[i+j].alt[j] = min(pro_p * p->d[j],
+					  map->object[i+j].alt[j]);
+    }    
 }
 
 //-----------------------------------------------------
@@ -300,10 +300,13 @@ static void trm_set_pattern_alt(struct tr_map * map)
 
 static void tro_set_pattern_star(struct tr_object * obj)
 {
-    obj->pattern_star = 0;
+    obj->pattern_star = INFINITY;
     for (int j = 0; j < LENGTH_PATTERN_USED; j++) {
-	obj->pattern_star += vect_poly2
-	    (SCALE_VECT, PATTERN_STAR_COEFF_ALT * obj->alt[j]);
+	if (obj->alt[j] == INFINITY)
+	    continue;
+	double val = lf_eval(SCALE_VECT, 
+			     PATTERN_STAR_COEFF_ALT * obj->alt[j]);
+	obj->pattern_star = min(obj->pattern_star, val);
     }
 }
 
@@ -323,7 +326,9 @@ static void trm_set_pattern_star(struct tr_map * map)
 static void tro_pattern_alloc(struct tr_object * obj)
 {
     // end with negative value
-    obj->alt = calloc(sizeof(double), LENGTH_PATTERN_USED+1);
+    obj->alt = malloc(sizeof(double) * LENGTH_PATTERN_USED+1);
+    for(int i = 0; i < LENGTH_PATTERN_USED; i++)
+	obj->alt[i] = INFINITY;
     obj->alt[LENGTH_PATTERN_USED] = -1;
 }
 

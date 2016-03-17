@@ -70,10 +70,7 @@ void trm_main(const struct tr_map * map)
     trm_set_mods(map_copy, map->conf->mods);
 
     // modifications
-    if(OPT_FLAT)
-	trm_flat_big(map_copy);
-    if(OPT_NO_BONUS)
-	trm_remove_bonus(map_copy);
+    trm_add_modifier(map_copy);
 
     // compute
     trm_apply_mods(map_copy);
@@ -93,6 +90,16 @@ void trm_main(const struct tr_map * map)
   
     // free
     trm_free(map_copy);
+}
+
+//--------------------------------------------------
+
+void trm_add_modifier(struct tr_map * map)
+{
+    if(OPT_FLAT)
+	trm_flat_big(map);
+    if(OPT_NO_BONUS)
+	trm_remove_bonus(map);
 }
 
 //--------------------------------------------------
@@ -122,7 +129,6 @@ void trm_compute_stars(struct tr_map * map)
         #pragma omp task
 	trm_compute_accuracy(map);
     }
-  
     trm_compute_final_star(map);
 }
 

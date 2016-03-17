@@ -28,7 +28,7 @@
 #include "taiko_ranking_object.h"
 #include "stats.h"
 #include "cst_yaml.h"
-#include "vector.h"
+#include "linear_fun.h"
 #include "print.h"
 
 #include "final_star.h"
@@ -44,20 +44,30 @@ static void trm_set_influence(struct tr_map * map);
 
 //-----------------------------------------------------
 
-#define FINAL_FILE  "final_cst.yaml"
+#define FINAL_FILE "final_cst.yaml"
 
 static struct yaml_wrap * yw;
 static struct hash_table * ht_cst;
 
-static struct vector * INFLU_VECT;
-static struct vector * SCALE_VECT;
+static double DST_POW;
+static double RDG_POW;
+static double PTR_POW;
+static double ACC_POW;
+
+static struct linear_fun * INFLU_VECT;
+static struct linear_fun * SCALE_VECT;
 
 //-----------------------------------------------------
 
 static void global_init(void)
 {
-    INFLU_VECT = cst_vect(ht_cst, "vect_influence");
-    SCALE_VECT = cst_vect(ht_cst, "vect_scale");
+    INFLU_VECT = cst_lf(ht_cst, "vect_influence");
+    SCALE_VECT = cst_lf(ht_cst, "vect_scale");
+
+    DST_POW = cst_f(ht_cst, "density_pow");
+    RDG_POW = cst_f(ht_cst, "reading_pow");
+    PTR_POW = cst_f(ht_cst, "pattern_pow");
+    ACC_POW = cst_f(ht_cst, "accuracy_pow");
 }
 
 __attribute__((constructor))
@@ -73,8 +83,8 @@ __attribute__((destructor))
 static void ht_cst_exit_final(void)
 {
     yaml2_free(yw);
-    vect_free(SCALE_VECT);
-    vect_free(INFLU_VECT);
+    lf_free(SCALE_VECT);
+    lf_free(INFLU_VECT);
 }
 
 //-----------------------------------------------------
@@ -90,11 +100,11 @@ static void tro_set_final_star(struct tr_object * obj)
 	return;
     }
     obj->final_star =
-	vect_poly2(SCALE_VECT,
-		   obj->density_star *
-		   obj->reading_star *
-		   obj->pattern_star *
-		   obj->accuracy_star);
+	lf_eval(SCALE_VECT,
+		pow(obj->density_star,  DST_POW) *
+		pow(obj->reading_star,  RDG_POW) *
+		pow(obj->pattern_star,  PTR_POW) *
+		pow(obj->accuracy_star, ACC_POW));
 }
 
 //-----------------------------------------------------
@@ -102,7 +112,7 @@ static void tro_set_final_star(struct tr_object * obj)
 static double tro_influence_coeff(struct tr_object * o1,
 				  struct tr_object * o2)
 {
-    return 1. - vect_exp(INFLU_VECT, fabs(o1->offset - o2->offset));
+    return 1. - lf_eval(INFLU_VECT, fabs(o1->offset - o2->offset));
 }
 
 //-----------------------------------------------------

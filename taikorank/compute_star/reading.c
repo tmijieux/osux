@@ -29,13 +29,11 @@
 #include "taiko_ranking_object.h"
 #include "stats.h"
 #include "cst_yaml.h"
-#include "vector.h"
+#include "linear_fun.h"
 #include "print.h"
 
 #include "reading.h"
 
-#define min(x, y) x < y ? x : y;
-#define max(x, y) x > y ? x : y;
 #define RAND_DOUBLE ((double) rand() / RAND_MAX)
 
 typedef int (*mc_cond)(double, double, void *);
@@ -69,14 +67,14 @@ static void trm_set_reading_star(struct tr_map * map);
 
 //--------------------------------------------------
 
-#define READING_FILE  "reading_cst.yaml"
+#define READING_FILE "reading_cst.yaml"
 
 static int MONTE_CARLO_NB_PT;
-static struct vector * SEEN_VECT;
+static struct linear_fun * SEEN_VECT;
 
 // coeff for star
 static double READING_STAR_COEFF_SEEN;
-static struct vector * SCALE_VECT;
+static struct linear_fun * SCALE_VECT;
 
 //-----------------------------------------------------
 
@@ -85,10 +83,10 @@ static void global_init(void)
     srand(time(NULL));
     MONTE_CARLO_NB_PT = cst_i(ht_cst, "monte_carlo_nb_pts");
 
-    SEEN_VECT  = cst_vect(ht_cst, "vect_seen");
-    SCALE_VECT = cst_vect(ht_cst, "vect_scale");
+    SEEN_VECT  = cst_lf(ht_cst, "vect_seen");
+    SCALE_VECT = cst_lf(ht_cst, "vect_scale");
 
-    READING_STAR_COEFF_SEEN       = cst_f(ht_cst, "star_seen");
+    READING_STAR_COEFF_SEEN = cst_f(ht_cst, "star_seen");
 }
 
 //-----------------------------------------------------
@@ -106,8 +104,8 @@ __attribute__((destructor))
 static void ht_cst_exit_reading(void)
 {
     yaml2_free(yw);
-    vect_free(SEEN_VECT);
-    vect_free(SCALE_VECT);
+    lf_free(SEEN_VECT);
+    lf_free(SCALE_VECT);
 }
 
 //-----------------------------------------------------
@@ -185,12 +183,8 @@ static int tro_same_bpm_hide(struct tr_object * o,
 static double tro_seen_area(struct tr_object * o)
 {
     double seen = 
-	((o->end_offset_dis - o->offset_app) * 
-	 (o->bpm_app * o->end_offset_dis + o->c_app)
-	 -
-	 (o->end_offset_dis - o->end_offset_app) * 
-	 (o->bpm_app * o->end_offset_dis + o->c_app));
-    seen *= tro_get_size(o);
+	(o->end_offset_app - o->offset_app) * 
+	(o->bpm_app * o->end_offset_dis + o->c_app);
     return seen;
 }
 
@@ -220,10 +214,16 @@ static double tro_seen(struct tr_object *o, struct tro_table *obj_h)
     double seen = tro_seen_area(copy);
     if(done != obj_h->l) {
 	seen -= tro_hide(copy, obj_h);
+	if (seen < 0) {
+	    tr_warning("Negative value for seen. "
+		       "May be wrong if too small: %g\n", seen);
+	    seen = 0;
+	}
     }
 
+    seen *= tro_get_size(o);
     free(copy);
-    return vect_poly2(SEEN_VECT, seen);
+    return lf_eval(SEEN_VECT, seen);
 }
 
 //-----------------------------------------------------
@@ -274,7 +274,7 @@ static void trm_set_seen(struct tr_map * map)
 
 static void tro_set_reading_star(struct tr_object * obj)
 {
-    obj->reading_star = vect_poly2
+    obj->reading_star = lf_eval
 	(SCALE_VECT, READING_STAR_COEFF_SEEN * obj->seen);
 }
 

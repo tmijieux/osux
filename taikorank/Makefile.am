@@ -18,6 +18,7 @@ taiko_ranking_SOURCES = \
 	options.c \
 	cst_yaml.c \
 	vector.c \
+	linear_fun.c \
 	spacing_count.c
 
 taiko_ranking_LDADD = ../libosux.la \

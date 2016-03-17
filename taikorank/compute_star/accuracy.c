@@ -26,7 +26,7 @@
 #include "taiko_ranking_object.h"
 #include "stats.h"
 #include "cst_yaml.h"
-#include "vector.h"
+#include "linear_fun.h"
 #include "print.h"
 
 #include "accuracy.h"
@@ -62,25 +62,25 @@ static void trm_set_accuracy_star(struct tr_map * map);
 #define MS_MISS        500 // arbitrary
 #define MS_COEFF_MISS  0   // arbitrary
 
-static struct vector * SLOW_VECT;
-static struct vector * HIT_WINDOW_VECT;
-static struct vector * SPC_FREQ_VECT;
-static struct vector * SPC_INFLU_VECT;
+static struct linear_fun * SLOW_VECT;
+static struct linear_fun * HIT_WINDOW_VECT;
+static struct linear_fun * SPC_FREQ_VECT;
+static struct linear_fun * SPC_INFLU_VECT;
 
 static double ACCURACY_STAR_COEFF_SLOW;
 static double ACCURACY_STAR_COEFF_HIT_WINDOW;
 static double ACCURACY_STAR_COEFF_SPACING;
-static struct vector * SCALE_VECT;
+static struct linear_fun * SCALE_VECT;
 
 //-----------------------------------------------------
 
 static void global_init(void)
 {
-    SLOW_VECT       = cst_vect(ht_cst, "vect_slow");
-    HIT_WINDOW_VECT = cst_vect(ht_cst, "vect_hit_window");
-    SPC_FREQ_VECT   = cst_vect(ht_cst, "vect_spacing_frequency");
-    SPC_INFLU_VECT  = cst_vect(ht_cst, "vect_spacing_influence");
-    SCALE_VECT      = cst_vect(ht_cst, "vect_scale");
+    SLOW_VECT       = cst_lf(ht_cst, "vect_slow");
+    HIT_WINDOW_VECT = cst_lf(ht_cst, "vect_hit_window");
+    SPC_FREQ_VECT   = cst_lf(ht_cst, "vect_spacing_frequency");
+    SPC_INFLU_VECT  = cst_lf(ht_cst, "vect_spacing_influence");
+    SCALE_VECT      = cst_lf(ht_cst, "vect_scale");
 
     ACCURACY_STAR_COEFF_SLOW       = cst_f(ht_cst, "star_slow");
     ACCURACY_STAR_COEFF_HIT_WINDOW = cst_f(ht_cst, "star_hit_window");
@@ -102,11 +102,11 @@ __attribute__((destructor))
 static void ht_cst_exit_accuracy(void)
 {
     yaml2_free(yw);
-    vect_free(SLOW_VECT);
-    vect_free(SPC_FREQ_VECT);
-    vect_free(SPC_INFLU_VECT);
-    vect_free(HIT_WINDOW_VECT);
-    vect_free(SCALE_VECT);
+    lf_free(SLOW_VECT);
+    lf_free(SPC_FREQ_VECT);
+    lf_free(SPC_INFLU_VECT);
+    lf_free(HIT_WINDOW_VECT);
+    lf_free(SCALE_VECT);
 }
 
 //-----------------------------------------------------
@@ -115,7 +115,7 @@ static void ht_cst_exit_accuracy(void)
 
 static double tro_slow(struct tr_object * obj)
 {
-    return vect_poly2(SLOW_VECT, obj->bpm_app);
+    return lf_eval(SLOW_VECT, obj->bpm_app);
 }
 
 //-----------------------------------------------------
@@ -144,7 +144,7 @@ static void tro_set_hit_window(struct tr_object * obj, int ggm_ms[])
 	obj->hit_window = ggm_ms[2];
 	break;
     }
-    obj->hit_window = vect_exp(HIT_WINDOW_VECT, obj->hit_window);
+    obj->hit_window = lf_eval(HIT_WINDOW_VECT, obj->hit_window);
 }
 
 //-----------------------------------------------------
@@ -160,7 +160,7 @@ static double tro_spacing_influence(struct tr_object * o1,
 				    struct tr_object * o2)
 {
     int diff = o2->offset - o1->offset;
-    return vect_exp(SPC_INFLU_VECT, diff);
+    return lf_eval(SPC_INFLU_VECT, diff);
 }
 
 //-----------------------------------------------------
@@ -196,9 +196,12 @@ static struct list * tro_spacing_init(struct tr_object * objs, int i)
 
 static double tro_spacing(struct tr_object * obj, struct list * spc)
 {
-    double freq = (spc_get_nb(spc, obj->rest, equal_i) / 
-		   spc_get_total(spc));
-    return vect_poly2(SPC_FREQ_VECT, freq);;
+    double total = spc_get_total(spc);
+    double nb = spc_get_nb(spc, obj->rest, equal_i);
+    double freq = 1;
+    if (total != 0) // avoid error when only miss
+	freq = nb / total;
+    return lf_eval(SPC_FREQ_VECT, freq);
 }
 
 //-----------------------------------------------------
@@ -247,7 +250,7 @@ static void trm_set_spacing(struct tr_map * map)
 
 static void tro_set_accuracy_star(struct tr_object * obj)
 {
-    obj->accuracy_star = vect_poly2
+    obj->accuracy_star = lf_eval
 	(SCALE_VECT,
 	 (ACCURACY_STAR_COEFF_SLOW       * obj->slow +
 	  ACCURACY_STAR_COEFF_SPACING    * obj->spacing +
