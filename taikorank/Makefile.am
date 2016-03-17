@@ -1,6 +1,6 @@
 include $(top_srcdir)/common.mk
 
-SUBDIRS = compute_star yaml
+SUBDIRS = yaml
 
 bin_PROGRAMS = taiko_ranking
 taiko_ranking_SOURCES = \
@@ -19,12 +19,16 @@ taiko_ranking_SOURCES = \
 	cst_yaml.c \
 	vector.c \
 	linear_fun.c \
-	spacing_count.c
+	spacing_count.c \
+	density.c \
+	reading.c \
+	pattern.c \
+	accuracy.c \
+	final_star.c
 
 taiko_ranking_LDADD = ../libosux.la \
-		../util/libosux_util.la \
-		compute_star/libtr_star.la
+		../util/libosux_util.la
 
-taiko_ranking_CFLAGS = -I $(srcdir)/compute_star $(AM_CFLAGS)
-taiko_ranking_LDFLAGS = -pthread -lmysqlclient -lm $(AM_LDFLAGS)
+taiko_ranking_CFLAGS = $(AM_CFLAGS)
+taiko_ranking_LDFLAGS = -fopenmp -pthread -lmysqlclient -lm $(AM_LDFLAGS)
 
