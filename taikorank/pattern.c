@@ -326,10 +326,10 @@ static void trm_set_pattern_star(struct tr_map * map)
 static void tro_pattern_alloc(struct tr_object * obj)
 {
     // end with negative value
-    obj->alt = malloc(sizeof(double) * LENGTH_PATTERN_USED+1);
+    obj->alt = malloc(sizeof(double) * (LENGTH_PATTERN_USED + 1));
     for(int i = 0; i < LENGTH_PATTERN_USED; i++)
 	obj->alt[i] = INFINITY;
-    obj->alt[LENGTH_PATTERN_USED] = -1;
+    obj->alt[LENGTH_PATTERN_USED] = -INFINITY;
 }
 
 //-----------------------------------------------------

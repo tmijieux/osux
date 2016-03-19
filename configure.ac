@@ -24,7 +24,6 @@ AC_CONFIG_FILES([
 		  replay/Makefile
 		  database/Makefile
 		  taikorank/Makefile
-		  taikorank/compute_star/Makefile
 		  taikorank/yaml/Makefile
 ])
 

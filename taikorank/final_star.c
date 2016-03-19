@@ -39,7 +39,6 @@ static void trm_set_final_star(struct tr_map * map);
 
 static double tro_influence_coeff(struct tr_object * o1,
 				  struct tr_object * o2);
-static void tro_set_influence(struct tr_object *objs, int i, int nb);
 static void trm_set_influence(struct tr_map * map);
 
 //-----------------------------------------------------
@@ -117,7 +116,7 @@ static double tro_influence_coeff(struct tr_object * o1,
 
 //-----------------------------------------------------
 
-static void tro_set_influence(struct tr_object * objs, int i, int nb)
+void tro_set_influence(struct tr_object * objs, int i, int nb)
 {
     if(objs[i].ps == GREAT || objs[i].ps == BONUS) {
 	return;

@@ -20,6 +20,7 @@
 #include "taiko_ranking_object.h"
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_score.h"
+#include "final_star.h"
 
 #include "config.h"
 #include "print.h"
@@ -163,6 +164,8 @@ static void trs_compute(struct tr_score * score)
 	    trm_set_tro_ps(score->map, i, MISS);
 	else
 	    trm_set_tro_ps(score->map, i, GOOD);
+	tro_set_influence(score->map->object, i, 
+			  score->map->nb_object);
 
 	if(score->map->conf->quick == 0 || trs_is_finished(score)) {
 	    if(score->map->conf->quick)

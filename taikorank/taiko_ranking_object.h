@@ -20,54 +20,55 @@
 #define MSEC_IN_MINUTE 60000.
 
 enum played_state
-{
-  GREAT, GOOD, MISS, BONUS
-};
+    {
+	GREAT, GOOD, MISS, BONUS
+    };
 
 struct tr_object
 {
-  // ---- basic data
-  int offset;
-  int end_offset;     // printed in basic+
-  char type;          // d D k K s(spinner) r(roll) R(roll)
-  double bpm_app;
+    // ---- basic data
+    int offset;
+    int end_offset;     // printed in basic+
+    char type;          // d D k K s(spinner) r(roll) R(roll)
+    double bpm_app;
   
-  enum played_state ps;
+    enum played_state ps;
 
-  // ---- additionnal data
-  int l_hand;          
-  int r_hand;          
-  int rest;            // printed in basic
-  double obj_app;      // nb obj displayable on screen, without overlapping
-  double obj_dis;      // nb obj where disappear
-  int offset_app;      // printed in reading,  border left appear
-  int end_offset_app;  // printed in reading+, border right appear
-  int offset_dis;      // printed in reading,  border right disappear
-  int end_offset_dis;  // printed in reading+, border left disappear
-  double c_app;     // bpm_app * end_offset_app
-  double c_end_app; // bpm_app * offset_app
-  // ---- pattern data
-  double proba;
-  double * alt; // end with negative value
+    // ---- additionnal data
+    int l_hand;          
+    int r_hand;          
+    int length;
+    int rest;            // printed in basic
+    double obj_app;      // nb obj displayable on screen, without overlapping
+    double obj_dis;      // nb obj where disappear
+    int offset_app;      // printed in reading,  border left appear
+    int end_offset_app;  // printed in reading+, border right appear
+    int offset_dis;      // printed in reading,  border right disappear
+    int end_offset_dis;  // printed in reading+, border left disappear
+    double c_app;     // bpm_app * end_offset_app
+    double c_end_app; // bpm_app * offset_app
+    // ---- pattern data
+    double proba;
+    double * alt; // end with negative value
   
-  // ---- density data
-  double density_raw;
-  double density_color;
+    // ---- density data
+    double density_raw;
+    double density_color;
 
-  // ---- reading data
-  double seen;
+    // ---- reading data
+    double seen;
 
-  // ---- accuracy star
-  double slow;         // slow, hard to acc
-  double hit_window;
-  double spacing;
+    // ---- accuracy star
+    double slow;         // slow, hard to acc
+    double hit_window;
+    double spacing;
 
-  // ---- star
-  double density_star;
-  double reading_star;
-  double pattern_star;
-  double accuracy_star;
-  double final_star;
+    // ---- star
+    double density_star;
+    double reading_star;
+    double pattern_star;
+    double accuracy_star;
+    double final_star;
 };
 
 //-------------------------------------------------------------
@@ -98,8 +99,8 @@ int tro_are_same_density (struct tr_object * obj1,
 			  struct tr_object * obj2);
 
 struct tro_table {
-  struct tr_object ** t;
-  int l;
+    struct tr_object ** t;
+    int l;
 };
 
 struct tro_table * tro_table_new(int l);

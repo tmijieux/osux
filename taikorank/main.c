@@ -39,13 +39,15 @@ int main(int argc, char* argv[])
 		continue;
 
 	    map->conf = tr_config_copy(CONF);
-	    map->conf->tr_main(map);
-	    tr_config_free(map->conf);
-	    trm_free(map);
+	    {
+		map->conf->tr_main(map);
+		tr_config_free(map->conf);
+		trm_free(map);
+	    }
 	}
     }
   
-    if(nb_map == 0)
+    if (nb_map == 0)
 	tr_error("No osu file D:");
     
     return EXIT_SUCCESS;

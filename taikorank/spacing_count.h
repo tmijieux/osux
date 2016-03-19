@@ -17,23 +17,12 @@
 #define SPACING_COUNT_H
 
 struct list;
+struct spacing_count;
 
-struct spacing {
-    int rest;
-    double nb;
-};
-
-struct list * spc_new(void);
-void spc_free(struct list * spc);
-
-void spc_add_f(struct list * spc, int rest, double val);
-void spc_add(struct list * spc, int rest);
-void spc_increase_f(struct list * spc, int rest, double val);
-void spc_increase(struct list * spc, int rest);
-
-void spc_print(struct list * spc);
-
-double spc_get_total(struct list * spc);
-double spc_get_nb(struct list * spc, int rest, int (*eq)(int, int));
-
+struct spacing_count * spc_new(int (*eq)(int, int));
+void spc_free(struct spacing_count * spc);
+void spc_add(struct spacing_count * spc, int rest, double val);
+void spc_print(struct spacing_count * spc);
+double spc_get_total(struct spacing_count * spc);
+double spc_get_nb(struct spacing_count * spc, int rest);
 #endif //SPACING_COUNT_H

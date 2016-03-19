@@ -39,11 +39,6 @@ struct tr_object * tro_copy(const struct tr_object * o, int nb)
 
 //--------------------------------------------------
 
-int tro_get_length(struct tr_object * obj)
-{
-    return obj->end_offset - obj->offset;
-}
-
 double tro_get_size(struct tr_object * obj)
 {
     if(tro_is_big(obj))

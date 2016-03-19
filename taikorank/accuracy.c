@@ -165,39 +165,27 @@ static double tro_spacing_influence(struct tr_object * o1,
 
 //-----------------------------------------------------
 
-static struct list * tro_spacing_init(struct tr_object * objs, int i)
+static struct spacing_count * tro_spacing_init(struct tr_object * objs, int i)
 {
-    struct tr_object * copy = tro_copy(objs, i+1);
-    tro_sort_rest(copy, i+1);
-
-    struct list * l = spc_new();
-    int last = 0;
-    spc_add_f(l, copy[last].rest,
-	      tro_spacing_influence(&copy[last], &objs[i]));
-
-    for(int j = 1; j < i+1; j++) {
-	if(copy[j].ps == MISS)
+    struct spacing_count * spc = spc_new(equal_i);
+    for(int j = 0; j < i+1; j++) {
+	if(objs[j].ps == MISS)
 	    continue;
-	if(equal_i(copy[last].rest, copy[j].rest))
-	    spc_increase_f(l, copy[last].rest, 
-			   tro_spacing_influence(&copy[j], &objs[i]));
-	else {
-	    spc_add_f(l, copy[j].rest, 
-		      tro_spacing_influence(&copy[j], &objs[i]));
-	    last = j;
-	}
+	double influ = tro_spacing_influence(&objs[j], &objs[i]);
+	if (influ == 0)
+	    continue;
+	spc_add(spc, objs[j].rest, influ);
     }
-    //spc_print(l);
-    free(copy);
-    return l;
+    return spc;
 }
 
 //-----------------------------------------------------
 
-static double tro_spacing(struct tr_object * obj, struct list * spc)
+static double tro_spacing(struct tr_object * obj,
+			  struct spacing_count * spc)
 {
     double total = spc_get_total(spc);
-    double nb = spc_get_nb(spc, obj->rest, equal_i);
+    double nb = spc_get_nb(spc, obj->rest);
     double freq = 1;
     if (total != 0) // avoid error when only miss
 	freq = nb / total;
@@ -233,9 +221,9 @@ static void trm_set_slow(struct tr_map * map)
 
 static void tro_set_spacing(struct tr_object * objs, int i)
 {
-    struct list * l = tro_spacing_init(objs, i);
-    objs[i].spacing = tro_spacing(&objs[i], l);
-    spc_free(l);
+    struct spacing_count * spc = tro_spacing_init(objs, i);
+    objs[i].spacing = tro_spacing(&objs[i], spc);
+    spc_free(spc);
 }
 
 static void trm_set_spacing(struct tr_map * map)

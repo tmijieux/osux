@@ -131,10 +131,9 @@ static double tro_get_coeff_density(struct tr_object * obj)
 static double tro_density(struct tr_object * obj1, 
 			  struct tr_object * obj2)
 {
-    double length = tro_get_length(obj1);
-    double value  = lf_eval(DENSITY_VECT,
+    double value  = lf_eval(DENSITY_VECT, 
 			    ((double) obj2->end_offset - obj1->offset) + 
-			    DENSITY_LENGTH * length);
+			    DENSITY_LENGTH * obj1->length);
     return tro_get_coeff_density(obj1) * value;
 }
 

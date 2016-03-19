@@ -20,11 +20,13 @@
 #include "taiko_ranking_object.h"
 #include "treatment.h"
 
+static void tro_set_length(struct tr_object * obj);
 static void tro_set_line_coeff(struct tr_object * o);
 static void tro_set_app_dis_offset(struct tr_object * obj);
 static void tro_set_hand(struct tr_object * obj, 
 			 int * d_hand, int * k_hand);
 
+static void trm_set_length(struct tr_map * map);
 static void trm_set_hand(struct tr_map * map);
 static void trm_set_rest(struct tr_map * map);
 static void trm_set_app_dis_offset(struct tr_map * map);
@@ -179,11 +181,27 @@ static void trm_set_combo(struct tr_map * map)
 }
 
 //-----------------------------------------------------
+
+static void tro_set_length(struct tr_object * obj)
+{
+    obj->length = obj->end_offset - obj->offset;
+}
+
+
+static void trm_set_length(struct tr_map * map)
+{
+    for(int i = 0; i < map->nb_object; i++) {
+	tro_set_length(&map->object[i]);
+    }
+}
+
+//-----------------------------------------------------
 //-----------------------------------------------------
 //-----------------------------------------------------
 
 void trm_treatment(struct tr_map * map)
 {
+    trm_set_length(map);
     trm_set_hand(map);
     trm_set_rest(map);
     trm_set_app_dis_offset(map);
