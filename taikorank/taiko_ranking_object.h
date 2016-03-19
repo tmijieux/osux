@@ -19,10 +19,9 @@
 
 #define MSEC_IN_MINUTE 60000.
 
-enum played_state
-    {
-	GREAT, GOOD, MISS, BONUS
-    };
+enum played_state {
+    GREAT, GOOD, MISS, BONUS
+};
 
 struct tr_object
 {
@@ -100,7 +99,8 @@ int tro_are_same_density (struct tr_object * obj1,
 
 struct tro_table {
     struct tr_object ** t;
-    int l;
+    int l;    // current len
+    int size; // max len
 };
 
 struct tro_table * tro_table_new(int l);

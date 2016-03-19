@@ -245,11 +245,12 @@ void tro_print(struct tr_object * obj, int filter)
 
 //-------------------------------------------------
 
-struct tro_table * tro_table_new(int l)
+struct tro_table * tro_table_new(int size)
 {
     struct tro_table * res = malloc(sizeof(*res));
     res->l = 0;
-    res->t = malloc(sizeof(struct tr_object *) * l);
+    res->size = size;
+    res->t = malloc(sizeof(struct tr_object *) * size);
     return res;
 }
 
@@ -257,7 +258,8 @@ struct tro_table * tro_table_from_vl(int l, ...)
 {
     struct tro_table * res = tro_table_new(l);
     res->l = l;
-  
+    res->size = l;
+
     va_list vl;
     va_start(vl, l);
     for(int i = 0; i < l; i++)
@@ -277,6 +279,7 @@ struct tro_table * tro_table_from_array(struct tr_object ** t, int l)
 {
     struct tro_table * res = malloc(sizeof(*res));
     res->l = l;
+    res->size = l;
     res->t = t;
     return res;
 }

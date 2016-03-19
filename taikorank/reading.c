@@ -42,8 +42,7 @@ static struct yaml_wrap * yw;
 static struct hash_table * ht_cst;
 
 static int pt_is_in_tro(double x, double y, struct tr_object * o);
-static int pt_is_in_intersection(double x, double y,
-				 struct tro_table * t);
+static int pt_is_hiding(double x, double y, struct tro_table * t);
 
 static double tr_monte_carlo(int nb_pts,
 			     double x1, double y1,
@@ -120,16 +119,18 @@ static int pt_is_in_tro(double x, double y, struct tr_object * o)
 	    o->bpm_app * x + o->c_app     >= y);
 }
 
-static int pt_is_in_intersection(double x, double y,
-				 struct tro_table * t)
+static int pt_is_hiding(double x, double y, struct tro_table * t)
 {
+    if(!pt_is_in_tro(x, y, t->t[t->size-1]))
+	return 0;
+
     for(int i = 0; i < t->l; i++) {
 	if(t->t[i] == NULL)
 	    continue;
-	if(!pt_is_in_tro(x, y, t->t[i]))
-	    return 0;
+	if(pt_is_in_tro(x, y, t->t[i]))
+	    return 1;
     }
-    return 1;
+    return 0;
 }
 
 //-----------------------------------------------------
@@ -199,8 +200,11 @@ static double tro_hide(struct tr_object *o, struct tro_table *obj_h)
     double x2 = o->end_offset_dis;
     double y1 = 0;
     double y2 = o->bpm_app * o->end_offset_dis + o->c_app;
+    // set last to current object
+    // last place is always free (see tro_get_obj_hiding)
+    obj_h->t[obj_h->size-1] = o;
     return tr_monte_carlo(MONTE_CARLO_NB_PT, x1, y1, x2, y2, 
-			  (mc_cond)pt_is_in_intersection, 
+			  (mc_cond)pt_is_hiding, 
 			  obj_h);
 }
 
@@ -232,7 +236,8 @@ static struct tro_table * tro_get_obj_hiding(struct tr_object * objs,
 					     int i)
 {
     // list object that hide the i-th
-    struct tro_table * obj_h = tro_table_new(i);
+    // allocate one more place for later
+    struct tro_table * obj_h = tro_table_new(i + 1);
 
     for(int j = 0; j < i; j++) {
 	if(objs[j].ps == MISS)
