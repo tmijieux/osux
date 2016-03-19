@@ -48,7 +48,7 @@ score_input:  1
 # 1 -> good and miss
 score_acc:  100
 score_good: 0
-score_miss: 5
+score_miss: 0
 
 # About score_methods:
 # quick is way less accurate

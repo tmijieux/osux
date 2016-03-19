@@ -94,7 +94,7 @@ static int new_rq(MYSQL * sql, const char * rq, ...)
     va_end(va);
 
     if (mysql_query(sql, buf)) {
-	tr_error("%srequest:%s\n", mysql_error(sql), buf);
+	tr_error("'%s' request: '%s'", mysql_error(sql), buf);
 	free(buf);
 	return -1;
     }
@@ -107,11 +107,14 @@ static int new_rq(MYSQL * sql, const char * rq, ...)
 
 static int tr_db_get_id(MYSQL * sql, char * table, char * cond)
 {
-    new_rq(sql, "SELECT * FROM %s WHERE %s;", table, cond);
-  
-    MYSQL_RES * result = mysql_store_result(sql);
-    MYSQL_ROW row = mysql_fetch_row(result);
-  
+    MYSQL_RES * result;
+    MYSQL_ROW row;
+    #pragma omp critical
+    {
+	new_rq(sql, "SELECT * FROM %s WHERE %s;", table, cond);
+	result = mysql_store_result(sql);
+	row = mysql_fetch_row(result);
+    }
     int id = -1;
     if (row != NULL)
 	id = atoi(row[0]);
@@ -139,6 +142,7 @@ static int tr_db_insert_user(struct tr_map * map)
   
     int user_id = tr_db_get_id(sql, TR_DB_USER, cond);
     if (user_id < 0) {
+	#pragma omp critical
 	new_rq(sql,"INSERT INTO %s(name, density_star, reading_star,"
 	       "pattern_star, accuracy_star, final_star)"
 	       "VALUES('%s', 0, 0, 0, 0, 0);",
@@ -168,6 +172,7 @@ static int tr_db_insert_bms(struct tr_map * map, int user_id)
     
     int bms_id = tr_db_get_id(sql, TR_DB_BMS, cond);
     if (bms_id < 0) {
+	#pragma omp critical
 	new_rq(sql, "INSERT INTO %s(artist, title, source, "
 	       "creator_ID, artist_uni, title_uni, osu_map_ID)"
 	       "VALUES('%s', '%s', '%s', %d, '%s', '%s', %d);",
@@ -197,6 +202,7 @@ static int tr_db_insert_diff(struct tr_map * map, int bms_id)
 
     int diff_id = tr_db_get_id(sql, TR_DB_DIFF, cond);
     if (diff_id < 0) {
+	#pragma omp critical
 	new_rq(sql, "INSERT INTO %s(diff_name, bms_ID, osu_diff_ID,"
 	       "max_combo, bonus, hash)"
 	       "VALUES('%s', %d, %d, %d, %d, '%s');",
@@ -221,6 +227,7 @@ static int tr_db_insert_mod(struct tr_map * map)
 
     int mod_id = tr_db_get_id(sql, TR_DB_MOD, cond);
     if (mod_id < 0) {
+	#pragma omp critical
 	new_rq(sql, "INSERT INTO %s(mod_name) VALUES('%s');",
 	       TR_DB_MOD, mod_str);
 	mod_id = tr_db_get_id(sql, TR_DB_MOD, cond);
@@ -245,6 +252,7 @@ static int tr_db_insert_update_score(struct tr_map * map,
 
     int score_id = tr_db_get_id(sql, TR_DB_SCORE, cond);
     if (score_id < 0) {
+	#pragma omp critical
 	new_rq(sql, "INSERT INTO %s(diff_ID, mod_ID, accuracy, "
 	       "combo, great, good, miss, "
 	       "density_star, pattern_star, reading_star, "
@@ -260,6 +268,7 @@ static int tr_db_insert_update_score(struct tr_map * map,
 	fprintf(OUTPUT_INFO, "New score: (%g%%) ID: %d\n", 
 		map->acc * COEFF_MAX_ACC, score_id);
     } else {
+	#pragma omp critical
 	new_rq(sql, "UPDATE %s SET density_star = %.3g, "
 	       "reading_star = %.3g, pattern_star = %.3g,"
 	       "accuracy_star = %.3g, final_star = %.3g "

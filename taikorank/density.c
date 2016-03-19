@@ -207,8 +207,9 @@ void trm_compute_density(struct tr_map * map)
 	tr_error("Unable to compute density stars.");
 	return;
     }
-  
+
     trm_set_density_raw(map);
     trm_set_density_color(map);
+
     trm_set_density_star(map);
 }

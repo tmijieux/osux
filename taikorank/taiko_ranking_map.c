@@ -77,6 +77,7 @@ void trm_main(const struct tr_map * map)
     trm_compute_stars(map_copy);
   
     // printing
+    #pragma omp critical
     if(OPT_PRINT_TRO)
 	trm_print_tro(map_copy, OPT_PRINT_FILTER);
     if(OPT_PRINT_YAML)
@@ -116,9 +117,7 @@ void trm_compute_stars(struct tr_map * map)
     if((map->mods & MODS_FL) != 0)
 	trm_apply_mods_FL(map);
     trm_treatment(map);
-  
-    #pragma omp parallel
-    #pragma omp single
+
     {
         #pragma omp task
 	trm_compute_density(map);
@@ -129,6 +128,8 @@ void trm_compute_stars(struct tr_map * map)
         #pragma omp task
 	trm_compute_accuracy(map);
     }
+    #pragma omp taskwait
+
     trm_compute_final_star(map);
 }
 

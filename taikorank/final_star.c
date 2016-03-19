@@ -136,7 +136,6 @@ void tro_set_influence(struct tr_object * objs, int i, int nb)
 
 static void trm_set_final_star(struct tr_map * map)
 {
-    #pragma omp parallel for
     for(int i = 0; i < map->nb_object; i++) {
 	tro_set_final_star(&map->object[i]);
     }
@@ -163,18 +162,11 @@ void trm_compute_final_star(struct tr_map * map)
     trm_set_influence(map);
     trm_set_final_star(map);
 
-    #pragma omp parallel 
-    #pragma omp single
     {
-	#pragma omp task
 	map->density_star = trm_weight_sum_density_star(map, NULL);
-	#pragma omp task
 	map->reading_star = trm_weight_sum_reading_star(map, NULL);
-        #pragma omp task
 	map->pattern_star = trm_weight_sum_pattern_star(map, NULL);
-        #pragma omp task
 	map->accuracy_star = trm_weight_sum_accuracy_star(map, NULL);
-        #pragma omp task
 	map->final_star = trm_weight_sum_final_star(map, NULL);
     }
 }
