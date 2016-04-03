@@ -102,6 +102,8 @@ void list_add(struct list *list, const void *element)
     struct list_node *tmp = node_new(element, 0);
     node_set_next(tmp, node_get_next(list->front_sentinel));
     node_set_next(list->front_sentinel, tmp);
+    if (list->curpos != 0)
+        list->curpos++;
     list->size ++;
 }
 
