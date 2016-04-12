@@ -73,7 +73,6 @@ struct tr_map
 
 struct tr_map * trm_new(char * file_name);
 struct tr_map * trm_copy(const struct tr_map * map);
-void trm_pattern_free(struct tr_map * map);
 void trm_free(struct tr_map * map);
 
 int trm_hardest_tro(struct tr_map * map);

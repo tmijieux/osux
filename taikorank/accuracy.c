@@ -94,7 +94,7 @@ static void ht_cst_init_accuracy(void)
 {
     yw = cst_get_yw(ACCURACY_FILE);
     ht_cst = cst_get_ht(yw);
-    if(ht_cst)
+    if(ht_cst != NULL)
 	global_init();
 }
 
@@ -259,7 +259,7 @@ static void trm_set_accuracy_star(struct tr_map * map)
 
 void trm_compute_accuracy(struct tr_map * map)
 {
-    if(!ht_cst) {
+    if(ht_cst == NULL) {
 	tr_error("Unable to compute accuracy stars.");
 	return;
     }

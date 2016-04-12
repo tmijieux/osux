@@ -156,21 +156,11 @@ struct tr_map * trm_copy(const struct tr_map * map)
 
 //-----------------------------------------------------
 
-void trm_pattern_free(struct tr_map * map)
-{
-    for(int i = 0; i < map->nb_object; i++) {
-	free(map->object[i].alt);
-    }  
-}
-
-//--------------------------------------------------
-
 void trm_free(struct tr_map * map)
 {
     if(map == NULL)
 	return;
 
-    trm_pattern_free(map);
     free(map->title);
     free(map->artist);
     free(map->source);
@@ -408,7 +398,7 @@ void trm_print_tro(struct tr_map * map, int filter)
     if((filter & FILTER_ACCURACY) != 0)
 	fprintf(OUTPUT_INFO, "slow\thitwin\tspc\tacc*\t");
     if((filter & FILTER_PATTERN) != 0)
-	fprintf(OUTPUT_INFO, "proba\tpttrn*\talt...\t");
+	fprintf(OUTPUT_INFO, "proba\tpttrn*\t");
     if((filter & FILTER_STAR) != 0)
 	fprintf(OUTPUT_INFO, "dst*\tread*\tptrn*\tacc*\tfin*\t");
 

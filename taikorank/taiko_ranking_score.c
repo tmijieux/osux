@@ -156,9 +156,6 @@ static void trs_compute(struct tr_score * score)
     trs_print_and_db(score);
 
     while(!trs_is_finished(score)) {
-	if(score->map->conf->quick == 0)      
-	    trm_pattern_free(score->map);
-
 	int i = score->map->conf->trm_method_get_tro(score->map);
 	if(score->miss != score->map->miss)
 	    trm_set_tro_ps(score->map, i, MISS);
@@ -168,9 +165,6 @@ static void trs_compute(struct tr_score * score)
 			  score->map->nb_object);
 
 	if(score->map->conf->quick == 0 || trs_is_finished(score)) {
-	    if(score->map->conf->quick)
-		trm_pattern_free(score->map);
-
 	    trm_compute_stars(score->map);
 	    trs_print_and_db(score);
 	}

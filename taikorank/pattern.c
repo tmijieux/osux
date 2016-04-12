@@ -33,37 +33,42 @@
 
 #include "pattern.h"
 
-struct pattern
-{
-    double * d;
-};
+#define PROBA_SCALE 100.
 
 static struct yaml_wrap * yw;
 static struct hash_table * ht_cst;
-static struct hash_table * ht_pattern;
-static int pattern_set;
+
+struct pattern {
+    char * s;
+    int offset;
+    double proba_alt;
+};
+
+struct pattern_table {
+    struct pattern ** p;
+    int size;
+};
 
 //--------------------------------------------------
 
-static void remove_pattern(const char * s, void * p, void * null);
-static void ht_pattern_init();
-static struct pattern * get_pattern(char * s);
+static struct pattern_table * trm_init_patterns(struct tr_map * map);
+static struct pattern_table * pattern_table_new(int size);
+static void pattern_table_free(struct pattern_table * p);
+static void pattern_free(struct pattern *p);
+
+static char * trm_extract_pattern_str(struct tr_map * map,
+				      int i, double proba_alt);
+static struct pattern * trm_extract_pattern(struct tr_map * map,
+					    int i, double proba_alt);
 
 static double tro_singletap_proba(struct tr_object * obj);
 
-static char * trm_extract_pattern(struct tr_map * map,
-				  int i, double proba_alt);
-static struct pattern * trm_get_pattern(struct tr_map * map,
-					int i, double proba_alt);
-
-static void tro_pattern_alloc(struct tr_object * obj);
-static void trm_pattern_alloc(struct tr_map * map);
+static void tro_set_pattern_freq(struct tr_object * objs, int i,
+				 struct pattern_table * p);
+static void trm_set_pattern_freq(struct tr_map * map);
 
 static void tro_set_pattern_proba(struct tr_object * obj);
 static void trm_set_pattern_proba(struct tr_map * map);
-
-static void trm_add_pattern_alt(struct tr_map * map, double pro_p);
-static void trm_set_pattern_alt(struct tr_map * map);
 
 static void tro_set_pattern_star(struct tr_object * obj);
 static void trm_set_pattern_star(struct tr_map * map);
@@ -85,14 +90,6 @@ static struct linear_fun * SCALE_VECT;
 
 // pattern
 static int MAX_PATTERN_LENGTH;
-static int LENGTH_PATTERN_USED;
-
-#define cst_assert(COND, MSG)			\
-    if(!(COND)) {				\
-	tr_error(MSG);				\
-	pattern_set = 0;			\
-	return;					\
-    }
 
 //-----------------------------------------------------
 
@@ -106,7 +103,6 @@ static void global_init(void)
     PROBA_STEP  = cst_f(ht_cst, "proba_step");
 
     MAX_PATTERN_LENGTH = cst_i(ht_cst, "max_pattern_length");
-    LENGTH_PATTERN_USED = cst_i(ht_cst, "length_pattern_used");
     
     PATTERN_STAR_COEFF_ALT = cst_f(ht_cst, "star_alt");
 }
@@ -118,76 +114,105 @@ static void ht_cst_init_pattern(void)
 {
     yw = cst_get_yw(PATTERN_FILE);
     ht_cst = cst_get_ht(yw);
-    if(ht_cst) {
+    if(ht_cst != NULL)
 	global_init();
-	pattern_set = 1;
-	ht_pattern_init();
-    }
-    else
-	pattern_set = 0;
 }
 
 //-----------------------------------------------------
-
-static void ht_pattern_init(void)
-{  
-    ht_pattern = ht_create(0, NULL);
-
-    struct yaml_wrap * yw_l = NULL;
-    ht_get_entry(ht_cst, "patterns", &yw_l);
-    cst_assert(yw_l != NULL, "Pattern list not found.");
-    cst_assert(yw_l->type == YAML_SEQUENCE,
-	       "Pattern list is not a list.");
-  
-    struct list * pattern_l = yw_l->content.sequence;
-    for(unsigned int i = 1; i <= list_size(pattern_l); i++) {
-	struct yaml_wrap * yw_subl = list_get(pattern_l, i);
-	cst_assert(yw_subl->type == YAML_SEQUENCE,
-		   "Pattern structure is not a list.");
-	struct list * pattern_data = yw_subl->content.sequence;
-
-	cst_assert((unsigned int) LENGTH_PATTERN_USED + 1 == 
-		   list_size(pattern_data),
-		   "Pattern structure does not have the right size.");
-      
-	struct yaml_wrap * yw_name = list_get(pattern_data, 1);
-	cst_assert(yw_name->type == YAML_SCALAR,
-		   "Pattern name is not a scalar.");
-	char * name = yw_name->content.scalar;
-
-	struct pattern * p = calloc(sizeof(*p), 1);
-	p->d = calloc(sizeof(double), LENGTH_PATTERN_USED);
-	
-	for(unsigned int j = 2; j <= list_size(pattern_data); j++) {
-	    struct yaml_wrap * yw_s = list_get(pattern_data, j);
-	    cst_assert(yw_s->type == YAML_SCALAR,
-		       "Pattern value is not a scalar.");
-	    p->d[j-2] = atof(yw_s->content.scalar);
-	}
-	ht_add_entry(ht_pattern, name, p);
-    }
-}
-  
-//-----------------------------------------------------
-
-static void remove_pattern(const char * s __attribute__((unused)),
-			   void * p,
-			   void * null  __attribute__((unused)))
-{
-    free(((struct pattern *) p)->d);
-    free(p);
-}
-
-//--------------------------------------------------
 
 __attribute__((destructor))
 static void ht_cst_exit_pattern(void)
 {
     yaml2_free(yw);
-    ht_for_each(ht_pattern, remove_pattern, NULL);
-    ht_free(ht_pattern);
     lf_free(SCALE_VECT);
     lf_free(SINGLETAP_VECT);
+}
+
+//-----------------------------------------------------
+//-----------------------------------------------------
+//-----------------------------------------------------
+
+static void pattern_free(struct pattern *p)
+{
+    if (p == NULL)
+	return;
+    free(p->s);
+    free(p);
+}
+
+static void pattern_table_free(struct pattern_table * p)
+{
+    if (p == NULL)
+	return;
+    for(int i = 0; i < p->size; i++)
+	pattern_free(p->p[i]);
+    free(p->p);
+    free(p);
+}
+
+static struct pattern_table * pattern_table_new(int size)
+{
+    struct pattern_table * p = malloc(sizeof(*p));
+    p->p = calloc(sizeof(struct pattern*), size);
+    p->size = size;
+    return p;
+}
+
+static struct pattern_table * trm_init_patterns(struct tr_map * map)
+{
+    int nb_proba = (PROBA_END - PROBA_START) / PROBA_STEP;
+    struct pattern_table * p = pattern_table_new(map->nb_object * nb_proba);
+    
+    for(int i = 0; i < map->nb_object; i++) {
+	int j = 0;
+	for(double pr = PROBA_START; pr < PROBA_END; pr+=PROBA_STEP){
+	    int k = j + nb_proba * i;
+	    p->p[k] = trm_extract_pattern(map, i, pr / PROBA_SCALE);
+	    j++;
+	}
+    }
+    return p;
+}
+
+//-----------------------------------------------------
+
+static struct pattern * trm_extract_pattern(struct tr_map * map,
+					    int i, double proba_alt)
+{
+    struct pattern * p = malloc(sizeof(*p));
+    p->proba_alt = proba_alt;
+    p->offset = map->object[i].offset;
+    p->s = trm_extract_pattern_str(map, i, proba_alt);
+    return p;
+}
+
+//-----------------------------------------------------
+
+static char * trm_extract_pattern_str(struct tr_map * map,
+				      int i, double proba_alt)
+{
+    char * s = calloc(sizeof(char), MAX_PATTERN_LENGTH + 1);
+    for (int j = 0; 
+	 j < MAX_PATTERN_LENGTH && i + j < map->nb_object; 
+	 j++) {
+	if (tro_is_bonus(&map->object[i+j]) ||
+	    map->object[i+j].ps == MISS) {
+	    s[j] = 0;
+	    break; // continue?
+	}
+	else if (tro_is_don(&map->object[i+j]))
+	    s[j] = 'd';
+	else // if (tro_is_kat(&map->object[i+j]))
+	    s[j] = 'k';
+	
+	if (tro_is_big(&map->object[i+j]) ||
+	    i + j > map->nb_object || 
+	    map->object[i+j+1].proba > proba_alt) {
+	    s[j+1] = 0;
+	    break;
+	}
+    }
+    return s;
 }
 
 //-----------------------------------------------------
@@ -200,55 +225,17 @@ static double tro_singletap_proba(struct tr_object * obj)
 }
 
 //-----------------------------------------------------
-
-static char * trm_extract_pattern(struct tr_map * map,
-				  int i, double proba_alt)
-{
-    char * s = calloc(sizeof(char), MAX_PATTERN_LENGTH + 1);
-    for (int j = 0; (j < MAX_PATTERN_LENGTH &&
-		     i + j < map->nb_object); j++) {
-	if (tro_is_bonus(&map->object[i+j]) ||
-	    map->object[i+j].ps == MISS) {
-	    s[j] = 0;
-	    break; // continue ? for bonus ?
-	}
-	else if (tro_is_don(&map->object[i+j]))
-	    s[j] = 'd';
-	else // if (tro_is_kat(&map->object[i+j]))
-	    s[j] = 'k';
-      
-	if (tro_is_big(&map->object[i+j]) ||
-	    map->object[i+j].proba > proba_alt) {
-	    s[j+1] = 0;
-	    break;
-	}
-    }
-    return s;
-}
-
+//-----------------------------------------------------
 //-----------------------------------------------------
 
-static struct pattern * get_pattern(char * s)
+static void tro_set_pattern_freq(struct tr_object * objs, int i,
+				 struct pattern_table * p)
 {
-    struct pattern * p = NULL;
-    int ret = ht_get_entry(ht_pattern, s, &p);
-    if (ret != 0) { // when s[0] = 0 (bonus) or not found (error)
-	if (s[0] != 0)
-	    tr_error("Could not find pattern: %s", s);
-	return NULL;
+    for(int j = 0; j < p->size; j++) {
+	if (p->p[i]->offset > objs[i].offset)
+	    break; // array is sorted by offset
+	;
     }
-    return p;
-}
-
-//-----------------------------------------------------
-
-static struct pattern * trm_get_pattern(struct tr_map * map,
-					int i, double proba_alt)
-{
-    char * s = trm_extract_pattern(map, i, proba_alt);
-    struct pattern * p = get_pattern(s);
-    free(s);
-    return p;
 }
 
 //-----------------------------------------------------
@@ -262,36 +249,28 @@ static void tro_set_pattern_proba(struct tr_object * obj)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
+static void trm_set_pattern_freq(struct tr_map * map)
+{
+    struct pattern_table * p = trm_init_patterns(map);
+/*
+    printf("Pattern\n");
+    for(int i = 0; i < p->size; i++) {
+	if(p->p[i] == NULL)
+	    continue;
+	printf("%s\t%d\t%g\n", p->p[i]->s, p->p[i]->offset, p->p[i]->proba_alt);
+    }
+*/
+    for(int i = 0; i < map->nb_object; i++)
+	tro_set_pattern_freq(map->object, i, p);
+    pattern_table_free(p);
+}
+
+//-----------------------------------------------------
+
 static void trm_set_pattern_proba(struct tr_map * map)
 {
-    for(int i = 0; i < map->nb_object; i++) {
+    for(int i = 0; i < map->nb_object; i++)
 	tro_set_pattern_proba(&map->object[i]);
-    }
-}
-
-//-----------------------------------------------------
-
-static void trm_add_pattern_alt(struct tr_map * map, double pro_p)
-{
-    for (int i = 0; i < map->nb_object; i++) {
-	struct pattern * p = trm_get_pattern(map, i, pro_p);
-	if (p == NULL)
-	    continue;
-	
-	for (int j = 0; (j < LENGTH_PATTERN_USED &&
-			 i + j < map->nb_object); j++)
-	    map->object[i+j].alt[j] = min(pro_p * p->d[j],
-					  map->object[i+j].alt[j]);
-    }    
-}
-
-//-----------------------------------------------------
-
-static void trm_set_pattern_alt(struct tr_map * map)
-{
-    for(int pro = PROBA_START; pro <= PROBA_END; pro += PROBA_STEP) {
-	trm_add_pattern_alt(map, pro / 100.);
-    }
 }
 
 //-----------------------------------------------------
@@ -300,59 +279,30 @@ static void trm_set_pattern_alt(struct tr_map * map)
 
 static void tro_set_pattern_star(struct tr_object * obj)
 {
-    obj->pattern_star = INFINITY;
-    for (int j = 0; j < LENGTH_PATTERN_USED; j++) {
-	if (obj->alt[j] == INFINITY)
-	    continue;
-	double val = lf_eval(SCALE_VECT, 
-			     PATTERN_STAR_COEFF_ALT * obj->alt[j]);
-	obj->pattern_star = min(obj->pattern_star, val);
-    }
+    obj->pattern_star = 0;
 }
 
 //-----------------------------------------------------
 
 static void trm_set_pattern_star(struct tr_map * map)
 {
-    for (int i = 0; i < map->nb_object; i++) {
+    for (int i = 0; i < map->nb_object; i++)
 	tro_set_pattern_star(&map->object[i]);
-    }
 }
 
 //-----------------------------------------------------
 //-----------------------------------------------------
-//-----------------------------------------------------
-
-static void tro_pattern_alloc(struct tr_object * obj)
-{
-    // end with negative value
-    obj->alt = malloc(sizeof(double) * (LENGTH_PATTERN_USED + 1));
-    for(int i = 0; i < LENGTH_PATTERN_USED; i++)
-	obj->alt[i] = INFINITY;
-    obj->alt[LENGTH_PATTERN_USED] = -INFINITY;
-}
-
-//-----------------------------------------------------
-
-static void trm_pattern_alloc(struct tr_map * map)
-{
-    for (int i = 0; i < map->nb_object; i++) { 
-	tro_pattern_alloc(&map->object[i]);
-    }  
-}
-
 //-----------------------------------------------------
 
 void trm_compute_pattern(struct tr_map * map)
 {
-    if(!pattern_set) {
+    if(ht_cst == NULL) {
 	tr_error("Unable to compute pattern stars.");
 	return;
     }
   
-    trm_pattern_alloc(map);
     trm_set_pattern_proba(map);
-    trm_set_pattern_alt(map);
+    trm_set_pattern_freq(map);
   
     trm_set_pattern_star(map);
 }

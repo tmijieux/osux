@@ -46,9 +46,9 @@ struct tr_object
     int end_offset_dis;  // printed in reading+, border left disappear
     double c_app;     // bpm_app * end_offset_app
     double c_end_app; // bpm_app * offset_app
+
     // ---- pattern data
     double proba;
-    double * alt; // end with negative value
   
     // ---- density data
     double density_raw;

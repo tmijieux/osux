@@ -228,9 +228,6 @@ void tro_print(struct tr_object * obj, int filter)
 	fprintf(OUTPUT_INFO, "%.3g\t%g\t",
 		obj->proba,
 		obj->pattern_star);
-	int i = 0;
-	while(obj->alt[i] >= 0)
-	    fprintf(OUTPUT_INFO, "%.3g\t", obj->alt[i++]);
     }
     if((filter & FILTER_STAR) != 0)
 	fprintf(OUTPUT_INFO, "%.3g\t%.3g\t%.3g\t%.3g\t%.3g\t",
