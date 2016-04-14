@@ -73,7 +73,7 @@ __attribute__((constructor))
 static void ht_cst_init_final(void)
 {
     yw = cst_get_yw(FINAL_FILE);
-    ht_cst = cst_get_ht(yw);
+    ht_cst = yw_extract_ht(yw);
     if(ht_cst != NULL)
 	global_init();
 }

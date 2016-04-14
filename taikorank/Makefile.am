@@ -20,6 +20,7 @@ taiko_ranking_SOURCES = \
 	vector.c \
 	linear_fun.c \
 	spacing_count.c \
+	freq_counter.c \
 	density.c \
 	reading.c \
 	pattern.c \
@@ -30,5 +31,5 @@ taiko_ranking_LDADD = ../libosux.la \
 		../util/libosux_util.la
 
 taiko_ranking_CFLAGS = -fopenmp $(AM_CFLAGS)
-taiko_ranking_LDFLAGS = -pthread -lmysqlclient -lm $(AM_LDFLAGS)
+taiko_ranking_LDFLAGS = -lmysqlclient -pthread -lm $(AM_LDFLAGS)
 

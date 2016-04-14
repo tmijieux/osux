@@ -93,7 +93,7 @@ __attribute__((constructor))
 static void ht_cst_init_accuracy(void)
 {
     yw = cst_get_yw(ACCURACY_FILE);
-    ht_cst = cst_get_ht(yw);
+    ht_cst = yw_extract_ht(yw);
     if(ht_cst != NULL)
 	global_init();
 }
@@ -140,7 +140,7 @@ static void tro_set_hit_window(struct tr_object * obj, int ggm_ms[])
     case GOOD:
 	obj->hit_window = ggm_ms[1];
 	break;
-    default:
+    default: // MISS & bonus
 	obj->hit_window = ggm_ms[2];
 	break;
     }

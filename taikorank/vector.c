@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include "util/list.h"
 #include "cst_yaml.h"
 #include "vector.h"
 #include "interpolation.h"
@@ -53,6 +54,22 @@ void vect_free(struct vector * v)
 }
 
 //--------------------------------------------------
+
+/*
+for future use...
+
+struct vector * cst_vect(struct hash_table * ht, const char * key)
+{
+    struct list * l = cst_list(ht, key);
+    struct vector * v = vect_new(list_size(l), CST_VECT_DIM);
+    for(int i = 0; i < v->len; i++) {
+	struct list * l2 = yw_extract_list(list_get(l, i+1));
+	for(int j = 0; j < CST_VECT_DIM; j++)
+	    v->t[i][j] = atof(yw_extract_scalar(list_get(l2, j+1)));
+    }
+    return v;
+}
+*/
 
 struct vector * cst_vect(struct hash_table * ht, const char * key)
 {

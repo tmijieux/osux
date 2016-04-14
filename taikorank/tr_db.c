@@ -13,6 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+#ifndef NO_MYSQL_DB
 
 #define _GNU_SOURCE
 
@@ -298,3 +299,21 @@ void trm_db_insert(struct tr_map * map)
     int diff_id = tr_db_insert_diff(map, bms_id);
     tr_db_insert_update_score(map, diff_id, mod_id);
 }
+
+//-------------------------------------------------
+//-------------------------------------------------
+//-------------------------------------------------
+
+#else
+
+#include "taiko_ranking_map.h"
+
+void tr_db_init(void)
+{
+}
+
+void trm_db_insert(struct tr_map * map __attribute__((unused)))
+{
+}
+
+#endif

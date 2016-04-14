@@ -30,6 +30,8 @@ struct spacing {
 
 static void sp_print(struct spacing * sp);
 
+//--------------------------------------------------
+
 struct spacing_count * spc_new(int (*eq)(int, int))
 {
     struct spacing_count * spc = malloc(sizeof(*spc));

@@ -398,7 +398,7 @@ void trm_print_tro(struct tr_map * map, int filter)
     if((filter & FILTER_ACCURACY) != 0)
 	fprintf(OUTPUT_INFO, "slow\thitwin\tspc\tacc*\t");
     if((filter & FILTER_PATTERN) != 0)
-	fprintf(OUTPUT_INFO, "proba\tpttrn*\t");
+	fprintf(OUTPUT_INFO, "proba\tpattrn\tpttrn*\t");
     if((filter & FILTER_STAR) != 0)
 	fprintf(OUTPUT_INFO, "dst*\tread*\tptrn*\tacc*\tfin*\t");
 

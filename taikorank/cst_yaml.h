@@ -17,8 +17,12 @@
 #define CST_YAML_H
 
 struct yaml_wrap * cst_get_yw(const char * file_name);
-struct hash_table * cst_get_ht(struct yaml_wrap * yw);
 
+struct hash_table * yw_extract_ht(struct yaml_wrap * yw);
+struct list * yw_extract_list(struct yaml_wrap * yw);
+char * yw_extract_scalar(struct yaml_wrap * yw);
+
+struct list * cst_list(struct hash_table * ht, const char * key);
 double cst_f(struct hash_table * ht, const char * key);
 int cst_i(struct hash_table * ht, const char * key);
 char * cst_str(struct hash_table * ht, const char * key);

@@ -225,8 +225,9 @@ void tro_print(struct tr_object * obj, int filter)
 		obj->spacing,
 		obj->accuracy_star);
     if((filter & FILTER_PATTERN) != 0) {
-	fprintf(OUTPUT_INFO, "%.3g\t%g\t",
+	fprintf(OUTPUT_INFO, "%.3g\t%.3g\t%g\t",
 		obj->proba,
+		obj->pattern,
 		obj->pattern_star);
     }
     if((filter & FILTER_STAR) != 0)

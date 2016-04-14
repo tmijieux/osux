@@ -25,6 +25,10 @@
 #include "cst_yaml.h"
 #include "print.h"
 
+#define NO_SCALAR   "-1"
+#define NO_SEQUENCE NULL
+#define NO_MAPPING  NULL
+
 //--------------------------------------------------
 
 struct yaml_wrap * cst_get_yw(const char * file_name)
@@ -32,23 +36,63 @@ struct yaml_wrap * cst_get_yw(const char * file_name)
     struct yaml_wrap * yw = NULL;
     if(0 != yaml2_parse_file(&yw, file_name))
 	tr_error("Unable to parse yaml file '%s'.", file_name);
-    else
-	return yw;
-    return NULL;
-}
-
-struct hash_table * cst_get_ht(struct yaml_wrap * yw)
-{
-    if(yw != NULL) {
-	if(yw->type != YAML_MAPPING)
-	    tr_error("Yaml file does not begin with a mapping.");
-	else
-	    return yw->content.mapping;
-    }
-    return NULL;
+    if(yw == NULL)
+	tr_error("No wrapping.");
+    return yw;
 }
 
 //--------------------------------------------------
+
+struct hash_table * yw_extract_ht(struct yaml_wrap * yw)
+{
+    if(yw->type != YAML_MAPPING) {
+	tr_error("Constant is not a hash table.");
+	return NO_MAPPING;
+    }
+    return yw->content.sequence;
+}
+
+struct list * yw_extract_list(struct yaml_wrap * yw)
+{
+    if(yw->type != YAML_SEQUENCE) {
+	tr_error("Constant is not a list.");
+	return NO_SEQUENCE;
+    }
+    return yw->content.sequence;
+}
+
+char * yw_extract_scalar(struct yaml_wrap * yw)
+{
+    if(yw->type != YAML_SCALAR) {
+	tr_error("Constant is not a scalar.");
+	return NO_SCALAR;
+    }
+    return yw->content.scalar;
+}
+
+//--------------------------------------------------
+
+struct list * cst_list(struct hash_table * ht, const char * key)
+{
+    struct yaml_wrap * yw = NULL;
+    ht_get_entry(ht, key, &yw);
+    if(yw == NULL) {
+	tr_error("Constant '%s' not found.", key);
+	return NO_SEQUENCE;
+    }
+    return yw_extract_list(yw);
+}
+
+char * cst_str(struct hash_table * ht, const char * key)
+{
+    struct yaml_wrap * yw = NULL;
+    ht_get_entry(ht, key, &yw);
+    if(yw == NULL) {
+	tr_error("Constant '%s' not found.", key);
+	return NO_SCALAR;
+    }
+    return yw_extract_scalar(yw);
+}
 
 double cst_f(struct hash_table * ht, const char * key)
 {
@@ -58,19 +102,6 @@ double cst_f(struct hash_table * ht, const char * key)
 int cst_i(struct hash_table * ht, const char * key)
 {
     return atoi(cst_str(ht, key));
-}
-
-char * cst_str(struct hash_table * ht, const char * key)
-{
-    struct yaml_wrap * yw = NULL;
-    ht_get_entry(ht, key, &yw);
-    if(yw == NULL)
-	tr_error("Constant '%s' not found.", key);
-    else if(yw->type != YAML_SCALAR) 
-	tr_error("Constant '%s' is not a scalar.", key);
-    else 
-	return yw->content.scalar;
-    return "-1"; 
 }
 
 //--------------------------------------------------

@@ -49,6 +49,8 @@ struct tr_object
 
     // ---- pattern data
     double proba;
+    double pattern;
+    struct pattern **patterns;
   
     // ---- density data
     double density_raw;

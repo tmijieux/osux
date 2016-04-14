@@ -237,7 +237,7 @@ __attribute__((constructor))
 static void ht_cst_init_config(void)
 {
     yw = cst_get_yw(CONFIG_FILE);
-    ht_conf = cst_get_ht(yw);
+    ht_conf = yw_extract_ht(yw);
     if(ht_conf == NULL) {
 	tr_error("Unable to run without config.");
 	exit(EXIT_FAILURE);

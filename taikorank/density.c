@@ -90,7 +90,7 @@ __attribute__((constructor))
 static void ht_cst_init_density(void)
 {
     yw = cst_get_yw(DENSITY_FILE);
-    ht_cst = cst_get_ht(yw);
+    ht_cst = yw_extract_ht(yw);
     if(ht_cst != NULL)
 	global_init();
 }

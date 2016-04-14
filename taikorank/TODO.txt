@@ -2,6 +2,7 @@ Todo:
 - 95% computation, other methods?
 - offset_app... roll & spinner -> treatment check
 - pattern need improvement
+- vect with list
 
 Other:		   
 - HDHR not supported
