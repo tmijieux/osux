@@ -132,20 +132,17 @@ static void ht_cst_exit_pattern(void)
 //-----------------------------------------------------
 //-----------------------------------------------------
 //-----------------------------------------------------
-/*
-// test is pattern are the same or if one is include in the other
-// dddk & dddk -> 1
-// dddk & ddd  -> 1
-// ddkk & ddd  -> 0
+
 static int pattern_is_in(struct pattern * p1, struct pattern * p2)
 {
-    int i = 0;
-    while (p1->s[i] && p2->s[i])
+    int i;
+    for (i = 0; p1->s[i] && p2->s[i]; i++) {
 	if (p1->s[i] != p2->s[i])
 	    return 0;
-    return 1;
+    }
+    return p1->s[i] == '\0';
 }
-*/
+
 //-----------------------------------------------------
 
 static void trm_set_patterns(struct tr_map * map)
@@ -216,10 +213,14 @@ static double tro_pattern_influence(struct tr_object * o1,
 static double tro_pattern_freq(struct tr_object * o,
 			       struct counter * c)
 {
+    typedef int (*herit)(void*, void*);
     double total = cnt_get_total(c) * PROBA_NB;
     double nb = 0;
-    for (int k = 0; k < PROBA_NB; k++)
-	nb += cnt_get_nb(c, o->patterns[k]->s);
+    for (int k = 0; k < PROBA_NB; k++) {
+	//nb += cnt_get_nb(c, o->patterns[k]->s);
+	nb += cnt_get_nb_compressed(c, o->patterns[k]->s,
+				    (herit) pattern_is_in);
+    }
     return nb / total;
 }
 
@@ -257,14 +258,15 @@ static void tro_set_pattern_freq(struct tr_object * objs, int i)
 
     double freq = tro_pattern_freq(&objs[i], c);
     objs[i].pattern = lf_eval(PATTERN_VECT, freq);
-
+/*
     for(int j = 0; j < PROBA_NB; j++) {
 	printf("%s\t%g\n", objs[i].patterns[j]->s, 
 	       objs[i].patterns[j]->proba_alt);
     }
-    cnt_print(c);
+    typedef int (*herit)(void*, void*);
+    cnt_print_compressed(c, (herit) pattern_is_in);
     printf("--------------------------\n");
-
+*/
     cnt_free(c);
 }
 

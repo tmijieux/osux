@@ -28,10 +28,27 @@ struct counter_entry {
     double nb;
 };
 
+struct heriter {
+    struct counter_entry * e;
+    int (*herit)(void *, void *);
+    double nb;
+};
+
+struct bundle {
+    struct counter * c;
+    int (*herit)(void *, void *);
+};
+
 static struct counter_entry * cnte_new(void * d, double nb);
 static void cnte_free(const char * key __attribute__((unused)), 
 		      struct counter_entry * e, 
 		      void * args __attribute__((unused)));
+static void cnte_print(const char * key, struct counter_entry * e,
+		       struct bundle * b);
+static void cnte_herit(const char * key __attribute__((unused)), 
+		       struct counter_entry * e, struct heriter * h);
+
+typedef void (*ht_fun)(const char*,void*,void*);
 
 //--------------------------------------------------
 
@@ -52,10 +69,26 @@ static void cnte_free(const char * key __attribute__((unused)),
     free(e);
 }
 
+//--------------------------------------------------
+
 static void cnte_print(const char * key, struct counter_entry * e,
-		       void * args __attribute__((unused)))
+		       struct bundle * b)
 {
-    printf("Entry:\t%s\t%g\n", key, e->nb);
+    if (b == NULL) {
+	printf("Entry:\t%s\t%g\n", key, e->nb);
+    } else {
+	double d = cnt_get_nb_compressed(b->c, key, b->herit);
+	printf("Entry:\t%s\t%g\t%g\n", key, e->nb, d);
+    }
+}
+
+//--------------------------------------------------
+
+static void cnte_herit(const char * key __attribute__((unused)), 
+		       struct counter_entry * e, struct heriter * h)
+{
+    if (h->herit(h->e->data, e->data))
+	h->nb += e->nb;
 }
 
 //--------------------------------------------------
@@ -72,15 +105,15 @@ void cnt_free(struct counter * c)
 {
     if (c == NULL)
 	return;
-    ht_for_each(c->ht, (void (*)(const char*,void*,void*))cnte_free,
-		NULL);
+    ht_for_each(c->ht, (ht_fun) cnte_free, NULL);
     ht_free(c->ht);
     free(c);
 }
 
 //--------------------------------------------------
 
-void cnt_add(struct counter * c, void * data, char * key, double val)
+void cnt_add(struct counter * c, void * data, const char * key, 
+	     double val)
 {
     struct counter_entry * e = NULL;
     if (ht_has_entry(c->ht, key)) {
@@ -95,7 +128,19 @@ void cnt_add(struct counter * c, void * data, char * key, double val)
 
 //--------------------------------------------------
 
-double cnt_get_nb(struct counter * c, char * key)
+double cnt_get_nb_compressed(struct counter * c, const char * key,
+			     int (*herit)(void *, void *))
+{
+    struct counter_entry * e = NULL;
+    ht_get_entry(c->ht, key, &e);
+    if (e == NULL)
+	return 0;
+    struct heriter total = {e, herit, 0};
+    ht_for_each(c->ht, (ht_fun) cnte_herit, &total);
+    return total.nb;
+}
+
+double cnt_get_nb(struct counter * c, const char * key)
 {
     struct counter_entry * e = NULL;
     ht_get_entry(c->ht, key, &e);
@@ -113,7 +158,14 @@ double cnt_get_total(struct counter * c)
 
 void cnt_print(struct counter * c)
 {
-    printf("Counter:\n");
-    ht_for_each(c->ht, (void (*)(const char*,void*,void*))cnte_print,
-		NULL);
+    printf("Counter: (%g)\n", c->total);
+    ht_for_each(c->ht, (ht_fun) cnte_print, NULL);
+}
+
+void cnt_print_compressed(struct counter * c,
+			  int (*herit)(void *, void *))
+{
+    printf("Counter: (%g)\n", c->total);
+    struct bundle b = {c, herit};
+    ht_for_each(c->ht, (ht_fun) cnte_print, &b);
 }
