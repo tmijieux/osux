@@ -49,7 +49,7 @@ struct hash_table * yw_extract_ht(struct yaml_wrap * yw)
 	tr_error("Constant is not a hash table.");
 	return NO_MAPPING;
     }
-    return yw->content.sequence;
+    return yw->content.mapping;
 }
 
 struct list * yw_extract_list(struct yaml_wrap * yw)

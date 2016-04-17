@@ -12,4 +12,5 @@ set(UTIL_SOURCE
   data.c
   md5.c)
 
-add_library(util STATIC ${UTIL_SOURCE})
+add_library(osux_util STATIC ${UTIL_SOURCE})
+target_link_libraries(osux_util ssl crypto)

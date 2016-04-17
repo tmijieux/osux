@@ -23,5 +23,6 @@ osux_beatmap* (*osux_parse_beatmap)(const char*) = NULL;
 __attribute__((constructor)) 
 static void parser_init(void)
 {
-    void *handle = dlopen(PKG_LIB_DIR"/libpyparser.so", RTLD_LOCAL|RTLD_NOW);
+    void *handle __attribute__((unused));
+    handle = dlopen(PKG_LIB_DIR"/libosux_pyparser.so", RTLD_LOCAL|RTLD_NOW);
 }

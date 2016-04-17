@@ -2,15 +2,15 @@ cmake_minimum_required(VERSION 2.8)
 
 project(osux)
 set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/install)
+set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--export-all-symbols")
 
 # basically this allow the installation folder to be moved anywhere
 # and the library to still be found correctly
 
-
-
 add_definitions(
   -DPKG_DATA_DIR="${CMAKE_INSTALL_PREFIX}/usr/share/${CMAKE_PROJECT_NAME}"
   -DPKG_CONFIG_DIR="/etc/${CMAKE_PROJECT_NAME}"
+  -DPKG_LIB_DIR="${CMAKE_INSTALL_PREFIX}/usr/lib/${CMAKE_PROJECT_NAME}/"
   -DPYTHON_PATH="${CMAKE_INSTALL_PREFIX}/usr/lib/${CMAKE_PROJECT_NAME}/")
 
 

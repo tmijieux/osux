@@ -1,4 +1,7 @@
 
+
+add_subdirectory(parser)
+
 set(BM_SOURCE
   beatmap.c
   beatmap.h
@@ -12,4 +15,5 @@ set(BM_SOURCE
   timingpoint.c
   timingpoint.h )
 
-add_library(bm STATIC ${BM_SOURCE})
+add_library(osux_bm STATIC ${BM_SOURCE})
+target_link_libraries(osux_bm osux_parser)
