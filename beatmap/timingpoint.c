@@ -30,7 +30,7 @@ void tp_print(struct timing_point *tp)
 	   tp->kiai);
 }
 
-void tp_free(struct timing_point *tp __attribute__((unused)))
+void tp_free(struct timing_point *tp)
 {
     // nothing
 }

@@ -202,8 +202,12 @@ static int opt_odb_path(int argc, const char ** argv)
 
 //-----------------------------------------------------
 
-__attribute__ ((constructor))
-static void options_init(void)
+static void options_exit(void)
+{
+	ht_free(ht_opt);
+}
+
+INITIALIZER(options_init)
 {
     ht_opt = ht_create(0, NULL);
   
@@ -227,10 +231,7 @@ static void options_init(void)
     ht_add_entry(ht_opt, ARG_OPT_ODB_BUILD,    opt_odb_build);
     ht_add_entry(ht_opt, ARG_OPT_ODB_SGDIR,    opt_odb_sgdir);
     ht_add_entry(ht_opt, ARG_OPT_ODB_PATH,     opt_odb_path);
+
+	atexit(options_exit);
 }
 
-__attribute__ ((destructor))
-static void options_exit(void)
-{
-    ht_free(ht_opt);
-}

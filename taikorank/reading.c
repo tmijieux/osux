@@ -90,22 +90,23 @@ static void global_init(void)
 
 //-----------------------------------------------------
 
-__attribute__((constructor))
-static void ht_cst_init_reading(void)
+
+static void ht_cst_exit_reading(void)
+{
+	yaml2_free(yw);
+	lf_free(SEEN_VECT);
+	lf_free(SCALE_VECT);
+}
+
+INITIALIZER(ht_cst_init_reading)
 {
     yw = cst_get_yw(READING_FILE);
     ht_cst = yw_extract_ht(yw);
     if(ht_cst != NULL)
 	global_init();
+	atexit(ht_cst_exit_reading);
 }
 
-__attribute__((destructor))
-static void ht_cst_exit_reading(void)
-{
-    yaml2_free(yw);
-    lf_free(SEEN_VECT);
-    lf_free(SCALE_VECT);
-}
 
 //-----------------------------------------------------
 //-----------------------------------------------------

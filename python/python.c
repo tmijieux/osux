@@ -16,9 +16,14 @@
 
 #include <stdio.h>
 #include <python2.7/Python.h>
+#include "initializer.h"
 
-__attribute__((constructor))
-static void embed_python_init(void)
+static void embed_python_exit(void)
+{
+    Py_Finalize();
+}
+
+INITIALIZER(embed_python_init)
 {
     Py_Initialize();    
 
@@ -27,12 +32,7 @@ static void embed_python_init(void)
 
     PyList_Append(sysPath, pPath);
     Py_DECREF(pPath);
-}
-
-__attribute__((destructor))
-static void embed_python_exit(void)
-{
-    Py_Finalize();
+    atexit(&embed_python_exit);
 }
 
 PyObject *embed_python_funcall(

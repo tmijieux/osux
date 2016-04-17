@@ -23,6 +23,7 @@
 #include "util/hash_table.h"
 #include "util/list.h"
 #include "util/yaml2.h"
+#include "initializer.h"
 
 #include "freq_counter.h"
 #include "taiko_ranking_map.h"
@@ -108,26 +109,26 @@ static void global_init(void)
     PATTERN_STAR_COEFF_PATTERN = cst_f(ht_cst, "star_pattern");
 }
 
+
 //-----------------------------------------------------
 
-__attribute__((constructor))
-static void ht_cst_init_pattern(void)
+static void ht_cst_exit_pattern(void)
+{
+	yaml2_free(yw);
+	lf_free(SCALE_VECT);
+	lf_free(SINGLETAP_VECT);
+}
+//-----------------------------------------------------
+
+INITIALIZER(ht_cst_init_pattern)
 {
     yw = cst_get_yw(PATTERN_FILE);
     ht_cst = yw_extract_ht(yw);
     if(ht_cst != NULL)
 	global_init();
+	atexit(ht_cst_exit_pattern);
 }
 
-//-----------------------------------------------------
-
-__attribute__((destructor))
-static void ht_cst_exit_pattern(void)
-{
-    yaml2_free(yw);
-    lf_free(SCALE_VECT);
-    lf_free(SINGLETAP_VECT);
-}
 
 //-----------------------------------------------------
 //-----------------------------------------------------

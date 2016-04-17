@@ -69,22 +69,23 @@ static void global_init(void)
     ACC_POW = cst_f(ht_cst, "accuracy_pow");
 }
 
-__attribute__((constructor))
-static void ht_cst_init_final(void)
+
+static void ht_cst_exit_final(void)
+{
+	yaml2_free(yw);
+	lf_free(SCALE_VECT);
+	lf_free(INFLU_VECT);
+}
+
+INITIALIZER(ht_cst_init_final)
 {
     yw = cst_get_yw(FINAL_FILE);
     ht_cst = yw_extract_ht(yw);
     if(ht_cst != NULL)
 	global_init();
+	atexit(ht_cst_exit_final);
 }
 
-__attribute__((destructor))
-static void ht_cst_exit_final(void)
-{
-    yaml2_free(yw);
-    lf_free(SCALE_VECT);
-    lf_free(INFLU_VECT);
-}
 
 //-----------------------------------------------------
 

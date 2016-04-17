@@ -41,7 +41,7 @@ struct list;
 
 struct list *list_new(int flags, ...);
 void list_free(struct list*);
-size_t list_size(const struct list*); // element count
+int list_size(const struct list*); // element count
 void * list_get(const struct list*, unsigned int i); // returns data
 void list_add(struct list*, const void*);
 void list_insert(struct list*, unsigned int i, const void *data);

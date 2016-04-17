@@ -8,4 +8,6 @@ target_link_libraries(pythonembed python2.7)
 install (
   TARGETS pythonembed
   LIBRARY DESTINATION lib/osux/
+  ARCHIVE DESTINATION lib/osux/
   )
+  

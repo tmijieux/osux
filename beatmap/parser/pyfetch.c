@@ -26,8 +26,11 @@
 #include "beatmap/color.h"
 #include "util/error.h"
 
+#include "initializer.h"
 #include "python/python.h"
 #include "pyfetch.h"
+
+static osux_beatmap DEFAULT_MAP = { 0 };
 
 #define READ_VALUE(map, fieldName, pyObj, pyMethod, convMethod)		\
     ({									\
@@ -355,11 +358,9 @@ static osux_beatmap *fetch_beatmap(const char *filename)
     return  m;
 }
 
-
 /******************************************************************************/
 
-__attribute__((constructor))
-static void plugin_register(void)
+INITIALIZER(plugin_register)
 {
     osux_beatmap* (**parse_beatmap)(const char *)
         = dlsym(RTLD_DEFAULT, "osux_parse_beatmap");

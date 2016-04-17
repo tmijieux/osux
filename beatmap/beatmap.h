@@ -28,8 +28,6 @@
 
 typedef struct osux_beatmap osux_beatmap;
 
-extern osux_beatmap DEFAULT_MAP;
-
 struct osux_beatmap {
     uint32_t beatmap_id;
     uint32_t beatmap_set_id;

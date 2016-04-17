@@ -88,26 +88,25 @@ static void global_init(void)
 }
 
 //-----------------------------------------------------
+static void ht_cst_exit_accuracy(void)
+{
+	yaml2_free(yw);
+	lf_free(SLOW_VECT);
+	lf_free(SPC_FREQ_VECT);
+	lf_free(SPC_INFLU_VECT);
+	lf_free(HIT_WINDOW_VECT);
+	lf_free(SCALE_VECT);
+}
 
-__attribute__((constructor))
-static void ht_cst_init_accuracy(void)
+INITIALIZER(ht_cst_init_accuracy)
 {
     yw = cst_get_yw(ACCURACY_FILE);
     ht_cst = yw_extract_ht(yw);
     if(ht_cst != NULL)
 	global_init();
+	atexit(ht_cst_exit_accuracy);
 }
 
-__attribute__((destructor))
-static void ht_cst_exit_accuracy(void)
-{
-    yaml2_free(yw);
-    lf_free(SLOW_VECT);
-    lf_free(SPC_FREQ_VECT);
-    lf_free(SPC_INFLU_VECT);
-    lf_free(HIT_WINDOW_VECT);
-    lf_free(SCALE_VECT);
-}
 
 //-----------------------------------------------------
 //-----------------------------------------------------

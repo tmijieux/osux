@@ -86,22 +86,22 @@ static void global_init(void)
 
 //-----------------------------------------------------
 
-__attribute__((constructor))
-static void ht_cst_init_density(void)
+static void ht_cst_exit_density(void)
+{
+	yaml2_free(yw);
+	lf_free(DENSITY_VECT);
+	lf_free(SCALE_VECT);
+}
+
+INITIALIZER(ht_cst_init_density)
 {
     yw = cst_get_yw(DENSITY_FILE);
     ht_cst = yw_extract_ht(yw);
     if(ht_cst != NULL)
 	global_init();
+	atexit(ht_cst_exit_density);
 }
 
-__attribute__((destructor))
-static void ht_cst_exit_density(void)
-{
-    yaml2_free(yw);
-    lf_free(DENSITY_VECT);
-    lf_free(SCALE_VECT);
-}
 
 //-----------------------------------------------------
 //-----------------------------------------------------
@@ -167,8 +167,7 @@ static double tro_density(struct tr_object * obj1,
 	    tro_set_density_##TYPE (map->object, i);		\
     }
 
-static int tro_true(struct tr_object * o1 __attribute__((unused)),
-		    struct tr_object * o2 __attribute__((unused)))
+static int tro_true(struct tr_object * o1, struct tr_object * o2)
 {
     return 1;
 }

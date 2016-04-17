@@ -28,13 +28,13 @@ struct list_node {
 #define SENTINEL_NODE 1
 #define DATA_NODE     0
 
-#define node_new(da, sen)				\
-    ({							\
+#define node_new(lnode, da, sen)				\
+    do {										\
 	struct list_node *n = malloc(sizeof(*n));	\
-	n->data = (da);					\
-	n->is_sentinel = (sen);				\
-	n;						\
-    })							\
+	n->data = (da);								\
+	n->is_sentinel = (sen);						\
+	*lnode = n;									\
+    } while (0)									\
     
 #define node_free(no)	       (free(no))
 #define node_get_next(no)      ((no)->next)

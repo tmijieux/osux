@@ -40,13 +40,11 @@ struct bundle {
 };
 
 static struct counter_entry * cnte_new(void * d, double nb);
-static void cnte_free(const char * key __attribute__((unused)), 
-		      struct counter_entry * e, 
-		      void * args __attribute__((unused)));
-static void cnte_print(const char * key, struct counter_entry * e,
-		       struct bundle * b);
-static void cnte_herit(const char * key __attribute__((unused)), 
-		       struct counter_entry * e, struct heriter * h);
+static void cnte_free(const char *key, struct counter_entry *e,  void *args);
+static void cnte_print(
+	const char *key, struct counter_entry *e, struct bundle * b);
+static void cnte_herit(
+	const char *key, struct counter_entry * e, struct heriter * h);
 
 typedef void (*ht_fun)(const char*,void*,void*);
 
@@ -60,9 +58,7 @@ static struct counter_entry * cnte_new(void * d, double nb)
     return e;
 }
 
-static void cnte_free(const char * key __attribute__((unused)), 
-		      struct counter_entry * e, 
-		      void * args __attribute__((unused)))
+static void cnte_free(const char *key, struct counter_entry *e, void *args)
 {
     if (e == NULL)
 	return;
@@ -84,8 +80,8 @@ static void cnte_print(const char * key, struct counter_entry * e,
 
 //--------------------------------------------------
 
-static void cnte_herit(const char * key __attribute__((unused)), 
-		       struct counter_entry * e, struct heriter * h)
+static void cnte_herit(
+	const char *key, struct counter_entry *e, struct heriter *h)
 {
     if (h->herit(h->e->data, e->data))
 	h->nb += e->nb;
