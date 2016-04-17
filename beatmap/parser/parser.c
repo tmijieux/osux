@@ -17,12 +17,17 @@
 #include <dlfcn.h>
 #include "beatmap/beatmap.h"
 #include "util/data.h"
+#include "util/error.h"
 
 osux_beatmap* (*osux_parse_beatmap)(const char*) = NULL;
 
 __attribute__((constructor)) 
 static void parser_init(void)
 {
-    void *handle __attribute__((unused));
+    void *handle;
     handle = dlopen(PKG_LIB_DIR"/libosux_pyparser.so", RTLD_LOCAL|RTLD_NOW);
+    if (NULL == handle) {
+        osux_error("Failed to initialize parser:\n%s\n", dlerror());
+        exit(EXIT_FAILURE);
+    }
 }

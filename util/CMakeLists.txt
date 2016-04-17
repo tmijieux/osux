@@ -13,4 +13,9 @@ set(UTIL_SOURCE
   md5.c)
 
 add_library(osux_util STATIC ${UTIL_SOURCE})
-target_link_libraries(osux_util ssl crypto)
+target_link_libraries(osux_util ssl crypto yaml)
+
+install(
+  FILES osux_util.py
+  DESTINATION lib/osux
+  )

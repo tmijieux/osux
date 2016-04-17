@@ -32,5 +32,17 @@ set(TR_SOURCE
   final_star.c
   )
 
-add_library(taiko_ranking STATIC ${TR_SOURCE})
+add_executable(taiko_ranking ${TR_SOURCE})
 target_link_libraries(taiko_ranking osux osux_util mysqlclient pthread m)
+
+install( 
+     TARGETS taiko_ranking
+     RUNTIME DESTINATION bin
+#     DESTINATION "${ASSIMP_BIN_INSTALL_DIR}" COMPONENT assimp-dev
+)
+
+
+install(
+  DIRECTORY yaml
+  DESTINATION etc/osux
+  )

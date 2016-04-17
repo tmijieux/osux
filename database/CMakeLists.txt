@@ -22,3 +22,10 @@ target_link_libraries(makedb osux_db)
 
 add_executable(readdb readdb.c)
 target_link_libraries(readdb osux_db)
+
+
+install( 
+     TARGETS makedb readdb
+     RUNTIME DESTINATION bin
+#     DESTINATION "${ASSIMP_BIN_INSTALL_DIR}" COMPONENT assimp-dev
+) 

@@ -2,20 +2,22 @@ cmake_minimum_required(VERSION 2.8)
 
 project(osux)
 set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/install)
-set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--export-all-symbols")
 
-# basically this allow the installation folder to be moved anywhere
-# and the library to still be found correctly
+set(PKG_DATA_DIR "${CMAKE_INSTALL_PREFIX}/share/${CMAKE_PROJECT_NAME}")
+set(PKG_CONFIG_DIR "${CMAKE_INSTALL_PREFIX}/etc/${CMAKE_PROJECT_NAME}")
+set(PKG_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib/${CMAKE_PROJECT_NAME}")
+set(PYTHON_PATH "${CMAKE_INSTALL_PREFIX}/lib/${CMAKE_PROJECT_NAME}")
 
 add_definitions(
-  -DPKG_DATA_DIR="${CMAKE_INSTALL_PREFIX}/usr/share/${CMAKE_PROJECT_NAME}"
-  -DPKG_CONFIG_DIR="/etc/${CMAKE_PROJECT_NAME}"
-  -DPKG_LIB_DIR="${CMAKE_INSTALL_PREFIX}/usr/lib/${CMAKE_PROJECT_NAME}/"
-  -DPYTHON_PATH="${CMAKE_INSTALL_PREFIX}/usr/lib/${CMAKE_PROJECT_NAME}/")
+  -DPKG_DATA_DIR="${PKG_DATA_DIR}"
+  -DPKG_CONFIG_DIR="${PKG_CONFIG_DIR}"
+  -DPKG_LIB_DIR="${PKG_LIB_DIR}"
+  -DPYTHON_PATH="${PYTHON_PATH}")
 
 
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:\$ORIGIN/../lib/osux")
 
 if (NOT DEFINED CMAKE_ENABLE_C99)
   set(CMAKE_ENABLE_C99 "-std=gnu99")
@@ -35,7 +37,13 @@ add_subdirectory(database)
 add_subdirectory(editor)
 add_subdirectory(mod)
 add_subdirectory(replay)
+
+add_library(osux STATIC dummy.c)
+target_link_libraries(osux osux_bm osux_db)
+
 add_subdirectory(taikorank)
+
+
 
 # stackoverflow.com/questions/8934295/
 #  add-source-in-a-subdirectory-to-a-cmake-project

@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "data.h"
+#include "./data.h"
+#include "./error.h"
 
 static FILE *
 osux_open_prefixed(const char *prefix, const char *path, const char *mode)
