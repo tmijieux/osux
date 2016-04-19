@@ -13,9 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
+#include "./python.h"
 #include <stdio.h>
-#include <./python.h>
 #include "initializer.h"
 
 static void embed_python_exit(void)

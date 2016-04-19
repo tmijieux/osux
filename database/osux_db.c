@@ -10,10 +10,10 @@
 #include <errno.h>
 #include <sqlite3.h>
 
-#if defined(HAVE_DIRENT_H)
-#	include <dirent.h>
+#ifdef _WIN32
+#    include "util/dirent.h"
 #else
-#	include "util/dirent.h"
+#    include <dirent.h>
 #endif
 
 #ifdef _WIN32
@@ -306,7 +306,7 @@ static int load_beatmap_from_disk(
     struct osux_db *odb, const char *filename, int base_path_length)
 {
     FILE *f;
-    osux_beatmap *bm;
+    osux_beatmap *bm = NULL;
 
     f = fopen(filename, "r");
     if (NULL != f) {
@@ -316,7 +316,10 @@ static int load_beatmap_from_disk(
         return -1;
     }
 
-    (void) osux_beatmap_open(filename, &bm);
+    if (osux_beatmap_open(filename, &bm) < 0) {
+        osux_error("Cannot open beatmap %s\n", filename);
+        exit(EXIT_FAILURE);
+    }
     if (NULL != bm) {
         osux_md5_hash_file(f, &bm->md5_hash);
         bm->path = strdup(filename + base_path_length);

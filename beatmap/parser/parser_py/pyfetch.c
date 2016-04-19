@@ -14,6 +14,8 @@
  *  limitations under the License.
  */
 
+#include "./python.h"
+
 #ifndef _GNU_SOURCE
 #	define _GNU_SOURCE
 #endif // _GNU_SOURCE
@@ -28,40 +30,41 @@
 #include "util/error.h"
 
 #include "initializer.h"
-#include "./python.h"
+#include "visibility.h"
+
 #include "./pyfetch.h"
 #include "../parser.h"
 
 static osux_beatmap DEFAULT_MAP = { 0 };
 
 #define READ_VALUE(map, fieldName, pyObj, pyMethod, convMethod)	\
-    do {								                    	\
-	    PyObject *pyTmp;						                \
-	    pyTmp = PyDict_GetItemString(pyObj, #fieldName);		\
-	    if (pyTmp) {							                \
-	        map->fieldName = convMethod(pyMethod(pyTmp));		\
-	        if (PyErr_Occurred()) {                             \
+    do {                                                        \
+        PyObject *pyTmp;                                        \
+        pyTmp = PyDict_GetItemString(pyObj, #fieldName);        \
+        if (pyTmp) {                                            \
+            map->fieldName = convMethod(pyMethod(pyTmp));       \
+            if (PyErr_Occurred()) {                             \
                 puts("\n");                                     \
                 PyErr_Print();                                  \
                 puts("\n");                                     \
-            }			                                        \
-	    }								                        \
-	    else {							                        \
-	        map->fieldName = DEFAULT_MAP.fieldName;		        \
+            }                                                   \
+        }                                                       \
+        else {                                                  \
+            map->fieldName = DEFAULT_MAP.fieldName;             \
         }                                                       \
     } while (0)	       
 
 
 #define PY_OBJ_TO_STR(X) PyString_AsString(PyObject_Str((X)))
 
-#define READ_STRING(map, fieldName, pyObj)			            \
+#define READ_STRING(map, fieldName, pyObj)                      \
     READ_VALUE(map, fieldName, pyObj, PY_OBJ_TO_STR, strdup)    \
     
-#define READ_DOUBLE(map, fieldName, pyObj)				        \
-    READ_VALUE(map, fieldName, pyObj, PyFloat_AsDouble,)		\
+#define READ_DOUBLE(map, fieldName, pyObj)                      \
+    READ_VALUE(map, fieldName, pyObj, PyFloat_AsDouble,)        \
 
-#define READ_INT(map, fieldName, pyObj)					            \
-    READ_VALUE(map, fieldName, pyObj, PyInt_AsLong, (uint32_t))		\
+#define READ_INT(map, fieldName, pyObj)                         \
+    READ_VALUE(map, fieldName, pyObj, PyInt_AsLong, (uint32_t)) \
 
 
 
@@ -330,11 +333,11 @@ static void map_fetch_Events(PyObject *d, osux_beatmap *m)
 /******************************************************************************/
 
 
-#define FETCH_SECTION(sect, pyobjsrc, map)                  \
-    do {                                                    \
-        PyObject *pyobjtmp;                                 \
-        pyobjtmp = PyDict_GetItemString(pyobjsrc, #sect);   \
-        map_fetch_##sect(pyobjtmp, map);                    \
+#define FETCH_SECTION(sect, pyobjsrc, map)                      \
+    do {                                                        \
+        PyObject *pyobjtmp;                                     \
+        pyobjtmp = PyDict_GetItemString(pyobjsrc, #sect);       \
+        map_fetch_##sect(pyobjtmp, map);                        \
     } while (0)
 
 static osux_beatmap *fetch_beatmap(const char *filename)
@@ -367,13 +370,9 @@ static osux_beatmap *fetch_beatmap(const char *filename)
 
 /******************************************************************************/
 
-extern void osux_register_bm_callback(struct osux_bm_parser_callback*);
-
-static void parser_py_init( void (*register_callback)(struct osux_bm_parser_callback*) )
+void __export parser_py_init(register_plugin_t register_callback)
 {
-	struct osux_bm_parser_callback cb;
-	cb.parse_beatmap = fetch_beatmap;
-	register_callback(&cb);
+    struct osux_bm_parser_callback cb;
+    cb.parse_beatmap = fetch_beatmap;
+    register_callback(&cb);
 }
-
-plugin_init(parser_py_init);

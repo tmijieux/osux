@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <errno.h>
 
 #ifndef __GNUC__
 #	define __PRETTY_FUNCTION__    __FUNCDNAME__

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(osux)
+project(osux C)
 set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/install)
 
 set(PKG_DATA_DIR "${CMAKE_INSTALL_PREFIX}/share/${CMAKE_PROJECT_NAME}")
@@ -29,7 +29,6 @@ enable_testing()
 
 find_package(OpenSSL REQUIRED)
 
-
 include_directories(${OPENSSL_INCLUDE_DIR})
 include_directories(include)
 include_directories(.)
@@ -42,7 +41,7 @@ add_subdirectory(mod)
 add_subdirectory(replay)
 
 add_library(osux STATIC dummy.c)
-target_link_libraries(osux osux_bm osux_db osux_python osux_replay osux_util)
+target_link_libraries(osux osux_bm osux_db osux_replay osux_util)
 
 add_subdirectory(taikorank)
 
