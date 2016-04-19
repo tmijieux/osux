@@ -70,6 +70,8 @@ INITIALIZER(parser_init)
     } else {
         #ifdef __linux__
         osux_error("WTF: %s\n", dlerror());
+        #elif _WIN32
+        osux_error("Windows error; cannot load method: parser_py_init\n");
         #endif
     }
 }
