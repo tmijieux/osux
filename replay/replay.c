@@ -16,7 +16,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include <unistd.h>
+//#include <unistd.h>
 #include <time.h>
 #include <locale.h>
 
@@ -63,7 +63,7 @@ static unsigned int parse_replay_data(FILE *f, struct replay_data **repdata)
 #define TICKS_PER_SECONDS 10000000L
 #define TICKS_AT_EPOCH  621355968000000000L
 
-static inline time_t from_win_timestamp(uint64_t ticks)
+static time_t from_win_timestamp(uint64_t ticks)
 {
     return (ticks - TICKS_AT_EPOCH) / TICKS_PER_SECONDS;
 }

@@ -27,11 +27,14 @@ SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:\$ORIGIN/../lib/osux")
 
 enable_testing()
 
+find_package(OpenSSL REQUIRED)
+
+
+include_directories(${OPENSSL_INCLUDE_DIR})
 include_directories(include)
 include_directories(.)
 
 add_subdirectory(util)
-add_subdirectory(python)
 add_subdirectory(beatmap)
 add_subdirectory(database)
 add_subdirectory(editor)
@@ -39,7 +42,7 @@ add_subdirectory(mod)
 add_subdirectory(replay)
 
 add_library(osux STATIC dummy.c)
-target_link_libraries(osux osux_bm osux_db)
+target_link_libraries(osux osux_bm osux_db osux_python osux_replay osux_util)
 
 add_subdirectory(taikorank)
 

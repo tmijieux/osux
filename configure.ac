@@ -16,7 +16,6 @@ PKG_CHECK_MODULES(SQLITE, sqlite3)
 AC_CONFIG_FILES([
 		  Makefile
 		  util/Makefile
-		  python/Makefile
 		  mod/Makefile
 		  beatmap/Makefile
 		  beatmap/parser/Makefile

@@ -30,6 +30,7 @@
 #include "print.h"
 
 #include "density.h"
+#include "initializer.h"
 
 static struct yaml_wrap * yw;
 static struct hash_table * ht_cst;

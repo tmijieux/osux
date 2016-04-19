@@ -30,6 +30,7 @@
 #include "cst_yaml.h"
 #include "linear_fun.h"
 #include "print.h"
+#include "initializer.h"
 
 #include "final_star.h"
 

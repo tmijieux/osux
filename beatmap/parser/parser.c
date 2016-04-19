@@ -14,20 +14,49 @@
  *  limitations under the License.
  */
 
-#include <dlfcn.h>
+#ifdef __linux__
+#	include <dlfcn.h>
+#elif _WIN32
+#	include <windows.h>
+#endif
+
 #include "beatmap/beatmap.h"
 #include "util/data.h"
 #include "util/error.h"
+#include "initializer.h"
+#include "./parser.h"
 
-osux_beatmap* (*osux_parse_beatmap)(const char*) = NULL;
+static struct osux_bm_parser_callback callbacks = {
+	NULL
+};
 
-__attribute__((constructor)) 
-static void parser_init(void)
+void osux_register_bm_callback(struct osux_bm_parser_callback *cb)
 {
+	if (cb != NULL)
+		callbacks = *cb;
+}
+
+osux_parser_t osux_get_parser(void)
+{
+	return callbacks.parse_beatmap;
+}
+
+INITIALIZER(parser_init)
+{
+	#ifdef __linux__
     void *handle;
-    handle = dlopen(PKG_LIB_DIR"/libosux_pyparser.so", RTLD_LOCAL|RTLD_NOW);
+    handle = dlopen(PKG_LIB_DIR"/cygosux_pyparser.dll", RTLD_LOCAL|RTLD_NOW);
     if (NULL == handle) {
+        osux_error("file: %s\n", PKG_LIB_DIR"/libosux_parser_py.so");
         osux_error("Failed to initialize parser:\n%s\n", dlerror());
         exit(EXIT_FAILURE);
     }
+	#elif __WIN32
+    HINSTANCE hinstLib = LoadLibrary(PKG_LIB_DIR"/libosux_parser_py.dll");
+    if (hinstLib == NULL)
+    {
+        MessageBox(NULL, "Unable to load library", "Error", MB_OK|MB_ICONERROR);
+        return 0;
+    }
+	#endif
 }

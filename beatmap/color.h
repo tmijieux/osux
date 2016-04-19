@@ -18,17 +18,17 @@
 #define COLOR_H
 
 #include <stdio.h>
-#include <python2.7/Python.h>
+//#include <python2.7/Python.h>
 
 struct color {
     union {
-        unsigned int c;
-	struct {
-	    unsigned char r;
-	    unsigned char g;
-	    unsigned char b;
-	    unsigned char a;
-	};
+	    unsigned int c;
+	    struct {
+            unsigned char r;
+            unsigned char g;
+            unsigned char b;
+            unsigned char a;
+        };
     };
 };
 

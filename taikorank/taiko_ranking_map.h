@@ -19,7 +19,14 @@
 #define MAX_ACC 1.
 #define COEFF_MAX_ACC 100.
 
+#ifdef min
+#	undef min
+#endif
 #define min(x, y) x < y ? x : y;
+
+#ifdef max
+#	undef max
+#endif
 #define max(x, y) x > y ? x : y;
 
 struct tr_object;

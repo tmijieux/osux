@@ -27,6 +27,8 @@
 #include "storyboard.h"
 #include "color.h"
 
+
+
 static osux_beatmap DEFAULT_MAP = { 0 };
 
 #define PRINT_SECTION(section)		\
@@ -174,6 +176,11 @@ int osux_beatmap_prepare(osux_beatmap *bm, const char *filename)
 
 int osux_beatmap_open(const char *filename, osux_beatmap **beatmap)
 {
+	osux_beatmap *(*osux_parse_beatmap)(const char *filename);
+	osux_parse_beatmap = osux_get_parser();
+	if (osux_parse_beatmap == NULL)
+		return -1;
+	
     *beatmap = osux_parse_beatmap(filename);
     if (NULL == *beatmap)
         return -1;

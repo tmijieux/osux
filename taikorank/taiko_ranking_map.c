@@ -13,16 +13,16 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-#include <unistd.h>
+//#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "beatmap/beatmap.h"
-#include "beatmap/parser/parser.h"
 #include "beatmap/hitobject.h"
 #include "beatmap/timingpoint.h"
 #include "beatmap/hitsound.h"
+#include "util/error.h"
 
 #include "database/osux_db.h"
 #include "util/md5.h"
@@ -120,13 +120,13 @@ void trm_compute_stars(struct tr_map * map)
 
     {
         #pragma omp task
-	trm_compute_density(map);
+        trm_compute_density(map);
         #pragma omp task
-	trm_compute_reading(map);
+        trm_compute_reading(map);
         #pragma omp task
-	trm_compute_pattern(map);
+        trm_compute_pattern(map);
         #pragma omp task
-	trm_compute_accuracy(map);
+        trm_compute_accuracy(map);
     }
     #pragma omp taskwait
 
@@ -257,16 +257,15 @@ static double convert_get_bpm_app(struct timing_point * tp,
 
 //---------------------------------------------------------------
 
-static int convert_get_end_offset(struct hit_object * ho, int type,
-				  double bpm_app)
+static int convert_get_end_offset(
+	struct hit_object * ho, int type, double bpm_app)
 {
     if(type == 's') {
 	return ho->spi.end_offset;
     }
     if(type == 'r' || type == 'R') {
-	return ho->offset + ((ho->sli.length * ho->sli.repeat) *
-			     (MSEC_IN_MINUTE / (100. * BASIC_SV)) /
-			     bpm_app);
+	return ho->offset + 
+		((ho->sli.length * ho->sli.repeat) * (MSEC_IN_MINUTE / (100. * BASIC_SV)) / bpm_app);
     }
     // else circle
     return ho->offset;
@@ -276,9 +275,13 @@ static int convert_get_end_offset(struct hit_object * ho, int type,
 //---------------------------------------------------------------
 //---------------------------------------------------------------
 
-static struct tr_map * trm_convert(char * filename)
+static struct tr_map *trm_convert(char *filename)
 {
-    struct osux_beatmap * map = osux_parse_beatmap(filename);
+	struct osux_beatmap *map = NULL;
+	if (osux_beatmap_open(filename, &map) < 0) {
+		osux_error("Cannot open beatmap %s\n", filename);
+		exit(EXIT_FAILURE);
+	}
     return trm_convert_map(map);
 }
 

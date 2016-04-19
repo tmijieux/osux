@@ -158,7 +158,7 @@ void *list_to_array(const struct list *l)
 {
     void **array = malloc(sizeof(*array) * l->size);
     for (unsigned i = 0; i < l->size; ++i)
-	array[i] = list_get(l, i);
+        array[i] = list_get(l, i);
 
     return array;
 }

@@ -20,6 +20,7 @@
 #include "config.h"
 #include "print.h"
 #include "options.h"
+#include "initializer.h"
 
 #include "util/hash_table.h"
 
