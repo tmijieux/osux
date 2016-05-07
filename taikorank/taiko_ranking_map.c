@@ -49,7 +49,7 @@
 // this get rid of the 'new_combo' flag to get the hit object's type
 // more easily
 
-static char convert_get_type(struct hit_object * ho);
+static int convert_get_type(struct hit_object * ho);
 static double convert_get_bpm_app(struct timing_point * tp,
 				  double sv);
 static int convert_get_end_offset(struct hit_object * ho, int type,
@@ -208,36 +208,25 @@ struct tr_map * trm_new(char * filename)
 //---------------------------------------------------------------
 //---------------------------------------------------------------
 
-static char convert_get_type(struct hit_object * ho)
+static int convert_get_type(struct hit_object * ho)
 {
     int type = ho->type;
     int sample = ho->hs.sample;
-
-    if(TYPE(type) == HO_SLIDER) {
-	if((sample & HS_FINISH) != 0)
-	    return 'R';
+    int bits = 0;
+    if(TYPE(type) == HO_SLIDER)
+	bits |= TRO_R;
+    else if(TYPE(type) == HO_SPINNER)
+	bits |= TRO_S;
+    else if(TYPE(type) == HO_CIRCLE) {
+	if((sample & (HS_WHISTLE | HS_CLAP)) != 0)
+	    bits |= TRO_K;
 	else
-	    return 'r';
+	    bits |= TRO_D;
     }
-    if(TYPE(type) == HO_SPINNER)
-	return 's';
-    
-    if(TYPE(type) == HO_CIRCLE) {
-	if((sample & (HS_WHISTLE | HS_CLAP)) != 0) {
-	    if((sample & HS_FINISH) != 0)
-		return 'K';
-	    else
-		return 'k';
-	} else {
-	    if((sample & HS_FINISH) != 0)
-		return 'D';
-	    else
-		return 'd';
-	}
-    }
-
-    // uselessness
-    return '_';
+    if((sample & HS_FINISH) != 0)
+	return bits | TRO_BIG;
+    else
+	return bits;
 }
 
 //---------------------------------------------------------------
@@ -260,10 +249,10 @@ static double convert_get_bpm_app(struct timing_point * tp,
 static int convert_get_end_offset(struct hit_object * ho, int type,
 				  double bpm_app)
 {
-    if(type == 's') {
+    if(type & TRO_S) {
 	return ho->spi.end_offset;
     }
-    if(type == 'r' || type == 'R') {
+    if(type & TRO_R) {
 	return ho->offset + ((ho->sli.length * ho->sli.repeat) *
 			     (MSEC_IN_MINUTE / (100. * BASIC_SV)) /
 			     bpm_app);
@@ -329,14 +318,14 @@ static struct tr_map * trm_convert_map(struct osux_beatmap * map)
 	
 	tr_map->object[i].offset     =
 	    (int) map->HitObjects[i].offset;
-	tr_map->object[i].type       =
+	tr_map->object[i].bf         =
 	    convert_get_type(&map->HitObjects[i]);
 	tr_map->object[i].bpm_app    =
 	    convert_get_bpm_app(&map->TimingPoints[current_tp],
 				map->SliderMultiplier);
 	tr_map->object[i].end_offset =
 	    convert_get_end_offset(&map->HitObjects[i],
-				   tr_map->object[i].type,
+				   tr_map->object[i].bf,
 				   tr_map->object[i].bpm_app);
 	
 	if(tro_is_bonus(&tr_map->object[i])) {
@@ -594,19 +583,7 @@ static void trm_acc(struct tr_map * map)
 void trm_flat_big(struct tr_map * map)
 {
     for(int i = 0; i < map->nb_object; i++) {
-	switch(map->object[i].type) {
-	case 'D':
-	    map->object[i].type = 'd';
-	    break;
-	case 'K':
-	    map->object[i].type = 'k';
-	    break;
-	case 'R':
-	    map->object[i].type = 'r';
-	    break;
-	default:
-	    break;
-	}
+	map->object[i].bf &= ~TRO_BIG; // remove big field
     }
 }
 

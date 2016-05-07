@@ -107,23 +107,14 @@ static void ht_cst_exit_density(void)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static double tro_get_coeff_density(struct tr_object * obj)
+static double tro_get_coeff_density(struct tr_object * o)
 {
-    switch(obj->type) {
-    case 'd':
-    case 'k':
-	return DENSITY_NORMAL;
-    case 'D':
-    case 'K':
-	return DENSITY_BIG;
-    case 'r':
-    case 'R':
-    case 's':
+    if (tro_is_bonus(o))
 	return DENSITY_BONUS;
-    default:
-	tr_error("Wrong type %c.", obj->type);
-	return -1;
-    }
+    else if (tro_is_big(o))
+	return DENSITY_BIG;
+    else
+	return DENSITY_NORMAL;
 }
 
 //-----------------------------------------------------

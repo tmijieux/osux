@@ -30,6 +30,6 @@ taiko_ranking_SOURCES = \
 taiko_ranking_LDADD = ../libosux.la \
 		../util/libosux_util.la
 
-taiko_ranking_CFLAGS = -fopenmp $(AM_CFLAGS)
+taiko_ranking_CFLAGS = -O3 -fopenmp $(AM_CFLAGS)
 taiko_ranking_LDFLAGS = -lmysqlclient -pthread -lm $(AM_LDFLAGS)
 

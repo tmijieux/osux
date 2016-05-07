@@ -4,6 +4,7 @@ Todo:
 - pattern need improvement
 - vect with list
 - weight less density
+- check remove big
 
 Other:		   
 - HDHR not supported

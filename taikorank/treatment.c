@@ -49,27 +49,28 @@ static void tro_set_line_coeff(struct tr_object * o)
 
 //------------------------------------------------
 
-static void tro_set_hand(struct tr_object * obj, 
+static void tro_set_hand(struct tr_object * o,
 			 int * d_hand, int * k_hand)
 {
-    if(obj->ps == MISS) {
-	obj->l_hand = 0;
-	obj->r_hand = 0;
-    } else if((tro_is_big(obj) && tro_is_circle(obj)) ||
-	      obj->type == 's') {
-	obj->l_hand = 1;
-	obj->r_hand = 1;
-    } else if(tro_is_don(obj)) {
-	obj->l_hand = *d_hand;
-	obj->r_hand = (*d_hand = !*d_hand);
-    } else if(tro_is_kat(obj)) {
-	obj->l_hand = *k_hand;
-	obj->r_hand = (*k_hand = !*k_hand);
-    } else /* r R */ {
-	obj->l_hand = 0;
-	obj->r_hand = 0;
-    }	
-  
+    if(o->ps == MISS)
+	return;
+
+    if((tro_is_big(o) && tro_is_circle(o)) || tro_is_spinner(o))
+	o->bf |= TRO_HAND;
+    else {
+	if (tro_is_don(o)) {
+	    if ((*d_hand = !*d_hand)) // change the value and check
+		o->bf |= TRO_RH;
+	    else
+		o->bf |= TRO_LH;
+	} else if (tro_is_kat(o)) {
+	    if ((*k_hand = !*k_hand)) // change the value and check
+		o->bf |= TRO_RH;
+	    else
+		o->bf |= TRO_LH;
+	}
+    }
+    // r R let 0
 }
 
 //------------------------------------------------

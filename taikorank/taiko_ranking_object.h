@@ -23,27 +23,28 @@ enum played_state {
     GREAT, GOOD, MISS, BONUS
 };
 
-#define TRO_D   1 << 0 // don
-#define TRO_K   1 << 1 // kat
-#define TRO_S   1 << 2 // spinner
-#define TRO_R   1 << 3 // roll
-#define TRO_BIG 1 << 4 // big note
-#define TRO_LH  1 << 5 // left hand
-#define TRO_RH  1 << 6 // right hand
+#define TRO_D   (1 << 0) // don
+#define TRO_K   (1 << 1) // kat
+#define TRO_S   (1 << 2) // spinner
+#define TRO_R   (1 << 3) // roll
+#define TRO_BIG (1 << 4) // big note
+#define TRO_LH  (1 << 5) // left hand
+#define TRO_RH  (1 << 6) // right hand
+
+#define TRO_HAND (TRO_LH | TRO_RH) // hand filter
+#define TRO_DK   (TRO_K  | TRO_D ) // dk filter
 
 struct tr_object
 {
     // ---- basic data
     int offset;
     int end_offset;     // printed in basic+
-    char type;          // d D k K s(spinner) r(roll) R(roll)
+    int bf; // bitfield
     double bpm_app;
   
     enum played_state ps;
 
     // ---- additionnal data
-    int l_hand;          
-    int r_hand;          
     int length;
     int rest;            // printed in basic
     double obj_app;      // nb obj displayable on screen, without overlapping
@@ -93,19 +94,12 @@ int equal (double x, double y);
 int tro_get_length(struct tr_object * obj);
 double tro_get_size(struct tr_object * obj);
 
-int tro_is_big (struct tr_object * obj);
-int tro_is_bonus (struct tr_object * obj);
-int tro_is_slider (struct tr_object * obj);
-int tro_is_circle (struct tr_object * obj);
-int tro_is_kat (struct tr_object * obj);
-int tro_is_don (struct tr_object * obj);
+int tro_are_same_hand(struct tr_object * o1, struct tr_object * o2);
+int tro_are_same_type(struct tr_object * o1, struct tr_object * o2);
+int tro_are_same_density(struct tr_object *o1, struct tr_object *o2);
 
-int tro_are_same_hand (struct tr_object * obj1,
-		       struct tr_object * obj2);
-int tro_are_same_type (struct tr_object * obj1,
-		       struct tr_object * obj2);
-int tro_are_same_density (struct tr_object * obj1,
-			  struct tr_object * obj2);
+//-------------------------------------------------------------
+// tro_table
 
 struct tro_table {
     struct tr_object ** t;
@@ -119,5 +113,43 @@ struct tro_table * tro_table_from_vl(int l, ...);
 void tro_table_add(struct tro_table * t, struct tr_object * obj);
 struct tro_table * tro_table_from_array(struct tr_object ** t,int l);
 void tro_table_free(struct tro_table * t);
+
+//-------------------------------------------------------------
+// inline 
+inline int tro_is_big(struct tr_object * obj) {
+    return obj->bf & TRO_BIG;
+}
+
+inline int tro_is_bonus(struct tr_object * obj) {
+    return obj->bf & (TRO_R | TRO_S);
+}
+
+inline int tro_is_roll(struct tr_object * obj) {
+    return obj->bf & TRO_R;
+}
+
+inline int tro_is_spinner(struct tr_object * obj) {
+    return obj->bf & TRO_S;
+}
+
+inline int tro_is_circle(struct tr_object * obj) {
+    return obj->bf & (TRO_D | TRO_K);
+}
+
+inline int tro_is_kat(struct tr_object * obj) {
+    return obj->bf & TRO_K;
+}
+
+inline int tro_is_don(struct tr_object * obj) {
+    return obj->bf & TRO_D;
+}
+
+inline int tro_is_right_hand(struct tr_object * obj) {
+    return !!(obj->bf & TRO_RH);
+}
+
+inline int tro_is_left_hand(struct tr_object * obj) {
+    return !!(obj->bf & TRO_LH);
+}
 
 #endif

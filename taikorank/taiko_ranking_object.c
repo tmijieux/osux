@@ -66,78 +66,28 @@ int equal(double x, double y)
 //---------------------------------------------------
 //---------------------------------------------------
 
-int tro_is_big(struct tr_object * obj)
+int tro_are_same_hand(struct tr_object * o1, struct tr_object * o2)
 {
-    return (obj->type == 'D' || obj->type == 'K' ||
-	    obj->type == 'R');
+    return TRO_HAND & o1->bf & o2->bf;
 }
 
 //---------------------------------------------------
 
-int tro_is_bonus(struct tr_object * obj)
+int tro_are_same_type(struct tr_object * o1, struct tr_object * o2)
 {
-    return (obj->type == 's' || tro_is_slider(obj));
-}
-
-//---------------------------------------------------
-
-int tro_is_slider(struct tr_object * obj)
-{
-    return (obj->type == 'r' || obj->type == 'R');
-}
-
-//---------------------------------------------------
-
-int tro_is_circle(struct tr_object * obj)
-{
-    return !tro_is_bonus(obj);
-}
-
-//---------------------------------------------------
-
-int tro_is_kat(struct tr_object * obj)
-{
-    return (obj->type == 'k' || obj->type == 'K');
-}
-
-//---------------------------------------------------
-
-int tro_is_don(struct tr_object * obj)
-{
-    return (obj->type == 'd' || obj->type == 'D');
-}
-
-//---------------------------------------------------
-//---------------------------------------------------
-//---------------------------------------------------
-
-int tro_are_same_hand(struct tr_object * obj1,
-		      struct tr_object * obj2)
-{
-    return ((obj1->l_hand == obj2->l_hand) ||
-	    (obj1->r_hand == obj2->r_hand));
-}
-
-//---------------------------------------------------
-
-int tro_are_same_type(struct tr_object * obj1,
-		      struct tr_object * obj2)
-{
-    if(obj1->type == 's' || obj2->type == 's')
+    if(TRO_S & (o1->bf | o2->bf)) // one is spinner
 	return 1; // d and k are played
-    if(obj1->type == 'r' || obj2->type == 'r')
+    if(TRO_R & (o1->bf | o2->bf)) // one is roll
 	return 0; // suppose you play the easier...
-    return ((tro_is_don(obj1) && tro_is_don(obj2)) ||
-	    (tro_is_kat(obj1) && tro_is_kat(obj2)));
+    return (TRO_DK & o1->bf & o2->bf);
+
 }
 
 //---------------------------------------------------
 
-int tro_are_same_density(struct tr_object * obj1,
-			 struct tr_object * obj2)
+int tro_are_same_density(struct tr_object *o1, struct tr_object *o2)
 {
-    return (tro_are_same_type(obj1, obj2) &&
-	    tro_are_same_hand(obj1, obj2));
+    return tro_are_same_type(o1, o2) && tro_are_same_hand(o1, o2);
 }
 
 //---------------------------------------------------
@@ -162,6 +112,25 @@ char * tro_str_state(struct tr_object * o)
 
 //---------------------------------------------------
 
+static char tro_char_type(struct tr_object * o)
+{
+    char c;
+    if (tro_is_don(o))
+	c = 'd';
+    else if (tro_is_kat(o))
+	c = 'k';
+    else if (tro_is_roll(o))
+	c = 'r';
+    else
+	c = 's';
+    if (tro_is_big(o))
+	return c + 'A' - 'a';
+    else
+	return c;
+}
+
+//---------------------------------------------------
+
 void tro_print_yaml(struct tr_object * o)
 {
     fprintf(OUTPUT, "{");
@@ -182,7 +151,7 @@ void tro_print(struct tr_object * obj, int filter)
 	fprintf(OUTPUT_INFO, "%d\t%d\t%c\t%.3g\t%s\t",
 		obj->offset,
 		obj->rest,
-		obj->type,
+		tro_char_type(obj),
 		obj->bpm_app,
 		tro_str_state(obj));
     if((filter & FILTER_BASIC_PLUS) != 0)
@@ -190,13 +159,13 @@ void tro_print(struct tr_object * obj, int filter)
 		obj->offset,
 		obj->end_offset,
 		obj->rest,
-		obj->type,
+		tro_char_type(obj),
 		obj->bpm_app,
 		tro_str_state(obj));
     if((filter & FILTER_ADDITIONNAL) != 0)
 	fprintf(OUTPUT_INFO, "%d\t%d\t%g\t%g\t",
-		obj->l_hand,
-		obj->r_hand,
+		tro_is_left_hand(obj),
+		tro_is_right_hand(obj),
 		obj->obj_app,
 		obj->obj_dis);
     if((filter & FILTER_DENSITY) != 0)
