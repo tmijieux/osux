@@ -33,9 +33,9 @@
 
 #include "final_star.h"
 
+static double weight_final_star(int i, double val);
 static void tro_set_final_star(struct tr_object * obj);
 static void trm_set_final_star(struct tr_map * map);
-
 
 static double tro_influence_coeff(struct tr_object * o1,
 				  struct tr_object * o2);
@@ -55,6 +55,7 @@ static double ACC_POW;
 
 static struct linear_fun * INFLU_VECT;
 static struct linear_fun * SCALE_VECT;
+static struct linear_fun * WEIGHT_VECT;
 
 //-----------------------------------------------------
 
@@ -62,6 +63,7 @@ static void global_init(void)
 {
     INFLU_VECT = cst_lf(ht_cst, "vect_influence");
     SCALE_VECT = cst_lf(ht_cst, "vect_scale");
+    WEIGHT_VECT = cst_lf(ht_cst, "vect_weight");
 
     DST_POW = cst_f(ht_cst, "density_pow");
     RDG_POW = cst_f(ht_cst, "reading_pow");
@@ -83,7 +85,15 @@ static void ht_cst_exit_final(void)
 {
     yaml2_free(yw);
     lf_free(SCALE_VECT);
+    lf_free(WEIGHT_VECT);
     lf_free(INFLU_VECT);
+}
+
+//-----------------------------------------------------
+
+static double weight_final_star(int i, double val)
+{
+    return lf_eval(WEIGHT_VECT, i) * val;
 }
 
 //-----------------------------------------------------
@@ -163,10 +173,15 @@ void trm_compute_final_star(struct tr_map * map)
     trm_set_final_star(map);
 
     {
-	map->density_star = trm_weight_sum_density_star(map, NULL);
-	map->reading_star = trm_weight_sum_reading_star(map, NULL);
-	map->pattern_star = trm_weight_sum_pattern_star(map, NULL);
-	map->accuracy_star = trm_weight_sum_accuracy_star(map, NULL);
-	map->final_star = trm_weight_sum_final_star(map, NULL);
+	map->density_star = 
+	    trm_weight_sum_density_star(map, weight_final_star);
+	map->reading_star = 
+	    trm_weight_sum_reading_star(map, weight_final_star);
+	map->pattern_star = 
+	    trm_weight_sum_pattern_star(map, weight_final_star);
+	map->accuracy_star = 
+	    trm_weight_sum_accuracy_star(map, weight_final_star);
+	map->final_star = 
+	    trm_weight_sum_final_star(map, weight_final_star);
     }
 }

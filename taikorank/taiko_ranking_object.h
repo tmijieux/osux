@@ -23,6 +23,14 @@ enum played_state {
     GREAT, GOOD, MISS, BONUS
 };
 
+#define TRO_D   1 << 0 // don
+#define TRO_K   1 << 1 // kat
+#define TRO_S   1 << 2 // spinner
+#define TRO_R   1 << 3 // roll
+#define TRO_BIG 1 << 4 // big note
+#define TRO_LH  1 << 5 // left hand
+#define TRO_RH  1 << 6 // right hand
+
 struct tr_object
 {
     // ---- basic data

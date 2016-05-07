@@ -215,9 +215,10 @@ static double tro_pattern_freq(struct tr_object * o,
 {
     typedef int (*herit)(void*, void*);
     double total = cnt_get_total(c) * PROBA_NB;
+    if (total == 0)
+	return 1;
     double nb = 0;
     for (int k = 0; k < PROBA_NB; k++) {
-	//nb += cnt_get_nb(c, o->patterns[k]->s);
 	nb += cnt_get_nb_compressed(c, o->patterns[k]->s,
 				    (herit) pattern_is_in);
     }

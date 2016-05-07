@@ -3,7 +3,20 @@ Todo:
 - offset_app... roll & spinner -> treatment check
 - pattern need improvement
 - vect with list
+- weight less density
 
 Other:		   
 - HDHR not supported
 - EZ speed not sure
+
+Tom's idea:
+- pattern: 
+  - odd  + odd  -> 0 
+  - even + even -> 0 
+  - even + odd  -> 1
+  - odd  + even -> 1 
+- density:
+  - time interval
+- accuracy:
+  - spacing
+  

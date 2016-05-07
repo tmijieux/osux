@@ -314,6 +314,7 @@ void tr_db_init(void)
 
 void trm_db_insert(struct tr_map * map __attribute__((unused)))
 {
+    tr_error("Database is disabled!");
 }
 
 #endif

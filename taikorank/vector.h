@@ -27,6 +27,7 @@ struct vector * vect_new(int length, int dim);
 void vect_free(struct vector * v);
 
 struct vector * cst_vect(struct hash_table * ht, const char * key);
+struct vector * cst_vect2(struct hash_table * ht, const char * key);
 
 // 2pt
 double vect_exp(struct vector * v, double x);

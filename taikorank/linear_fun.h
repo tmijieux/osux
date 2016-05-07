@@ -33,6 +33,8 @@ void lf_free(struct linear_fun * lf);
 
 // Values must be sorted 
 struct linear_fun * cst_lf(struct hash_table * ht, const char * key);
+struct linear_fun * cst_lf2(struct hash_table * ht, const char * key);
+
 double lf_eval(struct linear_fun * lf, double x);
 
 #endif //LINEAR_FUN_H

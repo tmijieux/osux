@@ -55,10 +55,7 @@ void vect_free(struct vector * v)
 
 //--------------------------------------------------
 
-/*
-for future use...
-
-struct vector * cst_vect(struct hash_table * ht, const char * key)
+struct vector * cst_vect2(struct hash_table * ht, const char * key)
 {
     struct list * l = cst_list(ht, key);
     struct vector * v = vect_new(list_size(l), CST_VECT_DIM);
@@ -69,7 +66,6 @@ struct vector * cst_vect(struct hash_table * ht, const char * key)
     }
     return v;
 }
-*/
 
 struct vector * cst_vect(struct hash_table * ht, const char * key)
 {
