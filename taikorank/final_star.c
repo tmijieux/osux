@@ -19,7 +19,6 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "util/sum.h"
 #include "util/hash_table.h"
 #include "util/list.h"
 #include "util/yaml2.h"
@@ -45,8 +44,8 @@ static void trm_set_influence(struct tr_map * map);
 
 #define FINAL_FILE "final_cst.yaml"
 
-static struct yaml_wrap * yw;
-static struct hash_table * ht_cst;
+static struct yaml_wrap * yw_fin;
+static struct hash_table * ht_cst_fin;
 
 static double DST_POW;
 static double RDG_POW;
@@ -54,16 +53,16 @@ static double PTR_POW;
 static double ACC_POW;
 
 static struct linear_fun * INFLU_VECT;
-static struct linear_fun * SCALE_VECT;
+static struct linear_fun * FINAL_SCALE_VECT;
 static struct linear_fun * WEIGHT_VECT;
 
 //-----------------------------------------------------
 
-static void global_init(void)
+static void final_global_init(struct hash_table * ht_cst)
 {
     INFLU_VECT = cst_lf(ht_cst, "vect_influence");
-    SCALE_VECT = cst_lf(ht_cst, "vect_scale");
     WEIGHT_VECT = cst_lf(ht_cst, "vect_weight");
+    FINAL_SCALE_VECT = cst_lf(ht_cst, "vect_scale");
 
     DST_POW = cst_f(ht_cst, "density_pow");
     RDG_POW = cst_f(ht_cst, "reading_pow");
@@ -74,17 +73,17 @@ static void global_init(void)
 __attribute__((constructor))
 static void ht_cst_init_final(void)
 {
-    yw = cst_get_yw(FINAL_FILE);
-    ht_cst = yw_extract_ht(yw);
-    if(ht_cst != NULL)
-	global_init();
+    yw_fin = cst_get_yw(FINAL_FILE);
+    ht_cst_fin = yw_extract_ht(yw_fin);
+    if(ht_cst_fin != NULL)
+	final_global_init(ht_cst_fin);
 }
 
 __attribute__((destructor))
 static void ht_cst_exit_final(void)
 {
-    yaml2_free(yw);
-    lf_free(SCALE_VECT);
+    yaml2_free(yw_fin);
+    lf_free(FINAL_SCALE_VECT);
     lf_free(WEIGHT_VECT);
     lf_free(INFLU_VECT);
 }
@@ -109,7 +108,7 @@ static void tro_set_final_star(struct tr_object * obj)
 	return;
     }
     obj->final_star =
-	lf_eval(SCALE_VECT,
+	lf_eval(FINAL_SCALE_VECT,
 		pow(obj->density_star,  DST_POW) *
 		pow(obj->reading_star,  RDG_POW) *
 		pow(obj->pattern_star,  PTR_POW) *
@@ -146,25 +145,23 @@ void tro_set_influence(struct tr_object * objs, int i, int nb)
 
 static void trm_set_final_star(struct tr_map * map)
 {
-    for(int i = 0; i < map->nb_object; i++) {
+    for(int i = 0; i < map->nb_object; i++)
 	tro_set_final_star(&map->object[i]);
-    }
 }
 
 //-----------------------------------------------------
 
 static void trm_set_influence(struct tr_map * map)
 {
-    for(int i = 0; i < map->nb_object; i++) {
+    for(int i = 0; i < map->nb_object; i++)
 	tro_set_influence(map->object, i, map->nb_object);
-    }
 }
 
 //-----------------------------------------------------
 
 void trm_compute_final_star(struct tr_map * map)
 {
-    if(ht_cst == NULL) {
+    if(ht_cst_fin == NULL) {
 	tr_error("Unable to compute final stars.");
 	return;
     }
@@ -173,15 +170,15 @@ void trm_compute_final_star(struct tr_map * map)
     trm_set_final_star(map);
 
     {
-	map->density_star = 
+	map->density_star =
 	    trm_weight_sum_density_star(map, weight_final_star);
-	map->reading_star = 
+	map->reading_star =
 	    trm_weight_sum_reading_star(map, weight_final_star);
-	map->pattern_star = 
+	map->pattern_star =
 	    trm_weight_sum_pattern_star(map, weight_final_star);
-	map->accuracy_star = 
+	map->accuracy_star =
 	    trm_weight_sum_accuracy_star(map, weight_final_star);
-	map->final_star = 
+	map->final_star =
 	    trm_weight_sum_final_star(map, weight_final_star);
     }
 }

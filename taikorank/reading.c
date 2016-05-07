@@ -20,7 +20,6 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "util/sum.h"
 #include "util/hash_table.h"
 #include "util/list.h"
 #include "util/yaml2.h"
@@ -38,8 +37,8 @@
 
 typedef int (*mc_cond)(double, double, void *);
 
-static struct yaml_wrap * yw;
-static struct hash_table * ht_cst;
+static struct yaml_wrap * yw_rdg;
+static struct hash_table * ht_cst_rdg;
 
 static int pt_is_in_tro(double x, double y, struct tr_object * o);
 static int pt_is_hiding(double x, double y, struct tro_table * t);
@@ -73,17 +72,17 @@ static struct linear_fun * SEEN_VECT;
 
 // coeff for star
 static double READING_STAR_COEFF_SEEN;
-static struct linear_fun * SCALE_VECT;
+static struct linear_fun * READING_SCALE_VECT;
 
 //-----------------------------------------------------
 
-static void global_init(void)
+static void reading_global_init(struct hash_table * ht_cst)
 {
     srand(time(NULL));
     MONTE_CARLO_NB_PT = cst_i(ht_cst, "monte_carlo_nb_pts");
 
     SEEN_VECT  = cst_lf(ht_cst, "vect_seen");
-    SCALE_VECT = cst_lf(ht_cst, "vect_scale");
+    READING_SCALE_VECT = cst_lf(ht_cst, "vect_scale");
 
     READING_STAR_COEFF_SEEN = cst_f(ht_cst, "star_seen");
 }
@@ -93,18 +92,18 @@ static void global_init(void)
 __attribute__((constructor))
 static void ht_cst_init_reading(void)
 {
-    yw = cst_get_yw(READING_FILE);
-    ht_cst = yw_extract_ht(yw);
-    if(ht_cst != NULL)
-	global_init();
+    yw_rdg = cst_get_yw(READING_FILE);
+    ht_cst_rdg = yw_extract_ht(yw_rdg);
+    if(ht_cst_rdg != NULL)
+	reading_global_init(ht_cst_rdg);
 }
 
 __attribute__((destructor))
 static void ht_cst_exit_reading(void)
 {
-    yaml2_free(yw);
+    yaml2_free(yw_rdg);
     lf_free(SEEN_VECT);
-    lf_free(SCALE_VECT);
+    lf_free(READING_SCALE_VECT);
 }
 
 //-----------------------------------------------------
@@ -280,7 +279,7 @@ static void trm_set_seen(struct tr_map * map)
 static void tro_set_reading_star(struct tr_object * obj)
 {
     obj->reading_star = lf_eval
-	(SCALE_VECT, READING_STAR_COEFF_SEEN * obj->seen);
+	(READING_SCALE_VECT, READING_STAR_COEFF_SEEN * obj->seen);
 }
 
 //-----------------------------------------------------
@@ -297,7 +296,7 @@ static void trm_set_reading_star(struct tr_map * map)
 
 void trm_compute_reading(struct tr_map * map)
 {
-    if(ht_cst == NULL) {
+    if(ht_cst_rdg == NULL) {
 	tr_error("Unable to compute reading stars.");
 	return;
     }

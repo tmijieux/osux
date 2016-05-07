@@ -24,6 +24,8 @@
 
 #include "taiko_ranking_object.h"
 
+static char tro_char_type(struct tr_object * o);
+
 // percentage for equal
 #define EPSILON 1.
 

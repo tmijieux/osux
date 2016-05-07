@@ -17,7 +17,6 @@
 #include <math.h>
 #include <stdio.h>
 
-#include "util/sum.h"
 #include "util/hash_table.h"
 #include "util/list.h"
 #include "util/yaml2.h"
@@ -34,8 +33,8 @@
 
 #define TIME_EQUAL_MS 12
 
-static struct yaml_wrap * yw;
-static struct hash_table * ht_cst;
+static struct yaml_wrap * yw_acc;
+static struct hash_table * ht_cst_acc;
 
 static double tro_slow(struct tr_object * obj);
 
@@ -70,17 +69,17 @@ static struct linear_fun * SPC_INFLU_VECT;
 static double ACCURACY_STAR_COEFF_SLOW;
 static double ACCURACY_STAR_COEFF_HIT_WINDOW;
 static double ACCURACY_STAR_COEFF_SPACING;
-static struct linear_fun * SCALE_VECT;
+static struct linear_fun * ACCURACY_SCALE_VECT;
 
 //-----------------------------------------------------
 
-static void global_init(void)
+static void accuracy_global_init(struct hash_table * ht_cst)
 {
     SLOW_VECT       = cst_lf(ht_cst, "vect_slow");
     HIT_WINDOW_VECT = cst_lf(ht_cst, "vect_hit_window");
     SPC_FREQ_VECT   = cst_lf(ht_cst, "vect_spacing_frequency");
     SPC_INFLU_VECT  = cst_lf(ht_cst, "vect_spacing_influence");
-    SCALE_VECT      = cst_lf(ht_cst, "vect_scale");
+    ACCURACY_SCALE_VECT = cst_lf(ht_cst, "vect_scale");
 
     ACCURACY_STAR_COEFF_SLOW       = cst_f(ht_cst, "star_slow");
     ACCURACY_STAR_COEFF_HIT_WINDOW = cst_f(ht_cst, "star_hit_window");
@@ -92,21 +91,21 @@ static void global_init(void)
 __attribute__((constructor))
 static void ht_cst_init_accuracy(void)
 {
-    yw = cst_get_yw(ACCURACY_FILE);
-    ht_cst = yw_extract_ht(yw);
-    if(ht_cst != NULL)
-	global_init();
+    yw_acc = cst_get_yw(ACCURACY_FILE);
+    ht_cst_acc = yw_extract_ht(yw_acc);
+    if(ht_cst_acc != NULL)
+	accuracy_global_init(ht_cst_acc);
 }
 
 __attribute__((destructor))
 static void ht_cst_exit_accuracy(void)
 {
-    yaml2_free(yw);
+    yaml2_free(yw_acc);
     lf_free(SLOW_VECT);
     lf_free(SPC_FREQ_VECT);
     lf_free(SPC_INFLU_VECT);
     lf_free(HIT_WINDOW_VECT);
-    lf_free(SCALE_VECT);
+    lf_free(ACCURACY_SCALE_VECT);
 }
 
 //-----------------------------------------------------
@@ -239,7 +238,7 @@ static void trm_set_spacing(struct tr_map * map)
 static void tro_set_accuracy_star(struct tr_object * obj)
 {
     obj->accuracy_star = lf_eval
-	(SCALE_VECT,
+	(ACCURACY_SCALE_VECT,
 	 (ACCURACY_STAR_COEFF_SLOW       * obj->slow +
 	  ACCURACY_STAR_COEFF_SPACING    * obj->spacing +
 	  ACCURACY_STAR_COEFF_HIT_WINDOW * obj->hit_window));
@@ -259,7 +258,7 @@ static void trm_set_accuracy_star(struct tr_map * map)
 
 void trm_compute_accuracy(struct tr_map * map)
 {
-    if(ht_cst == NULL) {
+    if(ht_cst_acc == NULL) {
 	tr_error("Unable to compute accuracy stars.");
 	return;
     }

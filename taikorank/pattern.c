@@ -19,7 +19,6 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "util/sum.h"
 #include "util/hash_table.h"
 #include "util/list.h"
 #include "util/yaml2.h"
@@ -36,13 +35,14 @@
 
 #define PROBA_SCALE 100.
 
-static struct yaml_wrap * yw;
-static struct hash_table * ht_cst;
+static struct yaml_wrap * yw_ptr;
+static struct hash_table * ht_cst_ptr;
 
 struct pattern {
     char * s;
     int len;
-    double proba_alt;
+    double proba_start;
+    double proba_end;
 };
 
 //--------------------------------------------------
@@ -84,19 +84,19 @@ static int PROBA_NB;
 
 // coeff for star
 static double PATTERN_STAR_COEFF_PATTERN;
-static struct linear_fun * SCALE_VECT;
+static struct linear_fun * PATTERN_SCALE_VECT;
 
 // pattern
 static int MAX_PATTERN_LENGTH;
 
 //-----------------------------------------------------
 
-static void global_init(void)
+static void pattern_global_init(struct hash_table * ht_cst)
 {
     PATTERN_VECT   = cst_lf(ht_cst, "vect_pattern");
     INFLU_VECT     = cst_lf(ht_cst, "vect_influence");
     SINGLETAP_VECT = cst_lf(ht_cst, "vect_singletap");
-    SCALE_VECT     = cst_lf(ht_cst, "vect_scale");
+    PATTERN_SCALE_VECT = cst_lf(ht_cst, "vect_scale");
 
     PROBA_START = cst_f(ht_cst, "proba_start");
     PROBA_END   = cst_f(ht_cst, "proba_end");
@@ -113,10 +113,10 @@ static void global_init(void)
 __attribute__((constructor))
 static void ht_cst_init_pattern(void)
 {
-    yw = cst_get_yw(PATTERN_FILE);
-    ht_cst = yw_extract_ht(yw);
-    if(ht_cst != NULL)
-	global_init();
+    yw_ptr = cst_get_yw(PATTERN_FILE);
+    ht_cst_ptr = yw_extract_ht(yw_ptr);
+    if(ht_cst_ptr != NULL)
+	pattern_global_init(ht_cst_ptr);
 }
 
 //-----------------------------------------------------
@@ -124,8 +124,8 @@ static void ht_cst_init_pattern(void)
 __attribute__((destructor))
 static void ht_cst_exit_pattern(void)
 {
-    yaml2_free(yw);
-    lf_free(SCALE_VECT);
+    yaml2_free(yw_ptr);
+    lf_free(PATTERN_SCALE_VECT);
     lf_free(SINGLETAP_VECT);
 }
 
@@ -152,8 +152,8 @@ static void trm_set_patterns(struct tr_map * map)
 	o->patterns = malloc(sizeof(struct pattern*) * PROBA_NB);
 	int j = 0;
 	for(int p = PROBA_START; p <= PROBA_END; p+=PROBA_STEP) {
-	    o->patterns[j] = trm_extract_pattern(map, i, 
-						 p / PROBA_SCALE);
+	    o->patterns[j] = 
+		trm_extract_pattern(map, i, p / PROBA_SCALE);
 	    j++;
 	}
     }
@@ -162,11 +162,11 @@ static void trm_set_patterns(struct tr_map * map)
 //-----------------------------------------------------
 
 static struct pattern * trm_extract_pattern(struct tr_map * map,
-					    int i, double proba_alt)
+					    int i, double proba)
 {
     struct pattern * p = malloc(sizeof(*p));
-    p->proba_alt = proba_alt;
-    p->s = trm_extract_pattern_str(map, i, proba_alt);
+    p->proba_start = proba;
+    p->s = trm_extract_pattern_str(map, i, proba);
     p->len = strlen(p->s);
     return p;
 }
@@ -174,7 +174,7 @@ static struct pattern * trm_extract_pattern(struct tr_map * map,
 //-----------------------------------------------------
 
 static char * trm_extract_pattern_str(struct tr_map * map,
-				      int i, double proba_alt)
+				      int i, double proba_singletap)
 {
     char * s = calloc(sizeof(char), MAX_PATTERN_LENGTH + 1);
     for (int j = 0; j < MAX_PATTERN_LENGTH && i + j < map->nb_object; j++) {
@@ -189,7 +189,7 @@ static char * trm_extract_pattern_str(struct tr_map * map,
 	    s[j] = 'k';
 	
 	if ((!(i + j + 1 < map->nb_object)) || 
-	    proba_alt < map->object[i+j+1].proba) {
+	    proba_singletap < map->object[i+j+1].proba) {
 	    s[j+1] = 0;
 	    break;
 	}
@@ -235,8 +235,11 @@ static struct counter * tro_pattern_freq_init(struct tr_object *objs,
 	for (int k = 0; k < PROBA_NB; k++) {
 	    if (objs[j].patterns[k]->s[0] == '\0')
 		continue;
+	    double influ = tro_pattern_influence(&objs[j], &objs[i]);
+	    if (influ == 0)
+		continue;
 	    cnt_add(c, objs[j].patterns[k], objs[j].patterns[k]->s,
-		    tro_pattern_influence(&objs[j], &objs[i]));
+		    influ);
 	}
     }
     return c;
@@ -320,7 +323,8 @@ static void tro_free_patterns(struct tr_object * o)
 static void tro_set_pattern_star(struct tr_object * obj)
 {
     obj->pattern_star = lf_eval
-	(SCALE_VECT, PATTERN_STAR_COEFF_PATTERN * obj->pattern);
+	(PATTERN_SCALE_VECT, 
+	 PATTERN_STAR_COEFF_PATTERN * obj->pattern);
 }
 
 //-----------------------------------------------------
@@ -345,7 +349,7 @@ static void trm_free_patterns(struct tr_map * map)
 
 void trm_compute_pattern(struct tr_map * map)
 {
-    if(ht_cst == NULL) {
+    if(ht_cst_ptr == NULL) {
 	tr_error("Unable to compute pattern stars.");
 	return;
     }

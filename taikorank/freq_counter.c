@@ -116,8 +116,8 @@ void cnt_add(struct counter * c, void * data, const char * key,
 	     double val)
 {
     struct counter_entry * e = NULL;
-    if (ht_has_entry(c->ht, key)) {
-	ht_get_entry(c->ht, key, &e);
+    ht_get_entry(c->ht, key, &e);
+    if (e != NULL) {
 	e->nb += val;
     } else {
 	e = cnte_new(data, val);
