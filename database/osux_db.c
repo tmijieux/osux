@@ -474,7 +474,8 @@ int osux_db_load(const char *filename, struct osux_db **db)
         return -1;
     }
     osux_db_create(db);
-    return db_load_or_save((*db)->sqlite_db, filename, false) != SQLITE_OK;
+    return db_load_or_save(
+        (*db)->sqlite_db, filename, false) != SQLITE_OK ? -1 : 0;
 }
 
 int osux_db_free(osux_db *db)

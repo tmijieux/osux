@@ -9,7 +9,9 @@ int main(void)
 {
     struct osux_db *db;
     
-    osux_db_load("./osu.db", &db);
+    if (osux_db_load("./osu.db", &db) < 0) {
+        exit(EXIT_FAILURE);
+    }
 
     osux_db_update_stat(db);
     osux_db_print_stat(stdout, db);

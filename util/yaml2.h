@@ -1,6 +1,9 @@
 #ifndef YAML2_H
 #define YAML2_H
 
+#include "./list.h"
+#include "./hash_table.h"
+
 enum yaml_type {
     YAML_MAPPING = 10,
     YAML_SEQUENCE = 13,
