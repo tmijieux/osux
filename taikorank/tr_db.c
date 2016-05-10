@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-#ifndef NO_MYSQL_DB
+#ifdef MYSQL_TR_DB
 
 #define _GNU_SOURCE
 

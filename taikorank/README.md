@@ -3,10 +3,10 @@ This is an amateur star rating for taiko mode in osu!
 
 ## How it works
 The star rating is based on my personnal perception of what is hard in osu!taiko. Thus it may not correspond to everyone point of vue, but everyone's opinion is welcomed as the rating still need some improvement. Basicely, the taiko ranking project split the computation in four skills: 
-* Density, how hard is an object to hit. The quicker you have to hit, the harder.
-* Reading, how hard is an object to read. Like playing with hidden, flashlight or high slider velocity. 
-* Pattern, how hard is a pattern to play. For example ddddddd is easier than ddkdkkd. 
-* Accuracy, how hard it is to play accuratly. Focusing on overall difficulty and odd spacing between objects.
+* *Density* how hard is an object to hit. The quicker you have to hit, the harder.
+* *Reading* how hard is an object to read. Like playing with hidden, flashlight or high slider velocity. 
+* *Pattern* how hard is a pattern to play. For example ddddddd is easier than ddkdkkd. 
+* *Accuracy* how hard it is to play accuratly. Focusing on overall difficulty and odd spacing between objects.
 A final value is then computed giving global star rating for the map.
 
 ## Requirements
@@ -14,8 +14,8 @@ Needed:
 * yaml
 
 Optional:
-* openmp, remove `-fopenmp` to disable
-* mysqlclient, remove `-lmysqlclient` and add `-DNO_MYSQL_DB` to disable
+* openmp, use `-fopenmp` in CFLAGS to enable
+* mysqlclient, use `-lmysqlclient` in LDFLAGS and `-DMYSQL_TR_DB` to enable
 
 ## Usage
 `taiko_ranking [OPTION] ... [FILE|HASH] ... [OPTION] ... [FILE|HASH] ... `

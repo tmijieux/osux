@@ -1,20 +1,36 @@
 # scale
-vect_scale_length: 2
+vect_scale_length: 3
 vect_scale_x1: 0.
-vect_scale_y1: 0.
-vect_scale_x2: 1e4.
-vect_scale_y2: 20.
+vect_scale_y1: 1.
+vect_scale_x2: 400.
+vect_scale_y2: 4.
+vect_scale_x3: 1e4.
+vect_scale_y3: 4.
 
 # coeff for density
-vect_density_length: 4
+# x is in ms
+# y in [1, 100]
+vect_density_length: 10
 vect_density_x1: 0.
 vect_density_y1: 100.
-vect_density_x2: 4000.
-vect_density_y2: 10.
-vect_density_x3: 10000.
-vect_density_y3: 0.
-vect_density_x4: 3600000.
-vect_density_y4: 0.
+vect_density_x2: 38.      # 1/4 400bpm
+vect_density_y2: 100.
+vect_density_x3: 46.      # 1/4 320bpm
+vect_density_y3: 98.
+vect_density_x4: 58.      # 1/4 260bpm
+vect_density_y4: 95.
+vect_density_x5: 75.      # 1/4 200bpm
+vect_density_y5: 90.
+vect_density_x6: 107.     # 1/4 140bpm
+vect_density_y6: 50.
+vect_density_x7: 187.     # 1/4 80bpm
+vect_density_y7: 10.
+vect_density_x8: 375.     # 1/2 80bpm
+vect_density_y8: 0.5
+vect_density_x9: 1000.   # 1s
+vect_density_y9: 0.
+vect_density_x10: 3600000. # 1h
+vect_density_y10: 0.
 
 # coefficient for object type, 1 is the maximum
 density_normal: 1.

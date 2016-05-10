@@ -1,9 +1,13 @@
 ### scale
-vect_scale_length: 2
-vect_scale_x1: 0.
-vect_scale_y1: 0.
-vect_scale_x2: 1e3.
-vect_scale_y2: 20.
+vect_scale_length: 4
+vect_scale_x1: 0.    # bonus
+vect_scale_y1: 1.
+vect_scale_x2: 780.  # OD0 
+vect_scale_y2: 1.
+vect_scale_x3: 1e3.  # OD10
+vect_scale_y3: 4.
+vect_scale_x4: 1.15e3.  # OD10+
+vect_scale_y4: 4.
 
 ### slow
 # x is in bpm app
@@ -36,15 +40,17 @@ vect_spacing_frequency_y2: 0.
 
 ### hit_window
 # x is in ms
-vect_hit_window_length: 3
-vect_hit_window_x1: 20.
+vect_hit_window_length: 4
+vect_hit_window_x1: 0.
 vect_hit_window_y1: 1000.
-vect_hit_window_x2: 150.
-vect_hit_window_y2: 0.
-vect_hit_window_x3: 3600000.
+vect_hit_window_x2: 20.
+vect_hit_window_y2: 1000.
+vect_hit_window_x3: 150.
 vect_hit_window_y3: 0.
+vect_hit_window_x4: 3600000.
+vect_hit_window_y4: 0.
 
 ### coeff for star
-star_slow:       0.1
-star_hit_window: 0.1
-star_spacing:    1.
+star_slow:       0.1   # in [0, 1000]
+star_hit_window: 1     # in [0, 1000]
+star_spacing:    50.  # in [0, 1]

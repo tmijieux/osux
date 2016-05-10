@@ -36,6 +36,7 @@ static double weight_final_star(int i, double val);
 static void tro_set_final_star(struct tr_object * obj);
 static void trm_set_final_star(struct tr_map * map);
 
+static void tro_apply_influence_coeff(struct tr_object *o, double c);
 static double tro_influence_coeff(struct tr_object * o1,
 				  struct tr_object * o2);
 static void trm_set_influence(struct tr_map * map);
@@ -125,17 +126,30 @@ static double tro_influence_coeff(struct tr_object * o1,
 
 //-----------------------------------------------------
 
+static void tro_apply_influence_coeff(struct tr_object * o, double c)
+{
+    o->density_star *= c;
+    o->reading_star *= c;
+    o->pattern_star *= c;
+    o->accuracy_star *= c;
+}
+
 void tro_set_influence(struct tr_object * objs, int i, int nb)
 {
     if(objs[i].ps == GREAT || objs[i].ps == BONUS) {
 	return;
     }
-    for(int j = 0; j < nb; j++) {
+    for(int j = i; j >= 0; j--) {
 	double coeff = tro_influence_coeff(&objs[i], &objs[j]);
-	objs[j].density_star *= coeff;
-	objs[j].reading_star *= coeff;
-	objs[j].pattern_star *= coeff;
-	objs[j].accuracy_star *= coeff;
+	if (coeff == 1)
+	    break; /* influence will remain to 1 */
+	tro_apply_influence_coeff(&objs[j], coeff);
+    }
+    for(int j = i+1; j < nb; j++) {
+	double coeff = tro_influence_coeff(&objs[i], &objs[j]);
+	if (coeff == 1)
+	    break; /* influence will remain to 1 */
+	tro_apply_influence_coeff(&objs[j], coeff);
     }
 }
 

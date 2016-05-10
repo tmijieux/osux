@@ -231,17 +231,18 @@ static struct counter * tro_pattern_freq_init(struct tr_object *objs,
 					      int i)
 {
     struct counter * c = cnt_new();
-    for (int j = 0; j <= i; j++) {
+    for (int j = i; j >= 0; j--) {
 	for (int k = 0; k < PROBA_NB; k++) {
 	    if (objs[j].patterns[k]->s[0] == '\0')
 		continue;
 	    double influ = tro_pattern_influence(&objs[j], &objs[i]);
 	    if (influ == 0)
-		continue;
+		goto break2; /* j-- influence will remain 0 */
 	    cnt_add(c, objs[j].patterns[k], objs[j].patterns[k]->s,
 		    influ);
 	}
     }
+ break2:
     return c;
 }
 

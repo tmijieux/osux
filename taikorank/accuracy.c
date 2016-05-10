@@ -167,12 +167,12 @@ static double tro_spacing_influence(struct tr_object * o1,
 static struct spacing_count * tro_spacing_init(struct tr_object * objs, int i)
 {
     struct spacing_count * spc = spc_new(equal_i);
-    for(int j = 0; j < i+1; j++) {
+    for(int j = i; j >= 0; j--) {
 	if(objs[j].ps == MISS)
 	    continue;
 	double influ = tro_spacing_influence(&objs[j], &objs[i]);
 	if (influ == 0)
-	    continue;
+	    break; /* j-- influence won't increase */
 	spc_add(spc, objs[j].rest, influ);
     }
     return spc;

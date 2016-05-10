@@ -25,7 +25,7 @@ __attribute__((constructor))
 static void parser_init(void)
 {
     void *handle;
-    handle = dlopen(PKG_LIB_DIR"/libosux_pyparser.so", RTLD_LOCAL|RTLD_NOW);
+    handle = dlopen(PKG_LIB_DIR"/libpyparser.so", RTLD_LOCAL|RTLD_NOW);
     if (NULL == handle) {
         osux_error("Failed to initialize parser:\n%s\n", dlerror());
         exit(EXIT_FAILURE);

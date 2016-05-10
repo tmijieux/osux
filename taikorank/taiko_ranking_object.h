@@ -116,39 +116,39 @@ void tro_table_free(struct tro_table * t);
 
 //-------------------------------------------------------------
 // inline 
-inline int tro_is_big(struct tr_object * obj) {
+static inline int tro_is_big(struct tr_object * obj) {
     return obj->bf & TRO_BIG;
 }
 
-inline int tro_is_bonus(struct tr_object * obj) {
+static inline int tro_is_bonus(struct tr_object * obj) {
     return obj->bf & (TRO_R | TRO_S);
 }
 
-inline int tro_is_roll(struct tr_object * obj) {
+static inline int tro_is_roll(struct tr_object * obj) {
     return obj->bf & TRO_R;
 }
 
-inline int tro_is_spinner(struct tr_object * obj) {
+static inline int tro_is_spinner(struct tr_object * obj) {
     return obj->bf & TRO_S;
 }
 
-inline int tro_is_circle(struct tr_object * obj) {
+static inline int tro_is_circle(struct tr_object * obj) {
     return obj->bf & (TRO_D | TRO_K);
 }
 
-inline int tro_is_kat(struct tr_object * obj) {
+static inline int tro_is_kat(struct tr_object * obj) {
     return obj->bf & TRO_K;
 }
 
-inline int tro_is_don(struct tr_object * obj) {
+static inline int tro_is_don(struct tr_object * obj) {
     return obj->bf & TRO_D;
 }
 
-inline int tro_is_right_hand(struct tr_object * obj) {
+static inline int tro_is_right_hand(struct tr_object * obj) {
     return !!(obj->bf & TRO_RH);
 }
 
-inline int tro_is_left_hand(struct tr_object * obj) {
+static inline int tro_is_left_hand(struct tr_object * obj) {
     return !!(obj->bf & TRO_LH);
 }
 

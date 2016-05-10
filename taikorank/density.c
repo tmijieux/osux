@@ -139,12 +139,15 @@ static double tro_density(struct tr_object * obj1,
 	}							\
 								\
 	double sum = 0;						\
-	for(int j = 0; j < i; j++) {				\
+	for(int j = i-1; j >= 0; j--) {				\
 	    if(objs[j].ps == MISS)				\
 		continue;					\
-	    if(TRO_TEST(&objs[i], &objs[j]))			\
-		sum += tro_density(&objs[j], &objs[i]);		\
-	}							\
+	    if(TRO_TEST(&objs[i], &objs[j])) {			\
+		double d = tro_density(&objs[j], &objs[i]);	\
+		if (d == 0)					\
+		    break; /* j-- density won't increase */	\
+		sum += d;			}		\
+	    }							\
 	sum *= tro_get_coeff_density(&objs[i]);			\
 	objs[i].density_##TYPE = sum;				\
     }								\
