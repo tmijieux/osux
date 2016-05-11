@@ -1,3 +1,5 @@
+#ifndef ULEB128_H
+#define ULEB128_H
 /*
  *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
  *
@@ -14,13 +16,10 @@
  *  limitations under the License.
  */
 
-#ifndef CSSTRING_H
-#define CSSTRING_H
-
 #include <stdio.h>
 #include <stdint.h>
 
 uint64_t read_ULEB128(FILE * f);
 void write_ULEB128(uint64_t value, FILE *output, unsigned padding);
 
-#endif //CSSTRING_H
+#endif //ULEB128_H

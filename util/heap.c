@@ -19,7 +19,7 @@
 
 struct heap {
     int (*cmp)(void*, void*);
-    int heap_size;
+    unsigned heap_size;
     void **buf;
     int free_buf;
 };

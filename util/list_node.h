@@ -19,28 +19,28 @@
 
 #include <stdlib.h>
 
-struct list_node {
+struct osux_list_node {
     const void *data;
-    struct list_node *next;
+    struct osux_list_node *next;
     int is_sentinel;
 };
 
 #define SENTINEL_NODE 1
 #define DATA_NODE     0
 
-#define node_new(lnode, da, sen)				\
-    do {										\
-	struct list_node *n = malloc(sizeof(*n));	\
-	n->data = (da);								\
-	n->is_sentinel = (sen);						\
-	*lnode = n;									\
-    } while (0)									\
+#define node_new(lnode, da, sen)                        \
+    do {                                                \
+	struct osux_list_node *n = malloc(sizeof(*n));	\
+	n->data = (da);                                 \
+	n->is_sentinel = (sen);                         \
+	*lnode = n;                                     \
+    } while (0)                                         \
     
-#define node_free(no)	       (free(no))
-#define node_get_next(no)      ((no)->next)
-#define node_set_next(no, ne)  ((no)->next = (ne))
-#define node_get_data(no)      ((no)->data)
-#define node_set_data(no, da)  ((no)->data = (da))
-#define node_is_sentinel(no)   ((no)->is_sentinel)
+#define node_free(no)	       free((no))
+#define node_get_next(no)      (no)->next
+#define node_set_next(no, ne)  (no)->next = (ne)
+#define node_get_data(no)      (no)->data
+#define node_set_data(no, da)  (no)->data = (da)
+#define node_is_sentinel(no)   (no)->is_sentinel
 
 #endif //LIST_NODE_H

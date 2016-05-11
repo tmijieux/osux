@@ -23,6 +23,8 @@
 #include <stdarg.h>
 #include <mysql/mysql.h>
 
+#include "compiler.h"
+
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_score.h"
 #include "taiko_ranking_object.h"
@@ -315,7 +317,7 @@ void tr_db_init(void)
 
 }
 
-void trm_db_insert(struct tr_map * map)
+void trm_db_insert(struct tr_map UNUSED(*map))
 {
     tr_error("Database is disabled!");
 }

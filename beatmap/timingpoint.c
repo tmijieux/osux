@@ -32,5 +32,6 @@ void tp_print(struct timing_point *tp)
 
 void tp_free(struct timing_point *tp)
 {
+    (void) tp;
     // nothing
 }

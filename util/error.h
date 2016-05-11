@@ -12,18 +12,18 @@
 #endif
 
 
-#define __FILENAME__ (strrchr(__FILE__, '/') ? \
+#define __FILENAME__ (strrchr(__FILE__, '/') ?                  \
                       strrchr(__FILE__, '/') + 1 : __FILE__)
 
 #ifdef _WIN32
-#   define osux_error(format, ...)                                  \
-    fprintf(stderr, "ERROR: %s: %d|%s: " format, __FILENAME__ ,     \
-            __LINE__, __PRETTY_FUNCTION__, ##__VA_ARGS__);
+#   define osux_error(format, ...)                              \
+    fprintf(stderr, "ERROR: %s: %d|%s: " format, __FILENAME__ , \
+            __LINE__, __PRETTY_FUNCTION__, ##__VA_ARGS__)
 #else
-#   define osux_error(format, ...)                                      \
-    fprintf(stderr, "\e[31;1mERROR: %s\e[32m:\e[31;1m"               \
-            "%d\e[32m|\e[31;1m%s:\e[0m " format, __FILENAME__ ,      \
-            __LINE__, __PRETTY_FUNCTION__, ##__VA_ARGS__);
+#   define osux_error(format, ...)                              \
+    fprintf(stderr, "\e[31;1mERROR: %s\e[32m:\e[31;1m"          \
+            "%d\e[32m|\e[31;1m%s:\e[0m " format, __FILENAME__ , \
+            __LINE__, __PRETTY_FUNCTION__, ##__VA_ARGS__)
 #endif
 
 
@@ -33,9 +33,9 @@
 
 #ifdef DEBUG
 
-#define osux_debug(format, ...)                                      \
-    fprintf(stderr, "\e[31;1mDEBUG: %s\e[32m:\e[31;1m"               \
-            "%d\e[32m|\e[31;1m%s:\e[0m " format, __FILENAME__ ,      \
+#define osux_debug(format, ...)                                 \
+    fprintf(stderr, "\e[31;1mDEBUG: %s\e[32m:\e[31;1m"          \
+            "%d\e[32m|\e[31;1m%s:\e[0m " format, __FILENAME__ , \
             __LINE__, __PRETTY_FUNCTION__, ##__VA_ARGS__);
 #else
 

@@ -49,6 +49,28 @@ struct osux_db {
     sqlite3 *sqlite_db;
 };
 
+static char *xvasprintf(const char *format, va_list ap)
+{
+    char *res;
+    if (vasprintf(&res, format, ap) < 0) {
+        perror("vasprintf");
+        return NULL;
+    }
+    return res;
+}
+
+static char *xasprintf(const char *format, ...)
+{
+    char *res;
+    va_list ap;
+    va_start(ap, format);
+    if (vasprintf(&res, format, ap) < 0) {
+        perror("vasprintf");
+        return NULL;
+    }
+    return res;
+}
+
 static int db_query(
     sqlite3 *db, void *callback, void *context, const char *format, ...)
 {
@@ -57,7 +79,7 @@ static int db_query(
     va_list ap;
 
     va_start(ap, format);
-    (void) vasprintf(&query, format, ap);
+    query = xvasprintf(format, ap);
     ret = sqlite3_exec(db, query, callback, context, &errmsg);
     va_end(ap);
 
@@ -129,11 +151,11 @@ static char *ht_get_(struct hash_table *ht, const char *key)
 static int beatmap_db_get_callback(
     void *context__, int count, char **column_text, char **column_name)
 {
-    struct list *bm_list = context__;
+    struct osux_list *bm_list = context__;
     struct osux_beatmap *bm = calloc(sizeof*bm, 1);
     struct hash_table *ht = ht_create(0, NULL);
 
-    list_append(bm_list, bm);
+    osux_list_append(bm_list, bm);
     for (int i = 0; i < count; ++i)
         ht_add_entry(ht, column_name[i], column_text[i]);
 
@@ -279,7 +301,7 @@ int osux_db_beatmap_get(
     const char *md5_hash, osux_db *db, struct osux_beatmap **bm)
 {
     int ret; size_t s;
-    struct list *bm_l = list_new(0);
+    struct osux_list *bm_l = osux_list_new(0);
     ret = db_query(db->sqlite_db, beatmap_db_get_callback, bm_l,
                    "select * from beatmap where md5_hash = '%s'", md5_hash);
     if (ret < 0) {
@@ -287,18 +309,18 @@ int osux_db_beatmap_get(
         return ret;
     }
 
-    s = list_size(bm_l);
+    s = osux_list_size(bm_l);
     if (0 == s) {
         *bm = NULL;
         return -1;
     }
-    *bm = list_get(bm_l, 1);
+    *bm = osux_list_get(bm_l, 1);
     if (s > 1) {
         osux_error("HASH COLLISION? %s\n", md5_hash);
-        list_free(bm_l);
+        osux_list_free(bm_l);
         return -2;
     }
-    list_free(bm_l);
+    osux_list_free(bm_l);
     return 0;
 }
 
@@ -350,8 +372,7 @@ static int parse_beatmap_directory_rec(
         return -1;
 
     do {
-        char *path;
-        (void) asprintf(&path, "%s/%s", name, entry->d_name);
+        char *path = xasprintf("%s/%s", name, entry->d_name);
         if (DT_DIR == entry->d_type) {
             if (strcmp(entry->d_name, ".") == 0 ||
                 strcmp(entry->d_name, "..") == 0) {

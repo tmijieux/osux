@@ -19,7 +19,7 @@
 #include "util/list.h"
 
 struct spacing_count {
-    struct list * l;
+    struct osux_list * l;
     int (*eq)(int, int);
 };
 
@@ -35,7 +35,7 @@ static void sp_print(struct spacing * sp);
 struct spacing_count * spc_new(int (*eq)(int, int))
 {
     struct spacing_count * spc = malloc(sizeof(*spc));
-    spc->l = list_new(0);
+    spc->l = osux_list_new(0);
     spc->eq = eq;
     return spc;
 }
@@ -44,16 +44,16 @@ void spc_free(struct spacing_count * spc)
 {
     if (spc == NULL)
 	return;
-    list_each(spc->l, free);
-    list_free(spc->l);
+    osux_list_each(spc->l, free);
+    osux_list_free(spc->l);
     free(spc);
 }
 
 void spc_add(struct spacing_count * spc, int rest, double val)
 {
-    unsigned int len = list_size(spc->l);
+    unsigned int len = osux_list_size(spc->l);
     for(unsigned int i = 1; i <= len; i++) {
-	struct spacing * sp = list_get(spc->l, i);
+	struct spacing * sp = osux_list_get(spc->l, i);
 	if (spc->eq(sp->rest, rest)) {
 	    sp->nb += val;
 	    return;
@@ -63,7 +63,7 @@ void spc_add(struct spacing_count * spc, int rest, double val)
     struct spacing * sp = malloc(sizeof(*sp));
     sp->rest = rest;
     sp->nb = val;
-    list_append(spc->l, sp);
+    osux_list_append(spc->l, sp);
 }
 
 static void sp_print(struct spacing * sp)
@@ -74,15 +74,15 @@ static void sp_print(struct spacing * sp)
 void spc_print(struct spacing_count * spc)
 {
     printf("spacing\n");
-    list_each(spc->l, (void (*)(void *))sp_print);
+    osux_list_each(spc->l, (void (*)(void *))sp_print);
 }
 
 double spc_get_total(struct spacing_count * spc)
 {
     double res = 0;
-    unsigned int len = list_size(spc->l);
+    unsigned int len = osux_list_size(spc->l);
     for(unsigned int i = 1; i <= len; i++) {
-	struct spacing * sp = list_get(spc->l, i);
+	struct spacing * sp = osux_list_get(spc->l, i);
 	res += sp->nb;
     }
     return res;
@@ -90,9 +90,9 @@ double spc_get_total(struct spacing_count * spc)
 
 double spc_get_nb(struct spacing_count * spc, int rest)
 {
-    unsigned int len = list_size(spc->l);
+    unsigned int len = osux_list_size(spc->l);
     for(unsigned int i = 1; i <= len; i++) {
-	struct spacing * sp = list_get(spc->l, i);
+	struct spacing * sp = osux_list_get(spc->l, i);
 	if(spc->eq(sp->rest, rest))
 	    return sp->nb;
     }

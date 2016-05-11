@@ -147,7 +147,7 @@ void config_score(void)
 
 static void config_odb_exit(void)
 {
-    if(ODB != NULL)
+    if (ODB != NULL)
 	osux_db_free(ODB);
 }
 
@@ -155,7 +155,7 @@ void config_odb_build(char * song_dir)
 {
     osux_db_build(song_dir, &ODB);
     osux_db_save(OPT_ODB_PATH, ODB);
-	atexit(config_odb_exit);
+    atexit(config_odb_exit);
 }
 
 //-----------------------------------------------------
@@ -252,7 +252,7 @@ INITIALIZER(ht_cst_init_config)
 	exit(EXIT_FAILURE);
     }
     global_init();
-    if(OPT_DATABASE)
+    if (OPT_DATABASE)
 	tr_db_init();
-	atexit(ht_cst_exit_config);
+    atexit(ht_cst_exit_config);
 }

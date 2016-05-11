@@ -15,6 +15,7 @@
  */
 
 #include "uleb128.h"
+#include "read.h"
 
 uint64_t read_ULEB128(FILE * f)
 {
@@ -22,7 +23,7 @@ uint64_t read_ULEB128(FILE * f)
     unsigned shift = 0;				
     uint8_t p;					
     do {						
-	fread(&p, 1, 1, f);				
+	xfread(&p, 1, 1, f);				
 	value += (uint64_t)(p & 0x7f) << shift;	
 	shift += 7;					
     } while (p >= 0x80);				

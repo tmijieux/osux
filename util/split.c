@@ -4,7 +4,7 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *
+n *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
@@ -21,6 +21,7 @@
 #include "list.h"
 #include "split.h"
 #include "util/uleb128.h"
+#include "util/read.h"
 
 unsigned int string_split(const char *str, const char *delim, char ***buf_addr)
 {
@@ -30,24 +31,24 @@ unsigned int string_split(const char *str, const char *delim, char ***buf_addr)
     }
 
     char *strw = strdup(str);
-    struct list *li = list_new(0);
+    struct osux_list *li = osux_list_new(0);
     char *saveptr;
     char *p =  strtok_r(strw, delim, &saveptr);
     while (p != NULL) {
-	list_add(li, strdup(p));
+	osux_list_add(li, strdup(p));
 	p = strtok_r(NULL, delim, &saveptr);
     }
     free(strw);
-    
-    unsigned int s = list_size(li);
+
+    unsigned int s = osux_list_size(li);
     if (!s) {
 	*buf_addr = NULL;
     } else {
 	*buf_addr = malloc(sizeof(*buf_addr) * s);
         for (unsigned i = 1; i <= s; ++i)
-            (*buf_addr)[s - i] = list_get(li, i);
+            (*buf_addr)[s - i] = osux_list_get(li, i);
     }
-    list_free(li);
+    osux_list_free(li);
     return s;
 }
 
@@ -63,11 +64,11 @@ int string_have_extension(const char *filename, const char *extension)
 void read_string_ULEB128(char **buf, FILE *f)
 {
     uint8_t h;
-    fread(&h, 1, 1, f);
+    xfread(&h, 1, 1, f);
     if (h == 0x0B) {
 	uint64_t s = read_ULEB128(f);
 	*buf = malloc(s+1);
-	fread(*buf, s, 1, f);
+	xfread(*buf, s, 1, f);
 	(*buf)[s] = 0;
     } else {
 	*buf = NULL;

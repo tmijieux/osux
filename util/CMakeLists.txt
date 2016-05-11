@@ -15,7 +15,8 @@ set(UTIL_SOURCE
   data.c              data.h
   md5.c               md5.h
   dirent_win32.c      dirent_win32.h
-  sqlite3.c           
+  sqlite3.c
+  string2.c           string2.h
   )
 
 find_package(Threads REQUIRED)

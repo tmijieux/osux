@@ -11,7 +11,7 @@ enum yaml_type {
 };
 
 union yaml_content {
-    struct list *sequence;
+    struct osux_list *sequence;
     struct hash_table *mapping;
     char *scalar;
     void *value;

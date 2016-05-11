@@ -24,7 +24,7 @@
 #define LI_FREE  (1 << 2)	// second argument is a free function for elements
 // END FLAGS
 
-struct list;
+struct osux_list;
 
 // ! !
 // NUMBERED FROM 1 !!!!!!!!
@@ -39,24 +39,25 @@ struct list;
     ({ assert(sizeof typ < sizeof (void*)) ;				\
 	union { typ t; void *v}e; e.v = list_get((li), (i)); e.t;})
 
-struct list *list_new(int flags, ...);
-void list_free(struct list*);
-int list_size(const struct list*); // element count
-void * list_get(const struct list*, unsigned int i); // returns data
-void list_add(struct list*, const void*);
-void list_insert(struct list*, unsigned int i, const void *data);
-void list_remove(struct list*, unsigned int i);
+struct osux_list *osux_list_new(int flags, ...);
+void osux_list_free(struct osux_list*);
+unsigned osux_list_size(const struct osux_list*); // element count
+void *osux_list_get(const struct osux_list*, unsigned int i); // returns data
+void osux_list_add(struct osux_list*, const void*);
+void osux_list_insert(struct osux_list*, unsigned int i, const void *data);
+void osux_list_remove(struct osux_list*, unsigned int i);
 
-void list_append(struct list *list, const void *element);
-void list_append_list(struct list *l1, const struct list *l2);
-struct list *list_copy(const struct list *l);
-void *list_to_array(const struct list *l);
-struct hash_table *list_to_hashtable(const struct list *l,
-				     const char *(*element_keyname) (void *));
-void list_each(const struct list *l, void (*fun)(void*));
-void list_each_r(const struct list *l, void (*fun)(void*, void*), void *args);
-struct list *list_map(const struct list *l, void *(*fun)(void*));
-struct list *list_map_r(const struct list *l,
-			void *(*fun)(void*, void*), void *args);
+void osux_list_append(struct osux_list *list, const void *element);
+void osux_list_append_list(struct osux_list *l1, const struct osux_list *l2);
+struct osux_list *osux_list_copy(const struct osux_list *l);
+void *osux_list_to_array(const struct osux_list *l);
+struct hash_table *osux_list_to_hashtable(
+    const struct osux_list *l, const char *(*element_keyname) (void *));
+void osux_list_each(const struct osux_list *l, void (*fun)(void*));
+void osux_list_each_r(
+    const struct osux_list *l, void (*fun)(void*, void*), void *args);
+struct osux_list *osux_list_map(const struct osux_list *l, void *(*fun)(void*));
+struct osux_list *osux_list_map_r(
+    const struct osux_list *l, void *(*fun)(void*, void*), void *args);
 
 #endif //LIST_H

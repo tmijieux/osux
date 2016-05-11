@@ -159,7 +159,7 @@ static double tro_density(struct tr_object * obj1,
 	    tro_set_density_##TYPE (map->object, i);		\
     }
 
-static int tro_true(struct tr_object * o1, struct tr_object * o2)
+static inline int tro_true(struct tr_object UNUSED(*o1), struct tr_object UNUSED(*o2))
 {
     return 1;
 }

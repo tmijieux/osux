@@ -34,8 +34,6 @@
 #include "./pyfetch.h"
 #include "../parser.h"
 
-static osux_beatmap DEFAULT_MAP = { 0 };
-
 #define READ_VALUE(map, fieldName, pyObj, pyMethod, convMethod)	\
     do {                                                        \
         PyObject *pyTmp;                                        \
@@ -323,7 +321,8 @@ static void map_fetch_HitObjects(PyObject *d, osux_beatmap *m)
 
 static void map_fetch_Events(PyObject *d, osux_beatmap *m)
 {
-
+    (void) m;
+    
     if (!d)
 	return;
 }
