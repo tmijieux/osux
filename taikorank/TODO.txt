@@ -3,8 +3,7 @@ Todo:
 - offset_app... roll & spinner -> treatment check
 - pattern need improvement
 - vect with list
-- weight less density
-- check remove big
+- must do something for proba with start & end
 
 Other:		   
 - HDHR not supported

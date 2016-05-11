@@ -15,8 +15,8 @@ vect_influence_y3: 0.
 vect_scale_length: 2
 vect_scale_x1: 0.
 vect_scale_y1: 0.
-vect_scale_x2: 16e4.
-vect_scale_y2: 16e4.
+vect_scale_x2: 4096. # 8^4
+vect_scale_y2: 888.
 
 ### pow
 density_pow:  1

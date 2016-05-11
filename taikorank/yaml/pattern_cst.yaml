@@ -43,9 +43,8 @@ vect_singletap_y5: 1.
 
 ### range for singletap: (i = start; i <= end; i += step)
 # in %
-proba_start: 100
-proba_end:   100 # still wip
-proba_step:  10
+proba_start: 0 # still wip
+proba_end:   100
 
 ### stars coeff
 star_pattern: 1.0

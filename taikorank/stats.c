@@ -139,7 +139,6 @@ double default_weight(int i, double val)
 //-----------------------------------------------------
 
 TRM_SORT_FUNCTIONS(offset)
-TRM_SORT_FUNCTIONS(rest)
 
 TRM_STATS_FUNCTIONS(density_star)
 TRM_STATS_FUNCTIONS(reading_star)

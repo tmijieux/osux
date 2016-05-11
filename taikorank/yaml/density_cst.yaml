@@ -3,9 +3,9 @@ vect_scale_length: 3
 vect_scale_x1: 0.
 vect_scale_y1: 1.
 vect_scale_x2: 400.
-vect_scale_y2: 4.
+vect_scale_y2: 4.5
 vect_scale_x3: 1e4.
-vect_scale_y3: 4.
+vect_scale_y3: 4.5
 
 # coeff for density
 # x is in ms
@@ -27,7 +27,7 @@ vect_density_x7: 187.     # 1/4 80bpm
 vect_density_y7: 10.
 vect_density_x8: 375.     # 1/2 80bpm
 vect_density_y8: 0.5
-vect_density_x9: 1000.   # 1s
+vect_density_x9: 10000.   # 12s
 vect_density_y9: 0.
 vect_density_x10: 3600000. # 1h
 vect_density_y10: 0.

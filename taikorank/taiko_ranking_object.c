@@ -223,34 +223,10 @@ struct tro_table * tro_table_new(int size)
     return res;
 }
 
-struct tro_table * tro_table_from_vl(int l, ...)
-{
-    struct tro_table * res = tro_table_new(l);
-    res->l = l;
-    res->size = l;
-
-    va_list vl;
-    va_start(vl, l);
-    for(int i = 0; i < l; i++)
-	res->t[i] = va_arg(vl, struct tr_object *);
-    va_end(vl);
-
-    return res;
-}
-
 void tro_table_add(struct tro_table * t, struct tr_object * obj)
 {
     t->t[t->l] = obj;
     t->l++;
-}
-
-struct tro_table * tro_table_from_array(struct tr_object ** t, int l)
-{
-    struct tro_table * res = malloc(sizeof(*res));
-    res->l = l;
-    res->size = l;
-    res->t = t;
-    return res;
 }
 
 void tro_table_free(struct tro_table * t)

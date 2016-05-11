@@ -17,6 +17,8 @@
 #ifndef TRO_H
 #define TRO_H
 
+#include "util/table.h"
+
 #define MSEC_IN_MINUTE 60000.
 
 enum played_state {
@@ -59,7 +61,7 @@ struct tr_object
     // ---- pattern data
     double proba;
     double pattern;
-    struct pattern **patterns;
+    struct table * patterns;
   
     // ---- density data
     double density_raw;
@@ -108,10 +110,7 @@ struct tro_table {
 };
 
 struct tro_table * tro_table_new(int l);
-struct tro_table * tro_table_from_vl(int l, ...);
-
 void tro_table_add(struct tro_table * t, struct tr_object * obj);
-struct tro_table * tro_table_from_array(struct tr_object ** t,int l);
 void tro_table_free(struct tro_table * t);
 
 //-------------------------------------------------------------

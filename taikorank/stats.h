@@ -51,7 +51,6 @@ struct stats
 //-----------------------------------------------------
 
 TRM_SORT_HEADER(offset)
-TRM_SORT_HEADER(rest)
 
 TRM_STATS_HEADER(pattern_star)
 TRM_STATS_HEADER(density_star)

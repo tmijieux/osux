@@ -75,10 +75,12 @@ static void cnte_print(const char * key, struct counter_entry * e,
 		       struct bundle * b)
 {
     if (b == NULL) {
-	printf("Entry:\t%s\t%g\n", key, e->nb);
+	printf("Entry:\t%s\t%.5g\t%.5g\n", 
+	       key, e->nb, e->nb / b->c->total);
     } else {
 	double d = cnt_get_nb_compressed(b->c, key, b->herit);
-	printf("Entry:\t%s\t%g\t%g\n", key, e->nb, d);
+	printf("Entry:\t%s\t%.5g\t%.5g\t%.5g\t%.5g\n",
+	       key, e->nb, d, e->nb / b->c->total, d / b->c->total);
     }
 }
 
@@ -159,6 +161,7 @@ double cnt_get_total(struct counter * c)
 void cnt_print(struct counter * c)
 {
     printf("Counter: (%g)\n", c->total);
+    printf("Entry:\tkey\tval\tfreq\n");
     ht_for_each(c->ht, (ht_fun) cnte_print, NULL);
 }
 
@@ -166,6 +169,7 @@ void cnt_print_compressed(struct counter * c,
 			  int (*herit)(void *, void *))
 {
     printf("Counter: (%g)\n", c->total);
+    printf("Entry:\tkey\tval\tcompr\tfreq\tfreq cp\n");
     struct bundle b = {c, herit};
     ht_for_each(c->ht, (ht_fun) cnte_print, &b);
 }
