@@ -30,6 +30,7 @@
 #include "cst_yaml.h"
 #include "linear_fun.h"
 #include "print.h"
+#include "initializer.h"
 
 #include "reading.h"
 
@@ -89,21 +90,21 @@ static void reading_global_init(struct hash_table * ht_cst)
 
 //-----------------------------------------------------
 
-__attribute__((constructor))
-static void ht_cst_init_reading(void)
-{
-    yw_rdg = cst_get_yw(READING_FILE);
-    ht_cst_rdg = yw_extract_ht(yw_rdg);
-    if(ht_cst_rdg != NULL)
-	reading_global_init(ht_cst_rdg);
-}
 
-__attribute__((destructor))
 static void ht_cst_exit_reading(void)
 {
     yaml2_free(yw_rdg);
     lf_free(SEEN_VECT);
     lf_free(READING_SCALE_VECT);
+}
+
+INITIALIZER(ht_cst_init_reading)
+{
+    yw_rdg = cst_get_yw(READING_FILE);
+    ht_cst_rdg = yw_extract_ht(yw_rdg);
+    if(ht_cst_rdg != NULL)
+        reading_global_init(ht_cst_rdg);
+    atexit(ht_cst_exit_reading);
 }
 
 //-----------------------------------------------------

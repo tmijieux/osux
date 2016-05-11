@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(osux)
+project(osux C)
 set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/install)
 
 set(PKG_DATA_DIR "${CMAKE_INSTALL_PREFIX}/share/${CMAKE_PROJECT_NAME}")
@@ -19,19 +19,21 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:\$ORIGIN/../lib/osux")
 
-if (NOT DEFINED CMAKE_ENABLE_C99)
-  set(CMAKE_ENABLE_C99 "-std=gnu99")
-endif(NOT DEFINED CMAKE_ENABLE_C99)
+# if (NOT DEFINED CMAKE_ENABLE_C99)
+#    set(CMAKE_ENABLE_C99 "-std=gnu99")
+# endif(NOT DEFINED CMAKE_ENABLE_C99)
 
-set(CMAKE_C_FLAGS "${CMAKE_ENABLE_C99} -Wall -Wl,-Xld -Wl,--disable-new-dtags")
+#set(CMAKE_C_FLAGS "${CMAKE_ENABLE_C99} -Wall -Wl,-Xld -Wl,--disable-new-dtags")
 
 enable_testing()
 
+find_package(OpenSSL REQUIRED)
+
+include_directories(${OPENSSL_INCLUDE_DIR})
 include_directories(include)
 include_directories(.)
 
 add_subdirectory(util)
-add_subdirectory(python)
 add_subdirectory(beatmap)
 add_subdirectory(database)
 add_subdirectory(editor)
@@ -39,7 +41,7 @@ add_subdirectory(mod)
 add_subdirectory(replay)
 
 add_library(osux STATIC dummy.c)
-target_link_libraries(osux osux_bm osux_db)
+target_link_libraries(osux osux_bm osux_db osux_replay osux_util)
 
 add_subdirectory(taikorank)
 

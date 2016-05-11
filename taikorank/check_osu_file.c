@@ -14,7 +14,13 @@
  *  limitations under the License.
  */
 
-#include <unistd.h>
+#ifndef _WIN32
+#   include <unistd.h>
+#else
+#   include <io.h>
+#   define access _access
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,11 +34,12 @@ int check_file(char * file_name)
     // cheking that it's a .osu file
     int length = strlen(file_name);
     if (strncmp(".osu", &file_name[length-4], 5) != 0)
-	return 2; // that's a hash
+        return 2; // that's a hash
+
     // check that the file existence
-    if (access(file_name, F_OK) == -1) {
-	tr_error("%s: Please let me open your file :S", file_name);
-	return 0;
+    if (access(file_name, 0) == -1) {
+        tr_error("%s: Please let me open your file :S", file_name);
+        return 0;
     }
     return 1;
 }

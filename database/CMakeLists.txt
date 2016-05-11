@@ -14,14 +14,15 @@ set(DB_SOURCE
   osux_db.c)
   
 add_library(osux_db STATIC ${DB_SOURCE})
+
 add_dependencies(osux_db generate_sql_c)
-target_link_libraries(osux_db osux_bm osux_util sqlite3)
+#target_link_libraries(osux_db sqlite3)
 
 add_executable(makedb makedb.c)
-target_link_libraries(makedb osux_db)
+target_link_libraries(makedb osux_db osux_bm osux_util)
 
 add_executable(readdb readdb.c)
-target_link_libraries(readdb osux_db)
+target_link_libraries(readdb osux_db osux_bm osux_util )
 
 
 install( 

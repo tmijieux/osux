@@ -47,7 +47,7 @@ struct storyboard {
     /* //Background Colour Transformations */
     /* struct sb_colour_transform sct; */
     /* //3,100,163,162,255 */
-    
+	void *dummy; // must have at least one member
 };
 
 #endif //STORYBOARD_H

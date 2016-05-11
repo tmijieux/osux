@@ -17,16 +17,13 @@
 #ifndef VISIBILITY_H
 #define VISIBILITY_H
 
-#ifdef __GNUC__
-
-#define __internal  __attribute__ ((visibility ("internal")))
-#define __export  __attribute__ ((visibility ("default")))
-
-#else
 
 #define __internal
 #define __export
 
+#ifdef _WIN32
+#    unset __export
+#    define __export  __declspec(ddlexport)
 #endif
 
 #endif //VISIBILITY_H

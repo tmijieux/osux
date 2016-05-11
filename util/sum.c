@@ -125,8 +125,7 @@ static double acc_sum_compute (struct heap * heap)
 
 //-----------------------------------------------
 
-static struct heap *perf_sum_new(
-    unsigned int size __attribute__((unused)))
+static struct heap *perf_sum_new(unsigned int size)
 {
   double * sum = malloc(sizeof(double));
   *sum = 0;

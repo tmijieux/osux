@@ -22,6 +22,7 @@
 #include "util/hash_table.h"
 #include "util/list.h"
 #include "util/yaml2.h"
+#include "initializer.h"
 
 #include "freq_counter.h"
 #include "taiko_ranking_map.h"
@@ -108,20 +109,9 @@ static void pattern_global_init(struct hash_table * ht_cst)
     PATTERN_STAR_COEFF_PATTERN = cst_f(ht_cst, "star_pattern");
 }
 
-//-----------------------------------------------------
-
-__attribute__((constructor))
-static void ht_cst_init_pattern(void)
-{
-    yw_ptr = cst_get_yw(PATTERN_FILE);
-    ht_cst_ptr = yw_extract_ht(yw_ptr);
-    if(ht_cst_ptr != NULL)
-	pattern_global_init(ht_cst_ptr);
-}
 
 //-----------------------------------------------------
 
-__attribute__((destructor))
 static void ht_cst_exit_pattern(void)
 {
     yaml2_free(yw_ptr);
@@ -129,8 +119,16 @@ static void ht_cst_exit_pattern(void)
     lf_free(SINGLETAP_VECT);
 }
 
-//-----------------------------------------------------
-//-----------------------------------------------------
+INITIALIZER(ht_cst_init_pattern)
+{
+    yw_ptr = cst_get_yw(PATTERN_FILE);
+    ht_cst_ptr = yw_extract_ht(yw_ptr);
+    if (ht_cst_ptr != NULL)
+	pattern_global_init(ht_cst_ptr);
+    atexit(ht_cst_exit_pattern);
+}
+
+
 //-----------------------------------------------------
 
 static int pattern_is_in(struct pattern * p1, struct pattern * p2)

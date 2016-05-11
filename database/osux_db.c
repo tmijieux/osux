@@ -1,16 +1,33 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <sys/types.h>
-#include <dirent.h>
+
 #include <string.h>
 #include <stdbool.h>
 #include <stdarg.h>
 #include <time.h>
 #include <fcntl.h>
-#include <unistd.h>
 #include <errno.h>
-
 #include <sqlite3.h>
+
+#ifdef _WIN32
+#    include "util/dirent.h"
+#else
+#    include <dirent.h>
+#endif
+
+#ifdef _WIN32
+#   include <io.h>
+#   define access _access
+enum {
+    F_OK = 00,
+    R_OK = 02,
+    W_OK = 04,
+    RW_OK = 06,
+};
+#else
+#   include <unistd.h>
+#endif
 
 #include "beatmap/parser/parser.h"
 #include "util/list.h"
@@ -57,9 +74,9 @@ static int db_query(
 
 static int db_callback_get_uint32(
     void *context__,
-    int count __attribute__((unused)),
+    int count,
     char **column_text,
-    char **column_name __attribute__((unused))  )
+    char **column_name )
 {
     uint32_t *value_ptr = context__;
     *value_ptr = atoi(column_text[0]);
@@ -78,11 +95,33 @@ int osux_db_update_stat(struct osux_db *db)
     return 0;
 }
 
-#define DATE(X) ({struct tm tmp__; strptime((X), "%c", &tmp__); mktime(&tmp__);})
+
+
+#ifdef __GNUC__
+#	define DATE(X) ({struct tm tmp__; strptime((X), "%c", &tmp__); mktime(&tmp__);})
+	#define HT_GET(X, WHAT) ({ char *tmp_; ht_get_entry(ht, (X), &tmp_); WHAT(tmp_);})
+#else
+#	define DATE(X) get_time((X))
+#   define HT_GET(X, WHAT)    WHAT(ht_get_(ht, (X)))
+
+static int get_time(const char *string)
+{
+	struct tm tmp__;
+	strptime(string, "%c", &tmp__);
+	return mktime(&tmp__);
+}
+
+static char *ht_get_(struct hash_table *ht, const char *key)
+{
+    char *_tmp;
+    ht_get_entry(ht, key, &_tmp);
+    return _tmp;
+}
+#endif
+
 #define FLOAT(X) atof((X))
 #define INT(X) atoi((X));
 #define STRING(X) strdup((X));
-#define HT_GET(X, WHAT) ({ char *tmp_; ht_get_entry(ht, (X), &tmp_); WHAT(tmp_);})
 
 static int beatmap_db_get_callback(
     void *context__, int count, char **column_text, char **column_name)
@@ -267,7 +306,7 @@ static int load_beatmap_from_disk(
     struct osux_db *odb, const char *filename, int base_path_length)
 {
     FILE *f;
-    osux_beatmap *bm;
+    osux_beatmap *bm = NULL;
 
     f = fopen(filename, "r");
     if (NULL != f) {
@@ -277,7 +316,10 @@ static int load_beatmap_from_disk(
         return -1;
     }
 
-    (void) osux_beatmap_open(filename, &bm);
+    if (osux_beatmap_open(filename, &bm) < 0) {
+        osux_error("Cannot open beatmap %s\n", filename);
+        exit(EXIT_FAILURE);
+    }
     if (NULL != bm) {
         osux_md5_hash_file(f, &bm->md5_hash);
         bm->path = strdup(filename + base_path_length);

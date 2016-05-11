@@ -26,7 +26,7 @@ struct list {
     struct list_node *last;
     void (*free_element)(void*);
     struct list_node *cursor;
-    size_t size;
+    int size;
     unsigned int curpos;
     unsigned int flags;
 };
@@ -46,16 +46,20 @@ static struct list_node *list_get_node(const struct list *list, unsigned int n)
     return node;
 }
 
-size_t list_size(const struct list *list)
+int list_size(const struct list *list)
 {
     return list->size;
 }
 
 struct list *list_new(int flags, ...)
 {
+	struct list_node *tmp;
     struct list *list = calloc(sizeof(*list), 1);
-    list->front_sentinel = node_new(NULL, SENTINEL_NODE);
-    node_set_next(list->front_sentinel, node_new(NULL, 1));
+
+	node_new(&list->front_sentinel, NULL, SENTINEL_NODE);
+	node_new(&tmp, NULL, 1);
+    node_set_next(list->front_sentinel, tmp);
+
     list->flags = flags;
     list->cursor = list->front_sentinel;
     list->curpos = 0;
@@ -63,14 +67,16 @@ struct list *list_new(int flags, ...)
 
     va_list ap;
     va_start(ap, flags);
-    if ((flags & LI_FREE) != 0)
-	list->free_element = va_arg(ap, void(*)(void*));
+	if ((flags & LI_FREE) != 0) {
+		typedef void (*fun_ptr_t)(void*);
+		list->free_element = va_arg(ap, fun_ptr_t);
+	}
     if ((flags & LI_ELEM) != 0) {
-	void *arg;
-	do {
-	    arg = va_arg(ap, void*);
-	    if (arg != NULL) list_append(list, arg);
-	} while (NULL != arg);
+		void *arg;
+		do {
+			arg = va_arg(ap, void*);
+			if (arg != NULL) list_append(list, arg);
+		} while (NULL != arg);
     }
 
     return list;
@@ -99,7 +105,8 @@ void *list_get(const struct list *list, unsigned int n)
 
 void list_add(struct list *list, const void *element)
 {
-    struct list_node *tmp = node_new(element, 0);
+	struct list_node *tmp;
+	node_new(&tmp, element, 0);
     node_set_next(tmp, node_get_next(list->front_sentinel));
     node_set_next(list->front_sentinel, tmp);
     if (list->curpos != 0)
@@ -122,7 +129,8 @@ void list_append_list(struct list *l1, const struct list *l2)
 void list_insert(struct list *list, unsigned int n, const void *element)
 {
     struct list_node *previous = list_get_node(list, n-1);
-    struct list_node *tmp = node_new(element, 0);
+	struct list_node *tmp;
+	node_new(&tmp, element, 0);
     node_set_next(tmp, node_get_next(previous));
     node_set_next(previous, tmp);
     list->size ++;
@@ -150,7 +158,7 @@ void *list_to_array(const struct list *l)
 {
     void **array = malloc(sizeof(*array) * l->size);
     for (unsigned i = 0; i < l->size; ++i)
-	array[i] = list_get(l, i);
+        array[i] = list_get(l, i);
 
     return array;
 }

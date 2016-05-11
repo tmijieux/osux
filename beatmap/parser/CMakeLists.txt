@@ -1,21 +1,9 @@
 
 
-add_library(osux_parser STATIC parser.c)
-target_link_libraries(osux_parser dl)
+add_subdirectory(parser_py)
+add_subdirectory(parser_c)
 
-add_library(osux_pyparser MODULE pyfetch.c )
-target_link_libraries(
-  osux_pyparser
-  "-Wl,--whole-archive"
-  pythonembed
-  "-Wl,--no-whole-archive")
+set(PARSER_SRC parser.c parser.h)
 
-install(
-  TARGETS osux_pyparser
-  LIBRARY DESTINATION lib/osux/
-  )
-
-install(
-  FILES osux_parse.py
-  DESTINATION lib/osux
-  )
+add_library(osux_parser STATIC ${PARSER_SRC})
+target_link_libraries(osux_parser ${CMAKE_DL_LIBS})

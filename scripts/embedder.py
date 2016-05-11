@@ -1,6 +1,7 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python2
 
 import sys
+import binascii
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -10,6 +11,5 @@ if __name__ == "__main__":
     filename = sys.argv[1].split("/")[-1]
     fmt = "_".join(filename.split("."))
     print("const unsigned char _{}_data[] = {{{}}};".format(
-        fmt, ",".join(str(b) for b in file_.read()) + ",0"))
-    print("const unsigned long _{}_length = sizeof _{}_data;".format(
-        fmt, fmt))
+        fmt, ",".join("0x"+binascii.hexlify(b) for b in file_.read()) + ",0"))
+    print("const unsigned long _{}_length = sizeof _{}_data;".format(fmt, fmt))
