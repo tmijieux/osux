@@ -22,7 +22,7 @@
 #include "util/hash_table.h"
 #include "util/list.h"
 #include "util/yaml2.h"
-#include "initializer.h"
+#include "compiler.h"
 
 #include "freq_counter.h"
 #include "taiko_ranking_map.h"

@@ -29,7 +29,7 @@
 #include "print.h"
 
 #include "density.h"
-#include "initializer.h"
+#include "compiler.h"
 
 static struct yaml_wrap * yw_dst;
 static struct hash_table * ht_cst_dst;

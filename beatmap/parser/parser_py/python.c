@@ -15,7 +15,7 @@
  */
 #include "./python.h"
 #include <stdio.h>
-#include "initializer.h"
+#include "compiler.h"
 
 static void embed_python_exit(void)
 {

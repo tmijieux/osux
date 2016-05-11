@@ -20,10 +20,11 @@
 #	include <windows.h>
 #endif
 
+#include "compiler.h"
+
 #include "beatmap/beatmap.h"
 #include "util/data.h"
 #include "util/error.h"
-#include "initializer.h"
 #include "./parser.h"
 
 static struct osux_bm_parser_callback callbacks = {

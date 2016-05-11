@@ -29,8 +29,7 @@
 #include "beatmap/color.h"
 #include "util/error.h"
 
-#include "initializer.h"
-#include "visibility.h"
+#include "compiler.h"
 
 #include "./pyfetch.h"
 #include "../parser.h"
