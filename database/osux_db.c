@@ -11,23 +11,23 @@
 #include <sqlite3.h>
 
 #ifdef _WIN32
-#    include "util/dirent.h"
-#else
-#    include <dirent.h>
-#endif
+#error WIN32 ON LINUX?
+#    include "util/dirent_win32.h"
+#    include <io.h>
+#    define access _access
 
-#ifdef _WIN32
-#   include <io.h>
-#   define access _access
 enum {
     F_OK = 00,
     R_OK = 02,
     W_OK = 04,
     RW_OK = 06,
 };
+
 #else
-#   include <unistd.h>
+#    include <unistd.h>
+#    include <dirent.h>
 #endif
+
 
 #include "beatmap/parser/parser.h"
 #include "util/list.h"
@@ -78,6 +78,9 @@ static int db_callback_get_uint32(
     char **column_text,
     char **column_name )
 {
+    (void) count;
+    (void) column_name;
+    
     uint32_t *value_ptr = context__;
     *value_ptr = atoi(column_text[0]);
     return 0;

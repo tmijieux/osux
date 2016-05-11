@@ -14,7 +14,7 @@ set(UTIL_SOURCE
   sum.c               sum.h
   data.c              data.h
   md5.c               md5.h
-  dirent.c            dirent.h
+  dirent_win32.c      dirent_win32.h
   sqlite3.c           
   )
 

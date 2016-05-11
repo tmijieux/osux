@@ -19,6 +19,8 @@ AC_CONFIG_FILES([
 		  mod/Makefile
 		  beatmap/Makefile
 		  beatmap/parser/Makefile
+      		  beatmap/parser/parser_py/Makefile
+ 		  beatmap/parser/parser_c/Makefile
 		  editor/Makefile
 		  replay/Makefile
 		  database/Makefile

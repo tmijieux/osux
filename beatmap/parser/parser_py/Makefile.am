@@ -1,14 +1,14 @@
 include $(top_srcdir)/common.mk
 
-noinst_LTLIBRARIES =  libparser.la
-libparser_la_SOURCES = parser.c
-libparser_la_CFLAGS = $(AM_CFLAGS) -DPKG_LIB_DIR=\"$(pkglibdir)\"
-libparser_la_LDFLAGS = $(AM_LDFLAGS) -ldl
-
 dist_python_DATA = osux_parse.py
 
-pkglib_LTLIBRARIES = libpyparser.la
-libpyparser_la_SOURCES = pyfetch.c
-libpyparser_la_LDFLAGS = -avoid-version -module -shared -export-dynamic
-libpyparser_la_LIBADD = ../../python/libembedpython.la
-libpyparser_la_DEPENDENCIES = ../../python/libembedpython.la
+pkglib_LTLIBRARIES = libosux_parser_py.la
+
+libosux_parser_py_la_SOURCES = pyfetch.c pyfetch.h python.c python.h
+
+libosux_parser_py_la_CFLAGS = $(PYTHON2_CFLAGS) $(AM_CFLAGS) \
+				-DPYTHON_PATH=\"$(pythondir)\"
+
+libosux_parser_py_la_LDFLAGS = -avoid-version -module -shared \
+				-export-dynamic $(PYTHON2_LIBS)
+

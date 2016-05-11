@@ -16,5 +16,5 @@ libbeatmap_la_SOURCES = \
 	timingpoint.c \
 	timingpoint.h 
 
-libbeatmap_la_LIBADD = parser/libparser.la 
+libbeatmap_la_LIBADD = parser/libosux_parser.la 
 

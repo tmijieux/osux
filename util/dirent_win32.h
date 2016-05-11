@@ -67,6 +67,8 @@ void          rewinddir(DIR *);
 }
 #endif // __cplusplus
 
-#endif // __WIN32
+#else // _WIN32
+#	error "Dont include this when no in WIN32"
+#endif // _WIN32
 
 #endif //  DIRENT_INCLUDED
