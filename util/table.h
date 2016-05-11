@@ -1,3 +1,5 @@
+#ifndef TABLE_H
+#define TABLE_H
 
 struct table {
     void ** t;
@@ -33,7 +35,19 @@ static inline int table_len(struct table * t)
     return t->len;
 }
 
+static inline int table_max(struct table * t)
+{
+    return t->max;
+}
+
 static inline void * table_get(struct table * t, int i)
 {
     return t->t[i];
 }
+
+static inline void table_set(struct table * t, int i, void * o)
+{
+    t->t[i] = o;
+}
+
+#endif //TABLE_H

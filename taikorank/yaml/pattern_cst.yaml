@@ -6,8 +6,6 @@ vect_scale_x2: 1.01
 vect_scale_y2: 1.
 
 ### patterns
-# max length used
-max_pattern_length: 4
 # x is in [0, 1]
 vect_pattern_length: 2
 vect_pattern_x1: 0.
@@ -41,9 +39,12 @@ vect_singletap_y5: 1.
 # 160ms ~ 180bpm 1/2
 # 125ms = 240bpm 1/2
 
-### range for singletap: (i = start; i <= end; i += step)
+# max length used
+max_pattern_length: 8
+
+### range for singletap:
 # in %
-proba_start: 0 # still wip
+proba_start: 0
 proba_end:   100
 
 ### stars coeff

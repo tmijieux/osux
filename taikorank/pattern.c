@@ -244,7 +244,7 @@ static struct counter * tro_pattern_freq_init(struct tr_object *objs,
 {
     struct counter * c = cnt_new();
     for (int j = i; j >= 0; j--) {
-	for (int k = 0; k < table_len(objs[i].patterns); k++) {
+	for (int k = 0; k < table_len(objs[j].patterns); k++) {
 	    struct pattern * p = table_get(objs[j].patterns, k);
 	    if (p->s[0] == '\0')
 		continue;

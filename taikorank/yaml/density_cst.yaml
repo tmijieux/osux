@@ -27,7 +27,7 @@ vect_density_x7: 187.     # 1/4 80bpm
 vect_density_y7: 10.
 vect_density_x8: 375.     # 1/2 80bpm
 vect_density_y8: 0.5
-vect_density_x9: 10000.   # 12s
+vect_density_x9: 10000.   # 10s
 vect_density_y9: 0.
 vect_density_x10: 3600000. # 1h
 vect_density_y10: 0.

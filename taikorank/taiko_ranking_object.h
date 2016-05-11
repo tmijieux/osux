@@ -101,19 +101,6 @@ int tro_are_same_type(struct tr_object * o1, struct tr_object * o2);
 int tro_are_same_density(struct tr_object *o1, struct tr_object *o2);
 
 //-------------------------------------------------------------
-// tro_table
-
-struct tro_table {
-    struct tr_object ** t;
-    int l;    // current len
-    int size; // max len
-};
-
-struct tro_table * tro_table_new(int l);
-void tro_table_add(struct tro_table * t, struct tr_object * obj);
-void tro_table_free(struct tro_table * t);
-
-//-------------------------------------------------------------
 // inline 
 static inline int tro_is_big(struct tr_object * obj) {
     return obj->bf & TRO_BIG;

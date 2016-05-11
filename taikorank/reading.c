@@ -41,7 +41,7 @@ static struct yaml_wrap * yw_rdg;
 static struct hash_table * ht_cst_rdg;
 
 static int pt_is_in_tro(double x, double y, struct tr_object * o);
-static int pt_is_hiding(double x, double y, struct tro_table * t);
+static int pt_is_hiding(double x, double y, struct table * t);
 
 static double tr_monte_carlo(int nb_pts,
 			     double x1, double y1,
@@ -50,12 +50,12 @@ static double tr_monte_carlo(int nb_pts,
 			     void * arg);
 
 static int tro_same_bpm_hide(struct tr_object * o, 
-			     struct tro_table * obj_h);
+			     struct table * obj_h);
 static double tro_seen_area(struct tr_object * o);
-static double tro_hide(struct tr_object *o, struct tro_table *obj_h);
-static double tro_seen(struct tr_object *o, struct tro_table *obj_h);
-static struct tro_table * tro_get_obj_hiding(struct tr_object * objs,
-					     int i);
+static double tro_hide(struct tr_object *o, struct table *obj_h);
+static double tro_seen(struct tr_object *o, struct table *obj_h);
+static struct table * tro_get_obj_hiding(struct tr_object * objs,
+					 int i);
 
 static void tro_set_seen(struct tr_object * objs, int i);
 static void trm_set_seen(struct tr_map * map);
@@ -118,15 +118,17 @@ static int pt_is_in_tro(double x, double y, struct tr_object * o)
 	    o->bpm_app * x + o->c_app     >= y);
 }
 
-static int pt_is_hiding(double x, double y, struct tro_table * t)
+static int pt_is_hiding(double x, double y, struct table * t)
 {
-    if(!pt_is_in_tro(x, y, t->t[t->size-1]))
+    struct tr_object * e = table_get(t, table_max(t)-1);
+    if(!pt_is_in_tro(x, y, e))
 	return 0;
 
-    for(int i = 0; i < t->l; i++) {
-	if(t->t[i] == NULL)
+    for(int i = 0; i < table_len(t); i++) {
+	struct tr_object * o = table_get(t, i);
+	if(o == NULL)
 	    continue;
-	if(pt_is_in_tro(x, y, t->t[i]))
+	if(pt_is_in_tro(x, y, o))
 	    return 1;
     }
     return 0;
@@ -159,16 +161,17 @@ static double tr_monte_carlo(int nb_pts,
  * @return Number of object with the same bpm  
  */
 static int tro_same_bpm_hide(struct tr_object * o, 
-			     struct tro_table * obj_h)
+			     struct table * obj_h)
 {
     int done = 0;
-    for(int i = 0; i < obj_h->l; i++) {
-	if(equal(o->bpm_app, obj_h->t[i]->bpm_app)) {
-	    if(o->offset_app < obj_h->t[i]->offset_dis) {
-		o->offset_app     = obj_h->t[i]->offset_dis;
-		o->end_offset_app = obj_h->t[i]->end_offset_dis;
+    for(int i = 0; i < table_len(obj_h); i++) {
+	struct tr_object * o2 = table_get(obj_h, i);
+	if(equal(o->bpm_app, o2->bpm_app)) {
+	    if(o->offset_app < o2->offset_dis) {
+		o->offset_app     = o2->offset_dis;
+		o->end_offset_app = o2->end_offset_dis;
 	    }
-	    obj_h->t[i] = NULL;
+	    table_set(obj_h, i, NULL);
 	    done++;
 	}
     }
@@ -193,7 +196,7 @@ static double tro_seen_area(struct tr_object * o)
 /**
  * @return (surface * time) hidden by obj_h
  */
-static double tro_hide(struct tr_object *o, struct tro_table *obj_h)
+static double tro_hide(struct tr_object *o, struct table *obj_h)
 {
     double x1 = o->offset_app;
     double x2 = o->end_offset_dis;
@@ -201,7 +204,7 @@ static double tro_hide(struct tr_object *o, struct tro_table *obj_h)
     double y2 = o->bpm_app * o->end_offset_dis + o->c_app;
     // set last to current object
     // last place is always free (see tro_get_obj_hiding)
-    obj_h->t[obj_h->size-1] = o;
+    table_set(obj_h, table_max(obj_h)-1, o);
     return tr_monte_carlo(MONTE_CARLO_NB_PT, x1, y1, x2, y2, 
 			  (mc_cond)pt_is_hiding, 
 			  obj_h);
@@ -209,13 +212,13 @@ static double tro_hide(struct tr_object *o, struct tro_table *obj_h)
 
 //-----------------------------------------------------
 
-static double tro_seen(struct tr_object *o, struct tro_table *obj_h)
+static double tro_seen(struct tr_object *o, struct table *obj_h)
 {
     struct tr_object * copy = tro_copy(o, 1);
 
     int done = tro_same_bpm_hide(copy, obj_h);
     double seen = tro_seen_area(copy);
-    if(done != obj_h->l) {
+    if(done != table_len(obj_h)) {
 	seen -= tro_hide(copy, obj_h);
 	if (seen < 0) {
 	    tr_warning("Negative value for seen. "
@@ -231,19 +234,19 @@ static double tro_seen(struct tr_object *o, struct tro_table *obj_h)
 
 //-----------------------------------------------------
 
-static struct tro_table * tro_get_obj_hiding(struct tr_object * objs,
-					     int i)
+static struct table * tro_get_obj_hiding(struct tr_object * objs,
+					 int i)
 {
     // list object that hide the i-th
     // allocate one more place for later
-    struct tro_table * obj_h = tro_table_new(i + 1);
+    struct table * obj_h = table_new(i + 1);
 
     for(int j = 0; j < i; j++) {
 	if(objs[j].ps == MISS)
 	    continue;
 	// if i has appeared before j
 	if(objs[j].end_offset_app - objs[i].offset_app > 0)
-	    tro_table_add(obj_h, &objs[j]);
+	    table_add(obj_h, &objs[j]);
     }
     return obj_h;
 }
@@ -257,9 +260,9 @@ static void tro_set_seen(struct tr_object * objs, int i)
 	return;
     }
 
-    struct tro_table * obj_h = tro_get_obj_hiding(objs, i);
+    struct table * obj_h = tro_get_obj_hiding(objs, i);
     objs[i].seen = tro_seen(&objs[i], obj_h);
-    tro_table_free(obj_h);
+    table_free(obj_h);
 }
 
 //-----------------------------------------------------

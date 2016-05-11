@@ -211,30 +211,3 @@ void tro_print(struct tr_object * obj, int filter)
   
     fprintf(OUTPUT_INFO, "\n");
 }
-
-//-------------------------------------------------
-
-struct tro_table * tro_table_new(int size)
-{
-    struct tro_table * res = malloc(sizeof(*res));
-    res->l = 0;
-    res->size = size;
-    res->t = malloc(sizeof(struct tr_object *) * size);
-    return res;
-}
-
-void tro_table_add(struct tro_table * t, struct tr_object * obj)
-{
-    t->t[t->l] = obj;
-    t->l++;
-}
-
-void tro_table_free(struct tro_table * t)
-{
-    if(t == NULL)
-	return;
-    free(t->t);
-    free(t);
-}
-
-//-----------------------------------------------------
