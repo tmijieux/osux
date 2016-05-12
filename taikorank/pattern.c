@@ -22,6 +22,7 @@
 #include "util/hash_table.h"
 #include "util/list.h"
 #include "util/yaml2.h"
+#include "util/table.h"
 
 #include "freq_counter.h"
 #include "taiko_ranking_map.h"
@@ -40,7 +41,6 @@ static struct hash_table * ht_cst_ptr;
 
 struct pattern {
     char * s;
-    int len;
     double proba_start;
     double proba_end;
 };
@@ -76,7 +76,7 @@ static void trm_set_pattern_star(struct tr_map * map);
 // coeff for singletap proba
 static struct linear_fun * SINGLETAP_VECT;
 static struct linear_fun * PATTERN_VECT;
-static struct linear_fun * INFLU_VECT;
+static struct linear_fun * PATTERN_INFLU_VECT;
 
 static double PROBA_START;
 static double PROBA_END;
@@ -88,12 +88,26 @@ static struct linear_fun * PATTERN_SCALE_VECT;
 // pattern
 static int MAX_PATTERN_LENGTH;
 
+
+static inline void print_pattern(struct pattern * p)
+{
+    fprintf(stderr, "%s\t%.4g\t%.4g\t(%.4g)\n", 
+	    p->s, p->proba_start, p->proba_end,
+	    p->proba_end - p->proba_start);
+}
+
+static inline void tro_print_pattern(struct tr_object * o)
+{
+    for(int j = 0; j < table_len(o->patterns); j++)
+	print_pattern(table_get(o->patterns, j));
+}
+
 //-----------------------------------------------------
 
 static void pattern_global_init(struct hash_table * ht_cst)
 {
-    PATTERN_VECT   = cst_lf(ht_cst, "vect_pattern");
-    INFLU_VECT     = cst_lf(ht_cst, "vect_influence");
+    PATTERN_VECT = cst_lf(ht_cst, "vect_pattern");
+    PATTERN_INFLU_VECT = cst_lf(ht_cst, "vect_influence");
     SINGLETAP_VECT = cst_lf(ht_cst, "vect_singletap");
     PATTERN_SCALE_VECT = cst_lf(ht_cst, "vect_scale");
 
@@ -124,6 +138,8 @@ static void ht_cst_exit_pattern(void)
     yaml2_free(yw_ptr);
     lf_free(PATTERN_SCALE_VECT);
     lf_free(SINGLETAP_VECT);
+    lf_free(PATTERN_VECT);
+    lf_free(PATTERN_INFLU_VECT);
 }
 
 //-----------------------------------------------------
@@ -155,10 +171,17 @@ static void trm_set_patterns(struct tr_map * map)
 {   
     for(int i = 0; i < map->nb_object; i++) {
 	struct tr_object * o = &map->object[i];
-	o->patterns = table_new(MAX_PATTERN_LENGTH);
+	// taking one more space for some special case
+	o->patterns = table_new(MAX_PATTERN_LENGTH + 1);
 	double proba = PROBA_START;
 	while (proba < PROBA_END) {
 	    struct pattern * p = trm_extract_pattern(map, i, proba);
+	    if (table_max(o->patterns) <= table_len(o->patterns)) {
+		fprintf(stderr, "Out of bounds %d / %d on object n°%d (offset %d)\n", table_len(o->patterns), table_max(o->patterns), i, o->offset);
+		print_pattern(p);
+		tro_print_pattern(o);
+		fprintf(stderr, "-----------------\n");
+	    }
 	    table_add(o->patterns, p);
 	    proba = p->proba_end;
 	}
@@ -174,7 +197,6 @@ static struct pattern * trm_extract_pattern(struct tr_map * map,
     p->proba_start = proba;
     p->proba_end   = PROBA_END;
     trm_extract_pattern_str(map, i, p);
-    p->len = strlen(p->s);
     return p;
 }
 
@@ -216,7 +238,7 @@ static double tro_pattern_influence(struct tr_object * o1,
 				    struct tr_object * o2)
 {
     int diff = o2->offset - o1->offset;
-    return lf_eval(INFLU_VECT, diff);
+    return lf_eval(PATTERN_INFLU_VECT, diff);
 }
 
 //-----------------------------------------------------
@@ -270,20 +292,6 @@ static double tro_singletap_proba(struct tr_object * o1,
 //-----------------------------------------------------
 //-----------------------------------------------------
 //-----------------------------------------------------
-/*
-static inline void print_pattern(struct pattern * p)
-{
-    printf("%s\t%.4g\t%.4g\t(%.4g)\n", 
-	   p->s, p->proba_start, p->proba_end,
-	   p->proba_end - p->proba_start);
-}
-
-static inline void tro_print_pattern(struct tr_object * o)
-{
-    for(int j = 0; j < table_len(o->patterns); j++)
-	print_pattern(table_get(o->patterns, j));
-}
-*/
 
 static void tro_set_pattern_freq(struct tr_object * objs, int i)
 {

@@ -53,7 +53,7 @@ static double RDG_POW;
 static double PTR_POW;
 static double ACC_POW;
 
-static struct linear_fun * INFLU_VECT;
+static struct linear_fun * FINAL_INFLU_VECT;
 static struct linear_fun * FINAL_SCALE_VECT;
 static struct linear_fun * WEIGHT_VECT;
 
@@ -61,7 +61,7 @@ static struct linear_fun * WEIGHT_VECT;
 
 static void final_global_init(struct hash_table * ht_cst)
 {
-    INFLU_VECT = cst_lf(ht_cst, "vect_influence");
+    FINAL_INFLU_VECT = cst_lf(ht_cst, "vect_influence");
     WEIGHT_VECT = cst_lf(ht_cst, "vect_weight");
     FINAL_SCALE_VECT = cst_lf(ht_cst, "vect_scale");
 
@@ -86,7 +86,7 @@ static void ht_cst_exit_final(void)
     yaml2_free(yw_fin);
     lf_free(FINAL_SCALE_VECT);
     lf_free(WEIGHT_VECT);
-    lf_free(INFLU_VECT);
+    lf_free(FINAL_INFLU_VECT);
 }
 
 //-----------------------------------------------------
@@ -121,7 +121,7 @@ static void tro_set_final_star(struct tr_object * obj)
 static double tro_influence_coeff(struct tr_object * o1,
 				  struct tr_object * o2)
 {
-    return 1. - lf_eval(INFLU_VECT, fabs(o1->offset - o2->offset));
+    return 1. - lf_eval(FINAL_INFLU_VECT, fabs(o1->offset - o2->offset));
 }
 
 //-----------------------------------------------------
@@ -173,6 +173,20 @@ static void trm_set_influence(struct tr_map * map)
 
 //-----------------------------------------------------
 
+static void trm_set_global_stars(struct tr_map * map)
+{
+    map->density_star =
+	trm_weight_sum_density_star(map, weight_final_star);
+    map->reading_star =
+	trm_weight_sum_reading_star(map, weight_final_star);
+    map->pattern_star =
+	trm_weight_sum_pattern_star(map, weight_final_star);
+    map->accuracy_star =
+	trm_weight_sum_accuracy_star(map, weight_final_star);
+    map->final_star =
+	trm_weight_sum_final_star(map, weight_final_star);    
+}
+
 void trm_compute_final_star(struct tr_map * map)
 {
     if(ht_cst_fin == NULL) {
@@ -182,17 +196,5 @@ void trm_compute_final_star(struct tr_map * map)
     
     trm_set_influence(map);
     trm_set_final_star(map);
-
-    {
-	map->density_star =
-	    trm_weight_sum_density_star(map, weight_final_star);
-	map->reading_star =
-	    trm_weight_sum_reading_star(map, weight_final_star);
-	map->pattern_star =
-	    trm_weight_sum_pattern_star(map, weight_final_star);
-	map->accuracy_star =
-	    trm_weight_sum_accuracy_star(map, weight_final_star);
-	map->final_star =
-	    trm_weight_sum_final_star(map, weight_final_star);
-    }
+    trm_set_global_stars(map);
 }

@@ -16,14 +16,13 @@
 #ifndef TRM_H
 #define TRM_H
 
-#define MAX_ACC 1.
-#define COEFF_MAX_ACC 100.
-
-#define min(x, y) x < y ? x : y;
-#define max(x, y) x > y ? x : y;
-
 struct tr_object;
 enum played_state;
+
+#define MAX_ACC 1.
+#define COEFF_MAX_ACC 100.
+#define min(x, y) x < y ? x : y;
+#define max(x, y) x > y ? x : y;
 
 struct tr_map
 {

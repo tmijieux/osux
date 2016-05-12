@@ -40,7 +40,7 @@ vect_singletap_y5: 1.
 # 125ms = 240bpm 1/2
 
 # max length used
-max_pattern_length: 8
+max_pattern_length: 4
 
 ### range for singletap:
 # in %

@@ -1,6 +1,8 @@
 #ifndef TABLE_H
 #define TABLE_H
 
+#include <stdlib.h>
+
 struct table {
     void ** t;
     int len;

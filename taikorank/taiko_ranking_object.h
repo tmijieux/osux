@@ -17,7 +17,7 @@
 #ifndef TRO_H
 #define TRO_H
 
-#include "util/table.h"
+struct table;
 
 #define MSEC_IN_MINUTE 60000.
 

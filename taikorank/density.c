@@ -130,8 +130,7 @@ static double tro_density(struct tr_object * obj1,
 //-----------------------------------------------------
 
 #define TRO_SET_DENSITY_TYPE(TYPE, TRO_TEST)			\
-    static void tro_set_density_##TYPE(struct tr_object * objs,	\
-				       int i)			\
+    void tro_set_density_##TYPE(struct tr_object * objs, int i)	\
     {								\
 	if(objs[i].ps == MISS) {				\
 	    objs[i].density_##TYPE = 0;				\

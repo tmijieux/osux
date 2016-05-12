@@ -23,6 +23,7 @@
 #include "util/hash_table.h"
 #include "util/list.h"
 #include "util/yaml2.h"
+#include "util/table.h"
 
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"

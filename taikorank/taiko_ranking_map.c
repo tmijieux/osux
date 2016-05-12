@@ -32,16 +32,10 @@
 #include "print.h"
 #include "tr_db.h"
 #include "tr_mods.h"
-#include "treatment.h"
+#include "compute_stars.h"
 
 #include "config.h"
 #include "check_osu_file.h"
-
-#include "density.h"
-#include "reading.h"
-#include "pattern.h"
-#include "accuracy.h"
-#include "final_star.h"
 
 #define BASIC_SV 1.4
 
@@ -108,29 +102,6 @@ void trm_add_modifier(struct tr_map * map)
 void trm_set_mods(struct tr_map * map, int mods)
 {
     map->mods = mods;
-}
-
-//--------------------------------------------------
-
-void trm_compute_stars(struct tr_map * map)
-{
-    if((map->mods & MODS_FL) != 0)
-	trm_apply_mods_FL(map);
-    trm_treatment(map);
-
-    {
-        #pragma omp task
-	trm_compute_density(map);
-        #pragma omp task
-	trm_compute_reading(map);
-        #pragma omp task
-	trm_compute_pattern(map);
-        #pragma omp task
-	trm_compute_accuracy(map);
-    }
-    #pragma omp taskwait
-
-    trm_compute_final_star(map);
 }
 
 //--------------------------------------------------
