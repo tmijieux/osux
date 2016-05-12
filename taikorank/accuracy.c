@@ -37,7 +37,15 @@
 static struct yaml_wrap * yw_acc;
 static struct hash_table * ht_cst_acc;
 
-static double tro_slow(struct tr_object * obj);
+static int equal_i(int x, int y);
+
+static double tro_slow(const struct tr_object * o);
+static double tro_spacing_influence(const struct tr_object * o1,
+				    const struct tr_object * o2);
+static struct spacing_count * 
+tro_spacing_init(const struct tr_object * objs, int i);
+static double tro_spacing(const struct tr_object * o,
+			  const struct spacing_count * spc);
 
 static void trm_set_slow(struct tr_map * map);
 static void trm_set_hit_window(struct tr_map * map);
@@ -104,42 +112,6 @@ INITIALIZER(ht_cst_init_accuracy)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static double tro_slow(struct tr_object * obj)
-{
-    return lf_eval(SLOW_VECT, obj->bpm_app);
-}
-
-//-----------------------------------------------------
-
-void tro_set_slow(struct tr_object * obj)
-{
-    if(obj->ps == MISS) {
-	obj->slow = 0;
-	return;
-    }
-    obj->slow = tro_slow(obj);
-}
-
-//-----------------------------------------------------
-
-void tro_set_hit_window(struct tr_object * obj, int * ggm_ms)
-{
-    switch(obj->ps) {
-    case GREAT:
-	obj->hit_window = ggm_ms[0];
-	break;
-    case GOOD:
-	obj->hit_window = ggm_ms[1];
-	break;
-    default: // MISS & bonus
-	obj->hit_window = ggm_ms[2];
-	break;
-    }
-    obj->hit_window = lf_eval(HIT_WINDOW_VECT, obj->hit_window);
-}
-
-//-----------------------------------------------------
-
 static int equal_i(int x, int y)
 {
     return abs(x - y) < TIME_EQUAL_MS;
@@ -147,8 +119,31 @@ static int equal_i(int x, int y)
 
 //-----------------------------------------------------
 
-static double tro_spacing_influence(struct tr_object * o1,
-			     struct tr_object * o2)
+int * trm_get_ggm_ms(const struct tr_map * map)
+{
+    int * ggm_ms = malloc(sizeof(int) * 3);
+    ggm_ms[0] = (map->od_mod_mult *
+		 (MS_GREAT - (MS_COEFF_GREAT * map->od)));
+    ggm_ms[1] = (map->od_mod_mult *
+		 (MS_GOOD  - (MS_COEFF_GOOD  * map->od)));
+    ggm_ms[2] = (map->od_mod_mult *
+		 (MS_MISS  - (MS_COEFF_MISS  * map->od)));
+    return ggm_ms;
+}
+
+//-----------------------------------------------------
+//-----------------------------------------------------
+//-----------------------------------------------------
+
+static double tro_slow(const struct tr_object * o)
+{
+    return lf_eval(SLOW_VECT, o->bpm_app);
+}
+
+//-----------------------------------------------------
+
+static double tro_spacing_influence(const struct tr_object * o1,
+				    const struct tr_object * o2)
 {
     int diff = o2->offset - o1->offset;
     return lf_eval(SPC_INFLU_VECT, diff);
@@ -156,7 +151,8 @@ static double tro_spacing_influence(struct tr_object * o1,
 
 //-----------------------------------------------------
 
-static struct spacing_count * tro_spacing_init(struct tr_object * objs, int i)
+static struct spacing_count * 
+tro_spacing_init(const struct tr_object * objs, int i)
 {
     struct spacing_count * spc = spc_new(equal_i);
     for(int j = i; j >= 0; j--) {
@@ -172,11 +168,11 @@ static struct spacing_count * tro_spacing_init(struct tr_object * objs, int i)
 
 //-----------------------------------------------------
 
-static double tro_spacing(struct tr_object * obj,
-			  struct spacing_count * spc)
+static double tro_spacing(const struct tr_object * o,
+			  const struct spacing_count * spc)
 {
     double total = spc_get_total(spc);
-    double nb = spc_get_nb(spc, obj->rest);
+    double nb = spc_get_nb(spc, o->rest);
     double freq = 1;
     if (total != 0) // avoid error when only miss
 	freq = nb / total;
@@ -187,32 +183,31 @@ static double tro_spacing(struct tr_object * obj,
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-int * trm_get_ggm_ms(struct tr_map * map)
+void tro_set_hit_window(struct tr_object * o, const int * ggm_ms)
 {
-    int * ggm_ms = malloc(sizeof(int) * 3);
-    ggm_ms[0] = (int)(map->od_mod_mult *
-		      (MS_GREAT - (MS_COEFF_GREAT * map->od)));
-    ggm_ms[1] = (int)(map->od_mod_mult *
-		      (MS_GOOD  - (MS_COEFF_GOOD  * map->od)));
-    ggm_ms[2] = (int)(map->od_mod_mult *
-		      (MS_MISS  - (MS_COEFF_MISS  * map->od)));
-    return ggm_ms;
-}
-
-static void trm_set_hit_window(struct tr_map * map)
-{
-    int * ggm_ms = trm_get_ggm_ms(map);
-    for(int i = 0; i < map->nb_object; i++)
-	tro_set_hit_window(&map->object[i], ggm_ms);
-    free(ggm_ms);
+    switch(o->ps) {
+    case GREAT:
+	o->hit_window = ggm_ms[0];
+	break;
+    case GOOD:
+	o->hit_window = ggm_ms[1];
+	break;
+    default: // MISS & bonus
+	o->hit_window = ggm_ms[2];
+	break;
+    }
+    o->hit_window = lf_eval(HIT_WINDOW_VECT, o->hit_window);
 }
 
 //-----------------------------------------------------
 
-static void trm_set_slow(struct tr_map * map)
+void tro_set_slow(struct tr_object * o)
 {
-    for (int i = 0; i < map->nb_object; i++)
-	tro_set_slow(&map->object[i]);
+    if(o->ps == MISS) {
+	o->slow = 0;
+	return;
+    }
+    o->slow = tro_slow(o);
 }
 
 //-----------------------------------------------------
@@ -224,23 +219,43 @@ void tro_set_spacing(struct tr_object * objs, int i)
     spc_free(spc);
 }
 
-static void trm_set_spacing(struct tr_map * map)
+//-----------------------------------------------------
+
+void tro_set_accuracy_star(struct tr_object * o)
 {
-    for(int i = 0; i < map->nb_object; i++)
-	tro_set_spacing(map->object, i);
+    o->accuracy_star = lf_eval
+	(ACCURACY_SCALE_VECT,
+	 (ACCURACY_STAR_COEFF_SLOW       * o->slow +
+	  ACCURACY_STAR_COEFF_SPACING    * o->spacing +
+	  ACCURACY_STAR_COEFF_HIT_WINDOW * o->hit_window));
 }
 
 //-----------------------------------------------------
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-void tro_set_accuracy_star(struct tr_object * obj)
+static void trm_set_slow(struct tr_map * map)
 {
-    obj->accuracy_star = lf_eval
-	(ACCURACY_SCALE_VECT,
-	 (ACCURACY_STAR_COEFF_SLOW       * obj->slow +
-	  ACCURACY_STAR_COEFF_SPACING    * obj->spacing +
-	  ACCURACY_STAR_COEFF_HIT_WINDOW * obj->hit_window));
+    for (int i = 0; i < map->nb_object; i++)
+	tro_set_slow(&map->object[i]);
+}
+
+//-----------------------------------------------------
+
+static void trm_set_hit_window(struct tr_map * map)
+{
+    int * ggm_ms = trm_get_ggm_ms(map);
+    for(int i = 0; i < map->nb_object; i++)
+	tro_set_hit_window(&map->object[i], ggm_ms);
+    free(ggm_ms);
+}
+
+//-----------------------------------------------------
+
+static void trm_set_spacing(struct tr_map * map)
+{
+    for(int i = 0; i < map->nb_object; i++)
+	tro_set_spacing(map->object, i);
 }
 
 //-----------------------------------------------------

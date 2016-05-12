@@ -34,9 +34,14 @@
 static struct yaml_wrap * yw_dst;
 static struct hash_table * ht_cst_dst;
 
-static double tro_get_coeff_density(struct tr_object * obj);
-static double tro_density(struct tr_object * obj1,
-			  struct tr_object * obj2);
+static inline int tro_true(const struct tr_object UNUSED(*o1), 
+			   const struct tr_object UNUSED(*o2));
+static inline int tro_are_same_density(const struct tr_object *o1, 
+				       const struct tr_object *o2);
+
+static double tro_get_coeff_density(const struct tr_object * obj);
+static double tro_density(const struct tr_object * obj1,
+			  const struct tr_object * obj2);
 
 static void trm_set_density_raw(struct tr_map * map);
 static void trm_set_density_color(struct tr_map * map);
@@ -62,6 +67,8 @@ static double DENSITY_STAR_COEFF_COLOR;
 static double DENSITY_STAR_COEFF_RAW;
 static struct linear_fun * DENSITY_SCALE_VECT;
 
+//-----------------------------------------------------
+//-----------------------------------------------------
 //-----------------------------------------------------
 
 static void density_global_init(struct hash_table * ht_cst)
@@ -101,7 +108,7 @@ INITIALIZER(ht_cst_init_density)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static double tro_get_coeff_density(struct tr_object * o)
+static double tro_get_coeff_density(const struct tr_object * o)
 {
     if (tro_is_bonus(o))
 	return DENSITY_BONUS;
@@ -113,8 +120,8 @@ static double tro_get_coeff_density(struct tr_object * o)
 
 //-----------------------------------------------------
 
-static double tro_density(struct tr_object * obj1, 
-			  struct tr_object * obj2)
+static double tro_density(const struct tr_object * obj1, 
+			  const struct tr_object * obj2)
 {
     double value  = lf_eval(DENSITY_VECT, 
 			    ((double) obj2->end_offset - obj1->offset) + 
@@ -123,39 +130,48 @@ static double tro_density(struct tr_object * obj1,
 }
 
 //-----------------------------------------------------
+//-----------------------------------------------------
+//-----------------------------------------------------
 
 #define TRO_SET_DENSITY_TYPE(TYPE, TRO_TEST)			\
-    void tro_set_density_##TYPE(struct tr_object * objs, int i)	\
+    void tro_set_density_##TYPE (struct tr_object * o, int i)	\
     {								\
-	if(objs[i].ps == MISS) {				\
-	    objs[i].density_##TYPE = 0;				\
+	if(o->ps == MISS) {					\
+	    o->density_##TYPE = 0;				\
 	    return;						\
 	}							\
 								\
 	double sum = 0;						\
 	for(int j = i-1; j >= 0; j--) {				\
-	    if(objs[j].ps == MISS)				\
+	    if(o->objs[j].ps == MISS)				\
 		continue;					\
-	    if(TRO_TEST(&objs[i], &objs[j])) {			\
-		double d = tro_density(&objs[j], &objs[i]);	\
+	    if(TRO_TEST(&o->objs[j], o)) {			\
+		double d = tro_density(&o->objs[j], o);		\
 		if (d == 0)					\
 		    break; /* j-- density won't increase */	\
 		sum += d;			}		\
 	    }							\
-	sum *= tro_get_coeff_density(&objs[i]);			\
-	objs[i].density_##TYPE = sum;				\
+	sum *= tro_get_coeff_density(o);			\
+	o->density_##TYPE = sum;				\
     }								\
     								\
     static void trm_set_density_##TYPE(struct tr_map * map)	\
     {								\
 	map->object[0].density_##TYPE = 0;			\
 	for(int i = 1; i < map->nb_object; i++)			\
-	    tro_set_density_##TYPE (map->object, i);		\
+	    tro_set_density_##TYPE (&map->object[i], i);	\
     }
 
-static inline int tro_true(struct tr_object UNUSED(*o1), struct tr_object UNUSED(*o2))
+static inline int tro_true(const struct tr_object UNUSED(*o1), 
+			   const struct tr_object UNUSED(*o2))
 {
     return 1;
+}
+
+static inline int tro_are_same_density(const struct tr_object *o1, 
+				       const struct tr_object *o2)
+{
+    return tro_are_same_type(o1, o2) && tro_are_same_hand(o1, o2);
 }
 
 TRO_SET_DENSITY_TYPE(raw,   tro_true)

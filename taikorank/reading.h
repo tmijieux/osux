@@ -18,10 +18,10 @@
 #define READING_H
 
 // work independently
-void tro_set_seen(struct tr_object * objs, int i);
+void tro_set_seen(struct tr_object * o, int i);
 
 // work independently, must be done after all others
-void tro_set_reading_star(struct tr_object * obj);
+void tro_set_reading_star(struct tr_object * o);
 
 // all
 void trm_compute_reading (struct tr_map * map);

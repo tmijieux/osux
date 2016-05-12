@@ -32,17 +32,17 @@ static inline void table_free(struct table * t)
     free(t);
 }
 
-static inline int table_len(struct table * t)
+static inline int table_len(const struct table * t)
 {
     return t->len;
 }
 
-static inline int table_max(struct table * t)
+static inline int table_max(const struct table * t)
 {
     return t->max;
 }
 
-static inline void * table_get(struct table * t, int i)
+static inline void * table_get(const struct table * t, int i)
 {
     return t->t[i];
 }

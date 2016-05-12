@@ -308,6 +308,7 @@ static struct tr_map * trm_convert_map(struct osux_beatmap * map)
 	    tr_map->max_combo++;
 	    tr_map->object[i].ps = GREAT;
 	}
+	tr_map->object[i].objs = tr_map->object;
     }
     
     // get other data

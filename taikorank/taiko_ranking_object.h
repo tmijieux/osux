@@ -43,8 +43,10 @@ struct tr_object
     int end_offset;     // printed in basic+
     int bf; // bitfield
     double bpm_app;
-  
+
     enum played_state ps;
+
+    const struct tr_object * objs;
 
     // ---- additionnal data
     int length;
@@ -88,55 +90,67 @@ struct tr_object
 
 struct tr_object * tro_copy(const struct tr_object * o, int nb);
 
-void tro_print_yaml(struct tr_object * o);
-void tro_print(struct tr_object * obj, int filter);
+void tro_print_yaml(const struct tr_object * o);
+void tro_print(const struct tr_object * obj, int filter);
 
-double mpb_to_bpm (double mpb);
-int equal (double x, double y);
+double mpb_to_bpm(double mpb);
+int equal(double x, double y);
 
-int tro_get_length(struct tr_object * obj);
-double tro_get_size(struct tr_object * obj);
-
-int tro_are_same_hand(struct tr_object * o1, struct tr_object * o2);
-int tro_are_same_type(struct tr_object * o1, struct tr_object * o2);
-int tro_are_same_density(struct tr_object *o1, struct tr_object *o2);
+int tro_get_length(const struct tr_object * obj);
+double tro_get_size(const struct tr_object * obj);
 
 //-------------------------------------------------------------
 // inline 
-static inline int tro_is_big(struct tr_object * obj) {
+static inline int tro_is_big(const struct tr_object * obj) {
     return obj->bf & TRO_BIG;
 }
 
-static inline int tro_is_bonus(struct tr_object * obj) {
+static inline int tro_is_bonus(const struct tr_object * obj) {
     return obj->bf & (TRO_R | TRO_S);
 }
 
-static inline int tro_is_roll(struct tr_object * obj) {
+static inline int tro_is_roll(const struct tr_object * obj) {
     return obj->bf & TRO_R;
 }
 
-static inline int tro_is_spinner(struct tr_object * obj) {
+static inline int tro_is_spinner(const struct tr_object * obj) {
     return obj->bf & TRO_S;
 }
 
-static inline int tro_is_circle(struct tr_object * obj) {
+static inline int tro_is_circle(const struct tr_object * obj) {
     return obj->bf & (TRO_D | TRO_K);
 }
 
-static inline int tro_is_kat(struct tr_object * obj) {
+static inline int tro_is_kat(const struct tr_object * obj) {
     return obj->bf & TRO_K;
 }
 
-static inline int tro_is_don(struct tr_object * obj) {
+static inline int tro_is_don(const struct tr_object * obj) {
     return obj->bf & TRO_D;
 }
 
-static inline int tro_is_right_hand(struct tr_object * obj) {
+static inline int tro_is_right_hand(const struct tr_object * obj) {
     return !!(obj->bf & TRO_RH);
 }
 
-static inline int tro_is_left_hand(struct tr_object * obj) {
+static inline int tro_is_left_hand(const struct tr_object * obj) {
     return !!(obj->bf & TRO_LH);
+}
+
+static inline int tro_are_same_hand(const struct tr_object * o1, 
+				    const struct tr_object * o2)
+{
+    return TRO_HAND & o1->bf & o2->bf;
+}
+
+static inline int tro_are_same_type(const struct tr_object * o1, 
+				    const struct tr_object * o2)
+{
+    if(TRO_S & (o1->bf | o2->bf)) // one is spinner
+	return 1; // d and k are played
+    if(TRO_R & (o1->bf | o2->bf)) // one is roll
+	return 0; // suppose you play the easier...
+    return (TRO_DK & o1->bf & o2->bf);
 }
 
 #endif

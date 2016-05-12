@@ -18,8 +18,8 @@
 #define DENSITY_H
 
 // work independently
-void tro_set_density_raw(struct tr_object * objs, int i);
-void tro_set_density_color(struct tr_object * objs, int i);
+void tro_set_density_raw(struct tr_object * o, int i);
+void tro_set_density_color(struct tr_object * o, int i);
 
 // work independently, must be done after all other
 void tro_set_density_star(struct tr_object * obj);

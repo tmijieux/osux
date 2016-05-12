@@ -83,14 +83,14 @@ static struct linear_fun * PATTERN_SCALE_VECT;
 static int MAX_PATTERN_LENGTH;
 
 
-static inline void print_pattern(struct pattern * p)
+static inline void print_pattern(const struct pattern * p)
 {
     fprintf(stderr, "%s\t%.4g\t%.4g\t(%.4g)\n", 
 	    p->s, p->proba_start, p->proba_end,
 	    p->proba_end - p->proba_start);
 }
 
-static inline void tro_print_pattern(struct tr_object * o)
+static inline void tro_print_pattern(const struct tr_object * o)
 {
     for(int j = 0; j < table_len(o->patterns); j++)
 	print_pattern(table_get(o->patterns, j));
@@ -249,17 +249,16 @@ static struct counter * tro_pattern_freq_init(struct tr_object *objs,
 {
     struct counter * c = cnt_new();
     for (int j = i; j >= 0; j--) {
+	double influ = tro_pattern_influence(&objs[j], &objs[i]);
+	if (influ == 0)
+	    break; // j-- influence will remain 0
 	for (int k = 0; k < table_len(objs[j].patterns); k++) {
 	    struct pattern * p = table_get(objs[j].patterns, k);
 	    if (p->s[0] == '\0')
 		continue;
-	    double influ = tro_pattern_influence(&objs[j], &objs[i]);
-	    if (influ == 0)
-		goto break2; // j-- influence will remain 0
 	    cnt_add(c, p, p->s, influ);
 	}
     }
- break2:
     return c;
 }
 

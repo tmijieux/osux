@@ -24,7 +24,7 @@
 
 #include "taiko_ranking_object.h"
 
-static char tro_char_type(struct tr_object * o);
+static char tro_char_type(const struct tr_object * o);
 
 // percentage for equal
 #define EPSILON 1.
@@ -41,7 +41,7 @@ struct tr_object * tro_copy(const struct tr_object * o, int nb)
 
 //--------------------------------------------------
 
-double tro_get_size(struct tr_object * obj)
+double tro_get_size(const struct tr_object * obj)
 {
     if(tro_is_big(obj))
 	return TRO_BIG_SIZE;
@@ -68,35 +68,7 @@ int equal(double x, double y)
 //---------------------------------------------------
 //---------------------------------------------------
 
-int tro_are_same_hand(struct tr_object * o1, struct tr_object * o2)
-{
-    return TRO_HAND & o1->bf & o2->bf;
-}
-
-//---------------------------------------------------
-
-int tro_are_same_type(struct tr_object * o1, struct tr_object * o2)
-{
-    if(TRO_S & (o1->bf | o2->bf)) // one is spinner
-	return 1; // d and k are played
-    if(TRO_R & (o1->bf | o2->bf)) // one is roll
-	return 0; // suppose you play the easier...
-    return (TRO_DK & o1->bf & o2->bf);
-
-}
-
-//---------------------------------------------------
-
-int tro_are_same_density(struct tr_object *o1, struct tr_object *o2)
-{
-    return tro_are_same_type(o1, o2) && tro_are_same_hand(o1, o2);
-}
-
-//---------------------------------------------------
-//---------------------------------------------------
-//---------------------------------------------------
-
-char * tro_str_state(struct tr_object * o)
+char * tro_str_state(const struct tr_object * o)
 {
     switch(o->ps) {
     case GREAT:
@@ -114,7 +86,7 @@ char * tro_str_state(struct tr_object * o)
 
 //---------------------------------------------------
 
-static char tro_char_type(struct tr_object * o)
+static char tro_char_type(const struct tr_object * o)
 {
     char c;
     if (tro_is_don(o))
@@ -133,7 +105,7 @@ static char tro_char_type(struct tr_object * o)
 
 //---------------------------------------------------
 
-void tro_print_yaml(struct tr_object * o)
+void tro_print_yaml(const struct tr_object * o)
 {
     fprintf(OUTPUT, "{");
     fprintf(OUTPUT, "offset: %d, ", o->offset);
@@ -147,7 +119,7 @@ void tro_print_yaml(struct tr_object * o)
 
 //---------------------------------------------------
 
-void tro_print(struct tr_object * obj, int filter)
+void tro_print(const struct tr_object * obj, int filter)
 {
     if((filter & FILTER_BASIC) != 0)
 	fprintf(OUTPUT_INFO, "%d\t%d\t%c\t%.3g\t%s\t",

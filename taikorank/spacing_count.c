@@ -28,7 +28,7 @@ struct spacing {
     double nb;
 };
 
-static void sp_print(struct spacing * sp);
+static void sp_print(const struct spacing * sp);
 
 //--------------------------------------------------
 
@@ -66,18 +66,18 @@ void spc_add(struct spacing_count * spc, int rest, double val)
     osux_list_append(spc->l, sp);
 }
 
-static void sp_print(struct spacing * sp)
+static void sp_print(const struct spacing * sp)
 {
     printf("space: %d \t (%g)\n", sp->rest, sp->nb);
 }
 
-void spc_print(struct spacing_count * spc)
+void spc_print(const struct spacing_count * spc)
 {
     printf("spacing\n");
     osux_list_each(spc->l, (void (*)(void *))sp_print);
 }
 
-double spc_get_total(struct spacing_count * spc)
+double spc_get_total(const struct spacing_count * spc)
 {
     double res = 0;
     unsigned int len = osux_list_size(spc->l);
@@ -88,7 +88,7 @@ double spc_get_total(struct spacing_count * spc)
     return res;
 }
 
-double spc_get_nb(struct spacing_count * spc, int rest)
+double spc_get_nb(const struct spacing_count * spc, int rest)
 {
     unsigned int len = osux_list_size(spc->l);
     for(unsigned int i = 1; i <= len; i++) {

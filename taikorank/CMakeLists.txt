@@ -16,6 +16,7 @@ set(TR_SOURCE
   linear_fun.c			linear_fun.h
   spacing_count.c		spacing_count.h
   freq_counter.c		freq_counter.h
+  compute_stars.c		compute_stars.h
   density.c				density.h
   reading.c				reading.h
   pattern.c				pattern.h
