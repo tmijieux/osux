@@ -57,9 +57,10 @@ static void trm_extract_pattern_str(struct tr_map * map,
 static struct pattern * trm_extract_pattern(struct tr_map * map,
 					    int i, double proba);
 
-static void trm_free_patterns(struct tr_map * map);
-static void trm_set_pattern_freq(struct tr_map * map);
 static void trm_set_pattern_proba(struct tr_map * map);
+static void trm_set_type(struct tr_map * map);
+static void trm_set_pattern_freq(struct tr_map * map);
+static void trm_free_patterns(struct tr_map * map);
 static void trm_set_pattern_star(struct tr_map * map);
 
 //--------------------------------------------------
@@ -68,7 +69,7 @@ static void trm_set_pattern_star(struct tr_map * map);
 
 // coeff for singletap proba
 static struct linear_fun * SINGLETAP_VECT;
-static struct linear_fun * PATTERN_VECT;
+static struct linear_fun * PATTERN_FREQ_VECT;
 static struct linear_fun * PATTERN_INFLU_VECT;
 
 static double PROBA_START;
@@ -99,7 +100,7 @@ static inline void tro_print_pattern(struct tr_object * o)
 
 static void pattern_global_init(struct hash_table * ht_cst)
 {
-    PATTERN_VECT = cst_lf(ht_cst, "vect_pattern");
+    PATTERN_FREQ_VECT = cst_lf(ht_cst, "vect_pattern_freq");
     PATTERN_INFLU_VECT = cst_lf(ht_cst, "vect_influence");
     SINGLETAP_VECT = cst_lf(ht_cst, "vect_singletap");
     PATTERN_SCALE_VECT = cst_lf(ht_cst, "vect_scale");
@@ -120,7 +121,7 @@ static void ht_cst_exit_pattern(void)
     yaml2_free(yw_ptr);
     lf_free(PATTERN_SCALE_VECT);
     lf_free(SINGLETAP_VECT);
-    lf_free(PATTERN_VECT);
+    lf_free(PATTERN_FREQ_VECT);
     lf_free(PATTERN_INFLU_VECT);
 }
 
@@ -197,22 +198,14 @@ static void trm_extract_pattern_str(struct tr_map * map,
 {
     char * s = calloc(sizeof(char), MAX_PATTERN_LENGTH + 1);
     for (int j = 0; j < MAX_PATTERN_LENGTH && i + j < map->nb_object; j++) {
-	if (tro_is_bonus(&map->object[i+j]) ||
-	    map->object[i+j].ps == MISS) {
-	    s[j] = 0;
-	    break; // continue?
-	}
-	else if (tro_is_don(&map->object[i+j]))
-	    s[j] = 'd';
-	else
-	    s[j] = 'k';
+	s[j] = map->object[i+j].type;
+	if (s[j] == '\0')
+	    break;
 	
 	if (!(i + j + 1 < map->nb_object)) { // no more objects
-	    s[j+1] = 0;
 	    break;
 	}
 	if (p->proba_start < map->object[i+j+1].proba) {
-	    s[j+1] = 0;
 	    p->proba_end = map->object[i+j+1].proba;
 	    break;
 	}
@@ -288,7 +281,7 @@ void tro_set_pattern_freq(struct tr_object * objs, int i)
     struct counter * c = tro_pattern_freq_init(objs, i);
 
     double freq = tro_pattern_freq(&objs[i], c);
-    objs[i].pattern = lf_eval(PATTERN_VECT, freq);
+    objs[i].pattern = lf_eval(PATTERN_FREQ_VECT, freq);
 /*
     tro_print_pattern(&objs[i]);
     typedef int (*herit)(void*, void*);
@@ -313,7 +306,27 @@ void tro_set_pattern_proba(struct tr_object * objs, int i)
 }
 
 //-----------------------------------------------------
+
+void tro_set_type(struct tr_object * o)
+{
+    if (tro_is_bonus(o) || o->ps == MISS)
+	o->type = '\0';
+    else if (tro_is_don(o))
+	o->type = 'd';
+    else
+	o->type = 'k';    
+}
+
 //-----------------------------------------------------
+//-----------------------------------------------------
+//-----------------------------------------------------
+
+static void trm_set_type(struct tr_map * map)
+{
+    for(int i = 0; i < map->nb_object; i++)
+	tro_set_type(&map->object[i]);    
+}
+
 //-----------------------------------------------------
 
 static void trm_set_pattern_freq(struct tr_map * map)
@@ -386,6 +399,7 @@ void trm_compute_pattern(struct tr_map * map)
     }
   
     trm_set_pattern_proba(map);
+    trm_set_type(map);
     trm_set_patterns(map);
     trm_set_pattern_freq(map);
     trm_free_patterns(map);

@@ -7,18 +7,18 @@ vect_scale_y2: 1.
 
 ### patterns
 # x is in [0, 1]
-vect_pattern_length: 2
-vect_pattern_x1: 0.
-vect_pattern_y1: 0.
-vect_pattern_x2: 1.01
-vect_pattern_y2: 1.01
+vect_pattern_freq_length: 2
+vect_pattern_freq_x1: 0.
+vect_pattern_freq_y1: 0.
+vect_pattern_freq_x2: 1.01
+vect_pattern_freq_y2: 1.01
 # x is in ms
 vect_influence_length: 4
 vect_influence_x1: 0
 vect_influence_y1: 1.
-vect_influence_x2: 60000. #1min
+vect_influence_x2: 30000. # 30s
 vect_influence_y2: 0.8
-vect_influence_x3: 120000. #2min
+vect_influence_x3: 60000. # 1min
 vect_influence_y3: 0.
 vect_influence_x4: 3600000.
 vect_influence_y4: 0.

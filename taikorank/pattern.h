@@ -19,8 +19,9 @@
 
 // work independently
 void tro_set_pattern_proba(struct tr_object * objs, int i);
+void tro_set_type(struct tr_object * o);
 
-// must be done after all tro_set_pattern_proba
+// must be done after all tro_set_pattern_proba & tro_set_type
 void trm_set_patterns(struct tr_map * map);
 
 // work independently, must be done after trm_set_patterns

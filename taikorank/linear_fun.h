@@ -29,5 +29,6 @@ struct linear_fun * cst_lf2(struct hash_table * ht, const char * key);
 double lf_eval(struct linear_fun * lf, double x);
 
 void lf_print(struct linear_fun * lf);
+void lf_dump(struct linear_fun * lf);
 
 #endif //LINEAR_FUN_H

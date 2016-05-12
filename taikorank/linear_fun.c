@@ -19,6 +19,8 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include "util/string2.h"
+
 #include "print.h"
 #include "cst_yaml.h"
 #include "vector.h"
@@ -152,4 +154,36 @@ void lf_print(struct linear_fun * lf)
     for (int i = 0; i < lf->len-1; i++) 
 	fprintf(stderr, "\t%.4g", lf->b[i]);
     fprintf(stderr, "\n");
+}
+
+//--------------------------------------------------
+
+static char * lf_array_to_str(double * t, int len, char * var)
+{
+    char * s = xasprintf("%g", t[0]);
+    for (int i = 1; i < len; i++) {
+	s = xasprintf("%s, %g", s, t[i]);
+    }
+    return xasprintf("double %s[%d] = {%s};\n", var, len, s);
+}
+
+void lf_dump(struct linear_fun * lf)
+{
+    char * x_name = xasprintf("%s_x", lf->name);
+    char * x = lf_array_to_str(lf->x, lf->len,   x_name);
+    char * a_name = xasprintf("%s_a", lf->name);
+    char * a = lf_array_to_str(lf->a, lf->len-1, a_name);
+    char * b_name = xasprintf("%s_b", lf->name);
+    char * b = lf_array_to_str(lf->b, lf->len-1, b_name);
+    char * var = xasprintf("struct linear_fun lf_%s = {\n"
+			   "\t.name = \"%s\",\n"
+			   "\t.len = %d,\n"
+			   "\t.x = %s,\n"
+			   "\t.a = %s,\n"
+			   "\t.b = %s,\n"
+			   "};\n",
+			   lf->name, lf->name, lf->len,
+			   x_name, a_name, b_name);
+    char * all = xasprintf("%s%s%s%s", x, a, b, var);
+    fprintf(stderr, "%s", all);
 }

@@ -61,6 +61,7 @@ struct tr_object
     // ---- pattern data
     double proba;
     double pattern;
+    char type;
     struct table * patterns;
   
     // ---- density data
