@@ -27,8 +27,7 @@
 #include "storyboard.h"
 #include "color.h"
 
-osux_beatmap DEFAULT_MAP = { 0 };
-
+osux_beatmap DEFAULT_BEATMAP = { 0 };
 
 #define PRINT_SECTION(section)		\
     fprintf(f, "\r\n["#section"]\r\n")	\

@@ -34,6 +34,8 @@
 #include "./pyfetch.h"
 #include "../parser.h"
 
+static osux_beatmap DEFAULT_MAP;
+
 #define READ_VALUE(map, fieldName, pyObj, pyMethod, convMethod)	\
     do {                                                        \
         PyObject *pyTmp;                                        \
@@ -368,9 +370,11 @@ static osux_beatmap *fetch_beatmap(const char *filename)
 
 /******************************************************************************/
 
-void __export parser_py_init(register_plugin_t register_callback)
+void __export parser_py_init(register_plugin_t register_callback, 
+                             const osux_beatmap *default_bm)
 {
     struct osux_bm_parser_callback cb;
     cb.parse_beatmap = fetch_beatmap;
     register_callback(&cb);
+    DEFAULT_MAP = *default_bm;
 }

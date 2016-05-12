@@ -27,7 +27,6 @@
 #include "mod/game_mode.h"
 
 typedef struct osux_beatmap osux_beatmap;
-extern osux_beatmap DEFAULT_MAP;
 
 struct osux_beatmap {
     uint32_t beatmap_id;

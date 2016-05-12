@@ -27,6 +27,8 @@
 #include "util/error.h"
 #include "./parser.h"
 
+extern const osux_beatmap DEFAULT_BEATMAP;
+
 static struct osux_bm_parser_callback callbacks = {
     NULL
 };
@@ -67,7 +69,7 @@ INITIALIZER(parser_init)
     #endif
     
     if (parser_py_init != NULL) {
-        parser_py_init(&osux_register_bm_callback);
+        parser_py_init(&osux_register_bm_callback, &DEFAULT_BEATMAP);
     } else {
         #ifdef __linux__
         osux_error("WTF: %s\n", dlerror());
