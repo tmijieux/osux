@@ -11,7 +11,6 @@
 #include <sqlite3.h>
 
 #ifdef _WIN32
-#error WIN32 ON LINUX?
 #    include "util/dirent_win32.h"
 #    include <io.h>
 #    define access _access
@@ -36,6 +35,7 @@ enum {
 #include "util/md5.h"
 #include "util/data.h"
 #include "util/error.h"
+#include "util/string2.h"
 #include "osux_db.h"
 
 struct osux_db_stat {
@@ -49,27 +49,7 @@ struct osux_db {
     sqlite3 *sqlite_db;
 };
 
-static char *xvasprintf(const char *format, va_list ap)
-{
-    char *res;
-    if (vasprintf(&res, format, ap) < 0) {
-        perror("vasprintf");
-        return NULL;
-    }
-    return res;
-}
 
-static char *xasprintf(const char *format, ...)
-{
-    char *res;
-    va_list ap;
-    va_start(ap, format);
-    if (vasprintf(&res, format, ap) < 0) {
-        perror("vasprintf");
-        return NULL;
-    }
-    return res;
-}
 
 static int db_query(
     sqlite3 *db, void *callback, void *context, const char *format, ...)
@@ -123,20 +103,22 @@ int osux_db_update_stat(struct osux_db *db)
 
 
 #ifdef __GNUC__
-#	define DATE(X) ({struct tm tmp__; strptime((X), "%c", &tmp__); mktime(&tmp__);})
-	#define HT_GET(X, WHAT) ({ char *tmp_; ht_get_entry(ht, (X), &tmp_); WHAT(tmp_);})
-#else
-#	define DATE(X) get_time((X))
-#   define HT_GET(X, WHAT)    WHAT(ht_get_(ht, (X)))
 
-static int get_time(const char *string)
+#define DATE(X) ({struct tm tmp__; strptime((X), "%c", &tmp__); mktime(&tmp__);})
+#define HT_GET(X, WHAT) ({ char *tmp_; ht_get_entry(ht, (X), &tmp_); WHAT(tmp_);})
+
+#else
+#define DATE(X) get_time((X))
+#define HT_GET(X, WHAT)    WHAT(ht_get_(ht, (X)))
+
+static inline int get_time(const char *string)
 {
 	struct tm tmp__;
 	strptime(string, "%c", &tmp__);
 	return mktime(&tmp__);
 }
 
-static char *ht_get_(struct hash_table *ht, const char *key)
+static inline char *ht_get_(struct hash_table *ht, const char *key)
 {
     char *_tmp;
     ht_get_entry(ht, key, &_tmp);
