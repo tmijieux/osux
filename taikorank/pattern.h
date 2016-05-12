@@ -17,8 +17,20 @@
 #ifndef PATTERN_H
 #define PATTERN_H
 
-struct pattern;
+// work independently
+void tro_set_pattern_proba(struct tr_object * objs, int i);
 
+// must be done after all tro_set_pattern_proba
+void trm_set_patterns(struct tr_map * map);
+
+// work independently, must be done after trm_set_patterns
+void tro_set_pattern_freq(struct tr_object * objs, int i);
+
+// work independently, must be done after all others
+void tro_set_pattern_star(struct tr_object * obj);
+void tro_free_patterns(struct tr_object * o);
+
+// all
 void trm_compute_pattern (struct tr_map * map);
 
 #endif //PATTERN_H

@@ -39,16 +39,9 @@ static struct hash_table * ht_cst_acc;
 
 static double tro_slow(struct tr_object * obj);
 
-static void tro_set_slow(struct tr_object * obj);
 static void trm_set_slow(struct tr_map * map);
-
-static void tro_set_hit_window(struct tr_object * obj, int ggm_ms[]);
 static void trm_set_hit_window(struct tr_map * map);
-
-static void tro_set_spacing(struct tr_object * objs, int i);
 static void trm_set_spacing(struct tr_map * map);
-
-static void tro_set_accuracy_star(struct tr_object * obj);
 static void trm_set_accuracy_star(struct tr_map * map);
 
 //-----------------------------------------------------
@@ -118,7 +111,7 @@ static double tro_slow(struct tr_object * obj)
 
 //-----------------------------------------------------
 
-static void tro_set_slow(struct tr_object * obj)
+void tro_set_slow(struct tr_object * obj)
 {
     if(obj->ps == MISS) {
 	obj->slow = 0;
@@ -129,7 +122,7 @@ static void tro_set_slow(struct tr_object * obj)
 
 //-----------------------------------------------------
 
-static void tro_set_hit_window(struct tr_object * obj, int ggm_ms[])
+void tro_set_hit_window(struct tr_object * obj, int * ggm_ms)
 {
     switch(obj->ps) {
     case GREAT:
@@ -154,8 +147,8 @@ static int equal_i(int x, int y)
 
 //-----------------------------------------------------
 
-static double tro_spacing_influence(struct tr_object * o1, 
-				    struct tr_object * o2)
+static double tro_spacing_influence(struct tr_object * o1,
+			     struct tr_object * o2)
 {
     int diff = o2->offset - o1->offset;
     return lf_eval(SPC_INFLU_VECT, diff);
@@ -194,17 +187,24 @@ static double tro_spacing(struct tr_object * obj,
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static void trm_set_hit_window(struct tr_map * map)
+int * trm_get_ggm_ms(struct tr_map * map)
 {
-    int ggm_ms[3];
+    int * ggm_ms = malloc(sizeof(int) * 3);
     ggm_ms[0] = (int)(map->od_mod_mult *
 		      (MS_GREAT - (MS_COEFF_GREAT * map->od)));
     ggm_ms[1] = (int)(map->od_mod_mult *
 		      (MS_GOOD  - (MS_COEFF_GOOD  * map->od)));
     ggm_ms[2] = (int)(map->od_mod_mult *
 		      (MS_MISS  - (MS_COEFF_MISS  * map->od)));
+    return ggm_ms;
+}
+
+static void trm_set_hit_window(struct tr_map * map)
+{
+    int * ggm_ms = trm_get_ggm_ms(map);
     for(int i = 0; i < map->nb_object; i++)
 	tro_set_hit_window(&map->object[i], ggm_ms);
+    free(ggm_ms);
 }
 
 //-----------------------------------------------------
@@ -217,7 +217,7 @@ static void trm_set_slow(struct tr_map * map)
 
 //-----------------------------------------------------
 
-static void tro_set_spacing(struct tr_object * objs, int i)
+void tro_set_spacing(struct tr_object * objs, int i)
 {
     struct spacing_count * spc = tro_spacing_init(objs, i);
     objs[i].spacing = tro_spacing(&objs[i], spc);
@@ -234,7 +234,7 @@ static void trm_set_spacing(struct tr_map * map)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static void tro_set_accuracy_star(struct tr_object * obj)
+void tro_set_accuracy_star(struct tr_object * obj)
 {
     obj->accuracy_star = lf_eval
 	(ACCURACY_SCALE_VECT,

@@ -17,16 +17,7 @@
 #define LINEAR_FUN_H
 
 struct vector;
-
-// piecewise linear function
-// f(x) = a*x+b
-struct linear_fun {
-    char * name;
-    int len;
-    double * x;
-    double * a;
-    double * b;
-};
+struct linear_fun;
 
 struct linear_fun * lf_new(struct vector * v);
 void lf_free(struct linear_fun * lf);
@@ -36,5 +27,7 @@ struct linear_fun * cst_lf(struct hash_table * ht, const char * key);
 struct linear_fun * cst_lf2(struct hash_table * ht, const char * key);
 
 double lf_eval(struct linear_fun * lf, double x);
+
+void lf_print(struct linear_fun * lf);
 
 #endif //LINEAR_FUN_H

@@ -16,7 +16,6 @@
 #define _GNU_SOURCE
 
 #include <stdio.h>
-//#include <unistd.h>
 #include <stdlib.h>
 #include <math.h>
 
@@ -26,6 +25,24 @@
 #include "linear_fun.h"
 
 #define ERROR_VAL INFINITY
+
+// piecewise linear function
+// f(x) = a*x+b
+struct linear_fun {
+    char * name;
+    int len;
+    double * x; // len
+    double * a; // len - 1
+    double * b; // len - 1
+};
+/*
+  x = [x0, x1, x2, ...]
+  a = [a0, a1, a2, ...]
+  b = [b0, b1, b2, ...]
+  in [xi, xi+1] use ai, bi
+ */
+
+//--------------------------------------------------
 
 struct linear_fun * lf_new(struct vector * v)
 {
@@ -57,20 +74,48 @@ void lf_free(struct linear_fun * lf)
 
 //--------------------------------------------------
 
+static inline int find_interval_binary(double * array, int l, int r, 
+				       double x)
+{
+    if (r < l)
+	return -1;
+    int m = (l + r) / 2;
+    if (x < array[m])
+	return find_interval_binary(array, l, m-1, x);
+    if (array[m+1] < x)
+	return find_interval_binary(array, m+1, r, x);
+    return m;
+}
+
+static inline int find_interval_linear(double * array, int len, 
+				       double x)
+{
+    if (x < array[0])
+	return -1;
+    for(int i = 1; i < len; i++)
+	if (x <= array[i])
+	    return i-1;
+    return -1;
+}
+
+static inline double lf_eval_interval(struct linear_fun * lf, 
+				      double x, int i)
+{
+    return lf->a[i] * x + lf->b[i];
+}
+
 double lf_eval(struct linear_fun * lf, double x)
 {
-    if (x < lf->x[0]) {
-	tr_error("Inf out of bounds value (%g) for linear_fun (%s) eval.",
+    // As array are small, binary search is not really faster
+    int i = find_interval_linear(lf->x, lf->len, x);
+    //int i = find_interval_binary(lf->x, 0, lf->len-1, x);
+    if (i < 0) {
+	tr_error("Out of bounds value (%g) for linear_fun (%s) eval",
 		 x, lf->name);
+	lf_print(lf);
 	return ERROR_VAL;
     }
-    for(int i = 1; i < lf->len; i++) {
-	if (x <= lf->x[i]) {
-	    return lf->a[i-1] * x + lf->b[i-1];
-	}
-    }
-    tr_error("Sup out of bounds value (%g) for linear_fun (%s) eval.", x, lf->name);
-    return ERROR_VAL;
+    return lf_eval_interval(lf, x, i);
 }
 
 //--------------------------------------------------
@@ -93,3 +138,18 @@ struct linear_fun * cst_lf2(struct hash_table * ht, const char * key)
     return lf;
 }
 
+//--------------------------------------------------
+
+void lf_print(struct linear_fun * lf)
+{
+    fprintf(stderr, "linear_fun: %s\nx:", lf->name);
+    for (int i = 0; i < lf->len; i++) 
+	fprintf(stderr, "\t%.4g", lf->x[i]);
+    fprintf(stderr, "\na:");
+    for (int i = 0; i < lf->len-1; i++) 
+	fprintf(stderr, "\t%.4g", lf->a[i]);
+    fprintf(stderr, "\nb:");
+    for (int i = 0; i < lf->len-1; i++) 
+	fprintf(stderr, "\t%.4g", lf->b[i]);
+    fprintf(stderr, "\n");
+}

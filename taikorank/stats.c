@@ -113,8 +113,10 @@ double default_weight(int i, double val)
 					   map->nb_object);	\
 	tro_sort_##FIELD (copy, map->nb_object);		\
 	double sum = 0;						\
-	for(int i = 0; i < map->nb_object; i++)			\
-	    sum += weight(map->nb_object - i, copy[i].FIELD);	\
+	for(int i = 0; i < map->nb_object; i++)	{		\
+	    double d = weight(map->nb_object-i, copy[i].FIELD);	\
+	    sum += d;						\
+	}							\
 	free(copy);						\
 	return sum;						\
     }

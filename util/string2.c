@@ -10,12 +10,12 @@
 char *xasprintf(const char *fmt, ...)
 {
     va_list ap;
-    char *buf = NULL;
+    char *buf = malloc(sizeof(*buf) * HEURISTIC_SIZE);
 
+    va_start(ap, fmt);	// important !!
     int n = vsnprintf(buf, HEURISTIC_SIZE, fmt, ap);
     if (n >= HEURISTIC_SIZE) {
 	buf = realloc(buf, n + 1);
-	va_start(ap, fmt);	// important !!
 	vsnprintf(buf, n + 1, fmt, ap);
     }
 

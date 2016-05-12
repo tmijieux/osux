@@ -17,6 +17,14 @@
 #ifndef DENSITY_H
 #define DENSITY_H
 
-void trm_compute_density (struct tr_map * map);
+// work independently
+void tro_set_density_raw(struct tr_object * objs, int i);
+void tro_set_density_color(struct tr_object * objs, int i);
+
+// work independently, must be done after all other
+void tro_set_density_star(struct tr_object * obj);
+
+// all
+void trm_compute_density(struct tr_map * map);
 
 #endif

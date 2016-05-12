@@ -59,10 +59,7 @@ static double tro_seen(struct tr_object *o, struct table *obj_h);
 static struct table * tro_get_obj_hiding(struct tr_object * objs,
 					 int i);
 
-static void tro_set_seen(struct tr_object * objs, int i);
 static void trm_set_seen(struct tr_map * map);
-
-static void tro_set_reading_star(struct tr_object * obj);
 static void trm_set_reading_star(struct tr_map * map);
 
 //--------------------------------------------------
@@ -255,7 +252,7 @@ static struct table * tro_get_obj_hiding(struct tr_object * objs,
 
 //-----------------------------------------------------
 
-static void tro_set_seen(struct tr_object * objs, int i)
+void tro_set_seen(struct tr_object * objs, int i)
 {
     if(objs[i].ps == MISS) {
 	objs[i].seen = 0;
@@ -281,7 +278,7 @@ static void trm_set_seen(struct tr_map * map)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static void tro_set_reading_star(struct tr_object * obj)
+void tro_set_reading_star(struct tr_object * obj)
 {
     obj->reading_star = lf_eval
 	(READING_SCALE_VECT, READING_STAR_COEFF_SEEN * obj->seen);

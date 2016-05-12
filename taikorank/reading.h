@@ -17,6 +17,13 @@
 #ifndef READING_H
 #define READING_H
 
+// work independently
+void tro_set_seen(struct tr_object * objs, int i);
+
+// work independently, must be done after all others
+void tro_set_reading_star(struct tr_object * obj);
+
+// all
 void trm_compute_reading (struct tr_map * map);
 
 #endif

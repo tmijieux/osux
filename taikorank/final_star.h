@@ -17,8 +17,10 @@
 #ifndef FINAL_STAR_H
 #define FINAL_STAR_H
 
+// Must be done in sequential
 void tro_set_influence(struct tr_object * objs, int i, int nb);
 
+// all
 void trm_compute_final_star(struct tr_map * map);
 
 #endif //FINAL_STAR_H

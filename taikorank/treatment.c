@@ -20,18 +20,12 @@
 #include "taiko_ranking_object.h"
 #include "treatment.h"
 
-static void tro_set_length(struct tr_object * obj);
-static void tro_set_line_coeff(struct tr_object * o);
-static void tro_set_app_dis_offset(struct tr_object * obj);
 static void tro_set_hand(struct tr_object * obj, 
 			 int * d_hand, int * k_hand);
 
 static void trm_set_length(struct tr_map * map);
-static void trm_set_hand(struct tr_map * map);
-static void trm_set_rest(struct tr_map * map);
 static void trm_set_app_dis_offset(struct tr_map * map);
 static void trm_set_line_coeff(struct tr_map * map);
-static void trm_set_combo(struct tr_map * map);
 
 #define MAX_REST 10000.
 
@@ -41,7 +35,7 @@ static void trm_set_combo(struct tr_map * map);
 
 //-----------------------------------------------------
 
-static void tro_set_line_coeff(struct tr_object * o)
+void tro_set_line_coeff(struct tr_object * o)
 {
     o->c_app     = - o->bpm_app * o->offset_app;
     o->c_end_app = - o->bpm_app * o->end_offset_app;
@@ -75,7 +69,7 @@ static void tro_set_hand(struct tr_object * o,
 
 //------------------------------------------------
 
-static void tro_set_app_dis_offset(struct tr_object * obj)
+void tro_set_app_dis_offset(struct tr_object * obj)
 {
     double space_unit = mpb_to_bpm(obj->bpm_app) / 4.;
     // computation is wrong for spinner...
@@ -122,7 +116,7 @@ static void tro_set_app_dis_offset(struct tr_object * obj)
 //------------------------------------------------
 //------------------------------------------------
 
-static void trm_set_hand(struct tr_map * map)
+void trm_set_hand(struct tr_map * map)
 {
     int d_hand = 0;
     int k_hand = 0;
@@ -132,7 +126,8 @@ static void trm_set_hand(struct tr_map * map)
 
 //------------------------------------------------
 
-static void trm_set_rest(struct tr_map * map){
+void trm_set_rest(struct tr_map * map)
+{
     map->object[0].rest = MAX_REST;
     for(int i = 1; i < map->nb_object; i++) {
 	if(map->object[i].ps == MISS)
@@ -163,7 +158,7 @@ static void trm_set_line_coeff(struct tr_map * map)
 
 //-----------------------------------------------------
 
-static void trm_set_combo(struct tr_map * map)
+void trm_set_combo(struct tr_map * map)
 {
     int combo = 0;
     map->combo = 0;
@@ -183,7 +178,7 @@ static void trm_set_combo(struct tr_map * map)
 
 //-----------------------------------------------------
 
-static void tro_set_length(struct tr_object * obj)
+void tro_set_length(struct tr_object * obj)
 {
     obj->length = obj->end_offset - obj->offset;
 }
@@ -203,9 +198,10 @@ static void trm_set_length(struct tr_map * map)
 void trm_treatment(struct tr_map * map)
 {
     trm_set_length(map);
+    trm_set_line_coeff(map);
+    trm_set_app_dis_offset(map);
+
     trm_set_hand(map);
     trm_set_rest(map);
-    trm_set_app_dis_offset(map);
-    trm_set_line_coeff(map);
     trm_set_combo(map);
 }

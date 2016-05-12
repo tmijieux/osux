@@ -38,13 +38,8 @@ static double tro_get_coeff_density(struct tr_object * obj);
 static double tro_density(struct tr_object * obj1,
 			  struct tr_object * obj2);
 
-static void tro_set_density_raw(struct tr_object * objs, int i);
 static void trm_set_density_raw(struct tr_map * map);
-
-static void tro_set_density_color(struct tr_object * objs, int i);
 static void trm_set_density_color(struct tr_map * map);
-
-static void tro_set_density_star(struct tr_object * obj);
 static void trm_set_density_star(struct tr_map * map);
 
 //--------------------------------------------------
@@ -170,7 +165,7 @@ TRO_SET_DENSITY_TYPE(color, tro_are_same_density)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static void tro_set_density_star(struct tr_object * obj)
+void tro_set_density_star(struct tr_object * obj)
 {
     obj->density_star = lf_eval
 	(DENSITY_SCALE_VECT,

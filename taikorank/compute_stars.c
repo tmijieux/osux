@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "taiko_ranking_object.h"
 #include "taiko_ranking_map.h"
 #include "treatment.h"
 #include "tr_mods.h"
@@ -30,9 +31,48 @@
 #include "final_star.h"
 
 //--------------------------------------------------
+/*
+static void trm_compute_grouped(struct tr_map * map)
+{
+    trm_treatment(map);
+    
+    struct tr_object * objs = map->object;
+    int * ggm_ms = trm_get_ggm_ms(map);
+    
+    for (int i = 0; i < map->nb_object; i++) {
+	tro_set_pattern_proba(objs, i);
+    }
+    trm_set_patterns(map);
+    
+    #pragma omp parallel for
+    for (int i = 0; i < map->nb_object; i++) {
+	struct tr_object * o = &map->object[i];
+
+	tro_set_density_raw(objs, i);
+	tro_set_density_color(objs, i);
+
+	tro_set_seen(objs, i);
+	    
+	tro_set_pattern_freq(objs, i);
+	    
+	tro_set_hit_window(o, ggm_ms);
+	tro_set_slow(o);
+	tro_set_spacing(objs, i);
+
+	tro_set_density_star(o);
+	tro_set_reading_star(o);
+	tro_set_pattern_star(o);
+	tro_set_accuracy_star(o);
+	//tro_free_patterns(o);
+    }
+    trm_compute_final_star(map);
+}
+*/
+//--------------------------------------------------
 
 static void trm_compute_separate(struct tr_map * map)
 {
+    trm_treatment(map);
     {
         #pragma omp task
 	trm_compute_density(map);
@@ -54,7 +94,6 @@ void trm_compute_stars(struct tr_map * map)
 {
     if((map->mods & MODS_FL) != 0)
 	trm_apply_mods_FL(map);
-    trm_treatment(map);
 
     trm_compute_separate(map);
 }
