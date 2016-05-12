@@ -19,8 +19,9 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
+//#include <unistd.h>
 
+#include <util/read.h>
 #include "xz_decomp.h"
 
 
@@ -81,7 +82,7 @@ static int lzma_legacy_decompress(FILE *in_file, FILE *out_file)
 
     while ((! in_finished) && (! out_finished)) {
 	/* read incoming data */
-	in_len = fread (in_buf, 1, IN_BUF_MAX, in_file);
+	in_len = fread(in_buf, 1, IN_BUF_MAX, in_file);
 
 	if (feof (in_file)) {
 	    in_finished = true;
@@ -143,7 +144,7 @@ void lzma_decompress(FILE *f, uint8_t **buf)
     fstat(fileno(out), &st);
     *buf = malloc(st.st_size+1);
     rewind(out);
-    fread(*buf, 1, st.st_size, out);
+    xfread(*buf, 1, st.st_size, out);
     (*buf)[st.st_size] = 0;
     fclose(out);
 }

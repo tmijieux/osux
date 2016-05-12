@@ -7,6 +7,7 @@
 #include "list.h"
 #include "stack.h"
 #include "data.h"
+#include "compiler.h"
 
 static void mapping_dump(const char *name, void *data, void *args)
 {
@@ -19,10 +20,10 @@ void yaml2_dump(FILE *out, const struct yaml_wrap *yw)
     switch (yw->type) {
     case YAML_SEQUENCE:
 	fprintf(out, "yaml sequence start:\n");
-	int si = list_size(yw->content.sequence);
-	for (int i = 1; i <= si; ++i) {
+	unsigned si = osux_list_size(yw->content.sequence);
+	for (unsigned i = 1; i <= si; ++i) {
 	    fprintf(out, "- ");
-	    yaml2_dump(out, list_get(yw->content.sequence, i));
+	    yaml2_dump(out, osux_list_get(yw->content.sequence, i));
 	}
 	fprintf(out, "yaml sequence end\n");
 	break;
@@ -52,7 +53,7 @@ void parser_stack_push(struct stack *parser_stack,
 	if (YAML_MAPPING == head->type)
 	    ht_add_entry(head->content.mapping, keyname, newhead);
 	else if (YAML_SEQUENCE == head->type) {
-	    list_append(head->content.sequence, newhead);
+	    osux_list_append(head->content.sequence, newhead);
 	}
     }
     free(keyname);
@@ -103,7 +104,7 @@ int yaml2_parse_file(struct yaml_wrap **yamlw, const char *file_name)
 		
 	case YAML_SEQUENCE_START_EVENT:
 	    parser_stack_push(parser_stack, YAML_SEQUENCE,
-                              list_new(LI_FREE, yaml2_free), keyname);
+                              osux_list_new(LI_FREE, yaml2_free), keyname);
 	    keyname = NULL;
 	    break;
 
@@ -160,10 +161,9 @@ int yaml2_parse_file(struct yaml_wrap **yamlw, const char *file_name)
     return 0;
 }
 
-static void mapping_free(
-    const char *key __attribute__((unused)),
-    void *value,
-    void *args __attribute__((unused)) )
+static void mapping_free(const char UNUSED(*key),
+                         void *value,
+                         void UNUSED(*args))
 {
     yaml2_free(value);
 }
@@ -179,7 +179,7 @@ void yaml2_free(struct yaml_wrap *yw)
         break;
 
     case YAML_SEQUENCE:
-        list_free(yw->content.sequence);
+        osux_list_free(yw->content.sequence);
         break;
 
     case YAML_SCALAR:

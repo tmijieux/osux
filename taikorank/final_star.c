@@ -29,6 +29,7 @@
 #include "cst_yaml.h"
 #include "linear_fun.h"
 #include "print.h"
+#include "compiler.h"
 
 #include "final_star.h"
 
@@ -71,22 +72,22 @@ static void final_global_init(struct hash_table * ht_cst)
     ACC_POW = cst_f(ht_cst, "accuracy_pow");
 }
 
-__attribute__((constructor))
-static void ht_cst_init_final(void)
-{
-    yw_fin = cst_get_yw(FINAL_FILE);
-    ht_cst_fin = yw_extract_ht(yw_fin);
-    if(ht_cst_fin != NULL)
-	final_global_init(ht_cst_fin);
-}
 
-__attribute__((destructor))
 static void ht_cst_exit_final(void)
 {
     yaml2_free(yw_fin);
     lf_free(FINAL_SCALE_VECT);
     lf_free(WEIGHT_VECT);
     lf_free(FINAL_INFLU_VECT);
+}
+
+INITIALIZER(ht_cst_init_final)
+{
+    yw_fin = cst_get_yw(FINAL_FILE);
+    ht_cst_fin = yw_extract_ht(yw_fin);
+    if (ht_cst_fin != NULL)
+	final_global_init(ht_cst_fin);
+    atexit(ht_cst_exit_final);
 }
 
 //-----------------------------------------------------

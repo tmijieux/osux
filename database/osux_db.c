@@ -1,16 +1,33 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <sys/types.h>
-#include <dirent.h>
+
 #include <string.h>
 #include <stdbool.h>
 #include <stdarg.h>
 #include <time.h>
 #include <fcntl.h>
-#include <unistd.h>
 #include <errno.h>
-
 #include <sqlite3.h>
+
+#ifdef _WIN32
+#error WIN32 ON LINUX?
+#    include "util/dirent_win32.h"
+#    include <io.h>
+#    define access _access
+
+enum {
+    F_OK = 00,
+    R_OK = 02,
+    W_OK = 04,
+    RW_OK = 06,
+};
+
+#else
+#    include <unistd.h>
+#    include <dirent.h>
+#endif
+
 
 #include "beatmap/parser/parser.h"
 #include "util/list.h"
@@ -32,6 +49,28 @@ struct osux_db {
     sqlite3 *sqlite_db;
 };
 
+static char *xvasprintf(const char *format, va_list ap)
+{
+    char *res;
+    if (vasprintf(&res, format, ap) < 0) {
+        perror("vasprintf");
+        return NULL;
+    }
+    return res;
+}
+
+static char *xasprintf(const char *format, ...)
+{
+    char *res;
+    va_list ap;
+    va_start(ap, format);
+    if (vasprintf(&res, format, ap) < 0) {
+        perror("vasprintf");
+        return NULL;
+    }
+    return res;
+}
+
 static int db_query(
     sqlite3 *db, void *callback, void *context, const char *format, ...)
 {
@@ -40,7 +79,7 @@ static int db_query(
     va_list ap;
 
     va_start(ap, format);
-    (void) vasprintf(&query, format, ap);
+    query = xvasprintf(format, ap);
     ret = sqlite3_exec(db, query, callback, context, &errmsg);
     va_end(ap);
 
@@ -57,10 +96,13 @@ static int db_query(
 
 static int db_callback_get_uint32(
     void *context__,
-    int count __attribute__((unused)),
+    int count,
     char **column_text,
-    char **column_name __attribute__((unused))  )
+    char **column_name )
 {
+    (void) count;
+    (void) column_name;
+    
     uint32_t *value_ptr = context__;
     *value_ptr = atoi(column_text[0]);
     return 0;
@@ -78,20 +120,42 @@ int osux_db_update_stat(struct osux_db *db)
     return 0;
 }
 
-#define DATE(X) ({struct tm tmp__; strptime((X), "%c", &tmp__); mktime(&tmp__);})
+
+
+#ifdef __GNUC__
+#	define DATE(X) ({struct tm tmp__; strptime((X), "%c", &tmp__); mktime(&tmp__);})
+	#define HT_GET(X, WHAT) ({ char *tmp_; ht_get_entry(ht, (X), &tmp_); WHAT(tmp_);})
+#else
+#	define DATE(X) get_time((X))
+#   define HT_GET(X, WHAT)    WHAT(ht_get_(ht, (X)))
+
+static int get_time(const char *string)
+{
+	struct tm tmp__;
+	strptime(string, "%c", &tmp__);
+	return mktime(&tmp__);
+}
+
+static char *ht_get_(struct hash_table *ht, const char *key)
+{
+    char *_tmp;
+    ht_get_entry(ht, key, &_tmp);
+    return _tmp;
+}
+#endif
+
 #define FLOAT(X) atof((X))
 #define INT(X) atoi((X));
 #define STRING(X) strdup((X));
-#define HT_GET(X, WHAT) ({ char *tmp_; ht_get_entry(ht, (X), &tmp_); WHAT(tmp_);})
 
 static int beatmap_db_get_callback(
     void *context__, int count, char **column_text, char **column_name)
 {
-    struct list *bm_list = context__;
+    struct osux_list *bm_list = context__;
     struct osux_beatmap *bm = calloc(sizeof*bm, 1);
     struct hash_table *ht = ht_create(0, NULL);
 
-    list_append(bm_list, bm);
+    osux_list_append(bm_list, bm);
     for (int i = 0; i < count; ++i)
         ht_add_entry(ht, column_name[i], column_text[i]);
 
@@ -237,7 +301,7 @@ int osux_db_beatmap_get(
     const char *md5_hash, osux_db *db, struct osux_beatmap **bm)
 {
     int ret; size_t s;
-    struct list *bm_l = list_new(0);
+    struct osux_list *bm_l = osux_list_new(0);
     ret = db_query(db->sqlite_db, beatmap_db_get_callback, bm_l,
                    "select * from beatmap where md5_hash = '%s'", md5_hash);
     if (ret < 0) {
@@ -245,18 +309,18 @@ int osux_db_beatmap_get(
         return ret;
     }
 
-    s = list_size(bm_l);
+    s = osux_list_size(bm_l);
     if (0 == s) {
         *bm = NULL;
         return -1;
     }
-    *bm = list_get(bm_l, 1);
+    *bm = osux_list_get(bm_l, 1);
     if (s > 1) {
         osux_error("HASH COLLISION? %s\n", md5_hash);
-        list_free(bm_l);
+        osux_list_free(bm_l);
         return -2;
     }
-    list_free(bm_l);
+    osux_list_free(bm_l);
     return 0;
 }
 
@@ -267,7 +331,7 @@ static int load_beatmap_from_disk(
     struct osux_db *odb, const char *filename, int base_path_length)
 {
     FILE *f;
-    osux_beatmap *bm;
+    osux_beatmap *bm = NULL;
 
     f = fopen(filename, "r");
     if (NULL != f) {
@@ -277,7 +341,10 @@ static int load_beatmap_from_disk(
         return -1;
     }
 
-    (void) osux_beatmap_open(filename, &bm);
+    if (osux_beatmap_open(filename, &bm) < 0) {
+        osux_error("Cannot open beatmap %s\n", filename);
+        exit(EXIT_FAILURE);
+    }
     if (NULL != bm) {
         osux_md5_hash_file(f, &bm->md5_hash);
         bm->path = strdup(filename + base_path_length);
@@ -305,8 +372,7 @@ static int parse_beatmap_directory_rec(
         return -1;
 
     do {
-        char *path;
-        (void) asprintf(&path, "%s/%s", name, entry->d_name);
+        char *path = xasprintf("%s/%s", name, entry->d_name);
         if (DT_DIR == entry->d_type) {
             if (strcmp(entry->d_name, ".") == 0 ||
                 strcmp(entry->d_name, "..") == 0) {

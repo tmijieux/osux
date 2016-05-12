@@ -13,16 +13,17 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-#ifdef MYSQL_TR_DB
 
 #define _GNU_SOURCE
 
-#include <unistd.h>
+//#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
 #include <mysql/mysql.h>
+
+#include "compiler.h"
 
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_score.h"
@@ -31,6 +32,9 @@
 #include "config.h"
 #include "tr_mods.h"
 #include "print.h"
+
+#ifdef USE_MYSQL_DB
+
 #include "tr_db.h"
 
 #define TR_DB_NAME  "taiko_rank"
@@ -55,6 +59,13 @@ static int tr_db_insert_update_score(struct tr_map * map,
 
 //-------------------------------------------------
 
+
+static void tr_db_exit(void)
+{
+	if (sql != NULL)
+		mysql_close(sql);
+}
+
 void tr_db_init(void)
 {
     sql = mysql_init(NULL);
@@ -73,16 +84,9 @@ void tr_db_init(void)
 	return;
     }
     new_rq(sql, "USE %s;", TR_DB_NAME);
+	atexit(tr_db_exit);
 }
 
-//-------------------------------------------------
-
-__attribute__((destructor))
-static void tr_db_exit(void)
-{
-    if (sql != NULL)
-	mysql_close(sql);
-}
 
 //-------------------------------------------------
 
@@ -304,17 +308,18 @@ void trm_db_insert(struct tr_map * map)
 //-------------------------------------------------
 //-------------------------------------------------
 
-#else
+#else // USE_MYSQL_DB
 
 #include "taiko_ranking_map.h"
 
 void tr_db_init(void)
 {
+
 }
 
-void trm_db_insert(struct tr_map * map __attribute__((unused)))
+void trm_db_insert(struct tr_map UNUSED(*map))
 {
     tr_error("Database is disabled!");
 }
 
-#endif
+#endif  // USE_MYSQL_DB

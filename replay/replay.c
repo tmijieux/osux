@@ -16,7 +16,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include <unistd.h>
+//#include <unistd.h>
 #include <time.h>
 #include <locale.h>
 
@@ -24,6 +24,7 @@
 #include <util/uleb128.h>
 #include <util/list.h>
 #include <util/split.h>
+#include <util/read.h>
 #include <mod/mods.h>
 
 #include "replay.h"
@@ -63,7 +64,7 @@ static unsigned int parse_replay_data(FILE *f, struct replay_data **repdata)
 #define TICKS_PER_SECONDS 10000000L
 #define TICKS_AT_EPOCH  621355968000000000L
 
-static inline time_t from_win_timestamp(uint64_t ticks)
+static time_t from_win_timestamp(uint64_t ticks)
 {
     return (ticks - TICKS_AT_EPOCH) / TICKS_PER_SECONDS;
 }
@@ -94,24 +95,24 @@ struct replay *replay_parse(FILE *f)
     r->invalid = false;
     rewind(f);
 
-    fread(&r->game_mode, 1, 1, f);
-    fread(&r->game_version, 4, 1, f);
+    xfread(&r->game_mode, 1, 1, f);
+    xfread(&r->game_version, 4, 1, f);
 
     read_string(&r->bm_md5_hash, f);
     read_string(&r->player_name, f);
     read_string(&r->replay_md5_hash, f);
     
-    fread(&r->_300,  2, 1, f);
-    fread(&r->_100,  2, 1, f);
-    fread(&r->_50,   2, 1, f);
-    fread(&r->_geki, 2, 1, f);
-    fread(&r->_katu, 2, 1, f);
-    fread(&r->_miss, 2, 1, f);
+    xfread(&r->_300,  2, 1, f);
+    xfread(&r->_100,  2, 1, f);
+    xfread(&r->_50,   2, 1, f);
+    xfread(&r->_geki, 2, 1, f);
+    xfread(&r->_katu, 2, 1, f);
+    xfread(&r->_miss, 2, 1, f);
 
-    fread(&r->score, 4, 1, f);
-    fread(&r->max_combo, 2, 1, f);
-    fread(&r->fc, 1, 1, f);
-    fread(&r->mods, 4, 1, f);
+    xfread(&r->score, 4, 1, f);
+    xfread(&r->max_combo, 2, 1, f);
+    xfread(&r->fc, 1, 1, f);
+    xfread(&r->mods, 4, 1, f);
 
     read_string(&r->lifebar_graph, f);
     r->replife_size = string_split(r->lifebar_graph, ",", &life);
@@ -123,10 +124,10 @@ struct replay *replay_parse(FILE *f)
     }
     free(life);
 
-    fread(&ticks, 8, 1, f);
+    xfread(&ticks, 8, 1, f);
     r->timestamp = from_win_timestamp(ticks);
 
-    fread(&r->replay_length, 4, 1, f);
+    xfread(&r->replay_length, 4, 1, f);
     if ((r->repdata_count =
          parse_replay_data(f, &r->repdata)) == (unsigned)-1) {
         r->invalid = 1;

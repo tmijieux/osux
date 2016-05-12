@@ -16,11 +16,12 @@
 #define _GNU_SOURCE
 
 #include <stdio.h>
-#include <unistd.h>
+//#include <unistd.h>
 #include <stdlib.h>
 #include <math.h>
 
 #include "util/list.h"
+#include "util/string2.h"
 #include "cst_yaml.h"
 #include "vector.h"
 #include "interpolation.h"
@@ -57,27 +58,26 @@ void vect_free(struct vector * v)
 
 struct vector * cst_vect2(struct hash_table * ht, const char * key)
 {
-    struct list * l = cst_list(ht, key);
-    struct vector * v = vect_new(list_size(l), CST_VECT_DIM);
+    struct osux_list * l = cst_list(ht, key);
+    struct vector * v = vect_new(osux_list_size(l), CST_VECT_DIM);
     for(int i = 0; i < v->len; i++) {
-	struct list * l2 = yw_extract_list(list_get(l, i+1));
+	struct osux_list * l2 = yw_extract_list(osux_list_get(l, i+1));
 	for(int j = 0; j < CST_VECT_DIM; j++)
-	    v->t[i][j] = atof(yw_extract_scalar(list_get(l2, j+1)));
+	    v->t[i][j] = atof(yw_extract_scalar(osux_list_get(l2, j+1)));
     }
     return v;
 }
 
 struct vector * cst_vect(struct hash_table * ht, const char * key)
 {
-    char * s = NULL;
-    asprintf(&s, "%s_length", key);
+    char *s = xasprintf("%s_length", key);
     struct vector * v = vect_new(cst_i(ht, s), CST_VECT_DIM);
     free(s);
     v->max_index = 0;
     v->min_index = 0;
     for(int i = 0; i < v->len; i++) {
 	for(int j = 0; j < CST_VECT_DIM; j++) {
-	    asprintf(&s, "%s_%c%d", key, 'x'+j, i+1);
+	    s = xasprintf("%s_%c%d", key, 'x'+j, i+1);
 	    v->t[i][j] = cst_f(ht, s);
 	    free(s);
 	}

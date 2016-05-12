@@ -25,6 +25,7 @@
 #include "util/list.h"
 #include "util/yaml2.h"
 
+#include "compiler.h"
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_score.h"
 #include "tr_db.h"
@@ -104,10 +105,10 @@ static void global_init(void)
     OPT_ODB_BUILD = cst_i(ht_conf, "osuxdb_build");
     OPT_ODB_SGDIR = cst_str(ht_conf, "osuxdb_song_dir");
     osux_set_song_path(OPT_ODB_SGDIR);
-    if(OPT_ODB_BUILD) {
-	config_odb_build(OPT_ODB_SGDIR);
+    if (OPT_ODB_BUILD) {
+		config_odb_build(OPT_ODB_SGDIR);
     } else {
-	osux_db_load(OPT_ODB_PATH, &ODB);
+		osux_db_load(OPT_ODB_PATH, &ODB);
     }
 }
 
@@ -143,10 +144,10 @@ void config_score(void)
 
 //-----------------------------------------------------
 
-__attribute__((destructor))
+
 static void config_odb_exit(void)
 {
-    if(ODB != NULL)
+    if (ODB != NULL)
 	osux_db_free(ODB);
 }
 
@@ -154,6 +155,7 @@ void config_odb_build(char * song_dir)
 {
     osux_db_build(song_dir, &ODB);
     osux_db_save(OPT_ODB_PATH, ODB);
+    atexit(config_odb_exit);
 }
 
 //-----------------------------------------------------
@@ -233,8 +235,15 @@ void ht_conf_db_init(void)
 
 //-----------------------------------------------------
 
-__attribute__((constructor))
-static void ht_cst_init_config(void)
+
+static void ht_cst_exit_config(void)
+{
+	tr_print_yaml_exit();
+	tr_config_free(CONF);
+	yaml2_free(yw);
+}
+
+INITIALIZER(ht_cst_init_config)
 {
     yw = cst_get_yw(CONFIG_FILE);
     ht_conf = yw_extract_ht(yw);
@@ -243,14 +252,7 @@ static void ht_cst_init_config(void)
 	exit(EXIT_FAILURE);
     }
     global_init();
-    if(OPT_DATABASE)
+    if (OPT_DATABASE)
 	tr_db_init();
-}
-
-__attribute__((destructor))
-static void ht_cst_exit_config(void)
-{
-    tr_print_yaml_exit();
-    tr_config_free(CONF);
-    yaml2_free(yw);
+    atexit(ht_cst_exit_config);
 }

@@ -214,14 +214,14 @@ void ht_for_each(struct hash_table* ht,
 }
 
 
-struct list* ht_to_list(const struct hash_table *ht)
+struct osux_list* ht_to_list(const struct hash_table *ht)
 {
-    struct list *l = list_new(0);
+    struct osux_list *l = osux_list_new(0);
     if (ht) {
 	for (unsigned i = 0; i < ht->size; ++i) {
 	    struct ht_entry *he = ht->buf[i];
 	    while (he) {
-		list_append(l, he->data);
+		osux_list_append(l, he->data);
 		he = he->next;
 	    }
 	}

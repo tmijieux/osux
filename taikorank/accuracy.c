@@ -27,6 +27,7 @@
 #include "cst_yaml.h"
 #include "linear_fun.h"
 #include "print.h"
+#include "compiler.h"
 
 #include "accuracy.h"
 #include "spacing_count.h"
@@ -87,17 +88,6 @@ static void accuracy_global_init(struct hash_table * ht_cst)
 }
 
 //-----------------------------------------------------
-
-__attribute__((constructor))
-static void ht_cst_init_accuracy(void)
-{
-    yw_acc = cst_get_yw(ACCURACY_FILE);
-    ht_cst_acc = yw_extract_ht(yw_acc);
-    if(ht_cst_acc != NULL)
-	accuracy_global_init(ht_cst_acc);
-}
-
-__attribute__((destructor))
 static void ht_cst_exit_accuracy(void)
 {
     yaml2_free(yw_acc);
@@ -106,6 +96,15 @@ static void ht_cst_exit_accuracy(void)
     lf_free(SPC_INFLU_VECT);
     lf_free(HIT_WINDOW_VECT);
     lf_free(ACCURACY_SCALE_VECT);
+}
+
+INITIALIZER(ht_cst_init_accuracy)
+{
+    yw_acc = cst_get_yw(ACCURACY_FILE);
+    ht_cst_acc = yw_extract_ht(yw_acc);
+    if (ht_cst_acc != NULL)
+	accuracy_global_init(ht_cst_acc);
+    atexit(ht_cst_exit_accuracy);
 }
 
 //-----------------------------------------------------

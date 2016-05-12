@@ -52,7 +52,7 @@ struct hash_table * yw_extract_ht(struct yaml_wrap * yw)
     return yw->content.mapping;
 }
 
-struct list * yw_extract_list(struct yaml_wrap * yw)
+struct osux_list * yw_extract_list(struct yaml_wrap * yw)
 {
     if(yw->type != YAML_SEQUENCE) {
 	tr_error("Constant is not a list.");
@@ -72,7 +72,7 @@ char * yw_extract_scalar(struct yaml_wrap * yw)
 
 //--------------------------------------------------
 
-struct list * cst_list(struct hash_table * ht, const char * key)
+struct osux_list * cst_list(struct hash_table * ht, const char * key)
 {
     struct yaml_wrap * yw = NULL;
     ht_get_entry(ht, key, &yw);

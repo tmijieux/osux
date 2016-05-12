@@ -29,6 +29,7 @@
 #include "print.h"
 
 #include "density.h"
+#include "compiler.h"
 
 static struct yaml_wrap * yw_dst;
 static struct hash_table * ht_cst_dst;
@@ -85,21 +86,20 @@ static void density_global_init(struct hash_table * ht_cst)
 
 //-----------------------------------------------------
 
-__attribute__((constructor))
-static void ht_cst_init_density(void)
-{
-    yw_dst = cst_get_yw(DENSITY_FILE);
-    ht_cst_dst = yw_extract_ht(yw_dst);
-    if(ht_cst_dst != NULL)
-	density_global_init(ht_cst_dst);
-}
-
-__attribute__((destructor))
 static void ht_cst_exit_density(void)
 {
     yaml2_free(yw_dst);
     lf_free(DENSITY_VECT);
     lf_free(DENSITY_SCALE_VECT);
+}
+
+INITIALIZER(ht_cst_init_density)
+{
+    yw_dst = cst_get_yw(DENSITY_FILE);
+    ht_cst_dst = yw_extract_ht(yw_dst);
+    if (ht_cst_dst != NULL)
+	density_global_init(ht_cst_dst);
+    atexit(ht_cst_exit_density);
 }
 
 //-----------------------------------------------------
@@ -158,8 +158,7 @@ static double tro_density(struct tr_object * obj1,
 	    tro_set_density_##TYPE (map->object, i);		\
     }
 
-static int tro_true(struct tr_object * o1 __attribute__((unused)),
-		    struct tr_object * o2 __attribute__((unused)))
+static inline int tro_true(struct tr_object UNUSED(*o1), struct tr_object UNUSED(*o2))
 {
     return 1;
 }

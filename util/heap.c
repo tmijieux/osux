@@ -19,7 +19,7 @@
 
 struct heap {
     int (*cmp)(void*, void*);
-    size_t heap_size;
+    unsigned heap_size;
     void **buf;
     int free_buf;
 };
@@ -49,7 +49,7 @@ void heap_free(struct heap *heap)
     free(heap);
 }
 
-static inline int heap_greater_child(struct heap *heap, unsigned i)
+static int heap_greater_child(struct heap *heap, unsigned i)
 {
     if (2*i == heap->heap_size)
 	return 2*i;
@@ -58,7 +58,7 @@ static inline int heap_greater_child(struct heap *heap, unsigned i)
     return 2*i+1;
 }
 
-static inline void heap_swap(struct heap *heap, int i, int k)
+static void heap_swap(struct heap *heap, int i, int k)
 {
     void *tmp;
     tmp = heap->buf[i];
@@ -66,7 +66,7 @@ static inline void heap_swap(struct heap *heap, int i, int k)
     heap->buf[k] = tmp;
 }
 
-static inline int heap_extract_problem(struct heap *heap, unsigned i)
+static int heap_extract_problem(struct heap *heap, unsigned i)
 {
     return ((2*i == heap->heap_size &&
 	     heap->cmp(heap->buf[2*i], heap->buf[i]) > 0) ||
@@ -98,12 +98,12 @@ void *heap_max(struct heap *heap)
     return heap->buf[0];
 }
 
-static inline int heap_insert_problem(struct heap *heap, int i)
+static int heap_insert_problem(struct heap *heap, int i)
 {
     return heap->cmp(heap->buf[i], heap->buf[i/2]) > 0;
 }
 
-static inline int heap_insert_resolve(struct heap *heap, int i)
+static int heap_insert_resolve(struct heap *heap, int i)
 {
     heap_swap(heap, i, i/2);
     return i/2;
