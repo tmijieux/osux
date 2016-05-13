@@ -34,13 +34,15 @@
 #include "final_star.h"
 
 static double weight_final_star(int i, double val);
-static void tro_set_final_star(struct tr_object * obj);
-static void trm_set_final_star(struct tr_map * map);
 
 static void tro_apply_influence_coeff(struct tr_object *o, double c);
 static double tro_influence_coeff(struct tr_object * o1,
 				  struct tr_object * o2);
+
 static void trm_set_influence(struct tr_map * map);
+static void trm_set_final_star(struct tr_map * map);
+
+static void trm_set_global_stars(struct tr_map * map);
 
 //-----------------------------------------------------
 
@@ -91,38 +93,22 @@ INITIALIZER(ht_cst_init_final)
 }
 
 //-----------------------------------------------------
+//-----------------------------------------------------
+//-----------------------------------------------------
 
 static double weight_final_star(int i, double val)
 {
     return lf_eval(WEIGHT_VECT, i) * val;
 }
 
-//-----------------------------------------------------
-
-static void tro_set_final_star(struct tr_object * obj)
-{
-    if(obj->ps != GREAT) {
-	obj->density_star = 0;
-	obj->reading_star = 0;
-	obj->pattern_star = 0;
-	obj->accuracy_star = 0;
-	obj->final_star = 0;
-	return;
-    }
-    obj->final_star =
-	lf_eval(FINAL_SCALE_VECT,
-		pow(obj->density_star,  DST_POW) *
-		pow(obj->reading_star,  RDG_POW) *
-		pow(obj->pattern_star,  PTR_POW) *
-		pow(obj->accuracy_star, ACC_POW));
-}
 
 //-----------------------------------------------------
 
 static double tro_influence_coeff(struct tr_object * o1,
 				  struct tr_object * o2)
 {
-    return 1. - lf_eval(FINAL_INFLU_VECT, fabs(o1->offset - o2->offset));
+    return 1. - lf_eval(FINAL_INFLU_VECT, 
+			fabs(o1->offset - o2->offset));
 }
 
 //-----------------------------------------------------
@@ -134,6 +120,30 @@ static void tro_apply_influence_coeff(struct tr_object * o, double c)
     o->pattern_star *= c;
     o->accuracy_star *= c;
 }
+
+//-----------------------------------------------------
+//-----------------------------------------------------
+//-----------------------------------------------------
+
+void tro_set_final_star(struct tr_object * o)
+{
+    if(o->ps != GREAT) {
+	o->density_star = 0;
+	o->reading_star = 0;
+	o->pattern_star = 0;
+	o->accuracy_star = 0;
+	o->final_star = 0;
+	return;
+    }
+    o->final_star =
+	lf_eval(FINAL_SCALE_VECT,
+		pow(o->density_star,  DST_POW) *
+		pow(o->reading_star,  RDG_POW) *
+		pow(o->pattern_star,  PTR_POW) *
+		pow(o->accuracy_star, ACC_POW));
+}
+
+//-----------------------------------------------------
 
 void tro_set_influence(struct tr_object * objs, int i, int nb)
 {
@@ -187,6 +197,8 @@ static void trm_set_global_stars(struct tr_map * map)
     map->final_star =
 	trm_weight_sum_final_star(map, weight_final_star);    
 }
+
+//-----------------------------------------------------
 
 void trm_compute_final_star(struct tr_map * map)
 {

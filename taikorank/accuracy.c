@@ -119,16 +119,19 @@ static int equal_i(int x, int y)
 
 //-----------------------------------------------------
 
-int * trm_get_ggm_ms(const struct tr_map * map)
+double * trm_get_ggm_val(const struct tr_map * map)
 {
-    int * ggm_ms = malloc(sizeof(int) * 3);
+    int ggm_ms[3];
     ggm_ms[0] = (map->od_mod_mult *
 		 (MS_GREAT - (MS_COEFF_GREAT * map->od)));
     ggm_ms[1] = (map->od_mod_mult *
 		 (MS_GOOD  - (MS_COEFF_GOOD  * map->od)));
     ggm_ms[2] = (map->od_mod_mult *
 		 (MS_MISS  - (MS_COEFF_MISS  * map->od)));
-    return ggm_ms;
+    double * ggm_val = malloc(sizeof(int) * 3);
+    for (int i = 0; i < 3; i++)
+	ggm_val[i] = lf_eval(HIT_WINDOW_VECT, ggm_ms[i]);
+    return ggm_val;
 }
 
 //-----------------------------------------------------
@@ -183,20 +186,19 @@ static double tro_spacing(const struct tr_object * o,
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-void tro_set_hit_window(struct tr_object * o, const int * ggm_ms)
+void tro_set_hit_window(struct tr_object * o, const double * ggm_val)
 {
     switch(o->ps) {
     case GREAT:
-	o->hit_window = ggm_ms[0];
+	o->hit_window = ggm_val[0];
 	break;
     case GOOD:
-	o->hit_window = ggm_ms[1];
+	o->hit_window = ggm_val[1];
 	break;
     default: // MISS & bonus
-	o->hit_window = ggm_ms[2];
+	o->hit_window = ggm_val[2];
 	break;
     }
-    o->hit_window = lf_eval(HIT_WINDOW_VECT, o->hit_window);
 }
 
 //-----------------------------------------------------
@@ -212,10 +214,10 @@ void tro_set_slow(struct tr_object * o)
 
 //-----------------------------------------------------
 
-void tro_set_spacing(struct tr_object * objs, int i)
+void tro_set_spacing(struct tr_object * o, int i)
 {
-    struct spacing_count * spc = tro_spacing_init(objs, i);
-    objs[i].spacing = tro_spacing(&objs[i], spc);
+    struct spacing_count * spc = tro_spacing_init(o->objs, i);
+    o->spacing = tro_spacing(o, spc);
     spc_free(spc);
 }
 
@@ -244,10 +246,10 @@ static void trm_set_slow(struct tr_map * map)
 
 static void trm_set_hit_window(struct tr_map * map)
 {
-    int * ggm_ms = trm_get_ggm_ms(map);
+    double * ggm_val = trm_get_ggm_val(map);
     for(int i = 0; i < map->nb_object; i++)
-	tro_set_hit_window(&map->object[i], ggm_ms);
-    free(ggm_ms);
+	tro_set_hit_window(&map->object[i], ggm_val);
+    free(ggm_val);
 }
 
 //-----------------------------------------------------
@@ -255,7 +257,7 @@ static void trm_set_hit_window(struct tr_map * map)
 static void trm_set_spacing(struct tr_map * map)
 {
     for(int i = 0; i < map->nb_object; i++)
-	tro_set_spacing(map->object, i);
+	tro_set_spacing(&map->object[i], i);
 }
 
 //-----------------------------------------------------

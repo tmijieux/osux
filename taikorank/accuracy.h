@@ -17,15 +17,36 @@
 #ifndef ACCURACY_H
 #define ACCURACY_H
 
+/* Use:
+   - od
+   - od_mult
+*/
+double * trm_get_ggm_val(const struct tr_map * map);
 
-// work independently, use trm_get_ggm_m to get second parameter
-void tro_set_hit_window(struct tr_object * o, const int * ggm_val);
+/* Use:
+   - ps
+   - ggm_val
+*/
+void tro_set_hit_window(struct tr_object * o, const double * ggm_val);
 
-// work independently
+/* Use:
+   - ps
+   - bpm_app
+*/
 void tro_set_slow(struct tr_object * o);
+
+/* Use:
+   - ps
+   - rest
+   - offset
+*/
 void tro_set_spacing(struct tr_object * o, int i);
 
-// work independently, must be done after all others
+/* Use:
+   - slow
+   - spacing
+   - hit_window
+*/
 void tro_set_accuracy_star(struct tr_object * o);
 
 // all

@@ -17,8 +17,25 @@
 #ifndef FINAL_STAR_H
 #define FINAL_STAR_H
 
-// Must be done in sequential
+/* First arg is all objects
+   Use:
+   - ps
+   - offset
+   - density_star
+   - reading_star
+   - pattern_star
+   - accuracy_star
+*/
 void tro_set_influence(struct tr_object * objs, int i, int nb);
+
+/* Use:
+   - ps
+   - density_star
+   - reading_star
+   - pattern_star
+   - accuracy_star   
+*/
+void tro_set_final_star(struct tr_object * o);
 
 // all
 void trm_compute_final_star(struct tr_map * map);

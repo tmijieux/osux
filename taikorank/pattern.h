@@ -17,18 +17,38 @@
 #ifndef PATTERN_H
 #define PATTERN_H
 
-// work independently
+/* Use:
+   - d/k/D/K/s/r/R
+   - offset
+*/
 void tro_set_pattern_proba(struct tr_object * objs, int i);
+
+/* Use:
+   - ps
+   - d/k/D/K/s/r/R
+*/
 void tro_set_type(struct tr_object * o);
 
-// must be done after all tro_set_pattern_proba & tro_set_type
+/* Use:
+   - proba
+   - type
+*/
 void trm_set_patterns(struct tr_map * map);
 
-// work independently, must be done after trm_set_patterns
+/* Use:
+   - patterns
+   - offset
+*/
 void tro_set_pattern_freq(struct tr_object * objs, int i);
 
-// work independently, must be done after all others
-void tro_set_pattern_star(struct tr_object * obj);
+/* Use:
+   - pattern_freq
+*/
+void tro_set_pattern_star(struct tr_object * o);
+
+/* Use:
+   - patterns
+*/
 void tro_free_patterns(struct tr_object * o);
 
 // all

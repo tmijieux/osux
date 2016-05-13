@@ -21,6 +21,7 @@
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_score.h"
 #include "final_star.h"
+#include "compute_stars.h"
 
 #include "config.h"
 #include "print.h"
@@ -43,6 +44,7 @@ void trs_main(const struct tr_map * map)
 {
     struct tr_score * score = trs_new(map);
     score->map = trm_copy(score->origin);
+    trm_set_read_only_objects(score->map);
     trm_set_mods(score->map, map->conf->mods);
 
     // modifications

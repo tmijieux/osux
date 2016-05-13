@@ -61,6 +61,7 @@ void trm_main(const struct tr_map * map)
 {
     struct tr_map * map_copy = trm_copy(map);
     trm_set_mods(map_copy, map->conf->mods);
+    trm_set_read_only_objects(map_copy);
 
     // modifications
     trm_add_modifier(map_copy);
@@ -68,7 +69,7 @@ void trm_main(const struct tr_map * map)
     // compute
     trm_apply_mods(map_copy);
     trm_compute_stars(map_copy);
-  
+    
     // printing
     #pragma omp critical
     if(OPT_PRINT_YAML)
@@ -84,6 +85,14 @@ void trm_main(const struct tr_map * map)
   
     // free
     trm_free(map_copy);
+}
+
+//--------------------------------------------------
+
+void trm_set_read_only_objects(struct tr_map * map)
+{
+    for(int i = 0; i < map->nb_object; i++)
+	map->object[i].objs = map->object;
 }
 
 //--------------------------------------------------
@@ -308,7 +317,7 @@ static struct tr_map * trm_convert_map(struct osux_beatmap * map)
 	    tr_map->max_combo++;
 	    tr_map->object[i].ps = GREAT;
 	}
-	tr_map->object[i].objs = tr_map->object;
+	tr_map->object[i].objs = NULL;
     }
     
     // get other data

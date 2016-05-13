@@ -82,6 +82,7 @@ static struct linear_fun * PATTERN_SCALE_VECT;
 // pattern
 static int MAX_PATTERN_LENGTH;
 
+//-----------------------------------------------------
 
 static inline void print_pattern(const struct pattern * p)
 {
@@ -272,6 +273,16 @@ static double tro_singletap_proba(struct tr_object * o1,
 }
 
 //-----------------------------------------------------
+
+static void pattern_free(struct pattern *p)
+{
+    if (p == NULL)
+	return;
+    free(p->s);
+    free(p);
+}
+
+//-----------------------------------------------------
 //-----------------------------------------------------
 //-----------------------------------------------------
 
@@ -280,7 +291,7 @@ void tro_set_pattern_freq(struct tr_object * objs, int i)
     struct counter * c = tro_pattern_freq_init(objs, i);
 
     double freq = tro_pattern_freq(&objs[i], c);
-    objs[i].pattern = lf_eval(PATTERN_FREQ_VECT, freq);
+    objs[i].pattern_freq = lf_eval(PATTERN_FREQ_VECT, freq);
 /*
     tro_print_pattern(&objs[i]);
     typedef int (*herit)(void*, void*);
@@ -317,7 +328,33 @@ void tro_set_type(struct tr_object * o)
 }
 
 //-----------------------------------------------------
+
+void tro_set_pattern_star(struct tr_object * o)
+{
+    o->pattern_star = lf_eval
+	(PATTERN_SCALE_VECT, 
+	 PATTERN_STAR_COEFF_PATTERN * o->pattern_freq);
+}
+
 //-----------------------------------------------------
+
+void tro_free_patterns(struct tr_object * o)
+{
+    for(int i = 0; i < table_len(o->patterns); i++)
+	pattern_free(table_get(o->patterns, i));
+    table_free(o->patterns);
+}
+
+//-----------------------------------------------------
+//-----------------------------------------------------
+//-----------------------------------------------------
+
+static void trm_set_pattern_proba(struct tr_map * map)
+{
+    for(int i = 0; i < map->nb_object; i++)
+	tro_set_pattern_proba(map->object, i);
+}
+
 //-----------------------------------------------------
 
 static void trm_set_type(struct tr_map * map)
@@ -332,42 +369,6 @@ static void trm_set_pattern_freq(struct tr_map * map)
 {
     for(int i = 0; i < map->nb_object; i++)
 	tro_set_pattern_freq(map->object, i);
-}
-
-//-----------------------------------------------------
-
-static void trm_set_pattern_proba(struct tr_map * map)
-{
-    for(int i = 0; i < map->nb_object; i++)
-	tro_set_pattern_proba(map->object, i);
-}
-
-//-----------------------------------------------------
-
-static void pattern_free(struct pattern *p)
-{
-    if (p == NULL)
-	return;
-    free(p->s);
-    free(p);
-}
-
-void tro_free_patterns(struct tr_object * o)
-{
-    for(int i = 0; i < table_len(o->patterns); i++)
-	pattern_free(table_get(o->patterns, i));
-    table_free(o->patterns);
-}
-
-//-----------------------------------------------------
-//-----------------------------------------------------
-//-----------------------------------------------------
-
-void tro_set_pattern_star(struct tr_object * obj)
-{
-    obj->pattern_star = lf_eval
-	(PATTERN_SCALE_VECT, 
-	 PATTERN_STAR_COEFF_PATTERN * obj->pattern);
 }
 
 //-----------------------------------------------------

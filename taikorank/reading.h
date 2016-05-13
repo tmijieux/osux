@@ -17,10 +17,18 @@
 #ifndef READING_H
 #define READING_H
 
-// work independently
+/* Use:
+   - ps
+   - offset_app
+   - d/k/D/K/s/r/R
+   - c_app
+   - bpm_app   
+*/
 void tro_set_seen(struct tr_object * o, int i);
 
-// work independently, must be done after all others
+/* Use:
+   - seen
+*/
 void tro_set_reading_star(struct tr_object * o);
 
 // all

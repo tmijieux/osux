@@ -17,11 +17,27 @@
 #ifndef DENSITY_H
 #define DENSITY_H
 
-// work independently
+/* Use:
+   - ps
+   - d/k/D/K/s/r/R
+   - offset
+   - length
+*/
 void tro_set_density_raw(struct tr_object * o, int i);
+
+/* Use:
+   - ps
+   - d/k/D/K/s/r/R
+   - hands
+   - offset
+   - length
+*/
 void tro_set_density_color(struct tr_object * o, int i);
 
-// work independently, must be done after all other
+/* Use:
+   - density_raw
+   - density_color
+*/
 void tro_set_density_star(struct tr_object * obj);
 
 // all

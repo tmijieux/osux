@@ -170,7 +170,7 @@ void tro_print(const struct tr_object * obj, int filter)
     if((filter & FILTER_PATTERN) != 0) {
 	fprintf(OUTPUT_INFO, "%.3g\t%.3g\t%g\t",
 		obj->proba,
-		obj->pattern,
+		obj->pattern_freq,
 		obj->pattern_star);
     }
     if((filter & FILTER_STAR) != 0)

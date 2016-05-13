@@ -17,11 +17,39 @@
 #ifndef TREATMENT_H
 #define TREATMENT_H
 
+/* Use:
+  - offset
+ */
 void tro_set_length(struct tr_object * obj);
-void tro_set_line_coeff(struct tr_object * o);
+
+/* Use:
+   - bpm_app
+   - d/k/D/K/s/r/R
+   - offset
+*/
 void tro_set_app_dis_offset(struct tr_object * obj);
+
+/* Use:
+   - bpm_app
+   - offset_app
+*/
+void tro_set_line_coeff(struct tr_object * o);
+
+/* Use: 
+   - ps
+   - d/k/D/K/s/r/R
+*/
 void trm_set_hand(struct tr_map * map);
+
+/* Use:
+   - ps
+   - offset
+*/
 void trm_set_rest(struct tr_map * map);
+
+/* Use:
+   - ps
+*/
 void trm_set_combo(struct tr_map * map);
 
 // all

@@ -113,6 +113,13 @@ void tro_set_app_dis_offset(struct tr_object * obj)
 }
 
 //------------------------------------------------
+
+void tro_set_length(struct tr_object * obj)
+{
+    obj->length = obj->end_offset - obj->offset;
+}
+
+//------------------------------------------------
 //------------------------------------------------
 //------------------------------------------------
 
@@ -142,22 +149,6 @@ void trm_set_rest(struct tr_map * map)
 
 //-----------------------------------------------------
 
-static void trm_set_app_dis_offset(struct tr_map * map)
-{
-    for(int i = 0; i < map->nb_object; i++)
-	tro_set_app_dis_offset(&map->object[i]);
-}
-
-//-----------------------------------------------------
-
-static void trm_set_line_coeff(struct tr_map * map)
-{
-    for(int i = 0; i < map->nb_object; i++)
-	tro_set_line_coeff(&map->object[i]);
-}
-
-//-----------------------------------------------------
-
 void trm_set_combo(struct tr_map * map)
 {
     int combo = 0;
@@ -178,17 +169,26 @@ void trm_set_combo(struct tr_map * map)
 
 //-----------------------------------------------------
 
-void tro_set_length(struct tr_object * obj)
+static void trm_set_app_dis_offset(struct tr_map * map)
 {
-    obj->length = obj->end_offset - obj->offset;
+    for(int i = 0; i < map->nb_object; i++)
+	tro_set_app_dis_offset(&map->object[i]);
 }
 
+//-----------------------------------------------------
+
+static void trm_set_line_coeff(struct tr_map * map)
+{
+    for(int i = 0; i < map->nb_object; i++)
+	tro_set_line_coeff(&map->object[i]);
+}
+
+//-----------------------------------------------------
 
 static void trm_set_length(struct tr_map * map)
 {
-    for(int i = 0; i < map->nb_object; i++) {
+    for(int i = 0; i < map->nb_object; i++)
 	tro_set_length(&map->object[i]);
-    }
 }
 
 //-----------------------------------------------------
