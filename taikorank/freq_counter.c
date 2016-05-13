@@ -25,22 +25,22 @@ struct counter {
 };
 
 struct counter_entry {
-    void * data;
+    const void * data;
     double nb;
 };
 
 struct heriter {
     struct counter_entry * e;
-    int (*herit)(void *, void *);
+    int (*herit)(const void *, const void *);
     double nb;
 };
 
 struct bundle {
     const struct counter * c;
-    int (*herit)(void *, void *);
+    int (*herit)(const void *, const void *);
 };
 
-static struct counter_entry * cnte_new(void * d, double nb);
+static struct counter_entry * cnte_new(const void * d, double nb);
 static void cnte_free(const char *key, struct counter_entry *e,  void *args);
 static void cnte_print(
 	const char *key, struct counter_entry *e, struct bundle * b);
@@ -51,7 +51,7 @@ typedef void (*ht_fun)(const char*,void*,void*);
 
 //--------------------------------------------------
 
-static struct counter_entry * cnte_new(void * d, double nb)
+static struct counter_entry * cnte_new(const void * d, double nb)
 {
     struct counter_entry * e = malloc(sizeof(*e));
     e->data = d;
@@ -115,8 +115,8 @@ void cnt_free(struct counter * c)
 
 //--------------------------------------------------
 
-void cnt_add(struct counter * c, void * data, const char * key, 
-	     double val)
+void cnt_add(struct counter * c, const void * data,
+	     const char * key, double val)
 {
     struct counter_entry * e = NULL;
     ht_get_entry(c->ht, key, &e);
@@ -133,7 +133,7 @@ void cnt_add(struct counter * c, void * data, const char * key,
 
 double cnt_get_nb_compressed(const struct counter * c, 
 			     const char * key,
-			     int (*herit)(void *, void *))
+			     int (*herit)(const void*, const void*))
 {
     struct counter_entry * e = NULL;
     ht_get_entry(c->ht, key, &e);
@@ -168,7 +168,7 @@ void cnt_print(const struct counter * c)
 }
 
 void cnt_print_compressed(const struct counter * c,
-			  int (*herit)(void *, void *))
+			  int (*herit)(const void*, const void*))
 {
     printf("Counter: (%g)\n", c->total);
     printf("Entry:\tkey\tval\tcompr\tfreq\tfreq cp\n");

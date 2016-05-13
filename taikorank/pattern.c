@@ -48,14 +48,23 @@ struct pattern {
 
 //--------------------------------------------------
 
-static double tro_singletap_proba(struct tr_object * o1, 
-				  struct tr_object * o2);
-static void pattern_free(struct pattern *p);
+static struct pattern * 
+tro_extract_pattern(const struct tr_object * o, int i, int nb, 
+		    double proba);
+static void tro_pattern_set_str(const struct tr_object * o,
+				int i, int nb, struct pattern * p);
 
-static void trm_extract_pattern_str(struct tr_map * map,
-				      int i, struct pattern * p);
-static struct pattern * trm_extract_pattern(struct tr_map * map,
-					    int i, double proba);
+static double tro_singletap_proba(const struct tr_object * o1,
+				  const struct tr_object * o2);
+static double tro_pattern_influence(const struct tr_object * o1,
+				    const struct tr_object * o2);
+
+static struct counter * 
+tro_pattern_freq_init(const struct tr_object * o, int i);
+static double tro_pattern_freq(const struct tr_object * o,
+			       const struct counter * c);
+
+static void pattern_free(struct pattern *p);
 
 static void trm_set_pattern_proba(struct tr_map * map);
 static void trm_set_type(struct tr_map * map);
@@ -81,21 +90,6 @@ static struct linear_fun * PATTERN_SCALE_VECT;
 
 // pattern
 static int MAX_PATTERN_LENGTH;
-
-//-----------------------------------------------------
-
-static inline void print_pattern(const struct pattern * p)
-{
-    fprintf(stderr, "%s\t%.4g\t%.4g\t(%.4g)\n", 
-	    p->s, p->proba_start, p->proba_end,
-	    p->proba_end - p->proba_start);
-}
-
-static inline void tro_print_pattern(const struct tr_object * o)
-{
-    for(int j = 0; j < table_len(o->patterns); j++)
-	print_pattern(table_get(o->patterns, j));
-}
 
 //-----------------------------------------------------
 
@@ -135,10 +129,27 @@ INITIALIZER(ht_cst_init_pattern)
     atexit(ht_cst_exit_pattern);
 }
 
+//-----------------------------------------------------
+//-----------------------------------------------------
+//-----------------------------------------------------
+
+static inline void print_pattern(const struct pattern * p)
+{
+    fprintf(stderr, "%s\t%.4g\t%.4g\t(%.4g)\n", 
+	    p->s, p->proba_start, p->proba_end,
+	    p->proba_end - p->proba_start);
+}
+
+static inline void tro_print_pattern(const struct tr_object * o)
+{
+    for(int j = 0; j < table_len(o->patterns); j++)
+	print_pattern(table_get(o->patterns, j));
+}
 
 //-----------------------------------------------------
 /*
-static int pattern_1_is_in_2(struct pattern *p1, struct pattern *p2)
+static int pattern_1_is_in_2(const struct pattern *p1, 
+			     const struct pattern *p2)
 {
     int i;
     for (i = 0; p1->s[i] && p2->s[i]; i++) {
@@ -148,7 +159,8 @@ static int pattern_1_is_in_2(struct pattern *p1, struct pattern *p2)
     return p1->s[i] == '\0';
 }
 */
-static int pattern_is_in(struct pattern *p1, struct pattern *p2)
+static int pattern_is_in(const struct pattern *p1, 
+			 const struct pattern *p2)
 {
     for (int i = 0; p1->s[i] && p2->s[i]; i++) {
 	if (p1->s[i] != p2->s[i])
@@ -158,56 +170,23 @@ static int pattern_is_in(struct pattern *p1, struct pattern *p2)
 }
 
 //-----------------------------------------------------
-
-void trm_set_patterns(struct tr_map * map)
-{   
-    for(int i = 0; i < map->nb_object; i++) {
-	struct tr_object * o = &map->object[i];
-	// taking one more space for some special case
-	o->patterns = table_new(MAX_PATTERN_LENGTH + 1);
-	double proba = PROBA_START;
-	while (proba < PROBA_END) {
-	    struct pattern * p = trm_extract_pattern(map, i, proba);
-	    if (table_max(o->patterns) <= table_len(o->patterns)) {
-		fprintf(stderr, "Out of bounds %d / %d on object n°%d (offset %d)\n", table_len(o->patterns), table_max(o->patterns), i, o->offset);
-		print_pattern(p);
-		tro_print_pattern(o);
-		fprintf(stderr, "-----------------\n");
-	    }
-	    table_add(o->patterns, p);
-	    proba = p->proba_end;
-	}
-    }
-}
-
+//-----------------------------------------------------
 //-----------------------------------------------------
 
-static struct pattern * trm_extract_pattern(struct tr_map * map,
-					    int i, double proba)
-{
-    struct pattern * p = malloc(sizeof(*p));
-    p->proba_start = proba;
-    p->proba_end   = PROBA_END;
-    trm_extract_pattern_str(map, i, p);
-    return p;
-}
-
-//-----------------------------------------------------
-
-static void trm_extract_pattern_str(struct tr_map * map,
-				    int i, struct pattern * p)
+static void tro_pattern_set_str(const struct tr_object * o,
+				int i, int nb, struct pattern * p)
 {
     char * s = calloc(sizeof(char), MAX_PATTERN_LENGTH + 1);
-    for (int j = 0; j < MAX_PATTERN_LENGTH && i + j < map->nb_object; j++) {
-	s[j] = map->object[i+j].type;
+    for (int j = 0; j < MAX_PATTERN_LENGTH && i + j < nb; j++) {
+	s[j] = o->objs[i+j].type;
 	if (s[j] == '\0')
+	    break;	
+
+	if (!(i + j + 1 < nb)) // no more objects
 	    break;
-	
-	if (!(i + j + 1 < map->nb_object)) { // no more objects
-	    break;
-	}
-	if (p->proba_start < map->object[i+j+1].proba) {
-	    p->proba_end = map->object[i+j+1].proba;
+
+	if (p->proba_start < o->objs[i+j+1].proba) {
+	    p->proba_end = o->objs[i+j+1].proba;
 	    break;
 	}
     }
@@ -215,11 +194,33 @@ static void trm_extract_pattern_str(struct tr_map * map,
 }
 
 //-----------------------------------------------------
+
+static struct pattern * 
+tro_extract_pattern(const struct tr_object * o, int i, int nb, 
+		    double proba)
+{
+    struct pattern * p = malloc(sizeof(*p));
+    p->proba_start = proba;
+    p->proba_end   = PROBA_END;
+    tro_pattern_set_str(o, i, nb, p);
+    return p;
+}
+
+//-----------------------------------------------------
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static double tro_pattern_influence(struct tr_object * o1,
-				    struct tr_object * o2)
+static double tro_singletap_proba(const struct tr_object * o1, 
+				  const struct tr_object * o2)
+{
+    int diff = o2->offset - o1->end_offset;
+    return lf_eval(SINGLETAP_VECT, diff);
+}
+
+//-----------------------------------------------------
+
+static double tro_pattern_influence(const struct tr_object * o1,
+				    const struct tr_object * o2)
 {
     int diff = o2->offset - o1->offset;
     return lf_eval(PATTERN_INFLU_VECT, diff);
@@ -227,34 +228,16 @@ static double tro_pattern_influence(struct tr_object * o1,
 
 //-----------------------------------------------------
 
-static double tro_pattern_freq(struct tr_object * o,
-			       struct counter * c)
-{
-    typedef int (*herit)(void*, void*);
-    double total = cnt_get_total(c);
-    if (total == 0)
-	return 1;
-    double nb = 0;
-    for (int k = 0; k < table_len(o->patterns); k++) {
-	struct pattern * p = table_get(o->patterns, k);
-	double d = cnt_get_nb_compressed(c, p->s, (herit) pattern_is_in);
-	nb += d * (p->proba_end - p->proba_start);
-    }
-    return nb / total;
-}
-
-//-----------------------------------------------------
-
-static struct counter * tro_pattern_freq_init(struct tr_object *objs,
-					      int i)
+static struct counter * 
+tro_pattern_freq_init(const struct tr_object * o, int i)
 {
     struct counter * c = cnt_new();
     for (int j = i; j >= 0; j--) {
-	double influ = tro_pattern_influence(&objs[j], &objs[i]);
+	double influ = tro_pattern_influence(&o->objs[j], o);
 	if (influ == 0)
 	    break; // j-- influence will remain 0
-	for (int k = 0; k < table_len(objs[j].patterns); k++) {
-	    struct pattern * p = table_get(objs[j].patterns, k);
+	for (int k = 0; k < table_len(o->objs[j].patterns); k++) {
+	    const struct pattern *p = table_get(o->objs[j].patterns, k);
 	    if (p->s[0] == '\0')
 		continue;
 	    cnt_add(c, p, p->s, influ);
@@ -265,11 +248,20 @@ static struct counter * tro_pattern_freq_init(struct tr_object *objs,
 
 //-----------------------------------------------------
 
-static double tro_singletap_proba(struct tr_object * o1, 
-				  struct tr_object * o2)
+static double tro_pattern_freq(const struct tr_object * o,
+			       const struct counter * c)
 {
-    int diff = o2->offset - o1->end_offset;
-    return lf_eval(SINGLETAP_VECT, diff);
+    typedef int (*herit)(const void*, const void*);
+    double total = cnt_get_total(c);
+    if (total == 0)
+	return 1;
+    double nb = 0;
+    for (int k = 0; k < table_len(o->patterns); k++) {
+	const struct pattern * p = table_get(o->patterns, k);
+	double d = cnt_get_nb_compressed(c, p->s, (herit) pattern_is_in);
+	nb += d * (p->proba_end - p->proba_start);
+    }
+    return nb / total;
 }
 
 //-----------------------------------------------------
@@ -286,33 +278,15 @@ static void pattern_free(struct pattern *p)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-void tro_set_pattern_freq(struct tr_object * objs, int i)
-{
-    struct counter * c = tro_pattern_freq_init(objs, i);
-
-    double freq = tro_pattern_freq(&objs[i], c);
-    objs[i].pattern_freq = lf_eval(PATTERN_FREQ_VECT, freq);
-/*
-    tro_print_pattern(&objs[i]);
-    typedef int (*herit)(void*, void*);
-    cnt_print_compressed(c, (herit) pattern_is_in);
-    printf("Pattern value for obj n°%d: %g\n", i, objs[i].pattern);
-    printf("----------------------------------------------------\n");
-*/
-    cnt_free(c);
-}
-
-//-----------------------------------------------------
-
-void tro_set_pattern_proba(struct tr_object * objs, int i)
+void tro_set_pattern_proba(struct tr_object * o, int i)
 {
     for (int j = i-1; j >= 0; j--) {
-	if (tro_are_same_type(&objs[i], &objs[j])) {
-	    objs[i].proba = tro_singletap_proba(&objs[j], &objs[i]);
+	if (tro_are_same_type(o, &o->objs[j])) {
+	    o->proba = tro_singletap_proba(&o->objs[j], o);
 	    return;
 	}
     }
-    objs[i].proba = 1;
+    o->proba = 1;
 }
 
 //-----------------------------------------------------
@@ -329,6 +303,46 @@ void tro_set_type(struct tr_object * o)
 
 //-----------------------------------------------------
 
+void tro_set_patterns(struct tr_object * o, int i, int nb)
+{
+    // taking one more space for some special case
+    o->patterns = table_new(MAX_PATTERN_LENGTH + 1);
+    double proba = PROBA_START;
+    while (proba < PROBA_END) {
+	struct pattern * p = tro_extract_pattern(o, i, nb, proba);
+	if (table_max(o->patterns) <= table_len(o->patterns)) {
+	    fprintf(stderr, "Out of bounds %d/%d (offset %d)\n", 
+		    table_len(o->patterns), table_max(o->patterns), 
+		    o->offset);
+	    print_pattern(p);
+	    tro_print_pattern(o);
+	    fprintf(stderr, "-----------------\n");
+	}
+	table_add(o->patterns, p);
+	proba = p->proba_end;
+    }    
+}
+
+//-----------------------------------------------------
+
+void tro_set_pattern_freq(struct tr_object * o, int i)
+{
+    struct counter * c = tro_pattern_freq_init(o, i);
+
+    double freq = tro_pattern_freq(o, c);
+    o->pattern_freq = lf_eval(PATTERN_FREQ_VECT, freq);
+/*
+    tro_print_pattern(o);
+    typedef int (*herit)(const void*, const void*);
+    cnt_print_compressed(c, (herit) pattern_is_in);
+    printf("Pattern value for obj n°%d: %g\n", i, o->pattern_freq);
+    printf("----------------------------------------------------\n");
+*/
+    cnt_free(c);
+}
+
+//-----------------------------------------------------
+
 void tro_set_pattern_star(struct tr_object * o)
 {
     o->pattern_star = lf_eval
@@ -340,8 +354,11 @@ void tro_set_pattern_star(struct tr_object * o)
 
 void tro_free_patterns(struct tr_object * o)
 {
-    for(int i = 0; i < table_len(o->patterns); i++)
-	pattern_free(table_get(o->patterns, i));
+    for(int i = 0; i < table_len(o->patterns); i++) {
+	const struct pattern * p = table_get(o->patterns, i);
+	// disregard const but it isn't needed anymore...
+	pattern_free((struct pattern *) p);
+    }
     table_free(o->patterns);
 }
 
@@ -352,7 +369,7 @@ void tro_free_patterns(struct tr_object * o)
 static void trm_set_pattern_proba(struct tr_map * map)
 {
     for(int i = 0; i < map->nb_object; i++)
-	tro_set_pattern_proba(map->object, i);
+	tro_set_pattern_proba(&map->object[i], i);
 }
 
 //-----------------------------------------------------
@@ -365,10 +382,18 @@ static void trm_set_type(struct tr_map * map)
 
 //-----------------------------------------------------
 
+static void trm_set_patterns(struct tr_map * map)
+{   
+    for(int i = 0; i < map->nb_object; i++)
+	tro_set_patterns(&map->object[i], i, map->nb_object);
+}
+
+//-----------------------------------------------------
+
 static void trm_set_pattern_freq(struct tr_map * map)
 {
     for(int i = 0; i < map->nb_object; i++)
-	tro_set_pattern_freq(map->object, i);
+	tro_set_pattern_freq(&map->object[i], i);
 }
 
 //-----------------------------------------------------

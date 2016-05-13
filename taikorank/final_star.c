@@ -36,8 +36,8 @@
 static double weight_final_star(int i, double val);
 
 static void tro_apply_influence_coeff(struct tr_object *o, double c);
-static double tro_influence_coeff(struct tr_object * o1,
-				  struct tr_object * o2);
+static double tro_influence_coeff(const struct tr_object * o1,
+				  const struct tr_object * o2);
 
 static void trm_set_influence(struct tr_map * map);
 static void trm_set_final_star(struct tr_map * map);
@@ -104,8 +104,8 @@ static double weight_final_star(int i, double val)
 
 //-----------------------------------------------------
 
-static double tro_influence_coeff(struct tr_object * o1,
-				  struct tr_object * o2)
+static double tro_influence_coeff(const struct tr_object * o1,
+				  const struct tr_object * o2)
 {
     return 1. - lf_eval(FINAL_INFLU_VECT, 
 			fabs(o1->offset - o2->offset));
@@ -115,10 +115,11 @@ static double tro_influence_coeff(struct tr_object * o1,
 
 static void tro_apply_influence_coeff(struct tr_object * o, double c)
 {
-    o->density_star *= c;
-    o->reading_star *= c;
-    o->pattern_star *= c;
+    o->density_star  *= c;
+    o->reading_star  *= c;
+    o->pattern_star  *= c;
     o->accuracy_star *= c;
+    o->final_star    *= c; // for score
 }
 
 //-----------------------------------------------------
@@ -128,11 +129,11 @@ static void tro_apply_influence_coeff(struct tr_object * o, double c)
 void tro_set_final_star(struct tr_object * o)
 {
     if(o->ps != GREAT) {
-	o->density_star = 0;
-	o->reading_star = 0;
-	o->pattern_star = 0;
+	o->density_star  = 0;
+	o->reading_star  = 0;
+	o->pattern_star  = 0;
 	o->accuracy_star = 0;
-	o->final_star = 0;
+	o->final_star    = 0;
 	return;
     }
     o->final_star =

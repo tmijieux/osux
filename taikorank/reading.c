@@ -56,8 +56,9 @@ static int tro_same_bpm_hide(struct tr_object * o,
 			     struct table * obj_h);
 static double tro_seen_area(const struct tr_object * o);
 static double tro_hide(struct tr_object *o, struct table *obj_h);
-static double tro_seen(struct tr_object *o, struct table *obj_h);
-static struct table * tro_get_obj_hiding(struct tr_object * objs, int i);
+static double tro_seen(const struct tr_object *o, struct table *obj_h);
+static struct table *
+tro_get_obj_hiding(const struct tr_object *o, int i);
 
 static void trm_set_seen(struct tr_map * map);
 static void trm_set_reading_star(struct tr_map * map);
@@ -212,7 +213,7 @@ static double tro_hide(struct tr_object *o, struct table *obj_h)
 
 //-----------------------------------------------------
 
-static double tro_seen(struct tr_object *o, struct table *obj_h)
+static double tro_seen(const struct tr_object *o, struct table *obj_h)
 {
     struct tr_object * copy = tro_copy(o, 1);
 
@@ -234,33 +235,34 @@ static double tro_seen(struct tr_object *o, struct table *obj_h)
 
 //-----------------------------------------------------
 
-static struct table * tro_get_obj_hiding(struct tr_object * objs, int i)
+static struct table * 
+tro_get_obj_hiding(const struct tr_object * o, int i)
 {
     // list object that hide the i-th
     // allocate one more place for later
     struct table * obj_h = table_new(i + 1);
 
     for(int j = 0; j < i; j++) {
-	if(objs[j].ps == MISS)
+	if(o->objs[j].ps == MISS)
 	    continue;
 	// if i has appeared before j
-	if(objs[j].end_offset_app - objs[i].offset_app > 0)
-	    table_add(obj_h, &objs[j]);
+	if(o->objs[j].end_offset_app - o->offset_app > 0)
+	    table_add(obj_h, &o->objs[j]);
     }
     return obj_h;
 }
 
 //-----------------------------------------------------
 
-void tro_set_seen(struct tr_object * objs, int i)
+void tro_set_seen(struct tr_object * o, int i)
 {
-    if(objs[i].ps == MISS) {
-	objs[i].seen = 0;
+    if(o->ps == MISS) {
+	o->seen = 0;
 	return;
     }
 
-    struct table * obj_h = tro_get_obj_hiding(objs, i);
-    objs[i].seen = tro_seen(&objs[i], obj_h);
+    struct table * obj_h = tro_get_obj_hiding(o, i);
+    o->seen = tro_seen(o, obj_h);
     table_free(obj_h);
 }
 
@@ -271,7 +273,7 @@ void tro_set_seen(struct tr_object * objs, int i)
 static void trm_set_seen(struct tr_map * map)
 {
     for (int i = 0; i < map->nb_object; i++)
-	tro_set_seen(map->object, i);
+	tro_set_seen(&map->object[i], i);
 }
 
 //-----------------------------------------------------
@@ -302,7 +304,7 @@ void trm_compute_reading(struct tr_map * map)
 	tr_error("Unable to compute reading stars.");
 	return;
     }
-  
+    
     trm_set_seen(map);
     trm_set_reading_star(map);
 }

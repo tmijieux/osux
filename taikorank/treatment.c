@@ -198,8 +198,8 @@ static void trm_set_length(struct tr_map * map)
 void trm_treatment(struct tr_map * map)
 {
     trm_set_length(map);
-    trm_set_line_coeff(map);
     trm_set_app_dis_offset(map);
+    trm_set_line_coeff(map);
 
     trm_set_hand(map);
     trm_set_rest(map);

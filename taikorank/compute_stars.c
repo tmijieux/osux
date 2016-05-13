@@ -34,43 +34,83 @@
 /*
 static void trm_compute_grouped(struct tr_map * map)
 {
-    trm_treatment(map);
-    
-    struct tr_object * objs = map->object;
-    int * ggm_ms = trm_get_ggm_ms(map);
-    
-    for (int i = 0; i < map->nb_object; i++) {
-	tro_set_pattern_proba(objs, i);
-    }
-    trm_set_patterns(map);
-    
-    #pragma omp parallel for
-    for (int i = 0; i < map->nb_object; i++) {
-	struct tr_object * o = &map->object[i];
+    trm_set_combo(map);
+    trm_set_rest(map);
+    trm_set_hand(map);
+    double * ggm_val = trm_get_ggm_val(map);
+    int nb = map->nb_object;
 
-	tro_set_density_raw(objs, i);
-	tro_set_density_color(objs, i);
-
-	tro_set_seen(objs, i);
+    {
+	for (int i = 0; i < nb; i++)
+	    #pragma omp task
+	    {
+		struct tr_object * o = &map->object[i];
 	    
-	tro_set_pattern_freq(objs, i);
-	    
-	tro_set_hit_window(o, ggm_ms);
-	tro_set_slow(o);
-	tro_set_spacing(objs, i);
+		// treatment
+		tro_set_length(o);
+		tro_set_app_dis_offset(o);
+		// pattern
+		tro_set_pattern_proba(o, i);
+		tro_set_type(o);
+		// accuracy
+		tro_set_slow(o);
+		tro_set_hit_window(o, ggm_val);
+	    }
+        #pragma omp taskwait
 
-	tro_set_density_star(o);
-	tro_set_reading_star(o);
-	tro_set_pattern_star(o);
-	tro_set_accuracy_star(o);
-	//tro_free_patterns(o);
+	for (int i = 0; i < nb; i++)
+	    #pragma omp task
+	    {
+		struct tr_object * o = &map->object[i];
+
+		// treatment
+		tro_set_line_coeff(o);
+		// density
+		tro_set_density_raw(o, i);
+		tro_set_density_color(o, i);
+		// pattern
+		tro_set_patterns(o, i, nb);
+		// accuracy
+		tro_set_spacing(o, i);
+	    }
+        #pragma omp taskwait
+
+	for (int i = 0; i < nb; i++)
+	    #pragma omp task
+	    {
+		struct tr_object * o = &map->object[i];
+
+		// density
+		tro_set_density_star(o);
+		// reading
+		tro_set_seen(o, i);
+		// pattern
+		tro_set_pattern_freq(o, i);
+		// accuracy
+		tro_set_accuracy_star(o);
+	    }
+        #pragma omp taskwait
+
+	for (int i = 0; i < nb; i++)
+	    #pragma omp task
+	    {
+		struct tr_object * o = &map->object[i];
+
+		// reading
+		tro_set_reading_star(o);
+		// pattern
+		tro_set_pattern_star(o);
+		tro_free_patterns(o);
+	    }
+        #pragma omp taskwait
     }
+
     trm_compute_final_star(map);
 }
 */
 //--------------------------------------------------
 
-static void trm_compute_separate(struct tr_map * map)
+static void trm_compute_separated(struct tr_map * map)
 {
     trm_treatment(map);
     {
@@ -95,7 +135,8 @@ void trm_compute_stars(struct tr_map * map)
     if((map->mods & MODS_FL) != 0)
 	trm_apply_mods_FL(map);
 
-    trm_compute_separate(map);
+    trm_compute_separated(map);
+    //trm_compute_grouped(map);
 }
 
 //--------------------------------------------------
