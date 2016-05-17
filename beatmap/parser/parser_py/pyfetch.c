@@ -51,14 +51,14 @@ static osux_beatmap DEFAULT_MAP;
         else {                                                  \
             map->fieldName = DEFAULT_MAP.fieldName;             \
         }                                                       \
-    } while (0)	       
+    } while (0)
 
 
 #define PY_OBJ_TO_STR(X) PyString_AsString(PyObject_Str((X)))
 
 #define READ_STRING(map, fieldName, pyObj)                      \
     READ_VALUE(map, fieldName, pyObj, PY_OBJ_TO_STR, strdup)    \
-    
+
 #define READ_DOUBLE(map, fieldName, pyObj)                      \
     READ_VALUE(map, fieldName, pyObj, PyFloat_AsDouble,)        \
 
@@ -71,7 +71,7 @@ static void map_fetch_General(PyObject *d, osux_beatmap *m)
 {
     if (!d)
         return;
-    
+
     READ_STRING(m, AudioFilename,        d);
     READ_DOUBLE(m, AudioLeadIn,          d);
     READ_DOUBLE(m, PreviewTime,          d);
@@ -99,12 +99,12 @@ static void map_fetch_Editor(PyObject *d, osux_beatmap *m)
 	for (unsigned int i = 0; i < m->bkmkc; ++i)
 	    m->Bookmarks[i] = (uint32_t) PyInt_AsLong(PyList_GetItem(v, i));
     }
-    
+
     READ_DOUBLE(m, DistanceSpacing, d);
     READ_INT(m,    BeatDivisor, d);
     READ_INT(m,    GridSize, d);
     READ_DOUBLE(m, TimelineZoom, d);
-    
+
 }
 
 static void map_fetch_Metadata(PyObject *d, osux_beatmap *m)
@@ -151,7 +151,7 @@ static void map_fetch_Difficulty(PyObject *d, osux_beatmap *m)
 static void col_py_fetch(struct color *c, PyObject *p)
 {
     PyObject *q = PyList_GetItem(p, 1);
-    
+
     c->r = PyInt_AsLong(PyList_GetItem(q, 0));
     c->g = PyInt_AsLong(PyList_GetItem(q, 1));
     c->b = PyInt_AsLong(PyList_GetItem(q, 2)) ;
@@ -179,14 +179,14 @@ static void map_fetch_Colours(PyObject *d, osux_beatmap *m)
 	tmp = PyDict_GetItemString(dict, #str);	\
 	tp->str = PyFloat_AsDouble(tmp);	\
     }						\
-    
+
 #define TP_READ_INT(tp, dict, str)		\
     {						\
 	PyObject *tmp;				\
 	tmp = PyDict_GetItemString(dict, #str);	\
 	tp->str = PyInt_AsLong(tmp);		\
     }						\
-    
+
 
 static void tp_py_fetch(struct timing_point *tp, PyObject *tp_dict)
 {
@@ -252,17 +252,17 @@ static void ho_py_fetch(struct hit_object *ho, PyObject *ho_dict)
     HO_READ_INT(ho, ho_dict, y);
     HO_READ_INT(ho, ho_dict, offset);
     HO_READ_INT(ho, ho_dict, type);
-    
+
     HO_READ_INT(ho, ho_dict, hs.sample);
     HO_READ_INT(ho, ho_dict, hs.additional);
-    
+
     HO_READ_INT(ho, ho_dict, hs.st);
     HO_READ_INT(ho, ho_dict, hs.st_additional);
     HO_READ_INT(ho, ho_dict, hs.sample_set_index);
     HO_READ_INT(ho, ho_dict, hs.volume);
     HO_READ_STRING(ho, ho_dict, hs.sfx_filename);
 
-    HO_READ_INT(ho, ho_dict, sli.type); 
+    HO_READ_INT(ho, ho_dict, sli.type);
     HO_READ_INT(ho, ho_dict, sli.repeat);
     HO_READ_DOUBLE(ho, ho_dict, sli.length);
 
@@ -293,13 +293,13 @@ static void ho_py_fetch(struct hit_object *ho, PyObject *ho_dict)
 		    = PyInt_AsLong(PyList_GetItem(slisample, i));
 	    }
 	}
-	
+
 	if (slihsadd) { // TODO: disable this for v9 by example check version
 	    for (unsigned int i = 0; i < (ho->sli.repeat + 1); ++i) {
 		PyObject *tmp = PyList_GetItem(slihsadd, i);
-		ho->sli.hs.dat[i].st = 
+		ho->sli.hs.dat[i].st =
 		    PyInt_AsLong(PyList_GetItem(tmp, 0));
-		ho->sli.hs.dat[i].st_additional = 
+		ho->sli.hs.dat[i].st_additional =
 		    PyInt_AsLong(PyList_GetItem(tmp, 1));
 	    }
 	}
@@ -324,7 +324,7 @@ static void map_fetch_HitObjects(PyObject *d, osux_beatmap *m)
 static void map_fetch_Events(PyObject *d, osux_beatmap *m)
 {
     (void) m;
-    
+
     if (!d)
 	return;
 }
@@ -342,8 +342,8 @@ static void map_fetch_Events(PyObject *d, osux_beatmap *m)
 
 static osux_beatmap *fetch_beatmap(const char *filename)
 {
-    
-    PyObject *data = embed_python_funcall(
+
+    PyObject *data = python_funcall_name_string_args(
         "osux_parse", "parse", 1, (const char*[]) { filename });
     if (!data) {
 	fputs("Error parsing with omp python module\n", stderr);
@@ -353,7 +353,7 @@ static osux_beatmap *fetch_beatmap(const char *filename)
 
     m->version = PyInt_AsLong(PyDict_GetItemString(data, "version"));
     m->bom = PyInt_AsLong(PyDict_GetItemString(data, "BOM"));
-    
+
     FETCH_SECTION( General,      data, m);
     FETCH_SECTION( Editor,       data, m);
     FETCH_SECTION( Difficulty,   data, m);
@@ -370,7 +370,7 @@ static osux_beatmap *fetch_beatmap(const char *filename)
 
 /******************************************************************************/
 
-void __export parser_py_init(register_plugin_t register_callback, 
+void __export parser_py_init(register_plugin_t register_callback,
                              const osux_beatmap *default_bm)
 {
     struct osux_bm_parser_callback cb;

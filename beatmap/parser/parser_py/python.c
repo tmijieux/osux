@@ -13,8 +13,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 #include "./python.h"
 #include <stdio.h>
+#include "util/error.h"
 #include "compiler.h"
 
 static void embed_python_exit(void)
@@ -24,9 +26,9 @@ static void embed_python_exit(void)
 
 INITIALIZER(embed_python_init)
 {
-    Py_Initialize();    
+    Py_Initialize();
 
-    PyObject *sysPath = PySys_GetObject((char*)"path");
+    PyObject *sysPath = PySys_GetObject((char*) "path");
     PyObject *pPath = PyString_FromString(PYTHON_PATH);
 
     PyList_Append(sysPath, pPath);
@@ -34,58 +36,73 @@ INITIALIZER(embed_python_init)
     atexit(&embed_python_exit);
 }
 
-PyObject *embed_python_funcall(
-    const char *module, const char *fun, int argc, const char *argv[])
-{			   
-    PyObject *pName, *pModule, *pFunc;
-    PyObject *pArgs, *pValue = NULL;
+static PyObject *python_funcall_pyobj_callable(
+    PyObject *pFunc, int argc, PyObject *argv[])
+{
+    PyObject *pArgs = NULL, *pValue = NULL;
+    pArgs = PyTuple_New(argc);
+    for (int i = 0; i < argc; ++i)
+        PyTuple_SetItem(pArgs, i, argv[i]);
+
+    pValue = PyObject_CallObject(pFunc, pArgs);
+    Py_DECREF(pArgs);
+
+    if (!pValue) {
+        PyErr_Print();
+        osux_error("Call failed\n");
+        return NULL;
+    }
+    return pValue;
+}
+
+static PyObject *python_funcall_pyobj_module(
+    PyObject *pModule, const char *name, int argc, PyObject *argv[])
+{
+    PyObject *pFunc, *pValue = NULL;
+    pFunc = PyObject_GetAttrString(pModule, name);
+    if (pFunc != NULL && PyCallable_Check(pFunc)) {
+        pValue = python_funcall_pyobj_callable(pFunc, argc, argv);
+    } else {
+        if (PyErr_Occurred())
+            PyErr_Print();
+        osux_error("Cannot find function \"%s\"\n", name);
+    }
+    Py_XDECREF(pFunc);
+    return pValue;
+}
+
+PyObject *python_funcall_name(
+    const char *module, const char *fun, int argc, PyObject *argv[])
+{
+    PyObject *pName, *pModule, *pValue = NULL;
 
     pName = PyString_FromString(module);
     pModule = PyImport_Import(pName);
     Py_DECREF(pName);
 
-    if (pModule != NULL) {
-        pFunc = PyObject_GetAttrString(pModule, fun);
-        /* pFunc is a new reference */
-
-        if (pFunc && PyCallable_Check(pFunc)) {
-	    pArgs = PyTuple_New(argc);
-            for (int i = 0; i < argc; ++i) {
-                pValue = PyString_FromString(argv[i]);
-                if (!pValue) {
-                    Py_DECREF(pArgs);
-                    Py_DECREF(pModule);
-                    fprintf(stderr, "Cannot convert argument\n");
-                    return NULL;
-                }
-                /* pValue reference stolen here: */
-                PyTuple_SetItem(pArgs, i, pValue);
-            }
-	    
-	    pValue = PyObject_CallObject(pFunc, pArgs);
-	    Py_DECREF(pArgs);
-	    
-	    if (!pValue) {
-                Py_DECREF(pFunc);
-                Py_DECREF(pModule);
-                PyErr_Print();
-                fprintf(stderr,"Call failed\n");
-		return NULL;
-            }
-        } else {
-            if (PyErr_Occurred())
-                PyErr_Print();
-            fprintf(stderr, "Cannot find function \"%s\"\n", fun);
-        }
-        Py_XDECREF(pFunc);
-        Py_DECREF(pModule);
-    } else {
+    if (pModule != NULL)
+        pValue = python_funcall_pyobj_module(pModule, fun, argc, argv);
+    else
         PyErr_Print();
-	return NULL;
-    }
+    Py_XDECREF(pModule);
     return pValue;
 }
 
+PyObject *python_funcall_name_string_args(
+    const char *module, const char *fun, int argc, const char *argv[])
+{
+    PyObject **pArgv, *pValue = NULL;
+
+    pArgv = malloc(sizeof*pArgv * argc);
+    for (int i = 0; i < argc; ++i)
+        pArgv[i] = PyString_FromString(argv[i]);
+    pValue = python_funcall_name(module, fun, argc, pArgv);
+
+    for (int i = 0; i < argc; ++i)
+        Py_XDECREF(pArgv[i]);
+    free(pArgv);
+    return pValue;
+}
 
 #ifdef USE_PYTHON_CUSTOM_PATH
 
