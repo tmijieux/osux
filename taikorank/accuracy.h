@@ -20,6 +20,7 @@
 /* Use:
    - od
    - od_mult
+   Pointer is allocated with malloc.
 */
 double * trm_get_ggm_val(const struct tr_map * map);
 

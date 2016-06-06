@@ -121,14 +121,14 @@ static int equal_i(int x, int y)
 
 double * trm_get_ggm_val(const struct tr_map * map)
 {
-    int ggm_ms[3];
+    double ggm_ms[3];
     ggm_ms[0] = (map->od_mod_mult *
 		 (MS_GREAT - (MS_COEFF_GREAT * map->od)));
     ggm_ms[1] = (map->od_mod_mult *
 		 (MS_GOOD  - (MS_COEFF_GOOD  * map->od)));
     ggm_ms[2] = (map->od_mod_mult *
 		 (MS_MISS  - (MS_COEFF_MISS  * map->od)));
-    double * ggm_val = malloc(sizeof(int) * 3);
+    double * ggm_val = malloc(sizeof(double) * 3);
     for (int i = 0; i < 3; i++)
 	ggm_val[i] = lf_eval(HIT_WINDOW_VECT, ggm_ms[i]);
     return ggm_val;
@@ -279,8 +279,15 @@ void trm_compute_accuracy(struct tr_map * map)
 	return;
     }
 
+    /*
+      Compuatation is in three parts:
+      - hit window, the time given to hit correctly the object
+      - spacing, based on spacing frequency
+      - slow, when object are very slow they are harder to acc'
+      */
     trm_set_hit_window(map);
     trm_set_spacing(map);
     trm_set_slow(map);
+
     trm_set_accuracy_star(map);
 }

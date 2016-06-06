@@ -422,7 +422,10 @@ void trm_compute_pattern(struct tr_map * map)
 	tr_error("Unable to compute pattern stars.");
 	return;
     }
-  
+
+    /*
+      Computation is based on the pattern frequency.
+     */
     trm_set_pattern_proba(map);
     trm_set_type(map);
     trm_set_patterns(map);

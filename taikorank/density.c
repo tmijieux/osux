@@ -187,7 +187,6 @@ void tro_set_density_star(struct tr_object * obj)
 	(DENSITY_SCALE_VECT,
 	 (DENSITY_STAR_COEFF_COLOR * obj->density_color +
 	  DENSITY_STAR_COEFF_RAW   * obj->density_raw));
-
 }
 
 //-----------------------------------------------------
@@ -209,6 +208,13 @@ void trm_compute_density(struct tr_map * map)
 	return;
     }
 
+    /*
+      Computation is in two parts:
+      - raw, can be interpreted as hand strain. Every object give 
+        strain. 
+      - color, can be interpreted as finger strain. Only object 
+        played on the same key give strain.
+     */
     trm_set_density_raw(map);
     trm_set_density_color(map);
 

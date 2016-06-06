@@ -52,7 +52,7 @@ static double tr_monte_carlo(int nb_pts,
 			     int (*is_in)(double, double, void *), 
 			     void * arg);
 
-static int tro_same_bpm_hide(struct tr_object * o, 
+static int tro_same_bpma_hide(struct tr_object * o, 
 			     struct table * obj_h);
 static double tro_seen_area(const struct tr_object * o);
 static double tro_hide(struct tr_object *o, struct table *obj_h);
@@ -161,7 +161,7 @@ static double tr_monte_carlo(int nb_pts,
  * And set them to NULL
  * @return Number of object with the same bpm  
  */
-static int tro_same_bpm_hide(struct tr_object * o, 
+static int tro_same_bpma_hide(struct tr_object * o, 
 			     struct table * obj_h)
 {
     int done = 0;
@@ -217,10 +217,22 @@ static double tro_seen(const struct tr_object *o, struct table *obj_h)
 {
     struct tr_object * copy = tro_copy(o, 1);
 
-    int done = tro_same_bpm_hide(copy, obj_h);
+    /*
+      Compute the portion hidden by objects with the same speed by 
+      changing the copy's offset for appearence and disappearence.
+     */
+    int done = tro_same_bpma_hide(copy, obj_h);
+    /*
+      Compute how much the object is seen regardless of objects 
+      hiding with a different speed.
+     */
     double seen = tro_seen_area(copy);
+
+    // Check if there are object with a different speed.
     if(done != table_len(obj_h)) {
+	// Substract the intersection.
 	seen -= tro_hide(copy, obj_h);
+
 	if (seen < 0) {
 	    tr_warning("Negative value for seen. "
 		       "May be wrong if too small: %g\n", seen);
@@ -305,6 +317,10 @@ void trm_compute_reading(struct tr_map * map)
 	return;
     }
     
+    /*
+      Computation rely on how long and which portion of the object
+      is seen.
+     */
     trm_set_seen(map);
     trm_set_reading_star(map);
 }
