@@ -1,3 +1,5 @@
+# Everything is based on resolution with 10 objects on screen (4:3)
+
 ### scale
 vect_scale_length: 6
 vect_scale_x1: 0.      # don't give much more
@@ -15,18 +17,17 @@ vect_scale_y5: 1.
 vect_scale_x6: 1e10.   # make sure high enough
 vect_scale_y6: 1.
 
-### monte carlo
-monte_carlo_nb_pts: 5000
-
 ### interest
 # x is in ms
-vect_interest_length: 3
+vect_interest_length: 4
 vect_interest_x1: 0.
-vect_interest_y1: 1.
-vect_interest_x2: 500.
+vect_interest_y1: 0.
+vect_interest_x2: 800.    # ~time for 200bpma
 vect_interest_y2: 1.
-vect_interest_x3: 3600000.
-vect_interest_y3: 1.
+vect_interest_x3: 1600.   # ~time for 100bpma
+vect_interest_y3: 0.
+vect_interest_x4: 3600000.
+vect_interest_y4: 0.
 
 ### seen 
 # x is in ms * px^2

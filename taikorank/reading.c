@@ -173,8 +173,10 @@ static double tro_eval_obj_front(struct tr_object * o, int offset)
 	return o->obj_dis;
     else if (o->offset_app <= offset)
 	return o->line_a * offset + o->line_b;
-    else 
+    else {
 	tr_error("Out of bounds for tro_eval_obj_back: %d", offset);
+	tro_print(o, FILTER_BASIC | FILTER_READING_PLUS);
+    }
     return -1;
 }
 
@@ -186,8 +188,10 @@ static double tro_eval_obj_back(struct tr_object * o, int offset)
 	return o->obj_app;
     else if (offset <= o->end_offset_dis)
 	return o->line_a * offset + o->line_b_end;
-    else 
+    else {
 	tr_error("Out of bounds for tro_eval_obj_back: %d", offset);
+	tro_print(o, FILTER_BASIC | FILTER_READING_PLUS);
+    }
     return -1;
 }
 
@@ -343,10 +347,12 @@ static void tro_mark_mesh_offset(struct tr_object * o,
 {
     if (max == offset)
 	o->count++;
-    if (!tro_is_done(o, END_OFFSET_APP) && max <= o->end_offset_app)
+    if (!tro_is_done(o, END_OFFSET_APP) && max == o->end_offset_app)
 	tro_set_done(o, END_OFFSET_APP);
-    if (!tro_is_done(o, OFFSET_DIS) && max <= o->offset_dis)
+    if (!tro_is_done(o, OFFSET_DIS)     && max == o->offset_dis)
 	tro_set_done(o, OFFSET_DIS);
+    if (!tro_is_done(o, END_OFFSET_DIS) && max == o->end_offset_dis)
+	tro_set_done(o, END_OFFSET_DIS);
     if (max <= o->offset_app)
 	tro_set_done(o, OFFSET_APP);
 }
@@ -359,12 +365,18 @@ static int tro_get_next_mesh_offset(struct tr_object * o)
 	tro_set_done(o, OFFSET_APP);
 	return 0;
     }
-    if (o->obj_dis != 0) {
-	
-    }
 
     int offset = o->end_offset_dis_2 - INTEREST_VECT->t[o->count][0];
     int max;
+    if (!tro_is_done(o, END_OFFSET_DIS) && 
+	o->end_offset_dis != o->end_offset_dis_2) { // when starting HD
+	max = o->end_offset_dis;
+	while (offset > max) {
+	    o->count++;
+	    offset = o->end_offset_dis_2 - INTEREST_VECT->t[o->count][0];
+	}
+    }
+
     if (!tro_is_done(o, END_OFFSET_APP) && !tro_is_done(o, OFFSET_DIS))
 	max = max(offset, max(o->end_offset_app, o->offset_dis));
     else if (tro_is_done(o, END_OFFSET_APP) && !tro_is_done(o, OFFSET_DIS))

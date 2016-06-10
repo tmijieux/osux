@@ -367,7 +367,7 @@ void trm_print_tro(struct tr_map * map, int filter)
     if((filter & FILTER_READING) != 0)
 	fprintf(OUTPUT_INFO, "app\tdis\tseen\tread*\t");
     if((filter & FILTER_READING_PLUS) != 0)
-	fprintf(OUTPUT_INFO, "app\tend app\tdis\tend dis\tline_a\tb\tb_end\tseen\tread*\t");
+	fprintf(OUTPUT_INFO, "app\tend app\tdis\tend dis\tenddis2\tline_a\tb\tb_end\tseen\tread*\t");
     if((filter & FILTER_ACCURACY) != 0)
 	fprintf(OUTPUT_INFO, "slow\thitwin\tspc\tacc*\t");
     if((filter & FILTER_PATTERN) != 0)
