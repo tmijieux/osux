@@ -56,17 +56,17 @@ static double RDG_POW;
 static double PTR_POW;
 static double ACC_POW;
 
-static struct linear_fun * FINAL_INFLU_VECT;
-static struct linear_fun * FINAL_SCALE_VECT;
-static struct linear_fun * WEIGHT_VECT;
+static struct linear_fun * FINAL_INFLU_LF;
+static struct linear_fun * FINAL_SCALE_LF;
+static struct linear_fun * WEIGHT_LF;
 
 //-----------------------------------------------------
 
 static void final_global_init(struct hash_table * ht_cst)
 {
-    FINAL_INFLU_VECT = cst_lf(ht_cst, "vect_influence");
-    WEIGHT_VECT = cst_lf(ht_cst, "vect_weight");
-    FINAL_SCALE_VECT = cst_lf(ht_cst, "vect_scale");
+    FINAL_INFLU_LF = cst_lf(ht_cst, "vect_influence");
+    WEIGHT_LF = cst_lf(ht_cst, "vect_weight");
+    FINAL_SCALE_LF = cst_lf(ht_cst, "vect_scale");
 
     DST_POW = cst_f(ht_cst, "density_pow");
     RDG_POW = cst_f(ht_cst, "reading_pow");
@@ -78,9 +78,9 @@ static void final_global_init(struct hash_table * ht_cst)
 static void ht_cst_exit_final(void)
 {
     yaml2_free(yw_fin);
-    lf_free(FINAL_SCALE_VECT);
-    lf_free(WEIGHT_VECT);
-    lf_free(FINAL_INFLU_VECT);
+    lf_free(FINAL_SCALE_LF);
+    lf_free(WEIGHT_LF);
+    lf_free(FINAL_INFLU_LF);
 }
 
 INITIALIZER(ht_cst_init_final)
@@ -98,7 +98,7 @@ INITIALIZER(ht_cst_init_final)
 
 static double weight_final_star(int i, double val)
 {
-    return lf_eval(WEIGHT_VECT, i) * val;
+    return lf_eval(WEIGHT_LF, i) * val;
 }
 
 
@@ -107,7 +107,7 @@ static double weight_final_star(int i, double val)
 static double tro_influence_coeff(const struct tr_object * o1,
 				  const struct tr_object * o2)
 {
-    return 1. - lf_eval(FINAL_INFLU_VECT, 
+    return 1. - lf_eval(FINAL_INFLU_LF, 
 			fabs(o1->offset - o2->offset));
 }
 
@@ -137,7 +137,7 @@ void tro_set_final_star(struct tr_object * o)
 	return;
     }
     o->final_star =
-	lf_eval(FINAL_SCALE_VECT,
+	lf_eval(FINAL_SCALE_LF,
 		pow(o->density_star,  DST_POW) *
 		pow(o->reading_star,  RDG_POW) *
 		pow(o->pattern_star,  PTR_POW) *

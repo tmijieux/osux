@@ -25,12 +25,12 @@ enum played_state;
 #ifdef min
   #undef min
 #endif
-#define min(x, y) x < y ? x : y;
+#define min(x, y) (x) < (y) ? (x) : (y)
 
 #ifdef max
   #undef max
 #endif
-#define max(x, y) x > y ? x : y;
+#define max(x, y) (x) > (y) ? (x) : (y)
 
 struct tr_map
 {

@@ -2,21 +2,31 @@
 vect_scale_length: 6
 vect_scale_x1: 0.      # don't give much more
 vect_scale_y1: 2.6
-vect_scale_x2: 3.30e6. # 600bpma
+vect_scale_x2: 1.2e2.  # 600bpma
 vect_scale_y2: 2.5
-vect_scale_x3: 4.75e6. # 400bpma
+vect_scale_x3: 1.8e2.  # 400bpma
 vect_scale_y3: 2.
-vect_scale_x4: 9.64e6. # 200bpma
+vect_scale_x4: 3.6e2.  # 200bpma
 vect_scale_y4: 1.5
-vect_scale_x4: 1.38e7. # 140bpma
+vect_scale_x4: 5.1e2.  # 140bpma
 vect_scale_y4: 1.1
-vect_scale_x5: 2e7.    # <100bpma
+vect_scale_x5: 7.2e2.  # 100bpma
 vect_scale_y5: 1.
-vect_scale_x6: 5e10.   # make sure high enough
+vect_scale_x6: 1e10.   # make sure high enough
 vect_scale_y6: 1.
 
 ### monte carlo
 monte_carlo_nb_pts: 5000
+
+### interest
+# x is in ms
+vect_interest_length: 3
+vect_interest_x1: 0.
+vect_interest_y1: 1.
+vect_interest_x2: 500.
+vect_interest_y2: 1.
+vect_interest_x3: 3600000.
+vect_interest_y3: 1.
 
 ### seen 
 # x is in ms * px^2
@@ -24,8 +34,8 @@ monte_carlo_nb_pts: 5000
 vect_seen_length: 2
 vect_seen_x1: 0.
 vect_seen_y1: 0.
-vect_seen_x2: 5e10.
-vect_seen_y2: 5e10.
+vect_seen_x2: 1e10.
+vect_seen_y2: 1e10.
 
 ### coeff for star
 star_seen: 1.

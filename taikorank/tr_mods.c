@@ -23,6 +23,62 @@
 #include "print.h"
 #include "tr_mods.h"
 
+/*
+  _COEFF_MS:  od multiplier related to speed
+  _COEFF_BPM: bpm multiplier
+ */
+
+#define DT_COEFF_MS    (2 / 3.)
+#define DT_COEFF_BPM   1.5
+
+#define HT_COEFF_MS    (4 / 3.)
+#define HT_COEFF_BPM   (2 / 3.)
+
+#define NM_COEFF_MS    1
+
+// ----------------------------------------
+
+#define HR_COEFF_OD    1.4
+#define EZ_COEFF_OD    0.5
+
+#define MAX_OD 10.
+
+// ----------------------------------------
+
+/*
+  _COEFF_SPEED: speed multiplier
+ */
+
+#define DT_COEFF_SPEED 1.5
+#define HT_COEFF_SPEED (2 / 3.)
+#define EZ_COEFF_SPEED (2 / 3.)
+
+#ifdef RESOLUTION_10 
+  #define HR_COEFF_SPEED (4 / 3.)
+#endif
+
+// ----------------------------------------
+
+#define FL_NB_OBJ_APP1 5.
+#define FL_NB_OBJ_APP2 4.
+#define FL_NB_OBJ_APP3 3.5
+#define FL_START_APP2  100 // if >=
+#define FL_START_APP3  200 // if >=
+
+#define HD_NB_OBJ_APP  10.
+#define HD_NB_OBJ_DIS  7.
+
+#ifdef RESOLUTION_10
+  #define NM_NB_OBJ_APP  10.
+#elif defined RESOLUTION_14
+  #define NM_NB_OBJ_APP  14.
+#elif defined RESOLUTION_18
+  #define NM_NB_OBJ_APP  18.
+#endif
+#define NM_NB_OBJ_DIS  0.
+
+// -----------------------------
+
 static void trm_apply_mods_EZ(struct tr_map * map);
 static void trm_apply_mods_HT(struct tr_map * map);
 static void trm_apply_mods_HR(struct tr_map * map);
@@ -45,7 +101,7 @@ static void trm_apply_mods_HR(struct tr_map * map)
     
     for(int i = 0; i < map->nb_object; i++) {
 	map->object[i].bpm_app *= HR_COEFF_SPEED; 
-	map->object[i].obj_app = HR_NB_OBJ_APP;
+	map->object[i].obj_app = NM_NB_OBJ_APP;
 	map->object[i].obj_dis = NM_NB_OBJ_DIS;
     }
 }

@@ -77,16 +77,16 @@ static void trm_set_pattern_star(struct tr_map * map);
 #define PATTERN_FILE  "pattern_cst.yaml"
 
 // coeff for singletap proba
-static struct linear_fun * SINGLETAP_VECT;
-static struct linear_fun * PATTERN_FREQ_VECT;
-static struct linear_fun * PATTERN_INFLU_VECT;
+static struct linear_fun * SINGLETAP_LF;
+static struct linear_fun * PATTERN_FREQ_LF;
+static struct linear_fun * PATTERN_INFLU_LF;
 
 static double PROBA_START;
 static double PROBA_END;
 
 // coeff for star
 static double PATTERN_STAR_COEFF_PATTERN;
-static struct linear_fun * PATTERN_SCALE_VECT;
+static struct linear_fun * PATTERN_SCALE_LF;
 
 // pattern
 static int MAX_PATTERN_LENGTH;
@@ -95,10 +95,10 @@ static int MAX_PATTERN_LENGTH;
 
 static void pattern_global_init(struct hash_table * ht_cst)
 {
-    PATTERN_FREQ_VECT = cst_lf(ht_cst, "vect_pattern_freq");
-    PATTERN_INFLU_VECT = cst_lf(ht_cst, "vect_influence");
-    SINGLETAP_VECT = cst_lf(ht_cst, "vect_singletap");
-    PATTERN_SCALE_VECT = cst_lf(ht_cst, "vect_scale");
+    PATTERN_FREQ_LF = cst_lf(ht_cst, "vect_pattern_freq");
+    PATTERN_INFLU_LF = cst_lf(ht_cst, "vect_influence");
+    SINGLETAP_LF = cst_lf(ht_cst, "vect_singletap");
+    PATTERN_SCALE_LF = cst_lf(ht_cst, "vect_scale");
 
     PROBA_START = (double)cst_i(ht_cst, "proba_start") / PROBA_SCALE;
     PROBA_END   = (double)cst_i(ht_cst, "proba_end")   / PROBA_SCALE;
@@ -114,10 +114,10 @@ static void pattern_global_init(struct hash_table * ht_cst)
 static void ht_cst_exit_pattern(void)
 {
     yaml2_free(yw_ptr);
-    lf_free(PATTERN_SCALE_VECT);
-    lf_free(SINGLETAP_VECT);
-    lf_free(PATTERN_FREQ_VECT);
-    lf_free(PATTERN_INFLU_VECT);
+    lf_free(PATTERN_SCALE_LF);
+    lf_free(SINGLETAP_LF);
+    lf_free(PATTERN_FREQ_LF);
+    lf_free(PATTERN_INFLU_LF);
 }
 
 INITIALIZER(ht_cst_init_pattern)
@@ -214,7 +214,7 @@ static double tro_singletap_proba(const struct tr_object * o1,
 				  const struct tr_object * o2)
 {
     int diff = o2->offset - o1->end_offset;
-    return lf_eval(SINGLETAP_VECT, diff);
+    return lf_eval(SINGLETAP_LF, diff);
 }
 
 //-----------------------------------------------------
@@ -223,7 +223,7 @@ static double tro_pattern_influence(const struct tr_object * o1,
 				    const struct tr_object * o2)
 {
     int diff = o2->offset - o1->offset;
-    return lf_eval(PATTERN_INFLU_VECT, diff);
+    return lf_eval(PATTERN_INFLU_LF, diff);
 }
 
 //-----------------------------------------------------
@@ -330,7 +330,7 @@ void tro_set_pattern_freq(struct tr_object * o, int i)
     struct counter * c = tro_pattern_freq_init(o, i);
 
     double freq = tro_pattern_freq(o, c);
-    o->pattern_freq = lf_eval(PATTERN_FREQ_VECT, freq);
+    o->pattern_freq = lf_eval(PATTERN_FREQ_LF, freq);
 /*
     tro_print_pattern(o);
     typedef int (*herit)(const void*, const void*);
@@ -346,7 +346,7 @@ void tro_set_pattern_freq(struct tr_object * o, int i)
 void tro_set_pattern_star(struct tr_object * o)
 {
     o->pattern_star = lf_eval
-	(PATTERN_SCALE_VECT, 
+	(PATTERN_SCALE_LF, 
 	 PATTERN_STAR_COEFF_PATTERN * o->pattern_freq);
 }
 

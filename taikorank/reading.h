@@ -18,13 +18,56 @@
 #define READING_H
 
 /* Use:
+   - bpm_app
+   - d/k/D/K/s/r/R
+   - offset
+*/
+void tro_set_app_dis_offset(struct tr_object * obj);
+
+/* Use:
    - ps
    - offset_app
-   - d/k/D/K/s/r/R
-   - c_app
-   - bpm_app   
+ */
+void tro_set_obj_hiding(struct tr_object * o, int i);
+
+/* Use:
+   - obj_h
+   - offset_app
+   - bpm_app
+ */
+void tro_set_app_dis_offset_same_bpm(struct tr_object * o);
+
+/* Use:
+   - bpm_app
+   - offset_app (after same_bpm)
 */
-void tro_set_seen(struct tr_object * o, int i);
+void tro_set_line_coeff(struct tr_object * o);
+
+/* Use:
+   - line_coeff
+   - offset_app (after same_bpm)
+ */
+void tro_set_mesh(struct tr_object * o);
+
+/* Use:
+   - ps
+   - mesh
+   - d/k/D/K/s/r/R
+   - offset_app (after same_bpm)
+*/
+void tro_set_seen(struct tr_object * o);
+
+/* Must be done after seen
+   Use:
+   - mesh
+ */
+void tro_free_mesh(struct tr_object * o);
+
+/* Must be done after seen
+   Use:
+   - obj_h
+ */
+void tro_free_obj_hiding(struct tr_object * o);
 
 /* Use:
    - seen

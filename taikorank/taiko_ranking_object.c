@@ -29,8 +29,8 @@ static char tro_char_type(const struct tr_object * o);
 // percentage for equal
 #define EPSILON 1.
 
-#define TRO_SMALL_SIZE 0.49        /* slightly smaller to avoid false superposition*/
-#define TRO_BIG_SIZE   0.707106781 /* sqrt(2.) / 2. */
+#define TRO_SMALL_RADIUS 0.49        /* slightly smaller to avoid false superposition*/
+#define TRO_BIG_RADIUS   0.707106781 /* sqrt(2.) / 2. */
 
 struct tr_object * tro_copy(const struct tr_object * o, int nb)
 {
@@ -41,12 +41,12 @@ struct tr_object * tro_copy(const struct tr_object * o, int nb)
 
 //--------------------------------------------------
 
-double tro_get_size(const struct tr_object * obj)
+double tro_get_radius(const struct tr_object * obj)
 {
     if(tro_is_big(obj))
-	return TRO_BIG_SIZE;
+	return TRO_BIG_RADIUS;
     else
-	return TRO_SMALL_SIZE;
+	return TRO_SMALL_RADIUS;
 }
 
 //--------------------------------------------------
@@ -154,11 +154,14 @@ void tro_print(const struct tr_object * obj, int filter)
 		obj->seen,
 		obj->reading_star);
     if((filter & FILTER_READING_PLUS) != 0)
-	fprintf(OUTPUT_INFO, "%d\t%d\t%d\t%d\t%.2g\t%.3g\t",
+	fprintf(OUTPUT_INFO, "%d\t%d\t%d\t%d\t%.2g\t%.2g\t%.2g\t%.2g\t%.3g\t",
 		obj->offset_app,
 		obj->end_offset_app,
 		obj->offset_dis,
 		obj->end_offset_dis,
+		obj->line_a,
+		obj->line_b,
+		obj->line_b_end,
 		obj->seen,
 		obj->reading_star);
     if((filter & FILTER_ACCURACY) != 0)

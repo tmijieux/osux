@@ -361,13 +361,13 @@ void trm_print_tro(struct tr_map * map, int filter)
     if((filter & FILTER_BASIC_PLUS) != 0)
 	fprintf(OUTPUT_INFO, "offset\tend\trest\ttype\tbpm app\tstate\t");
     if((filter & FILTER_ADDITIONNAL) != 0)
-	fprintf(OUTPUT_INFO, "l hand\tr hand\trest\tobj app\tobjdis\t");
+	fprintf(OUTPUT_INFO, "l hand\tr hand\tobj app\tobj dis\t");
     if((filter & FILTER_DENSITY) != 0)
 	fprintf(OUTPUT_INFO, "dnst rw\tdnst cl\tdnst*\t");
     if((filter & FILTER_READING) != 0)
 	fprintf(OUTPUT_INFO, "app\tdis\tseen\tread*\t");
     if((filter & FILTER_READING_PLUS) != 0)
-	fprintf(OUTPUT_INFO, "app\tend app\tdis\tend dis\tseen\tread*\t");
+	fprintf(OUTPUT_INFO, "app\tend app\tdis\tend dis\tline_a\tb\tb_end\tseen\tread*\t");
     if((filter & FILTER_ACCURACY) != 0)
 	fprintf(OUTPUT_INFO, "slow\thitwin\tspc\tacc*\t");
     if((filter & FILTER_PATTERN) != 0)

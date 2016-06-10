@@ -17,7 +17,8 @@
 #ifndef TRO_H
 #define TRO_H
 
-struct table;
+#include <gts.h>
+#include "table.h"
 
 #define MSEC_IN_MINUTE 60000.
 
@@ -40,8 +41,8 @@ struct tr_object
 {
     // ---- basic data
     int offset;
-    int end_offset;     // printed in basic+
-    int bf; // bitfield
+    int end_offset;        // printed in basic+
+    int bf;                // bitfield
     double bpm_app;
 
     enum played_state ps;
@@ -51,14 +52,6 @@ struct tr_object
     // ---- additionnal data
     int length;
     int rest;            // printed in basic
-    double obj_app;      // nb obj displayable on screen, without overlapping
-    double obj_dis;      // nb obj where disappear
-    int offset_app;      // printed in reading,  border left appear
-    int end_offset_app;  // printed in reading+, border right appear
-    int offset_dis;      // printed in reading,  border right disappear
-    int end_offset_dis;  // printed in reading+, border left disappear
-    double c_app;     // bpm_app * end_offset_app
-    double c_end_app; // bpm_app * offset_app
 
     // ---- pattern data
     double proba;
@@ -71,6 +64,24 @@ struct tr_object
     double density_color;
 
     // ---- reading data
+    double obj_app;      // nb obj displayable on screen, without overlapping
+    double obj_dis;      // nb obj where disappear
+    int offset_app;      // in reading,  border left appear
+    int end_offset_app;  // in reading+, border right appear
+    int offset_dis;      // in reading,  border right disappear
+    int end_offset_dis;  // in reading+, border left disappear
+    int end_offset_dis_2; // end_offset_dis if the object was always visible
+
+    struct table * obj_h;
+
+    double line_a;
+    double line_b;       // nb obj before app
+    double line_b_end;   // nb obj before end_app
+
+    GtsSurface * mesh;
+    int count;
+    int done;     // used as a bitfield
+
     double seen;
 
     // ---- accuracy star
@@ -97,7 +108,7 @@ double mpb_to_bpm(double mpb);
 int equal(double x, double y);
 
 int tro_get_length(const struct tr_object * obj);
-double tro_get_size(const struct tr_object * obj);
+double tro_get_radius(const struct tr_object * obj);
 
 //-------------------------------------------------------------
 // inline 

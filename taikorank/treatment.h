@@ -22,19 +22,6 @@
  */
 void tro_set_length(struct tr_object * obj);
 
-/* Use:
-   - bpm_app
-   - d/k/D/K/s/r/R
-   - offset
-*/
-void tro_set_app_dis_offset(struct tr_object * obj);
-
-/* Use:
-   - bpm_app
-   - offset_app
-*/
-void tro_set_line_coeff(struct tr_object * o);
-
 /* Use: 
    - ps
    - d/k/D/K/s/r/R

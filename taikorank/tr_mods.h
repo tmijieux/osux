@@ -26,40 +26,9 @@
 #define MODS_HD   (1 << 4)
 #define MODS_FL   (1 << 5)
 
-// --------------- MODS COEFF --------------- 
-#define EZ_COEFF_OD    0.5
-#define EZ_COEFF_SPEED (2 / 3.)
+#define RESOLUTION_10
 
-#define HR_COEFF_OD    1.4
-#define HR_COEFF_SPEED (4 / 3.)
-#define HR_NB_OBJ_APP  10.
-
-#define DT_COEFF_MS    (2 / 3.)
-#define DT_COEFF_SPEED 1.5
-#define DT_COEFF_BPM   1.5
-
-#define HT_COEFF_MS    (4 / 3.)
-#define HT_COEFF_SPEED (2 / 3.)
-#define HT_COEFF_BPM   (2 / 3.)
-
-#define HD_NB_OBJ_APP  10.
-#define HD_NB_OBJ_DIS  7.
-
-#define FL_NB_OBJ_APP1 5.
-#define FL_NB_OBJ_APP2 4.
-#define FL_NB_OBJ_APP3 3.5
-#define FL_START_APP2  100 // if >=
-#define FL_START_APP3  200 // if >=
-
-// --------------- NO MODS COEFF --------------- 
-#define NM_NB_OBJ_APP  17.
-#define NM_NB_OBJ_DIS  0.
-
-#define NM_COEFF_MS    1
-
-#define MAX_OD 10.
-
-// -----------------------------
+// ----------------------------------------
 
 void trm_apply_mods_FL(struct tr_map * map);
 

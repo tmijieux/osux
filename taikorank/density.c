@@ -52,7 +52,7 @@ static void trm_set_density_star(struct tr_map * map);
 #define DENSITY_FILE  "density_cst.yaml"
 
 // coeff for density
-static struct linear_fun * DENSITY_VECT;
+static struct linear_fun * DENSITY_LF;
 
 // coefficient for object type, 1 is the maximum
 static double DENSITY_NORMAL;
@@ -65,7 +65,7 @@ static double DENSITY_LENGTH;
 // coeff for star
 static double DENSITY_STAR_COEFF_COLOR;
 static double DENSITY_STAR_COEFF_RAW;
-static struct linear_fun * DENSITY_SCALE_VECT;
+static struct linear_fun * DENSITY_SCALE_LF;
 
 //-----------------------------------------------------
 //-----------------------------------------------------
@@ -73,8 +73,8 @@ static struct linear_fun * DENSITY_SCALE_VECT;
 
 static void density_global_init(struct hash_table * ht_cst)
 {
-    DENSITY_VECT       = cst_lf(ht_cst, "vect_density");
-    DENSITY_SCALE_VECT = cst_lf(ht_cst, "vect_scale");
+    DENSITY_LF       = cst_lf(ht_cst, "vect_density");
+    DENSITY_SCALE_LF = cst_lf(ht_cst, "vect_scale");
 
     DENSITY_NORMAL = cst_f(ht_cst, "density_normal");
     DENSITY_BIG    = cst_f(ht_cst, "density_big");
@@ -91,8 +91,8 @@ static void density_global_init(struct hash_table * ht_cst)
 static void ht_cst_exit_density(void)
 {
     yaml2_free(yw_dst);
-    lf_free(DENSITY_VECT);
-    lf_free(DENSITY_SCALE_VECT);
+    lf_free(DENSITY_LF);
+    lf_free(DENSITY_SCALE_LF);
 }
 
 INITIALIZER(ht_cst_init_density)
@@ -123,7 +123,7 @@ static double tro_get_coeff_density(const struct tr_object * o)
 static double tro_density(const struct tr_object * obj1, 
 			  const struct tr_object * obj2)
 {
-    double value  = lf_eval(DENSITY_VECT, 
+    double value  = lf_eval(DENSITY_LF, 
 			    ((double) obj2->end_offset - obj1->offset) + 
 			    DENSITY_LENGTH * obj1->length);
     return tro_get_coeff_density(obj1) * value;
@@ -184,7 +184,7 @@ TRO_SET_DENSITY_TYPE(color, tro_are_same_density)
 void tro_set_density_star(struct tr_object * obj)
 {
     obj->density_star = lf_eval
-	(DENSITY_SCALE_VECT,
+	(DENSITY_SCALE_LF,
 	 (DENSITY_STAR_COEFF_COLOR * obj->density_color +
 	  DENSITY_STAR_COEFF_RAW   * obj->density_raw));
 }

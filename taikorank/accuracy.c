@@ -63,25 +63,25 @@ static void trm_set_accuracy_star(struct tr_map * map);
 #define MS_MISS        500 // arbitrary
 #define MS_COEFF_MISS  0   // arbitrary
 
-static struct linear_fun * SLOW_VECT;
-static struct linear_fun * HIT_WINDOW_VECT;
-static struct linear_fun * SPC_FREQ_VECT;
-static struct linear_fun * SPC_INFLU_VECT;
+static struct linear_fun * SLOW_LF;
+static struct linear_fun * HIT_WINDOW_LF;
+static struct linear_fun * SPC_FREQ_LF;
+static struct linear_fun * SPC_INFLU_LF;
 
 static double ACCURACY_STAR_COEFF_SLOW;
 static double ACCURACY_STAR_COEFF_HIT_WINDOW;
 static double ACCURACY_STAR_COEFF_SPACING;
-static struct linear_fun * ACCURACY_SCALE_VECT;
+static struct linear_fun * ACCURACY_SCALE_LF;
 
 //-----------------------------------------------------
 
 static void accuracy_global_init(struct hash_table * ht_cst)
 {
-    SLOW_VECT       = cst_lf(ht_cst, "vect_slow");
-    HIT_WINDOW_VECT = cst_lf(ht_cst, "vect_hit_window");
-    SPC_FREQ_VECT   = cst_lf(ht_cst, "vect_spacing_frequency");
-    SPC_INFLU_VECT  = cst_lf(ht_cst, "vect_spacing_influence");
-    ACCURACY_SCALE_VECT = cst_lf(ht_cst, "vect_scale");
+    SLOW_LF       = cst_lf(ht_cst, "vect_slow");
+    HIT_WINDOW_LF = cst_lf(ht_cst, "vect_hit_window");
+    SPC_FREQ_LF   = cst_lf(ht_cst, "vect_spacing_frequency");
+    SPC_INFLU_LF  = cst_lf(ht_cst, "vect_spacing_influence");
+    ACCURACY_SCALE_LF = cst_lf(ht_cst, "vect_scale");
 
     ACCURACY_STAR_COEFF_SLOW       = cst_f(ht_cst, "star_slow");
     ACCURACY_STAR_COEFF_HIT_WINDOW = cst_f(ht_cst, "star_hit_window");
@@ -92,11 +92,11 @@ static void accuracy_global_init(struct hash_table * ht_cst)
 static void ht_cst_exit_accuracy(void)
 {
     yaml2_free(yw_acc);
-    lf_free(SLOW_VECT);
-    lf_free(SPC_FREQ_VECT);
-    lf_free(SPC_INFLU_VECT);
-    lf_free(HIT_WINDOW_VECT);
-    lf_free(ACCURACY_SCALE_VECT);
+    lf_free(SLOW_LF);
+    lf_free(SPC_FREQ_LF);
+    lf_free(SPC_INFLU_LF);
+    lf_free(HIT_WINDOW_LF);
+    lf_free(ACCURACY_SCALE_LF);
 }
 
 INITIALIZER(ht_cst_init_accuracy)
@@ -130,7 +130,7 @@ double * trm_get_ggm_val(const struct tr_map * map)
 		 (MS_MISS  - (MS_COEFF_MISS  * map->od)));
     double * ggm_val = malloc(sizeof(double) * 3);
     for (int i = 0; i < 3; i++)
-	ggm_val[i] = lf_eval(HIT_WINDOW_VECT, ggm_ms[i]);
+	ggm_val[i] = lf_eval(HIT_WINDOW_LF, ggm_ms[i]);
     return ggm_val;
 }
 
@@ -140,7 +140,7 @@ double * trm_get_ggm_val(const struct tr_map * map)
 
 static double tro_slow(const struct tr_object * o)
 {
-    return lf_eval(SLOW_VECT, o->bpm_app);
+    return lf_eval(SLOW_LF, o->bpm_app);
 }
 
 //-----------------------------------------------------
@@ -149,7 +149,7 @@ static double tro_spacing_influence(const struct tr_object * o1,
 				    const struct tr_object * o2)
 {
     int diff = o2->offset - o1->offset;
-    return lf_eval(SPC_INFLU_VECT, diff);
+    return lf_eval(SPC_INFLU_LF, diff);
 }
 
 //-----------------------------------------------------
@@ -179,7 +179,7 @@ static double tro_spacing(const struct tr_object * o,
     double freq = 1;
     if (total != 0) // avoid error when only miss
 	freq = nb / total;
-    return lf_eval(SPC_FREQ_VECT, freq);
+    return lf_eval(SPC_FREQ_LF, freq);
 }
 
 //-----------------------------------------------------
@@ -226,7 +226,7 @@ void tro_set_spacing(struct tr_object * o, int i)
 void tro_set_accuracy_star(struct tr_object * o)
 {
     o->accuracy_star = lf_eval
-	(ACCURACY_SCALE_VECT,
+	(ACCURACY_SCALE_LF,
 	 (ACCURACY_STAR_COEFF_SLOW       * o->slow +
 	  ACCURACY_STAR_COEFF_SPACING    * o->spacing +
 	  ACCURACY_STAR_COEFF_HIT_WINDOW * o->hit_window));
