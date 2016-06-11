@@ -66,7 +66,7 @@
 #define FL_START_APP3  200 // if >=
 
 #define HD_NB_OBJ_APP  10.
-#define HD_NB_OBJ_DIS  7.
+#define HD_NB_OBJ_DIS  6.
 
 #ifdef RESOLUTION_10
   #define NM_NB_OBJ_APP  10.

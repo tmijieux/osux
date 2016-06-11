@@ -38,7 +38,7 @@ db_login:  root
 db_passwd: NOPE
 
 ### Score
-score:        1
+score:        0
 score_quick:  1
 score_method: 0
 # 0 -> hardest

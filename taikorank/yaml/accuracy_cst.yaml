@@ -1,28 +1,37 @@
-### scale
-vect_scale_length: 4
-vect_scale_x1: 0.    # bonus
+### Scale
+## Brief:
+# Scaling function for accuracy stars.
+## Variable:
+# x is the product of all parameters for accuracy stars
+# y is the accuracy star rating
+vect_scale_length: 2
+vect_scale_x1: 1.
 vect_scale_y1: 1.
-vect_scale_x2: 780.  # OD0 
-vect_scale_y2: 1.
-vect_scale_x3: 1e3.  # OD10
-vect_scale_y3: 4.
-vect_scale_x4: 1.15e3.  # OD10+
-vect_scale_y4: 4.
+vect_scale_x2: 12.
+vect_scale_y2: 12.
 
-### slow
-# x is in bpm app
+### Slow
+## Brief:
+# When object are very slow they are hard to play accuratly.
+## Variable:
+# x is in bpm app, the speed of the object
+# y is a difficulty multiplier
 vect_slow_length: 4
 vect_slow_x1: 0.
-vect_slow_y1: 1000.
+vect_slow_y1: 2.
 vect_slow_x2: 70.
-vect_slow_y2: 300.
+vect_slow_y2: 1.2
 vect_slow_x3: 140.
-vect_slow_y3: 0.
+vect_slow_y3: 1.
 vect_slow_x4: 10000.
-vect_slow_y4: 0.
+vect_slow_y4: 1.
 
-### spacing
-# x is in ms
+### Spacing influence
+## Brief:
+# Give an influence to a spacing.
+## Variable:
+# x is in ms, the time between the two objects
+# y is the influence
 vect_spacing_influence_length: 3
 vect_spacing_influence_x1: 0.
 vect_spacing_influence_y1: 1000.
@@ -31,24 +40,39 @@ vect_spacing_influence_y2: 0
 vect_spacing_influence_x3: 3600000.
 vect_spacing_influence_y3: 0
 
-# x is in [0, 1]
+## Spacing frequency
+## Brief:
+# The more frequent a spacing is present the easier it is. Based on 
+# spacing influence.
+## Variable:
+# x is in [0, 1], the frequency
+# y is a difficulty multiplier
 vect_spacing_frequency_length: 2
 vect_spacing_frequency_x1: 0.
-vect_spacing_frequency_y1: 1.
+vect_spacing_frequency_y1: 1.05
 vect_spacing_frequency_x2: 1.
-vect_spacing_frequency_y2: 0.
+vect_spacing_frequency_y2: 1.
 
-### hit_window
-# x is in ms
+### Hit_window
+## Brief:
+# Give some difficulty to object based on its hit window.
+## Variable:
+# x is in ms, the hit window size
+# y is a difficulty multiplier
 vect_hit_window_length: 3
 vect_hit_window_x1: 0.
-vect_hit_window_y1: 1000.
+vect_hit_window_y1: 4.
 vect_hit_window_x2: 150.
-vect_hit_window_y2: 0.
+vect_hit_window_y2: 1.
 vect_hit_window_x3: 3600000.
-vect_hit_window_y3: 0.
+vect_hit_window_y3: 1.
 
-### coeff for star
-star_slow:       0.1   # in [0, 1000]
-star_hit_window: 1     # in [0, 1000]
-star_spacing:    50.  # in [0, 1]
+### Pow
+## Brief:
+# Enable or disable a parameter of the star rating by modifying its
+# power.
+## Variable:
+# Set 1 to enable, 0 to disable
+star_slow:       1
+star_hit_window: 1
+star_spacing:    1

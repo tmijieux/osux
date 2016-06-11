@@ -1,32 +1,50 @@
-# influence
-# x is in ms
-# y in [0, 1] 
-# 1 -> max influence
+### Influence
+## Brief:
+# When an object is a miss or a good it decreases the difficulty of 
+# the others object.
+## Variable:
+# x is in ms,  the time between the two object
+# y in [0, 1], the difficulty multiplier (star *= y)
 # 0 -> min influence
 vect_influence_length: 3
 vect_influence_x1: 0.
-vect_influence_y1: 1.
+vect_influence_y1: 0.
 vect_influence_x2: 1500.
-vect_influence_y2: 0.
+vect_influence_y2: 1.
 vect_influence_x3: 3600000.
-vect_influence_y3: 0.
+vect_influence_y3: 1.
 
-# scale
+### Scale
+## Brief:
+# Scaling function for final stars.
+## Variable:
+# x is the product of all enabled stars
+# y is the final star rating
 vect_scale_length: 2
 vect_scale_x1: 0.
 vect_scale_y1: 0.
 vect_scale_x2: 4096. # 8^4
 vect_scale_y2: 888.
 
-### pow
+### Pow
+## Brief:
+# Enable or disable a parameter of the star rating by modifying its
+# power.
+## Variable:
+# Set 1 to enable, 0 to disable
 density_pow:  1
 reading_pow:  1
 pattern_pow:  1
 accuracy_pow: 1
 
-### weight
-# x is the number of the object, from 0
-# y the percentage given
+### Weight
+## Brief:
+# Function to transform the star rating on each object to a star 
+# rating on the map. Every object give its stars multiplied by y.
+## Variable:
+# x is the number of the object sorted by star rating, 0 is the 
+#   highest star rating
+# y in [0, 1], the difficulty multiplier
 vect_weight_length: 5
 vect_weight_x1: 0
 vect_weight_y1: 1.

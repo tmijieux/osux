@@ -107,8 +107,7 @@ static double weight_final_star(int i, double val)
 static double tro_influence_coeff(const struct tr_object * o1,
 				  const struct tr_object * o2)
 {
-    return 1. - lf_eval(FINAL_INFLU_LF, 
-			fabs(o1->offset - o2->offset));
+    return lf_eval(FINAL_INFLU_LF, fabs(o1->offset - o2->offset));
 }
 
 //-----------------------------------------------------

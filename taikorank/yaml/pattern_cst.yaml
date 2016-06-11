@@ -1,18 +1,21 @@
-### scale
+### Scale
+## Brief:
+# Scaling function for pattern stars.
+## Variable:
+# x is the sum of all parameters for pattern stars
+# y is the pattern star rating
 vect_scale_length: 2
 vect_scale_x1: 0.
 vect_scale_y1: 4.
 vect_scale_x2: 1.01
 vect_scale_y2: 1.
 
-### patterns
-# x is in [0, 1]
-vect_pattern_freq_length: 2
-vect_pattern_freq_x1: 0.
-vect_pattern_freq_y1: 0.
-vect_pattern_freq_x2: 1.01
-vect_pattern_freq_y2: 1.01
-# x is in ms
+### Pattern influence
+## Brief:
+# Give an influence to a pattern.
+## Variable:
+# x is in ms, the time between the two objects
+# y is the influence
 vect_influence_length: 4
 vect_influence_x1: 0
 vect_influence_y1: 1.
@@ -23,8 +26,31 @@ vect_influence_y3: 0.
 vect_influence_x4: 3600000.
 vect_influence_y4: 0.
 
-### coeff for singletap proba
+### Pattern frequency
+## Brief:
+# The more frequent a pattern is the easier it is. Based on pattern
+# influence.
+## Variable:
+# x is in [0, 1], the frequency
+# y the pattern difficulty
+## Note:
+# As there is only one parameter the function is transfered to the 
+# scaling.
+vect_pattern_freq_length: 2
+vect_pattern_freq_x1: 0.
+vect_pattern_freq_y1: 0.
+vect_pattern_freq_x2: 1.01
+vect_pattern_freq_y2: 1.01
+
+### Singletap probability
+## Brief:
+# Give a probability for singletapping, enabling pattern detection.
+## Variable:
 # x is in ms
+# y is the probability to singletap the object
+## Note:
+# 160ms ~ 180bpm 1/2
+# 125ms = 240bpm 1/2
 vect_singletap_length: 5
 vect_singletap_x1: 0.
 vect_singletap_y1: 0.
@@ -36,16 +62,26 @@ vect_singletap_x4: 1000.
 vect_singletap_y4: 1.
 vect_singletap_x5: 3600000. #1h should be enough
 vect_singletap_y5: 1.
-# 160ms ~ 180bpm 1/2
-# 125ms = 240bpm 1/2
 
-# max length used
+### Pattern length
+## Brief:
+# The maximum pattern length considered. 
+## Variable:
+# number of object.
 max_pattern_length: 6
 
-### range for singletap:
-# in %
+### Probability range
+## Brief:
+# The probability range considered for detecting patterns.
+## Variable:
+# In percent.
 proba_start: 0
 proba_end:   100
 
-### stars coeff
+### Parameters coeff
+## Brief:
+# Enable or disable a parameter of the star rating by modifying its 
+# multiplier coefficient.
+## Variable:
+# Multiplier in [0, 1]
 star_pattern: 1.0

@@ -1,4 +1,9 @@
-# scale
+### Scale
+## Brief:
+# Scaling function for density stars.
+## Variable:
+# x is the sum of all parameters for density stars
+# y is the density star rating
 vect_scale_length: 3
 vect_scale_x1: 0.
 vect_scale_y1: 1.
@@ -7,9 +12,13 @@ vect_scale_y2: 4.5
 vect_scale_x3: 1e4.
 vect_scale_y3: 5
 
-# coeff for density
-# x is in ms
-# y in [1, 100]
+### Density
+## Brief:
+# Each object before another give some density. All the density are 
+# sumed into a density value for the object.
+## Variable:
+# x is in ms,    the time between the two object
+# y in [1, 100], the density value given
 vect_density_length: 10
 vect_density_x1: 0.
 vect_density_y1: 100.
@@ -32,14 +41,28 @@ vect_density_y9: 0.
 vect_density_x10: 3600000. # 1h
 vect_density_y10: 0.
 
-# coefficient for object type, 1 is the maximum
+### Type
+## Brief:
+# Density value is multiplied by this parameter
+## Variable:
+# Multiplier in [0, 1]
 density_normal: 1.
 density_big:    1.
 density_bonus:  0.33
 
-# coefficient for length weighting in density
+### Length
+## Brief:
+# Density multiplier used for spinner or slider, the object length is
+# multiplied by this
+## Variable:
+# Multiplier 
 density_length: 0.2
 
-# star coeff
+### Parameters coeff
+## Brief:
+# Enable or disable a parameter of the star rating by modifying its 
+# multiplier coefficient.
+## Variable:
+# Multiplier in [0, 1]
 star_color: 0.8
 star_raw:   0.2

@@ -12,6 +12,7 @@ A final value is then computed giving global star rating for the map.
 ## Requirements
 Needed:
 * yaml
+* GNU Triangulated Surface
 
 Optional:
 * openmp, use `-fopenmp` in CFLAGS to enable

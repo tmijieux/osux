@@ -68,9 +68,9 @@ static struct linear_fun * HIT_WINDOW_LF;
 static struct linear_fun * SPC_FREQ_LF;
 static struct linear_fun * SPC_INFLU_LF;
 
-static double ACCURACY_STAR_COEFF_SLOW;
-static double ACCURACY_STAR_COEFF_HIT_WINDOW;
-static double ACCURACY_STAR_COEFF_SPACING;
+static double ACCURACY_STAR_SLOW_POW;
+static double ACCURACY_STAR_SPACING_POW;
+static double ACCURACY_STAR_HIT_WINDOW_POW;
 static struct linear_fun * ACCURACY_SCALE_LF;
 
 //-----------------------------------------------------
@@ -83,9 +83,9 @@ static void accuracy_global_init(struct hash_table * ht_cst)
     SPC_INFLU_LF  = cst_lf(ht_cst, "vect_spacing_influence");
     ACCURACY_SCALE_LF = cst_lf(ht_cst, "vect_scale");
 
-    ACCURACY_STAR_COEFF_SLOW       = cst_f(ht_cst, "star_slow");
-    ACCURACY_STAR_COEFF_HIT_WINDOW = cst_f(ht_cst, "star_hit_window");
-    ACCURACY_STAR_COEFF_SPACING    = cst_f(ht_cst, "star_spacing");
+    ACCURACY_STAR_SLOW_POW       = cst_f(ht_cst, "star_slow");
+    ACCURACY_STAR_SPACING_POW    = cst_f(ht_cst, "star_spacing");
+    ACCURACY_STAR_HIT_WINDOW_POW = cst_f(ht_cst, "star_hit_window");
 }
 
 //-----------------------------------------------------
@@ -227,9 +227,9 @@ void tro_set_accuracy_star(struct tr_object * o)
 {
     o->accuracy_star = lf_eval
 	(ACCURACY_SCALE_LF,
-	 (ACCURACY_STAR_COEFF_SLOW       * o->slow +
-	  ACCURACY_STAR_COEFF_SPACING    * o->spacing +
-	  ACCURACY_STAR_COEFF_HIT_WINDOW * o->hit_window));
+	 (pow(o->slow,       ACCURACY_STAR_SLOW_POW) *
+	  pow(o->spacing,    ACCURACY_STAR_SPACING_POW) *
+	  pow(o->hit_window, ACCURACY_STAR_HIT_WINDOW_POW)));
 }
 
 //-----------------------------------------------------
