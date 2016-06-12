@@ -9,7 +9,7 @@ vect_scale_x1: 0.
 vect_scale_y1: 1.
 vect_scale_x2: 400.
 vect_scale_y2: 4.5
-vect_scale_x3: 1e4.
+vect_scale_x3: 1e4
 vect_scale_y3: 5
 
 ### Density
