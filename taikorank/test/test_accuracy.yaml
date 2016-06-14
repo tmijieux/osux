@@ -1,0 +1,83 @@
+tests:
+  #########################################################
+  - 
+    do: True
+    path: "./maps_test/accuracy/od/"
+    field: "accuracy_star"
+    maps: |
+      160 bpm[OD10]
+      160 bpm[OD9]
+      160 bpm[OD8]
+      160 bpm[OD7]
+      160 bpm[OD6]
+      160 bpm[OD5]
+      160 bpm[OD4]
+      160 bpm[OD3]
+      160 bpm[OD2]
+      160 bpm[OD1]
+      160 bpm[OD0]
+  #########################################################
+  - 
+    do: True
+    path: "./maps_test/accuracy/*/*OD4*.osu"
+    field: "accuracy_star"
+    maps: |
+      160 bpm[OD4 weird]
+      160 bpm[OD4 less weird]
+      160 bpm[OD4]
+  #########################################################
+  - 
+    do: True
+    path: "./maps_test/accuracy/*/*OD5*.osu"
+    field: "accuracy_star"
+    maps: |
+      160 bpm[OD5 weird]
+      160 bpm[OD5 less weird]
+      160 bpm[OD5]
+  #########################################################
+  - 
+    do: True
+    path: "./maps_test/accuracy/*/*OD6*.osu"
+    field: "accuracy_star"
+    maps: |
+      160 bpm[OD6 weird]
+      160 bpm[OD6 less weird]
+      160 bpm[OD6]
+  #########################################################
+  - 
+    do: True
+    path: "./maps_test/accuracy/slow/"
+    field: "accuracy_star"
+    maps: |
+      40bpm 1/4[2.5bpma]
+      40bpm 1/4[5bpma]
+      40bpm 1/4[10bpma]
+      40bpm 1/4[20bpma]
+      40bpm 1/4[40bpma]
+      40bpm 1/4[60bpma]
+      40bpm 1/4[80bpma]
+      40bpm 1/4[100bpma]
+  #########################################################
+  - 
+    do: True
+    path: "./maps_test/accuracy/*/*OD*.osu"
+    field: "accuracy_star"
+    maps: |
+      160 bpm[OD10]
+      160 bpm[OD9]
+      160 bpm[OD6 weird]
+      160 bpm[OD8]
+      160 bpm[OD6 less weird]
+      160 bpm[OD5 weird]
+      160 bpm[OD7]
+      160 bpm[OD5 less weird]
+      160 bpm[OD4 weird]
+      160 bpm[OD6]
+      160 bpm[OD4 less weird]
+      160 bpm[OD5]
+      160 bpm[OD4]
+      160 bpm[OD3]
+      160 bpm[OD2]
+      160 bpm[OD1]
+      160 bpm[OD0]
+  #########################################################

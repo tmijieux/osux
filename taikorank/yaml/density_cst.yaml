@@ -19,27 +19,23 @@ vect_scale_y3: 5
 ## Variable:
 # x is in ms,    the time between the two object
 # y in [1, 100], the density value given
-vect_density_length: 10
+vect_density_length: 8
 vect_density_x1: 0.
 vect_density_y1: 100.
 vect_density_x2: 38.      # 1/4 400bpm
 vect_density_y2: 100.
 vect_density_x3: 46.      # 1/4 320bpm
 vect_density_y3: 98.
-vect_density_x4: 58.      # 1/4 260bpm
-vect_density_y4: 95.
-vect_density_x5: 75.      # 1/4 200bpm
-vect_density_y5: 90.
-vect_density_x6: 107.     # 1/4 140bpm
-vect_density_y6: 50.
-vect_density_x7: 187.     # 1/4 80bpm
-vect_density_y7: 10.
-vect_density_x8: 375.     # 1/2 80bpm
-vect_density_y8: 0.5
-vect_density_x9: 10000.   # 10s
-vect_density_y9: 0.
-vect_density_x10: 3600000. # 1h
-vect_density_y10: 0.
+vect_density_x4: 92.      # 1/4 160bpm
+vect_density_y4: 45.
+vect_density_x5: 187.     # 1/4 80bpm
+vect_density_y5: 12.
+vect_density_x6: 375.     # 1/2 80bpm
+vect_density_y6: 0.5
+vect_density_x7: 10000.   # 10s
+vect_density_y7: 0.
+vect_density_x8: 3600000. # 1h
+vect_density_y8: 0.
 
 ### Type
 ## Brief:
@@ -64,5 +60,5 @@ density_length: 0.2
 # multiplier coefficient.
 ## Variable:
 # Multiplier in [0, 1]
-star_color: 0.8
-star_raw:   0.2
+star_color: 0.6
+star_raw:   0.4

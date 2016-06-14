@@ -3,7 +3,6 @@ Todo:
 - offset_app... roll & spinner -> treatment check
 - pattern need improvement
 - vect with list
-- must do something for proba with start & end
 
 Other:		   
 - HDHR not supported
@@ -19,4 +18,4 @@ Tom's idea:
   - time interval
 - accuracy:
   - spacing
-  
+

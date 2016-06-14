@@ -7,6 +7,7 @@ The star rating is based on my personnal perception of what is hard in osu!taiko
 * *Reading* how hard is an object to read. Like playing with hidden, flashlight or high slider velocity. 
 * *Pattern* how hard is a pattern to play. For example ddddddd is easier than ddkdkkd. 
 * *Accuracy* how hard it is to play accuratly. Focusing on overall difficulty and odd spacing between objects.
+
 A final value is then computed giving global star rating for the map.
 
 ## Requirements

@@ -1,0 +1,37 @@
+tests:
+  #########################################################
+  - 
+    do: True
+    path: "./maps_test/reading/no_hide/"
+    field: "reading_star"
+    maps: |
+      40bpm 1/4[1000bpma]
+      40bpm 1/4[800bpma]
+      40bpm 1/4[600bpma]
+      40bpm 1/4[560bpma]
+      40bpm 1/4[520bpma]
+      40bpm 1/4[480bpma]
+      40bpm 1/4[440bpma]
+      40bpm 1/4[400bpma]
+      40bpm 1/4[360bpma]
+      40bpm 1/4[320bpma]
+      40bpm 1/4[280bpma]
+      40bpm 1/4[240bpma]
+      40bpm 1/4[200bpma]
+      40bpm 1/4[180bpma]
+      40bpm 1/4[160bpma]
+      40bpm 1/4[140bpma]
+      40bpm 1/4[120bpma]
+      40bpm 1/4[100bpma]
+  #########################################################
+  - 
+    do: True
+    path: "./maps_test/reading/hide/"
+    field: "reading_star"
+    maps: |
+      160bpm[160bpma 1/16]
+      160bpm[160bpma 1/12]
+      160bpm[160bpma 1/8]
+      160bpm[160bpma 1/6]
+      160bpm[160bpma 1/4]
+  #########################################################

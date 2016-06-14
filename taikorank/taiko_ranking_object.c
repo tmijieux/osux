@@ -154,7 +154,7 @@ void tro_print(const struct tr_object * obj, int filter)
 		obj->seen,
 		obj->reading_star);
     if((filter & FILTER_READING_PLUS) != 0)
-	fprintf(OUTPUT_INFO, "%d\t%d\t%d\t%d\t%d\t%.2g\t%.2g\t%.2g\t%.2g\t%.3g\t",
+	fprintf(OUTPUT_INFO, "%d\t%d\t%d\t%d\t%d\t%.2g\t%.2g\t%.2g\t%g\t%.3g\t",
 		obj->offset_app,
 		obj->end_offset_app,
 		obj->offset_dis,

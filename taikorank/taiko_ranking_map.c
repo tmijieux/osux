@@ -74,10 +74,11 @@ void trm_main(const struct tr_map * map)
     #pragma omp critical
     if(OPT_PRINT_YAML)
 	trm_print_yaml(map_copy);
-    else if(OPT_PRINT_TRO)
-	trm_print_tro(map_copy, OPT_PRINT_FILTER);
-    else
+    else {
+	if(OPT_PRINT_TRO)
+	    trm_print_tro(map_copy, OPT_PRINT_FILTER);
 	trm_print(map_copy);
+    }
 
     // db
     if(OPT_DATABASE)

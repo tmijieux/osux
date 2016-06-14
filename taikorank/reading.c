@@ -644,6 +644,9 @@ static double tro_seen(const struct tr_object *o)
 	tr_error("Mesh does not have a volume!");
 	gts_surface_print_stats(o->mesh, stderr);
     }
+    if (o->line_a == INFINITY)
+	return 0; // if the object has an insane bpma
+
     //tro_inter(o);
     double seen = gts_surface_volume(o->mesh);
     seen *= tro_get_radius(o);
