@@ -12,12 +12,44 @@
 # limitations under the License.
 
 from subprocess import Popen, PIPE, STDOUT
+import numpy as np
 import yaml
 import sys
 
 # Set to true if something happen.
 # Quite useful when taiko_ranking failed.
-DEBUG=False
+DEBUG = False
+
+class Levenshtein:
+    # with lists
+    def __init__(self, l1, l2):
+        self.l1 = [None]
+        self.l2 = [None]
+        self.l1.extend(l1)
+        self.l2.extend(l2)
+        self.m = np.zeros((len(self.l1), len(self.l2)))
+        self.compute()
+    #########################################################
+    def compute(self):
+        self.m[0][0] = 0
+        for i in range(1, len(self.l1)):
+            self.m[i][0] = i
+        for j in range(1, len(self.l2)):
+            self.m[j][0] = j
+        #
+        for i in range(1, len(self.l1)):
+            for j in range(1, len(self.l2)):
+                if self.l1[i] == self.l2[j]:
+                    val = self.m[i-1][j-1] + 0
+                else:
+                    val = self.m[i-1][j-1] + 1
+                self.m[i][j] = min(self.m[i-1][j] + 1,
+                                   self.m[i][j-1] + 1,
+                                   val)
+    #########################################################
+    def dist(self):
+        return self.m[len(self.l1)-1][len(self.l2)-1]
+    #########################################################
 
 class Colors:
     BLUE    = '\033[94m'
@@ -45,7 +77,20 @@ class Colors:
 
 class TR_exec:
     EXE = "taiko_ranking"
-    OPT = "-db 0 -ptro 0 -pyaml 1 -quick 1 -score 0"
+    OPT = {'db':    0,
+           'ptro':  0,
+           'pyaml': 1,
+           'quick': 1,
+           'score': 0}
+    #########################################################
+    @staticmethod
+    def options(opt = {}):
+        copy = TR_exec.OPT.copy()
+        copy.update(opt)
+        s = " "
+        for key, value in copy.items():
+            s = s + "-" + key + " " + str(value) + " "
+        return s
     #########################################################
     @staticmethod
     def cmd(cmd):
@@ -54,8 +99,8 @@ class TR_exec:
         return p.communicate()
     #
     @staticmethod
-    def run(args):
-        cmd = "%s %s %s" % (TR_exec.EXE, TR_exec.OPT, args)
+    def run(args, opt = {}):
+        cmd = "%s %s %s" % (TR_exec.EXE, TR_exec.options(opt), args)
         return TR_exec.cmd(cmd)
     #########################################################
 
@@ -70,6 +115,11 @@ class TR_test:
             self.field = ht['field']
         else:
             self.field = 'final_star'
+        #
+        if 'mods' in ht:
+            self.mods = ht['mods']
+        else:
+            self.mods = ['__']
         #
         self.path = ht['path']
         if self.path[-5:] != "*.osu":
@@ -89,20 +139,24 @@ class TR_test:
         self.computed = True
     #########################################################
     def str_full(self, data):
-        return ("%s\t(%.4g\t%.4g\t%.4g\t%.4g\t%.4g)\t%s[%s]" % 
-                (data['stars'][self.field], 
-                 data['stars']['final_star'], 
-                 data['stars']['density_star'], 
-                 data['stars']['reading_star'], 
-                 data['stars']['pattern_star'], 
+        return ("%s\t(%.4g\t%.4g\t%.4g\t%.4g\t%.4g)\t%s" %
+                (data['stars'][self.field],
+                 data['stars']['final_star'],
+                 data['stars']['density_star'],
+                 data['stars']['reading_star'],
+                 data['stars']['pattern_star'],
                  data['stars']['accuracy_star'],
-                 data['title'], data['difficulty']))
+                 self.str_brief(data)))
     #########################################################
     def str_brief(self, data):
-        return ("%s[%s]" % (data['title'], data['difficulty']))
+        s = ("%s[%s]" % (data['title'], data['difficulty']))
+        if data['mods']:
+            return s + "(%s)" % (data['mods'])
+        else:
+            return s
     #########################################################
-    def compute(self):
-        out, err = TR_exec.run(self.cmd)
+    def compute_one_mod(self, mod):
+        out, err = TR_exec.run(self.cmd, {'mods': mod})
         #
         if DEBUG:
             print(str(out))
@@ -111,32 +165,42 @@ class TR_test:
         res = yaml.load(out)
         if res == None:
             print("Error loading yaml", str(err))
-            return
+            return []
         #
-        res = res['maps']
+        return res['maps']
+    #########################################################
+    def compute(self):
+        res = []
+        for mod in self.mods:
+            res.extend(self.compute_one_mod(mod))
+        #
         self.res = sorted(res, key=lambda k: k['stars'][self.field],
                             reverse=True)
     #########################################################
+    S_OK   = "%s - %%s"       % (Colors.green("OK"))
+    S_FAIL = "%s - %%s {%%s}" % (Colors.fail("<>"))
     def compare(self):
         self.computed = True
-        STR_OK   = "%s - %%s"       % (Colors.green("OK"))
-        STR_FAIL = "%s - %%s {%%s}" % (Colors.fail("<>"))
-        errors = 0
         maps = self.maps.split("\n")[:-1]
         if len(maps) != len(self.res):
             print(Colors.fail("Incorrect list length"))
             print("maps(%d) res(%d)" % (len(maps), len(self.res)))
             return 1
-        zipped = zip(maps, self.res)
-        for origin, test in zipped:
-            s_brief = self.str_brief(test)
-            s_full  = self.str_full(test)
-            if origin == s_brief:
-                print(STR_OK % (s_full))
+        #
+        brief = []
+        full  = []
+        for test in self.res:
+            brief.append(self.str_brief(test))
+            full.append(self.str_full(test))
+        #
+        zipped = zip(maps, brief, full)
+        for s_map, s_brief, s_full in zipped:
+            if s_map == s_brief:
+                print(self.S_OK % (s_full))
             else:
-                print(STR_FAIL % (s_full, Colors.warning(origin)))
-                errors += 1
-        return errors
+                print(self.S_FAIL % (s_full, Colors.warning(s_map)))
+        #
+        return Levenshtein(maps, brief).dist()
     #########################################################
     def dump_brief(self):
         for x in self.res:
@@ -192,9 +256,10 @@ def test_file(filepath):
     #
     print("")
     if errors == 0:
-        print(Colors.green("All test passed!"))
+        print(Colors.green("Test passed!"))
     else:
-        print(Colors.fail("Some test failed! errors: %s" % errors))
+        print(Colors.fail("Test failed! errors: %d" % errors))
+    return errors
 
 ########################################################
 
@@ -202,5 +267,13 @@ if __name__ == "__main__":
     if (len(sys.argv) < 2):
         print("No test file!")
         sys.exit(0)
+    #
+    errors = 0
     for filepath in sys.argv[1:]:
-        test_file(filepath)
+        errors += test_file(filepath)
+    #
+    print("")
+    if errors == 0:
+        print(Colors.green("All test passed!"))
+    else:
+        print(Colors.fail("Some test failed! errors: %d" % errors))

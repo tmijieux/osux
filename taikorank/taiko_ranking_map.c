@@ -432,7 +432,7 @@ void trm_print_yaml(struct tr_map * map)
     if(prefix[0] == 0)
 	tr_print_yaml_init();
 
-    char * mod = trm_mods_to_str(map);
+    char * mods = trm_mods_to_str(map);
 
     fprintf(OUTPUT, "%s{", prefix);
     fprintf(OUTPUT, "title: \"%s\", ", map->title);
@@ -452,7 +452,7 @@ void trm_print_yaml(struct tr_map * map)
     fprintf(OUTPUT, "max_combo: %d, ", map->max_combo);
     fprintf(OUTPUT, "combo: %d, ", map->combo);
 
-    fprintf(OUTPUT, "mod: \"%s\", ", mod);
+    fprintf(OUTPUT, "mods: \"%s\", ", mods);
 
     fprintf(OUTPUT, "stars: {");
     fprintf(OUTPUT, "density_star: %g, ", map->density_star);
@@ -472,7 +472,7 @@ void trm_print_yaml(struct tr_map * map)
     }
     
     fprintf(OUTPUT, "}");
-    free(mod);
+    free(mods);
     prefix = ", ";
 }
 

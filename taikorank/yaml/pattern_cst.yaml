@@ -36,6 +36,7 @@ vect_influence_y4: 0.
 ## Note:
 # As there is only one parameter the function is transfered to the 
 # scaling.
+# As double are used the value is a little above 1: 1.01
 vect_pattern_freq_length: 2
 vect_pattern_freq_x1: 0.
 vect_pattern_freq_y1: 0.
@@ -49,16 +50,20 @@ vect_pattern_freq_y2: 1.01
 # x is in ms
 # y is the probability to singletap the object
 ## Note:
-# 160ms ~ 180bpm 1/2
-# 125ms = 240bpm 1/2
+# 1500ms =  20bpm 1/2
+#  300ms = 100bpm 1/2
+#  250ms = 120bpm 1/2
+#  160ms ~ 180bpm 1/2
+#  125ms = 240bpm 1/2
+#  100ms = 300bpm 1/2
 vect_singletap_length: 5
 vect_singletap_x1: 0.
 vect_singletap_y1: 0.
 vect_singletap_x2: 100.
-vect_singletap_y2: 0.2
-vect_singletap_x3: 150.
-vect_singletap_y3: 0.6
-vect_singletap_x4: 1000.
+vect_singletap_y2: 0.
+vect_singletap_x3: 160.
+vect_singletap_y3: 0.8
+vect_singletap_x4: 250.
 vect_singletap_y4: 1.
 vect_singletap_x5: 3600000. #1h should be enough
 vect_singletap_y5: 1.
@@ -68,7 +73,7 @@ vect_singletap_y5: 1.
 # The maximum pattern length considered. 
 ## Variable:
 # number of object.
-max_pattern_length: 6
+max_pattern_length: 4
 
 ### Probability range
 ## Brief:

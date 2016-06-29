@@ -2,7 +2,7 @@
 This is an amateur star rating for taiko mode in osu!
 
 ## How it works
-The star rating is based on my personnal perception of what is hard in osu!taiko. Thus it may not correspond to everyone point of vue, but everyone's opinion is welcomed as the rating still need some improvement. Basicely, the taiko ranking project split the computation in four skills: 
+The star rating is based on my personnal perception of what is hard in osu!taiko. Thus it may not correspond to everyone point of vue, but everyone's opinion is welcomed as the rating still need some improvement. Basicely, the taiko ranking project splits the computation in four skills: 
 * *Density* how hard is an object to hit. The quicker you have to hit, the harder.
 * *Reading* how hard is an object to read. Like playing with hidden, flashlight or high slider velocity. 
 * *Pattern* how hard is a pattern to play. For example ddddddd is easier than ddkdkkd. 
@@ -47,8 +47,8 @@ Score options:
 Print options:
 * `-ptro [0|1]` print all objects
 * `-pyaml [0|1]` print result in yaml
-* `-pfilter [bB+drRpa*]` print specific information. (b -> basic, B -> basic+, + -> additionnal, d -> density, r -> reading, R -> reading+, p -> pattern, a -> accuracy, * -> star)
-* `-porder [FDRPA]` choose order (F -> final, D -> density, R -> reading, P -> pattern, A -> accuracy)
+* `-pfilter [bB+drRpa*]` print specific information. (b = basic, B = basic+, + = additionnal, d = density, r = reading, R = reading+, p = pattern, a = accuracy, * = star)
+* `-porder [FDRPA]` choose order (F = final, D = density, R = reading, P = pattern, A = accuracy)
 
 Modifier options:
 * `-mods [HD|HR|DT|...]` change mods. Don't use space between mods. Use __ for no mod

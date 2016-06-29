@@ -1,6 +1,6 @@
 tests:
   #########################################################
-  - 
+  -
     do: True
     path: "./maps_test/accuracy/od/"
     field: "accuracy_star"
@@ -17,7 +17,7 @@ tests:
       160 bpm[OD1]
       160 bpm[OD0]
   #########################################################
-  - 
+  -
     do: True
     path: "./maps_test/accuracy/*/*OD4*.osu"
     field: "accuracy_star"
@@ -26,7 +26,7 @@ tests:
       160 bpm[OD4 less weird]
       160 bpm[OD4]
   #########################################################
-  - 
+  -
     do: True
     path: "./maps_test/accuracy/*/*OD5*.osu"
     field: "accuracy_star"
@@ -35,7 +35,7 @@ tests:
       160 bpm[OD5 less weird]
       160 bpm[OD5]
   #########################################################
-  - 
+  -
     do: True
     path: "./maps_test/accuracy/*/*OD6*.osu"
     field: "accuracy_star"
@@ -44,7 +44,7 @@ tests:
       160 bpm[OD6 less weird]
       160 bpm[OD6]
   #########################################################
-  - 
+  -
     do: True
     path: "./maps_test/accuracy/slow/"
     field: "accuracy_star"
@@ -58,7 +58,7 @@ tests:
       40bpm 1/4[80bpma]
       40bpm 1/4[100bpma]
   #########################################################
-  - 
+  -
     do: True
     path: "./maps_test/accuracy/*/*OD*.osu"
     field: "accuracy_star"

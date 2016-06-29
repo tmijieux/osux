@@ -1,6 +1,6 @@
 tests:
   #########################################################
-  - 
+  -
     do: True
     path: "./maps_test/density/256_obj/by_2/"
     field: "density_star"
@@ -10,7 +10,7 @@ tests:
       256 objects[180bpm d__d ____]
       256 objects[180bpm d___ d___]
   #########################################################
-  - 
+  -
     do: True
     path: "./maps_test/density/256_obj/by_3/"
     field: "density_star"
@@ -19,7 +19,7 @@ tests:
       256 objects[180bpm d_d_ d___]
       256 objects[180bpm d__d __d_]
   #########################################################
-  - 
+  -
     do: True
     path: "./maps_test/density/256_obj/by_4/"
     field: "density_star"
@@ -29,7 +29,7 @@ tests:
       256 objects[180bpm dd__ dd__]
       256 objects[180bpm d_d_ d_d_]
   #########################################################
-  - 
+  -
     do: True
     path: "./maps_test/density/256_obj/by_5/"
     field: "density_star"
@@ -38,7 +38,7 @@ tests:
       256 objects[180bpm ddd_ d_d_]
       256 objects[180bpm dd_d d_d_]
   #########################################################
-  - 
+  -
     do: True
     path: "./maps_test/density/256_obj/by_6/"
     field: "density_star"
@@ -48,7 +48,7 @@ tests:
       256 objects[180bpm dddd _dd_]
       256 objects[180bpm ddd_ ddd_]
   #########################################################
-  - 
+  -
     do: True
     path: "./maps_test/density/256_obj/grouped/"
     field: "density_star"
@@ -62,7 +62,7 @@ tests:
       256 objects[180bpm dd__ ____]
       256 objects[180bpm d___ ____]
   #########################################################
-  - 
+  -
     do: True
     path: "./maps_test/density/ddddkkkk_strain/"
     field: "density_star"
@@ -77,7 +77,7 @@ tests:
       bpm bundle[60bpm ddddkkkk]
       bpm bundle[40bpm ddddkkkk]
   #########################################################
-  - 
+  -
     do: True
     path: "./maps_test/density/ddkk_strain/"
     field: "density_star"
@@ -92,7 +92,7 @@ tests:
       bpm bundle[60bpm ddkkddkk]
       bpm bundle[40bpm ddkkddkk]
   #########################################################
-  - 
+  -
     do: True
     path: "./maps_test/density/dk_strain/"
     field: "density_star"
@@ -107,7 +107,7 @@ tests:
       bpm bundle[60bpm dkdkdkdk]
       bpm bundle[40bpm dkdkdkdk]
   #########################################################
-  - 
+  -
     do: True
     path: "./maps_test/density/d_strain/"
     field: "density_star"
@@ -122,6 +122,7 @@ tests:
       bpm bundle[560bpm dddddddd]
       bpm bundle[520bpm dddddddd x2]
       bpm bundle[520bpm dddddddd]
+      bpm bundle[480bpm dddddddd x2]
       bpm bundle[480bpm dddddddd]
       bpm bundle[440bpm dddddddd x2]
       bpm bundle[440bpm dddddddd]
@@ -159,7 +160,7 @@ tests:
       bpm bundle[60bpm dddddddd]
       bpm bundle[40bpm dddddddd]
   #########################################################
-  - 
+  -
     do: True
     path: "./maps_test/pattern/group_pattern/xxxxx___/"
     field: "density_star"
@@ -168,7 +169,7 @@ tests:
       160bpm[ddddk___ ddddk___]
       160bpm[dkddk___ dkddk___]
   #########################################################
-  - 
+  -
     do: True
     path: "./maps_test/pattern/group_pattern/x_x_xxx_/"
     field: "density_star"
@@ -179,7 +180,7 @@ tests:
   #########################################################
 combined:
   #########################################################
-  - 
+  -
     do: True
     path: "./maps_test/density/ddddkkkk_strain/ ./maps_test/density/ddkk_strain/"
     field: "density_star"
