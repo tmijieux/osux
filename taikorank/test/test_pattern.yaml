@@ -30,6 +30,7 @@ tests:
       170bpm bundle[10 dddkk dddkk]
       170bpm bundle[12 dddd kk dddd kk]
       170bpm bundle[16 dddd ddkk dddd ddkk]
+      170bpm bundle[16 ddkk ddkk ddkk ddkk]
       170bpm bundle[16 dddd dddd dddd dddd]
   #########################################################
   -
@@ -49,6 +50,7 @@ tests:
     maps: |
       170bpm bundle[16 dddd kkkk ddkk ddkk]
       170bpm bundle[16 dddd kkkk dddd kkkk]
+      170bpm bundle[16 ddkk ddkk ddkk ddkk]
       170bpm bundle[16 dddd dddd kkkk kkkk]
       170bpm bundle[16 dddd dddd dddd dddd]
   #########################################################

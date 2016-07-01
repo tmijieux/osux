@@ -18,8 +18,13 @@ tests:
       40bpm 1/4[280bpma]
       40bpm 1/4[240bpma]
       40bpm 1/4[200bpma]
+      40bpm 1/4[190bpma]
+      40bpm 1/4[185bpma]
       40bpm 1/4[180bpma]
+      40bpm 1/4[175bpma]
+      40bpm 1/4[170bpma]
       40bpm 1/4[160bpma]
+      40bpm 1/4[150bpma]
       40bpm 1/4[140bpma]
       40bpm 1/4[120bpma]
       40bpm 1/4[100bpma]
@@ -68,6 +73,20 @@ tests:
   #########################################################
   -
     do: True
+    path: "./maps_test/reading/no_hide/*150bpma*.osu"
+    mods: ['__', 'FL', 'HD', 'HR', 'HRFL', 'HDFL', 'EZ']
+    field: "reading_star"
+    maps: |
+      40bpm 1/4[150bpma](HD FL )
+      40bpm 1/4[150bpma](HR FL )
+      40bpm 1/4[150bpma](FL )
+      40bpm 1/4[150bpma](HD )
+      40bpm 1/4[150bpma](HR )
+      40bpm 1/4[150bpma]
+      40bpm 1/4[150bpma](EZ )
+  #########################################################
+  -
+    do: True
     path: "./maps_test/reading/no_hide/*160bpma*.osu"
     mods: ['__', 'FL', 'HD', 'HR', 'HRFL', 'HDFL', 'EZ']
     field: "reading_star"
@@ -82,6 +101,34 @@ tests:
   #########################################################
   -
     do: True
+    path: "./maps_test/reading/no_hide/*170bpma*.osu"
+    mods: ['__', 'FL', 'HD', 'HR', 'HRFL', 'HDFL', 'EZ']
+    field: "reading_star"
+    maps: |
+      40bpm 1/4[170bpma](HD FL )
+      40bpm 1/4[170bpma](HR FL )
+      40bpm 1/4[170bpma](FL )
+      40bpm 1/4[170bpma](HD )
+      40bpm 1/4[170bpma](HR )
+      40bpm 1/4[170bpma]
+      40bpm 1/4[170bpma](EZ )
+  #########################################################
+  -
+    do: True
+    path: "./maps_test/reading/no_hide/*175bpma*.osu"
+    mods: ['__', 'FL', 'HD', 'HR', 'HRFL', 'HDFL', 'EZ']
+    field: "reading_star"
+    maps: |
+      40bpm 1/4[175bpma](HD FL )
+      40bpm 1/4[175bpma](HR FL )
+      40bpm 1/4[175bpma](FL )
+      40bpm 1/4[175bpma](HD )
+      40bpm 1/4[175bpma](HR )
+      40bpm 1/4[175bpma]
+      40bpm 1/4[175bpma](EZ )
+  #########################################################
+  -
+    do: True
     path: "./maps_test/reading/no_hide/*180bpma*.osu"
     mods: ['__', 'FL', 'HD', 'HR', 'HRFL', 'HDFL', 'EZ']
     field: "reading_star"
@@ -93,6 +140,34 @@ tests:
       40bpm 1/4[180bpma](HD )
       40bpm 1/4[180bpma]
       40bpm 1/4[180bpma](EZ )
+  #########################################################
+  -
+    do: True
+    path: "./maps_test/reading/no_hide/*185bpma*.osu"
+    mods: ['__', 'FL', 'HD', 'HR', 'HRFL', 'HDFL', 'EZ']
+    field: "reading_star"
+    maps: |
+      40bpm 1/4[185bpma](HD FL )
+      40bpm 1/4[185bpma](HR FL )
+      40bpm 1/4[185bpma](FL )
+      40bpm 1/4[185bpma](HR )
+      40bpm 1/4[185bpma](HD )
+      40bpm 1/4[185bpma]
+      40bpm 1/4[185bpma](EZ )
+  #########################################################
+  -
+    do: True
+    path: "./maps_test/reading/no_hide/*190bpma*.osu"
+    mods: ['__', 'FL', 'HD', 'HR', 'HRFL', 'HDFL', 'EZ']
+    field: "reading_star"
+    maps: |
+      40bpm 1/4[190bpma](HD FL )
+      40bpm 1/4[190bpma](HR FL )
+      40bpm 1/4[190bpma](FL )
+      40bpm 1/4[190bpma](HR )
+      40bpm 1/4[190bpma](HD )
+      40bpm 1/4[190bpma]
+      40bpm 1/4[190bpma](EZ )
   #########################################################
   -
     do: True

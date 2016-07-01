@@ -14,10 +14,13 @@
  *  limitations under the License.
  */
 #include <stdio.h>
+#include <math.h>
 
 #include "util/hash_table.h"
 #include "freq_counter.h"
 #include "compiler.h"
+
+typedef void (*ht_fun)(const char*,void*,void*);
 
 struct counter {
     struct hash_table * ht;
@@ -30,24 +33,20 @@ struct counter_entry {
 };
 
 struct heriter {
-    struct counter_entry * e;
-    int (*herit)(const void *, const void *);
-    double nb;
-};
-
-struct bundle {
     const struct counter * c;
-    int (*herit)(const void *, const void *);
+    struct counter_entry * e;
+    herit_fun herit;
+    double nb;
 };
 
 static struct counter_entry * cnte_new(const void * d, double nb);
 static void cnte_free(const char *key, struct counter_entry *e,  void *args);
 static void cnte_print(
-	const char *key, struct counter_entry *e, struct bundle * b);
+	const char *key, struct counter_entry *e, struct heriter *h);
 static void cnte_herit(
-	const char *key, struct counter_entry * e, struct heriter * h);
-
-typedef void (*ht_fun)(const char*,void*,void*);
+	const char *key, struct counter_entry *e, struct heriter *h);
+static void cnte_add_nb_compressed(
+	const char *key, struct counter_entry *e, struct heriter *h);
 
 //--------------------------------------------------
 
@@ -72,15 +71,15 @@ static void cnte_free(const char UNUSED(*key),
 
 static void cnte_print(const char *key,
                        struct counter_entry * e,
-		       struct bundle * b)
+		       struct heriter * h)
 {
-    if (b == NULL) {
-	printf("Entry:\t%s\t%.5g\t%.5g\n", 
-	       key, e->nb, e->nb / b->c->total);
+    if (h == NULL) {
+	printf("Entry:\t%s\t%.4g\t%.4f\n", 
+	       key, e->nb, e->nb / h->c->total);
     } else {
-	double d = cnt_get_nb_compressed(b->c, key, b->herit);
-	printf("Entry:\t%s\t%.5g\t%.5g\t%.5g\t%.5g\n",
-	       key, e->nb, d, e->nb / b->c->total, d / b->c->total);
+	double d = cnt_get_nb_compressed(h->c, key, h->herit);
+	printf("Entry:\t%s\t%.4g\t%.4g\t%.4f\t%.4f\n",
+	       key, e->nb, d, e->nb / h->c->total, d / h->c->total);
     }
 }
 
@@ -90,8 +89,14 @@ static void cnte_herit(const char UNUSED(*key),
                        struct counter_entry *e,
                        struct heriter *h)
 {
-    if (h->herit(h->e->data, e->data))
-	h->nb += e->nb;
+    h->nb += e->nb * h->herit(h->e->data, e->data);
+}
+
+static void cnte_add_nb_compressed(const char *key,
+				   struct counter_entry *UNUSED(e),
+				   struct heriter *h)
+{
+    h->nb += cnt_get_nb_compressed(h->c, key, h->herit);
 }
 
 //--------------------------------------------------
@@ -132,14 +137,13 @@ void cnt_add(struct counter * c, const void * data,
 //--------------------------------------------------
 
 double cnt_get_nb_compressed(const struct counter * c, 
-			     const char * key,
-			     int (*herit)(const void*, const void*))
+			     const char * key, herit_fun herit)
 {
     struct counter_entry * e = NULL;
     ht_get_entry(c->ht, key, &e);
     if (e == NULL)
 	return 0;
-    struct heriter total = {e, herit, 0};
+    struct heriter total = {NULL, e, herit, 0};
     ht_for_each(c->ht, (ht_fun) cnte_herit, &total);
     return total.nb;
 }
@@ -158,6 +162,14 @@ double cnt_get_total(const struct counter * c)
     return c->total;
 }
 
+double cnt_get_total_compressed(const struct counter * c,
+				herit_fun herit)
+{
+    struct heriter h = {c, NULL, herit, 0};
+    ht_for_each(c->ht, (ht_fun) cnte_add_nb_compressed, &h);
+    return h.nb;
+}
+
 //--------------------------------------------------
 
 void cnt_print(const struct counter * c)
@@ -167,11 +179,10 @@ void cnt_print(const struct counter * c)
     ht_for_each(c->ht, (ht_fun) cnte_print, NULL);
 }
 
-void cnt_print_compressed(const struct counter * c,
-			  int (*herit)(const void*, const void*))
+void cnt_print_compressed(const struct counter * c, herit_fun herit)
 {
     printf("Counter: (%g)\n", c->total);
     printf("Entry:\tkey\tval\tcompr\tfreq\tfreq cp\n");
-    struct bundle b = {c, herit};
-    ht_for_each(c->ht, (ht_fun) cnte_print, &b);
+    struct heriter h = {c, NULL, herit, INFINITY};
+    ht_for_each(c->ht, (ht_fun) cnte_print, &h);
 }

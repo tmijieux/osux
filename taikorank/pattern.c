@@ -54,8 +54,6 @@ tro_extract_pattern(const struct tr_object * o, int i, int nb,
 static void tro_pattern_set_str(const struct tr_object * o,
 				int i, int nb, struct pattern * p);
 
-static double tro_singletap_proba(const struct tr_object * o1,
-				  const struct tr_object * o2);
 static double tro_pattern_influence(const struct tr_object * o1,
 				    const struct tr_object * o2);
 
@@ -147,9 +145,10 @@ static inline void tro_print_pattern(const struct tr_object * o)
 }
 
 //-----------------------------------------------------
-/*
-static int pattern_1_is_in_2(const struct pattern *p1, 
-			     const struct pattern *p2)
+
+__attribute__ ((unused))
+static double pattern_1_is_in_2(const struct pattern *p1, 
+				const struct pattern *p2)
 {
     int i;
     for (i = 0; p1->s[i] && p2->s[i]; i++) {
@@ -158,9 +157,10 @@ static int pattern_1_is_in_2(const struct pattern *p1,
     }
     return p1->s[i] == '\0';
 }
-*/
-static int pattern_is_in(const struct pattern *p1, 
-			 const struct pattern *p2)
+
+__attribute__ ((unused))
+static double pattern_is_in(const struct pattern *p1, 
+			    const struct pattern *p2)
 {
     for (int i = 0; p1->s[i] && p2->s[i]; i++) {
 	if (p1->s[i] != p2->s[i])
@@ -168,6 +168,27 @@ static int pattern_is_in(const struct pattern *p1,
     }
     return 1;
 }
+
+__attribute__ ((unused))
+static double pattern_eq(const struct pattern *p1, 
+			 const struct pattern *p2)
+{
+    return strcmp(p1->s, p2->s) == 0;
+}
+
+__attribute__ ((unused))
+static double pattern_1_common_begining(const struct pattern *p1, 
+					const struct pattern *p2)
+{
+    int i;
+    for (i = 0; p1->s[i] && p2->s[i]; i++) {
+	if (p1->s[i] != p2->s[i])
+	    break;
+    }
+    return (double) i / strlen(p1->s);
+}
+
+static herit_fun pattern_herit = (herit_fun) pattern_1_common_begining;
 
 //-----------------------------------------------------
 //-----------------------------------------------------
@@ -210,15 +231,6 @@ tro_extract_pattern(const struct tr_object * o, int i, int nb,
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static double tro_singletap_proba(const struct tr_object * o1, 
-				  const struct tr_object * o2)
-{
-    int diff = o2->offset - o1->end_offset;
-    return lf_eval(SINGLETAP_LF, diff);
-}
-
-//-----------------------------------------------------
-
 static double tro_pattern_influence(const struct tr_object * o1,
 				    const struct tr_object * o2)
 {
@@ -228,21 +240,29 @@ static double tro_pattern_influence(const struct tr_object * o1,
 
 //-----------------------------------------------------
 
+static void cnt_add_tro_patterns(struct counter * c,
+				 const struct tr_object * o, 
+				 double influ)
+{
+    for (int k = 0; k < table_len(o->patterns); k++) {
+	const struct pattern *p = table_get(o->patterns, k);
+	if (p->s[0] == '\0')
+	    continue;
+	cnt_add(c, p, p->s, influ * (p->proba_end - p->proba_start));
+    }
+}
+
 static struct counter * 
 tro_pattern_freq_init(const struct tr_object * o, int i)
 {
     struct counter * c = cnt_new();
-    for (int j = i; j >= 0; j--) {
+    for (int j = i-1; j >= 0; j--) {
 	double influ = tro_pattern_influence(&o->objs[j], o);
 	if (influ == 0)
 	    break; // j-- influence will remain 0
-	for (int k = 0; k < table_len(o->objs[j].patterns); k++) {
-	    const struct pattern *p = table_get(o->objs[j].patterns, k);
-	    if (p->s[0] == '\0')
-		continue;
-	    cnt_add(c, p, p->s, influ);
-	}
+	cnt_add_tro_patterns(c, &o->objs[j], influ);
     }
+    cnt_add_tro_patterns(c, o, 0);
     return c;
 }
 
@@ -251,14 +271,13 @@ tro_pattern_freq_init(const struct tr_object * o, int i)
 static double tro_pattern_freq(const struct tr_object * o,
 			       const struct counter * c)
 {
-    typedef int (*herit)(const void*, const void*);
-    double total = cnt_get_total(c);
+    double total = cnt_get_total_compressed(c, pattern_herit);
     if (total == 0)
-	return 1;
+	return 0;
     double nb = 0;
     for (int k = 0; k < table_len(o->patterns); k++) {
 	const struct pattern * p = table_get(o->patterns, k);
-	double d = cnt_get_nb_compressed(c, p->s, (herit) pattern_is_in);
+	double d = cnt_get_nb_compressed(c, p->s, pattern_herit);
 	nb += d * (p->proba_end - p->proba_start);
     }
     return nb / total;
@@ -278,15 +297,19 @@ static void pattern_free(struct pattern *p)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-void tro_set_pattern_proba(struct tr_object * o, int i)
+void tro_set_pattern_proba(struct tr_object * o, int UNUSED(i))
 {
+    o->proba = lf_eval(SINGLETAP_LF, o->rest);
+/*
     for (int j = i-1; j >= 0; j--) {
 	if (tro_are_same_type(o, &o->objs[j])) {
-	    o->proba = tro_singletap_proba(&o->objs[j], o);
+	    int diff = o->offset - o->objs[j].offset;
+	    o->proba = lf_eval(SINGLETAP_LF, diff);
 	    return;
 	}
     }
     o->proba = 1;
+*/
 }
 
 //-----------------------------------------------------
@@ -333,8 +356,7 @@ void tro_set_pattern_freq(struct tr_object * o, int i)
     o->pattern_freq = lf_eval(PATTERN_FREQ_LF, freq);
 /*
     tro_print_pattern(o);
-    typedef int (*herit)(const void*, const void*);
-    cnt_print_compressed(c, (herit) pattern_is_in);
+    cnt_print_compressed(c, pattern_herit);
     printf("Pattern value for obj n°%d: %g\n", i, o->pattern_freq);
     printf("----------------------------------------------------\n");
 */
