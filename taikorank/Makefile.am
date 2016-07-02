@@ -8,6 +8,7 @@ taiko_ranking_SOURCES = \
 	check_osu_file.c \
 	tr_mods.c \
 	print.c \
+	bpm.c \
 	taiko_ranking_map.c \
 	taiko_ranking_object.c \
 	taiko_ranking_score.c \

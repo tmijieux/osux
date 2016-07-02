@@ -3,6 +3,7 @@ set(TR_SOURCE
   check_osu_file.c		check_osu_file.h
   tr_mods.c			 	tr_mods.h
   print.c				print.h
+  bpm.c					bpm.h
   taiko_ranking_map.c 	taiko_ranking_map.h
   taiko_ranking_object.c taiko_ranking_object.h
   taiko_ranking_score.c	 taiko_ranking_score.h

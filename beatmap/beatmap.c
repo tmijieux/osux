@@ -27,6 +27,9 @@
 #include "storyboard.h"
 #include "color.h"
 
+static int osux_beatmap_prepare(osux_beatmap *bm, const char *filename);
+static void osux_beatmap_set_tp_last_uninherited(osux_beatmap *bm);
+
 osux_beatmap DEFAULT_BEATMAP = { 0 };
 
 #define PRINT_SECTION(section)		\
@@ -34,7 +37,7 @@ osux_beatmap DEFAULT_BEATMAP = { 0 };
 
 #define PRINT_STRING(map, file, Field)		\
     fprintf(f, #Field ": %s\r\n", m->Field)	\
-    
+
 #define PRINT_DOUBLE(map, file, Field)		\
     fprintf(f, #Field ": %.15g\r\n", m->Field)	\
 
@@ -47,9 +50,9 @@ int osux_beatmap_print(const osux_beatmap *m, FILE *f)
 	fprintf(f, "%c%c%c", 0xef, 0xbb, 0xbf);
     }
     fprintf(f, "osu file format v%d\r\n", m->version);
-    
+
     PRINT_SECTION( General );
-	
+
     PRINT_STRING(m, f, AudioFilename);
     PRINT_INT(m, f, AudioLeadIn);
     PRINT_INT(m, f, PreviewTime);
@@ -70,7 +73,7 @@ int osux_beatmap_print(const osux_beatmap *m, FILE *f)
 	}
 	fputs("\r\n", f);
     }
-    
+
     PRINT_DOUBLE(m, f, DistanceSpacing);
     PRINT_INT(m, f, BeatDivisor);
     PRINT_INT(m, f, GridSize);
@@ -83,14 +86,14 @@ int osux_beatmap_print(const osux_beatmap *m, FILE *f)
 
 #define PRINT_STRING(map, file, Field)		\
     fprintf(f, #Field ":%s\r\n", m->Field)	\
-    
+
 #define PRINT_DOUBLE(map, file, Field)		\
     fprintf(f, #Field ":%.15g\r\n", m->Field)	\
 
 #define PRINT_INT(map, file, Field)		\
     fprintf(f, #Field ":%d\r\n", m->Field)	\
 
-    
+
     PRINT_SECTION( Metadata );
     PRINT_STRING(m, f, Title);
     PRINT_STRING(m, f, TitleUnicode);
@@ -109,7 +112,7 @@ int osux_beatmap_print(const osux_beatmap *m, FILE *f)
     PRINT_INT(m, f, BeatmapID);
     PRINT_INT(m, f, BeatmapSetID);
 
-    
+
     PRINT_SECTION( Difficulty );
     PRINT_DOUBLE(m, f, HPDrainRate);
     PRINT_DOUBLE(m, f, CircleSize);
@@ -119,7 +122,7 @@ int osux_beatmap_print(const osux_beatmap *m, FILE *f)
     PRINT_DOUBLE(m, f, SliderTickRate);
 
     PRINT_SECTION( Events );
-    
+
     PRINT_SECTION( TimingPoints );
     for (unsigned int i = 0; i < m->tpc; ++i)
 	tp_print(&m->TimingPoints[i]);
@@ -130,7 +133,7 @@ int osux_beatmap_print(const osux_beatmap *m, FILE *f)
 	    col_print(f, &m->Colours[i], i+1);
 	fputs("\r\n", f);
     }
-    
+
     PRINT_SECTION( HitObjects );
     for (unsigned int i = 0; i < m->hoc; ++i)
 	ho_print(&m->HitObjects[i], m->version);
@@ -149,10 +152,10 @@ int osux_beatmap_save(const char *filename, const osux_beatmap* bm)
     return 0;
 }
 
-int osux_beatmap_prepare(osux_beatmap *bm, const char *filename)
+static int osux_beatmap_prepare(osux_beatmap *bm, const char *filename)
 {
     bm->circles = bm->sliders = bm->spinners = 0;
-    
+
     for (unsigned i = 0; i < bm->hoc; ++i) {
         if (HO_IS_CIRCLE(bm->HitObjects[i]))
             ++ bm->circles ;
@@ -174,15 +177,17 @@ int osux_beatmap_prepare(osux_beatmap *bm, const char *filename)
 
 int osux_beatmap_open(const char *filename, osux_beatmap **beatmap)
 {
-	osux_beatmap *(*osux_parse_beatmap)(const char *filename);
-	osux_parse_beatmap = osux_get_parser();
-	if (osux_parse_beatmap == NULL)
-		return -1;
-	
+    osux_beatmap *(*osux_parse_beatmap)(const char *filename);
+    osux_parse_beatmap = osux_get_parser();
+    if (osux_parse_beatmap == NULL)
+	return -1;
+
     *beatmap = osux_parse_beatmap(filename);
     if (NULL == *beatmap)
         return -1;
     osux_beatmap_prepare(*beatmap, filename);
+
+    osux_beatmap_set_tp_last_uninherited(*beatmap);
     return 0;
 }
 
@@ -238,3 +243,15 @@ int osux_beatmap_close(osux_beatmap *beatmap)
     return -1;
 }
 
+static void osux_beatmap_set_tp_last_uninherited(osux_beatmap *bm)
+{
+    for(unsigned int i = 0; i < bm->tpc; i++) {
+	if(bm->TimingPoints[i].uninherited)
+	    bm->TimingPoints[i].last_uninherited =
+		&bm->TimingPoints[i];
+	else
+	    bm->TimingPoints[i].last_uninherited =
+		bm->TimingPoints[i-1].last_uninherited;
+    }
+
+}

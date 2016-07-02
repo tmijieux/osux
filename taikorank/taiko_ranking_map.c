@@ -18,6 +18,7 @@
 #include <string.h>
 
 #include "beatmap/beatmap.h"
+#include "beatmap/taiko_autoconvert.h"
 #include "beatmap/hitobject.h"
 #include "beatmap/timingpoint.h"
 #include "beatmap/hitsound.h"
@@ -26,6 +27,7 @@
 #include "database/osux_db.h"
 #include "util/md5.h"
 
+#include "bpm.h"
 #include "taiko_ranking_object.h"
 #include "taiko_ranking_map.h"
 #include "print.h"
@@ -48,7 +50,7 @@ static double convert_get_bpm_app(struct timing_point * tp,
 static int convert_get_end_offset(struct hit_object * ho, int type,
 				  double bpm_app);
 static struct tr_map * trm_convert(char* file_name);
-static void trm_add_to_ps(struct tr_map * map, 
+static void trm_add_to_ps(struct tr_map * map,
 			  enum played_state ps, int i);
 
 static void trm_acc(struct tr_map * map);
@@ -69,7 +71,7 @@ void trm_main(const struct tr_map * map)
     // compute
     trm_apply_mods(map_copy);
     trm_compute_stars(map_copy);
-    
+
     // printing
     #pragma omp critical
     if(OPT_PRINT_YAML)
@@ -83,7 +85,7 @@ void trm_main(const struct tr_map * map)
     // db
     if(OPT_DATABASE)
 	trm_db_insert(map_copy);
-  
+
     // free
     trm_free(map_copy);
 }
@@ -121,7 +123,7 @@ struct tr_map * trm_copy(const struct tr_map * map)
     memcpy(copy, map, sizeof(*map));
 
     copy->object = tro_copy(map->object, map->nb_object);
-  
+
     copy->title   = strdup(map->title);
     copy->artist  = strdup(map->artist);
     copy->source  = strdup(map->source);
@@ -130,7 +132,7 @@ struct tr_map * trm_copy(const struct tr_map * map)
     copy->title_uni  = strdup(map->title_uni);
     copy->artist_uni = strdup(map->artist_uni);
     copy->hash = strdup(map->hash);
-  
+
     return copy;
 }
 
@@ -149,7 +151,7 @@ void trm_free(struct tr_map * map)
     free(map->title_uni);
     free(map->artist_uni);
     free(map->hash);
-  
+
     free(map->object);
     free(map);
 }
@@ -215,13 +217,13 @@ static double convert_get_bpm_app(struct timing_point * tp,
 				  double sv)
 {
     double sv_multiplication;
-    if(tp->uninherited)
+    if (tp->uninherited)
 	sv_multiplication = 1;
     else
 	sv_multiplication = -100. / tp->svm;
 
-    return(mpb_to_bpm(tp->last_uninherited->mpb) *
-	   sv_multiplication * (sv / BASIC_SV));
+    return (mpb_to_bpm(tp->last_uninherited->mpb) *
+	    sv_multiplication * (sv / BASIC_SV));
 }
 
 //---------------------------------------------------------------
@@ -257,40 +259,45 @@ static struct tr_map *trm_convert(char *filename)
 
 //---------------------------------------------------------------
 
-static struct tr_map * trm_convert_map(struct osux_beatmap * map)
-{ 
-    if(map->Mode != MODE_TAIKO) {
-	switch(map->Mode) {
-	case MODE_STD:
-	    tr_error("Autoconverts are said to be bad. But I don't "
-		     "think so. Please implement the corresponding "
-		     "functions.");
-	    break;
-	case MODE_CTB:
-	    tr_error("Catch the beat?!");
-	    break;
-	case MODE_MANIA:
-	    tr_error("Taiko is not 2k.");
-	    break;
-	}
-	osux_beatmap_close(map);
-	return NULL;
+static struct osux_beatmap * trm_convert_map_prepare(struct osux_beatmap *map)
+{
+    switch(map->Mode) {
+    case MODE_STD:
+	if (OPT_AUTOCONVERT) {
+	    int res = osux_beatmap_taiko_autoconvert(map);
+	    if (res == 0)
+		return map;
+	    tr_error("Error in autoconvertion.");
+	} else
+	    tr_error("Autoconverts are said to be bad...");
+	break;
+
+    case MODE_TAIKO:
+	return map;
+
+    case MODE_CTB:
+	tr_error("Catch the beat?!");
+	break;
+    case MODE_MANIA:
+	tr_error("Taiko is not 2k.");
+	break;
     }
-    
+    osux_beatmap_close(map);
+    return NULL;
+}
+
+//---------------------------------------------------------------
+
+static struct tr_map * trm_convert_map(struct osux_beatmap * map)
+{
+    map = trm_convert_map_prepare(map);
+    if (map == NULL)
+	return NULL;
+
     struct tr_map * tr_map = calloc(sizeof(struct tr_map), 1);
     tr_map->nb_object = map->hoc;
     tr_map->object = calloc(sizeof(struct tr_object), map->hoc);
 
-    // set last uninherited
-    for(unsigned int i = 0; i < map->tpc; i++) {
-	if(map->TimingPoints[i].uninherited)
-	    map->TimingPoints[i].last_uninherited =
-		&map->TimingPoints[i];
-	else
-	    map->TimingPoints[i].last_uninherited =
-		map->TimingPoints[i-1].last_uninherited;
-    }
-    
     // set objects
     unsigned int current_tp = 0;
     tr_map->max_combo = 0;
@@ -299,7 +306,7 @@ static struct tr_map * trm_convert_map(struct osux_beatmap * map)
 	      map->TimingPoints[current_tp + 1].offset
 	      <= map->HitObjects[i].offset)
 	    current_tp++;
-	
+
 	tr_map->object[i].offset     =
 	    (int) map->HitObjects[i].offset;
 	tr_map->object[i].bf         =
@@ -311,7 +318,7 @@ static struct tr_map * trm_convert_map(struct osux_beatmap * map)
 	    convert_get_end_offset(&map->HitObjects[i],
 				   tr_map->object[i].bf,
 				   tr_map->object[i].bpm_app);
-	
+
 	if(tro_is_bonus(&tr_map->object[i])) {
 	    tr_map->object[i].ps = BONUS;
 	} else {
@@ -320,7 +327,7 @@ static struct tr_map * trm_convert_map(struct osux_beatmap * map)
 	}
 	tr_map->object[i].objs = NULL;
     }
-    
+
     // get other data
     tr_map->od = map->OverallDifficulty;
     tr_map->title      = strdup(map->Title);
@@ -332,7 +339,7 @@ static struct tr_map * trm_convert_map(struct osux_beatmap * map)
     tr_map->diff_osu_ID = map->BeatmapID;
     if(map->TitleUnicode == NULL)
 	tr_map->title_uni = strdup(tr_map->title);
-    else	
+    else
 	tr_map->title_uni  = strdup(map->TitleUnicode);
     if(map->ArtistUnicode == NULL)
 	tr_map->artist_uni = strdup(tr_map->artist);
@@ -343,9 +350,9 @@ static struct tr_map * trm_convert_map(struct osux_beatmap * map)
     tr_map->miss  = 0;
     tr_map->bonus = tr_map->nb_object - tr_map->max_combo;
     if(tr_map->max_combo != 0)
-	tr_map->acc = MAX_ACC; 
+	tr_map->acc = MAX_ACC;
     else
-	tr_map->acc = 0; 
+	tr_map->acc = 0;
 
     osux_beatmap_close(map);
     return tr_map;
@@ -377,7 +384,7 @@ void trm_print_tro(struct tr_map * map, int filter)
 	fprintf(OUTPUT_INFO, "dst*\tread*\tptrn*\tacc*\tfin*\t");
 
     fprintf(OUTPUT_INFO, "\n");
-  
+
     for(int i = 0; i < map->nb_object; ++i)
 	tro_print(&map->object[i], filter);
 }
@@ -461,7 +468,7 @@ void trm_print_yaml(struct tr_map * map)
     fprintf(OUTPUT, "accuracy_star: %g, ", map->accuracy_star);
     fprintf(OUTPUT, "final_star: %g", map->final_star);
     fprintf(OUTPUT, "}");
-  
+
     if(OPT_PRINT_TRO) {
 	fprintf(OUTPUT, ", objects: [");
 	for(int i = 0; i < map->nb_object; i++) {
@@ -470,7 +477,7 @@ void trm_print_yaml(struct tr_map * map)
 	}
 	fprintf(OUTPUT, "]");
     }
-    
+
     fprintf(OUTPUT, "}");
     free(mods);
     prefix = ", ";
@@ -513,7 +520,7 @@ int trm_best_influence_tro(struct tr_map * map)
 
 //--------------------------------------------------
 
-static void trm_add_to_ps(struct tr_map * map, 
+static void trm_add_to_ps(struct tr_map * map,
 			  enum played_state ps, int i)
 {
     switch(ps) {

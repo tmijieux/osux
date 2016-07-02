@@ -25,6 +25,7 @@
 #include "util/yaml2.h"
 #include "util/table.h"
 
+#include "bpm.h"
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"
 #include "stats.h"

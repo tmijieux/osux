@@ -24,6 +24,8 @@
 
 #include "util/hash_table.h"
 
+#define ARG_OPT_AUTOCONVERT  "-autoconvert"
+
 #define ARG_OPT_DB           "-db"
 
 #define ARG_OPT_SCORE        "-score"
@@ -76,6 +78,15 @@ static int opt_db(int argc, const char ** argv)
 	ht_conf_db_init();
 	tr_db_init();
     }
+    return 1;
+}
+
+//-----------------------------------------------------
+
+static int opt_autoconvert(int argc, const char ** argv)
+{
+    OPT_ARGC_ERR(argc, 1, ARG_OPT_AUTOCONVERT);
+    OPT_AUTOCONVERT = atoi(argv[0]);
     return 1;
 }
 
@@ -212,6 +223,8 @@ INITIALIZER(options_init)
 {
     ht_opt = ht_create(0, NULL);
   
+    ht_add_entry(ht_opt, ARG_OPT_AUTOCONVERT,  opt_autoconvert);
+
     ht_add_entry(ht_opt, ARG_OPT_DB,           opt_db);
 
     ht_add_entry(ht_opt, ARG_OPT_MODS,         opt_mods);

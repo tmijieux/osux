@@ -20,8 +20,6 @@
 #include <gts.h>
 #include "table.h"
 
-#define MSEC_IN_MINUTE 60000.
-
 enum played_state {
     GREAT, GOOD, MISS, BONUS
 };
@@ -104,7 +102,6 @@ struct tr_object * tro_copy(const struct tr_object * o, int nb);
 void tro_print_yaml(const struct tr_object * o);
 void tro_print(const struct tr_object * obj, int filter);
 
-double mpb_to_bpm(double mpb);
 int equal(double x, double y);
 
 int tro_get_length(const struct tr_object * obj);

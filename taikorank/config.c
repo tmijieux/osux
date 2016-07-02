@@ -38,6 +38,8 @@
 
 #define MOD_STR_LENGTH 2
 
+int OPT_AUTOCONVERT;
+
 int OPT_DATABASE;
 int OPT_PRINT_TRO;
 int OPT_PRINT_YAML;
@@ -85,6 +87,8 @@ struct tr_config * tr_config_copy(struct tr_config * conf)
 static void global_init(void)
 {
     CONF = tr_config_new();
+
+    OPT_AUTOCONVERT = cst_i(ht_conf, "enable_autoconvert");
 
     OPT_PRINT_TRO   = cst_i(ht_conf, "print_tro");
     OPT_PRINT_YAML  = cst_i(ht_conf, "print_yaml");

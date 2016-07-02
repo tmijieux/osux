@@ -14,7 +14,9 @@ libbeatmap_la_SOURCES = \
 	storyboard.c \
 	storyboard.h \
 	timingpoint.c \
-	timingpoint.h 
+	timingpoint.h \
+	taiko_autoconvert.c \
+	taiko_autoconvert.h
 
 libbeatmap_la_LIBADD = parser/libosux_parser.la 
 

@@ -166,11 +166,11 @@ osux_list_copy(const struct osux_list *l)
     return n;
 }
 
-void *list_to_array(const struct osux_list *l)
+void *osux_list_to_array(const struct osux_list *l)
 {
     void **array = malloc(sizeof(*array) * l->size);
     for (unsigned i = 0; i < l->size; ++i)
-        array[i] = osux_list_get(l, i);
+        array[i] = osux_list_get(l, i+1);
 
     return array;
 }
@@ -182,7 +182,7 @@ osux_list_to_hashtable(const struct osux_list *l,
     struct hash_table *ht = ht_create(2 * l->size, NULL);
 
     for (unsigned i = 0; i < l->size; ++i) {
-	void *el = osux_list_get(l, i);
+	void *el = osux_list_get(l, i+1);
 	ht_add_entry(ht, element_keyname(el), el);
     }
     return ht;

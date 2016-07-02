@@ -1,4 +1,7 @@
-### Print 
+### Autoconvert
+enable_autoconvert: 1
+
+### Print
 print_tro:  0
 print_yaml: 0
 print_filter: ba

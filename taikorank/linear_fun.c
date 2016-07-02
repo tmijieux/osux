@@ -76,8 +76,8 @@ void lf_free(struct linear_fun * lf)
 
 //--------------------------------------------------
 
-static inline int find_interval_binary(double * array, int l, int r, 
-				       double x)
+static inline int find_interval_binary(const double * array,
+				       int l, int r, double x)
 {
     if (r < l)
 	return -1;
@@ -89,7 +89,7 @@ static inline int find_interval_binary(double * array, int l, int r,
     return m;
 }
 
-static inline int find_interval_linear(double * array, int len, 
+static inline int find_interval_linear(const double * array, int len,
 				       double x)
 {
     if (x < array[0])

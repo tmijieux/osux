@@ -38,6 +38,8 @@ struct tr_config {
     int miss;
 };
 
+extern int OPT_AUTOCONVERT;
+
 extern int OPT_DATABASE;
 extern int OPT_PRINT_TRO;
 extern int OPT_PRINT_YAML;

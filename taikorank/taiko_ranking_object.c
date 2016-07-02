@@ -22,6 +22,7 @@
 
 #include "print.h"
 
+#include "bpm.h"
 #include "taiko_ranking_object.h"
 
 static char tro_char_type(const struct tr_object * o);
@@ -50,14 +51,6 @@ double tro_get_radius(const struct tr_object * obj)
 }
 
 //--------------------------------------------------
-
-double mpb_to_bpm(double mpb)
-{
-    // work for 'mpb to bpm' and for 'bpm to mpb'
-    return MSEC_IN_MINUTE / mpb;
-}
-
-//---------------------------------------------------
 
 int equal(double x, double y)
 {
