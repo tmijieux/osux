@@ -30,7 +30,7 @@ no_bonus: 0
 # remove bonus objects
 
 ### osux db
-osuxdb_state: n
+osuxdb_state: 0
 # b -> build
 # l -> load
 # other -> nothing

@@ -247,7 +247,7 @@ static int convert_get_end_offset(
 //---------------------------------------------------------------
 //---------------------------------------------------------------
 
-static struct tr_map *trm_convert(char *filename)
+static struct tr_map * trm_convert(char *filename)
 {
     struct osux_beatmap *map = NULL;
     if (osux_beatmap_open(filename, &map) < 0) {

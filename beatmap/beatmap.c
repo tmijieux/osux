@@ -67,8 +67,9 @@ int osux_beatmap_print(const osux_beatmap *m, FILE *f)
     PRINT_SECTION( Editor );
     if (m->bkmkc) {
 	fprintf(f, "Bookmarks: ");
-	for (unsigned int i = 0; i < m->bkmkc; ++i){
-	    if (i>=1) printf(",");
+	for (unsigned int i = 0; i < m->bkmkc; ++i) {
+	    if (i>=1)
+		fprintf(f, ",");
 	    fprintf(f, "%d", m->Bookmarks[i]);
 	}
 	fputs("\r\n", f);
@@ -96,16 +97,19 @@ int osux_beatmap_print(const osux_beatmap *m, FILE *f)
 
     PRINT_SECTION( Metadata );
     PRINT_STRING(m, f, Title);
-    PRINT_STRING(m, f, TitleUnicode);
+    if (m->TitleUnicode != NULL)
+	PRINT_STRING(m, f, TitleUnicode);
     PRINT_STRING(m, f, Artist);
-    PRINT_STRING(m, f, ArtistUnicode);
+    if (m->ArtistUnicode != NULL)
+	PRINT_STRING(m, f, ArtistUnicode);
     PRINT_STRING(m, f, Creator);
     PRINT_STRING(m, f, Version);
     PRINT_STRING(m, f, Source);
-    printf("Tags:");
+    fprintf(f, "Tags:");
     for (unsigned int i = 0; i < m->tagc; ++i) {
 	fprintf(f, "%s", m->Tags[i]);
-	if (i < m->tagc-1) fprintf(f, " ");
+	if (i < m->tagc-1)
+	    fprintf(f, " ");
     }
     fputs("\r\n", f);
 

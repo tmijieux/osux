@@ -12,7 +12,7 @@ A final value is then computed giving global star rating for the map.
 
 ## Requirements
 Needed:
-* yaml
+* osux and mostly evrything that with with it
 * GNU Triangulated Surface
 
 Optional:
@@ -33,6 +33,9 @@ Configuration files are in the yaml/ directory.
 
 #### Options
 Change the config in config.yaml for an execution. Options are local, they apply to every map after them.
+
+Autoconvert:
+* `-autoconvert [0|1]` allow autoconvert. The autoconvert algorithm is not perfect and can be wrong with some beatmaps. Checking the maximum combo might give you a big hint.
 
 Database options:
 * `-db [0|1]` store results in the database
