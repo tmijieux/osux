@@ -131,15 +131,6 @@ struct linear_fun * cst_lf(struct hash_table * ht, const char * key)
     return lf;
 }
 
-struct linear_fun * cst_lf2(struct hash_table * ht, const char * key)
-{
-    struct vector * v = cst_vect2(ht, key);
-    struct linear_fun * lf = lf_new(v);
-    vect_free(v);
-    lf->name = (char*) key;
-    return lf;
-}
-
 //--------------------------------------------------
 
 void lf_print(struct linear_fun * lf)

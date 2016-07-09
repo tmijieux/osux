@@ -34,9 +34,9 @@
 struct yaml_wrap * cst_get_yw(const char * file_name)
 {
     struct yaml_wrap * yw = NULL;
-    if(0 != yaml2_parse_file(&yw, file_name))
+    if (0 != yaml2_parse_file(&yw, file_name))
 	tr_error("Unable to parse yaml file '%s'.", file_name);
-    if(yw == NULL)
+    if (yw == NULL)
 	tr_error("No wrapping.");
     return yw;
 }
@@ -45,7 +45,7 @@ struct yaml_wrap * cst_get_yw(const char * file_name)
 
 struct hash_table * yw_extract_ht(struct yaml_wrap * yw)
 {
-    if(yw->type != YAML_MAPPING) {
+    if (yw->type != YAML_MAPPING) {
 	tr_error("Constant is not a hash table.");
 	return NO_MAPPING;
     }
@@ -54,7 +54,7 @@ struct hash_table * yw_extract_ht(struct yaml_wrap * yw)
 
 struct osux_list * yw_extract_list(struct yaml_wrap * yw)
 {
-    if(yw->type != YAML_SEQUENCE) {
+    if (yw->type != YAML_SEQUENCE) {
 	tr_error("Constant is not a list.");
 	return NO_SEQUENCE;
     }
@@ -63,7 +63,7 @@ struct osux_list * yw_extract_list(struct yaml_wrap * yw)
 
 char * yw_extract_scalar(struct yaml_wrap * yw)
 {
-    if(yw->type != YAML_SCALAR) {
+    if (yw->type != YAML_SCALAR) {
 	tr_error("Constant is not a scalar.");
 	return NO_SCALAR;
     }
@@ -76,8 +76,8 @@ struct osux_list * cst_list(struct hash_table * ht, const char * key)
 {
     struct yaml_wrap * yw = NULL;
     ht_get_entry(ht, key, &yw);
-    if(yw == NULL) {
-	tr_error("Constant '%s' not found.", key);
+    if (yw == NULL) {
+	tr_error("List '%s' not found.", key);
 	return NO_SEQUENCE;
     }
     return yw_extract_list(yw);
@@ -87,8 +87,8 @@ char * cst_str(struct hash_table * ht, const char * key)
 {
     struct yaml_wrap * yw = NULL;
     ht_get_entry(ht, key, &yw);
-    if(yw == NULL) {
-	tr_error("Constant '%s' not found.", key);
+    if (yw == NULL) {
+	tr_error("Scalar '%s' not found.", key);
 	return NO_SCALAR;
     }
     return yw_extract_scalar(yw);
@@ -111,9 +111,9 @@ struct stats * cst_stats(struct hash_table * ht, const char * key)
     struct stats * stats = calloc(sizeof(*stats), 1);
     struct yaml_wrap * yw = NULL;
     ht_get_entry(ht, key, &yw);
-    if(yw == NULL) {
+    if (yw == NULL) {
 	tr_error("Stats '%s' not found.", key);
-    } else if(yw->type != YAML_MAPPING) {
+    } else if (yw->type != YAML_MAPPING) {
 	tr_error("Stats '%s' is not a mapping.", key);
     } else {
 	struct hash_table * ht_stats = yw->content.mapping;

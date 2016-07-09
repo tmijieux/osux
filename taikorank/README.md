@@ -56,7 +56,7 @@ Modifier options:
 * `-no_bonus [0|1]` remove bonus notes
 
 Osux database options:
-* `-build [0|1]` build osuxdb
+* `-state [bl]` choose action for osuxdb, (b = build, l = load, else do nothing)
 * `-path [PATH]` path to osuxdb
 * `-songdir [PATH]` song directory for building osuxdb
 

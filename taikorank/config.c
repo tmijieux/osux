@@ -55,7 +55,7 @@ char * TR_DB_PASSWD;
 
 char * OPT_ODB_PATH;
 char * OPT_ODB_SGDIR;
-int OPT_ODB_BUILD;
+char * OPT_ODB_STATE;
 struct osux_db * ODB;
 
 struct tr_config * CONF;
@@ -106,14 +106,10 @@ static void global_init(void)
     config_score();
 
     OPT_ODB_PATH  = cst_str(ht_conf, "osuxdb_path");
-    OPT_ODB_BUILD = cst_i(ht_conf, "osuxdb_build");
+    OPT_ODB_STATE = cst_str(ht_conf, "osuxdb_state");
     OPT_ODB_SGDIR = cst_str(ht_conf, "osuxdb_song_dir");
     osux_set_song_path(OPT_ODB_SGDIR);
-    if (OPT_ODB_BUILD) {
-		config_odb_build(OPT_ODB_SGDIR);
-    } else {
-		osux_db_load(OPT_ODB_PATH, &ODB);
-    }
+    config_odb_apply_state(OPT_ODB_STATE[0]);
 }
 
 //-----------------------------------------------------
@@ -148,18 +144,31 @@ void config_score(void)
 
 //-----------------------------------------------------
 
-
 static void config_odb_exit(void)
 {
     if (ODB != NULL)
 	osux_db_free(ODB);
 }
 
-void config_odb_build(char * song_dir)
+static void config_odb_build(char * song_dir)
 {
     osux_db_build(song_dir, &ODB);
     osux_db_save(OPT_ODB_PATH, ODB);
     atexit(config_odb_exit);
+}
+
+void config_odb_apply_state(char odb_state)
+{
+    switch (odb_state) {
+    case 'b':
+	config_odb_build(OPT_ODB_SGDIR);
+	break;
+    case 'l':
+	osux_db_load(OPT_ODB_PATH, &ODB);
+	break;
+    default:
+	break;
+    }    
 }
 
 //-----------------------------------------------------

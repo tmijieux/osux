@@ -21,9 +21,12 @@
 
 #include "util/list.h"
 #include "util/string2.h"
+
 #include "cst_yaml.h"
 #include "vector.h"
-#include "interpolation.h"
+#include "print.h"
+
+#define ARRAY_LENGTH(x) (sizeof(x) / sizeof((x)[0]))
 
 #define CST_VECT_DIM 2
 
@@ -55,19 +58,23 @@ void vect_free(struct vector * v)
 
 //--------------------------------------------------
 
-struct vector * cst_vect2(struct hash_table * ht, const char * key)
+struct vector * cst_vect_from_list(struct hash_table * ht, const char * key)
 {
     struct osux_list * l = cst_list(ht, key);
+    if (l == NULL)
+	return NULL;
     struct vector * v = vect_new(osux_list_size(l), CST_VECT_DIM);
-    for(int i = 0; i < v->len; i++) {
+    for (int i = 0; i < v->len; i++) {
 	struct osux_list * l2 = yw_extract_list(osux_list_get(l, i+1));
-	for(int j = 0; j < CST_VECT_DIM; j++)
+	if (l2 == NULL)
+	    return NULL;
+	for (int j = 0; j < CST_VECT_DIM; j++)
 	    v->t[i][j] = atof(yw_extract_scalar(osux_list_get(l2, j+1)));
     }
     return v;
 }
 
-struct vector * cst_vect(struct hash_table * ht, const char * key)
+struct vector * cst_vect_from_decl(struct hash_table * ht, const char * key)
 {
     char *s = xasprintf("%s_length", key);
     struct vector * v = vect_new(cst_i(ht, s), CST_VECT_DIM);
@@ -90,24 +97,22 @@ struct vector * cst_vect(struct hash_table * ht, const char * key)
 
 //--------------------------------------------------
 
-double vect_exp(struct vector * v, double x)
+struct vector * cst_vect(struct hash_table * ht, const char * key)
 {
-    return EXP_2_PT(x, 
-		    v->t[0][0], v->t[0][1],
-		    v->t[1][0], v->t[1][1]);
-}
-
-double vect_poly2(struct vector * v, double x)
-{
-    if(x > v->t[v->max_index][0]) {
-	return v->t[v->max_index][1];
+    typedef struct vector* (*cst_vect_f)(struct hash_table*, const char*);
+    static cst_vect_f funs[] = {
+	cst_vect_from_decl,
+	cst_vect_from_list,
+    };
+    tr_set_print_level(NONE);
+    struct vector * v = NULL;
+    for (unsigned int i = 0; i < ARRAY_LENGTH(funs); i++) {
+	v = funs[i](ht, key);
+	if (v != NULL)
+	    break;
     }
-    if(x < v->t[v->min_index][0]) {
-	return v->t[v->min_index][1];
-    }
-
-    return POLY_2_PT(x, 
-		     v->t[0][0], v->t[0][1],
-		     v->t[1][0], v->t[1][1]);
+    tr_set_print_level(ALL);
+    if (v == NULL)
+	tr_error("Failed to find '%s'", key);
+    return v;
 }
-

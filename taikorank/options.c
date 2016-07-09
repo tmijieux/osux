@@ -43,7 +43,7 @@
 #define ARG_OPT_NO_BONUS     "-no_bonus"
 #define ARG_OPT_FLAT         "-flat"
 
-#define ARG_OPT_ODB_BUILD  "-build"
+#define ARG_OPT_ODB_STATE  "-state"
 #define ARG_OPT_ODB_PATH   "-path"
 #define ARG_OPT_ODB_SGDIR  "-songdir"
 
@@ -189,12 +189,11 @@ static int opt_flat(int argc, const char ** argv)
 
 //-----------------------------------------------------
 
-static int opt_odb_build(int argc, const char ** argv)
+static int opt_odb_state(int argc, const char ** argv)
 {
-    OPT_ARGC_ERR(argc, 1, ARG_OPT_ODB_BUILD);
-    OPT_ODB_BUILD = atoi(argv[0]);
-    if(OPT_ODB_BUILD)
-	config_odb_build(OPT_ODB_SGDIR);
+    OPT_ARGC_ERR(argc, 1, ARG_OPT_ODB_STATE);
+    OPT_ODB_STATE = (char *) argv[0];
+    config_odb_apply_state(OPT_ODB_STATE[0]);
     return 1;
 }
 
@@ -242,10 +241,10 @@ INITIALIZER(options_init)
     ht_add_entry(ht_opt, ARG_OPT_PRINT_ORDER,  opt_print_order);
     ht_add_entry(ht_opt, ARG_OPT_PRINT_FILTER, opt_print_filter);
 
-    ht_add_entry(ht_opt, ARG_OPT_ODB_BUILD,    opt_odb_build);
+    ht_add_entry(ht_opt, ARG_OPT_ODB_STATE,    opt_odb_state);
     ht_add_entry(ht_opt, ARG_OPT_ODB_SGDIR,    opt_odb_sgdir);
     ht_add_entry(ht_opt, ARG_OPT_ODB_PATH,     opt_odb_path);
 
-	atexit(options_exit);
+    atexit(options_exit);
 }
 

@@ -56,14 +56,14 @@ extern char * TR_DB_PASSWD;
 extern struct osux_db * ODB;
 extern char * OPT_ODB_PATH;
 extern char * OPT_ODB_SGDIR;
-extern int OPT_ODB_BUILD;
+extern char * OPT_ODB_STATE;
 
 extern struct tr_config * CONF;
 
 void tr_config_free(struct tr_config * conf);
 struct tr_config * tr_config_copy(struct tr_config * conf);
 
-void config_odb_build(char * song_dir);
+void config_odb_apply_state(char odb_state);
 void config_set_mods(const char * mods);
 void config_set_filter(char * filter);
 void config_set_tr_main(int score);

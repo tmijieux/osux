@@ -30,8 +30,11 @@ no_bonus: 0
 # remove bonus objects
 
 ### osux db
+osuxdb_state: n
+# b -> build
+# l -> load
+# other -> nothing
 osuxdb_path:     ./osuxdb
-osuxdb_build:    0
 osuxdb_song_dir: ./bb_maps/
 
 ### Database

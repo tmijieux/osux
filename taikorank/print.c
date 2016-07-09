@@ -22,25 +22,39 @@
 
 #define TR_PREFIX "[Taiko Ranking] "
 
+static enum print_level PRINT_LEVEL = ALL;
+
+//-------------------------------------------------
+
+void tr_set_print_level(enum print_level level)
+{
+    PRINT_LEVEL = level;
+}
+
+//-------------------------------------------------
+
+#define tr_print(msg, level)					\
+    if (PRINT_LEVEL < level)					\
+	return;							\
+    va_list vl;							\
+    va_start(vl, s);						\
+    fprintf(OUTPUT_ERR, TR_PREFIX msg);				\
+    vfprintf(OUTPUT_ERR, s, vl);				\
+    fprintf(OUTPUT_ERR, "\n")
+
 //-------------------------------------------------
 
 void tr_error(const char * s, ...)
 {
-    va_list vl;
-    va_start(vl, s);
-    fprintf(OUTPUT_ERR, TR_PREFIX "\033[91mError: \033[0m");
-    vfprintf(OUTPUT_ERR, s, vl);
-    fprintf(OUTPUT_ERR, "\n");
+    tr_print("\033[91mError: \033[0m", ERROR);
 }
 
 void tr_warning(const char * s, ...)
 {
-    va_list vl;
-    va_start(vl, s);
-    fprintf(OUTPUT_ERR, TR_PREFIX "\033[93mWarning: \033[0m");
-    vfprintf(OUTPUT_ERR, s, vl);
-    fprintf(OUTPUT_ERR, "\n");
+    tr_print("\033[93mWarning: \033[0m", WARNING);
 }
+
+//-------------------------------------------------
 
 void print_string_size(const char *src, int max, FILE * output)
 {

@@ -34,8 +34,18 @@
 #define STR_MODS_LENGTH 3
 #define MAX_MODS        4
 
+enum print_level {
+    NONE    = -1,
+    ERROR   = 0,
+    WARNING = 1,
+    ALL     = 9
+};
+
+void tr_set_print_level(enum print_level level);
+
 void tr_error(const char * s, ...);
 void tr_warning(const char * s, ...);
+
 void print_string_size(const char * s, int max, FILE * output);
 
 #endif
