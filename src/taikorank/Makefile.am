@@ -32,6 +32,6 @@ taiko_ranking_SOURCES = \
 taiko_ranking_LDADD = ../libosux.la \
 		../util/libosux_util.la
 
-taiko_ranking_CFLAGS = -DMYSQL_TR_DB -fopenmp $(AM_CFLAGS) `pkg-config --cflags glib-2.0 gts`
-taiko_ranking_LDFLAGS = -lmysqlclient -pthread -lm $(AM_LDFLAGS) `pkg-config --libs glib-2.0 gts`
+taiko_ranking_CFLAGS = -DMYSQL_TR_DB -fopenmp $(GTS_CFLAGS) $(AM_CFLAGS) 
+taiko_ranking_LDFLAGS = -lmysqlclient -pthread -lm $(GTS_LIBS) $(AM_LDFLAGS) 
 

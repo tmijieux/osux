@@ -13,7 +13,10 @@ set(BM_SOURCE
   storyboard.c
   storyboard.h
   timingpoint.c
-  timingpoint.h )
+  timingpoint.h
+  taiko_autoconvert.c
+  taiko_autoconvert.h )
+
 
 add_library(osux_bm STATIC ${BM_SOURCE})
 target_link_libraries(osux_bm osux_parser)

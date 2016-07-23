@@ -18,7 +18,7 @@
 #define TRO_H
 
 #include <gts.h>
-#include "table.h"
+#include "util/table.h"
 
 enum played_state {
     GREAT, GOOD, MISS, BONUS

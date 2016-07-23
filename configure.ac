@@ -13,19 +13,33 @@ PKG_CHECK_MODULES(LZMA, liblzma)
 PKG_CHECK_MODULES(CRYPTO, libcrypto)
 PKG_CHECK_MODULES(SQLITE, sqlite3) 
 
+PKG_CHECK_MODULES(GTS, gts >= 0.7.2, ,
+                       [AC_CHECK_PROG(GTS_CONFIG, gts-config,
+                       gts-config, false)
+		       if test "x$GTS_CONFIG" = "xfalse" ; then
+                          AC_MSG_ERROR([pkg/gts-config not in path,
+                       aborting])
+                       fi
+                       GTS_CFLAGS=$(${GTS_CONFIG} --cflags)
+                       GTS_LIBS=$(${GTS_CONFIG} --libs)])
+
+AC_SUBST(GTS_CFLAGS)
+AC_SUBST(GTS_LIBS)
+
 AC_CONFIG_FILES([
 		  Makefile
-		  util/Makefile
-		  mod/Makefile
-		  beatmap/Makefile
-		  beatmap/parser/Makefile
-      		  beatmap/parser/parser_py/Makefile
- 		  beatmap/parser/parser_c/Makefile
-		  editor/Makefile
-		  replay/Makefile
-		  database/Makefile
-		  taikorank/Makefile
-		  taikorank/yaml/Makefile
+		  src/Makefile
+		  src/util/Makefile
+		  src/mod/Makefile
+		  src/beatmap/Makefile
+		  src/beatmap/parser/Makefile
+      		  src/beatmap/parser/parser_py/Makefile
+ 		  src/beatmap/parser/parser_c/Makefile
+		  src/editor/Makefile
+		  src/replay/Makefile
+		  src/database/Makefile
+		  src/taikorank/Makefile
+		  src/taikorank/yaml/Makefile
 ])
 
 AC_OUTPUT
