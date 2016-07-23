@@ -1,0 +1,6 @@
+[submodule "src/thirdparty/libyaml"]
+	path = src/thirdparty/libyaml
+	url = https://github.com/tomtix/libyaml.git
+[submodule "src/thirdparty/xz"]
+	path = src/thirdparty/xz
+	url = https://github.com/tomtix/xz.git
