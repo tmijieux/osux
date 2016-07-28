@@ -1,7 +1,7 @@
 
 set(PARSER_PY_SRC 
   pyfetch.c 		pyfetch.h
-  python.c 		python.h
+  python_.c 		python_.h
   )
 
 set(Python_ADDITIONAL_VERSIONS "2.7")

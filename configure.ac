@@ -2,14 +2,17 @@ AC_INIT([osux], [0.1], [lmaugere@ipb.fr, tmijieux@ipb.fr])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AM_SILENT_RULES([yes])
 AM_PROG_AR
-LT_INIT([dlopen disable-static])
+LT_INIT([win32-dll dlopen disable-static])
 AC_CONFIG_MACRO_DIRS([m4])
 AC_PROG_CC
-AC_CONFIG_HEADERS([config.h])
 
+PKG_CHECK_MODULES(YAML, yaml-0.1) 
+PKG_CHECK_MODULES(LZMA, liblzma) 
 PKG_CHECK_MODULES(PYTHON2, python2) 
 PKG_CHECK_MODULES(CRYPTO, libcrypto)
-PKG_CHECK_MODULES(SQLITE, sqlite3) 
+PKG_CHECK_MODULES(SQLITE, sqlite3)
+PKG_CHECK_MODULES([GLIB], [glib-2.0])
+PKG_CHECK_MODULES([GMODULE], [gmodule-2.0])
 PKG_CHECK_MODULES(GTS, gts >= 0.7.2, ,
                        [AC_CHECK_PROG(GTS_CONFIG, gts-config,
                        gts-config, false)
@@ -39,10 +42,9 @@ AC_CONFIG_FILES([
 		  src/taikorank/Makefile
 		  src/taikorank/yaml/Makefile
 ])
-AC_CONFIG_SUBDIRS([src/thirdparty/libyaml
-                   src/thirdparty/xz
-                   ])
-#PKG_CHECK_MODULES(YAML, yaml-0.1) 
-#PKG_CHECK_MODULES(LZMA, liblzma) 
+# AC_CONFIG_SUBDIRS([src/thirdparty/libyaml
+#                   src/thirdparty/xz
+#                    ])
+
 
 AC_OUTPUT

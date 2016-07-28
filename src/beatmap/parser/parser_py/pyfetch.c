@@ -13,8 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-#include "./python.h"
+#include "./python_.h"
 
 #ifndef _GNU_SOURCE
 #	define _GNU_SOURCE
@@ -28,9 +27,7 @@
 #include "beatmap/hitobject.h"
 #include "beatmap/color.h"
 #include "util/error.h"
-
 #include "compiler.h"
-
 #include "./pyfetch.h"
 #include "../parser.h"
 
@@ -370,7 +367,7 @@ static osux_beatmap *fetch_beatmap(const char *filename)
 
 /******************************************************************************/
 
-void __export parser_py_init(register_plugin_t register_callback,
+void parser_py_init(register_plugin_t register_callback,
                              const osux_beatmap *default_bm)
 {
     struct osux_bm_parser_callback cb;

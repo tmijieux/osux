@@ -14,9 +14,11 @@
  *  limitations under the License.
  */
 
+#include <glib.h>
+#include <glib/gprintf.h>
+
 #include <stdlib.h>
 #include <stdbool.h>
-//#include <unistd.h>
 #include <time.h>
 #include <locale.h>
 
@@ -36,8 +38,7 @@
 
 static unsigned int parse_replay_data(FILE *f, struct replay_data **repdata)
 {
-    char *uncomp, **tab;
-    unsigned int repdata_count;
+    gchar *uncomp, **tab;
     
     lzma_decompress(f, (uint8_t**) &uncomp);
     if (NULL == uncomp) {
@@ -45,20 +46,24 @@ static unsigned int parse_replay_data(FILE *f, struct replay_data **repdata)
         return (unsigned) -1;
     }
     
-    repdata_count = string_split(uncomp, ",", &tab);
+    tab = g_strsplit(uncomp, ",", 0);
     free(uncomp);
+	gsize tabSize = 0;
+	while (tab[tabSize] != NULL)
+		tabSize++;
     
-    *repdata = calloc(sizeof(**repdata), repdata_count);
-    for (unsigned int i = 0; i < repdata_count; ++i) {
-	sscanf(tab[i], "%ld|%lg|%lg|%d",
-	       &(*repdata)[i].previous_time,
-	       &(*repdata)[i].x,
-	       &(*repdata)[i].y,
-    	       &(*repdata)[i].keys);
-	free(tab[i]);
+    *repdata = calloc(sizeof(**repdata), tabSize);
+    for (unsigned int i = 0; i < tabSize; ++i) {
+		gchar **split = g_strsplit(tab[i], "|", 0);
+		(*repdata)[i].previous_time = g_ascii_strtoull(split[0], NULL, 10);
+		(*repdata)[i].x = g_ascii_strtod(split[1], NULL);
+		(*repdata)[i].y = g_ascii_strtod(split[2], NULL);
+		(*repdata)[i].keys = atoi(split[3]);
+		g_strfreev(split);
     }
-    free(tab);
-    return repdata_count;
+	g_strfreev(tab);
+	
+    return tabSize;
 }
 
 #define TICKS_PER_SECONDS 10000000L
@@ -71,20 +76,19 @@ static time_t from_win_timestamp(uint64_t ticks)
 
 static void print_date(FILE *f, time_t t)
 {
-    static bool locale_set = false;
-    char datestr[DATE_MAXSIZE];
-    struct tm info;
+    static gboolean locale_is_set = FALSE;
     
-    if (!locale_set) {
+    if (!locale_is_set) {
         setlocale(LC_TIME, ""); // TODO: move this
-        locale_set = true;
+        locale_is_set = TRUE;
     }
-    
-    localtime_r(&t, &info);
-    if (strftime(datestr, DATE_MAXSIZE, "%c", &info) != 0)
-        fprintf(f, "date: %s\n", datestr);
-    else
-        fputs("Date cannot be displayed correctly\n",f);
+
+	GDateTime *dateTime = g_date_time_new_from_unix_local(t);
+	g_assert(dateTime != NULL);
+	gchar *dateStr = g_date_time_format(dateTime, "%c");
+    fprintf(f, "date: %s\n", dateStr);
+	g_free(dateStr);
+	g_date_time_unref(dateTime);
 }
 
 struct replay *replay_parse(FILE *f)
@@ -115,21 +119,26 @@ struct replay *replay_parse(FILE *f)
     xfread(&r->mods, 4, 1, f);
 
     read_string(&r->lifebar_graph, f);
-    r->replife_size = string_split(r->lifebar_graph, ",", &life);
-    r->replife = malloc(sizeof*r->replife * r->replife_size);
+	
+    r->replife_size = 0;
+	life = g_strsplit(r->lifebar_graph, ",", 0);
+	while (life[r->replife_size] != NULL)
+		++ r->replife_size;
+	
     for (unsigned int i = 0; i < r->replife_size; ++i) {
-        sscanf(life[i], "%lu|%lg", &r->replife[i].time_offset,
-               &r->replife[i].life_amount);
-        free(life[i]);
+		gchar **split = g_strsplit(life[i], "|", 0);
+		r->replife[i].time_offset = g_ascii_strtoull(split[0], NULL, 10);
+		r->replife[i].life_amount = g_ascii_strtod(split[1], NULL);
+		g_strfreev(split);
     }
-    free(life);
+	g_strfreev(life);
 
     xfread(&ticks, 8, 1, f);
     r->timestamp = from_win_timestamp(ticks);
 
     xfread(&r->replay_length, 4, 1, f);
     if ((r->repdata_count =
-         parse_replay_data(f, &r->repdata)) == (unsigned)-1) {
+        parse_replay_data(f, &r->repdata)) == (unsigned)-1) {
         r->invalid = 1;
     }
     
@@ -138,28 +147,28 @@ struct replay *replay_parse(FILE *f)
 
 void replay_print(FILE *f, const struct replay *r)
 {
-    fprintf(f, "game mode: %hhu\n", r->game_mode);
+    fprintf(f, "game mode: %u\n", r->game_mode);
     fprintf(f, "game version: %u\n", r->game_version);
     fprintf(f, "beatmap md5 hash: %s\n", r->bm_md5_hash);
     fprintf(f, "player name: %s\n", r->player_name);
     fprintf(f, "replay md5 hash: %s\n", r->replay_md5_hash);
 
-    fprintf(f, "300: %hu\n", r->_300);
-    fprintf(f, "100: %hu\n", r->_100);
-    fprintf(f, "50: %hu\n", r->_50);
-    fprintf(f, "geki: %hu\n", r->_geki);
-    fprintf(f, "katu: %hu\n", r->_katu);
+    fprintf(f, "300: %u\n", r->_300);
+    fprintf(f, "100: %u\n", r->_100);
+    fprintf(f, "50: %u\n", r->_50);
+    fprintf(f, "geki: %u\n", r->_geki);
+    fprintf(f, "katu: %u\n", r->_katu);
 
-    fprintf(f, "miss: %hu\n", r->_miss);
+    fprintf(f, "miss: %u\n", r->_miss);
     fprintf(f, "score: %u\n", r->score);
-    fprintf(f, "max combo: %hu\n", r->max_combo);
-    fprintf(f, "Full combo: %hhu\n", r->fc);
+    fprintf(f, "max combo: %u\n", r->max_combo);
+    fprintf(f, "Full combo: %u\n", r->fc);
     fputs("mods: ", f);  mod_print(f, r->mods); fputs("\n", f);  
     fprintf(f, "lifebar_graph: "/*%s\n", r->lifebar_graph*/);
 
     for (unsigned int i = 0; i < r->replife_size; ++i) {
         struct replay_life *rl = &r->replife[i];
-        fprintf(f, "%lu|%lg%s", rl->time_offset, rl->life_amount,
+        g_fprintf(f, "%"G_GUINT64_FORMAT"|%lg%s", rl->time_offset, rl->life_amount,
                 i == r->replife_size-1 ? "" : ",");
     }
     fputs("\n", f);
@@ -172,10 +181,7 @@ void replay_print(FILE *f, const struct replay *r)
 
     for (unsigned int i = 0; i < r->repdata_count; ++i) {
     	struct replay_data *rd = &r->repdata[i];
-    	fprintf(f, "%ld|", rd->previous_time);
-    	fprintf(f, "%g|", rd->x);
-    	fprintf(f, "%g|", rd->y);
-    	fprintf(f, "%u\n", rd->keys);
+    	g_fprintf(f, "%"G_GINT64_FORMAT"|%g|%g|%u\n", rd->previous_time, rd->x, rd->y, rd->keys);
     }
 }
 

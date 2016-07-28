@@ -18,5 +18,7 @@ libbeatmap_la_SOURCES = \
 	taiko_autoconvert.c \
 	taiko_autoconvert.h
 
-libbeatmap_la_LIBADD = parser/libosux_parser.la 
+libbeatmap_la_LIBADD = \
+	parser/libosux_parser.la \
+	../util/libosux_util.la
 

@@ -14,14 +14,10 @@
  *  limitations under the License.
  */
 
-#ifdef __linux__
-#	include <dlfcn.h>
-#elif _WIN32
-#	include <windows.h>
-#endif
+#include <glib.h>
+#include <gmodule.h>
 
 #include "compiler.h"
-
 #include "beatmap/beatmap.h"
 #include "util/data.h"
 #include "util/error.h"
@@ -46,35 +42,21 @@ osux_parser_t osux_get_parser(void)
 
 INITIALIZER(parser_init)
 {
-    plugin_init_t parser_py_init;
-    #ifdef __linux__
-    void *handle;
-    handle = dlopen(PKG_LIB_DIR"/libosux_parser_py.so", RTLD_LOCAL|RTLD_NOW);
-    if (NULL == handle) {
-        osux_error("file: %s\n", PKG_LIB_DIR"/libosux_parser_py.so");
-        osux_error("Failed to initialize parser:\n%s\n", dlerror());
-        exit(EXIT_FAILURE);
-    }
-    parser_py_init = dlsym(handle, "parser_py_init");
-    
-    #elif _WIN32
-    HINSTANCE hinstLib = LoadLibrary(PKG_LIB_DIR"/libosux_parser_py.dll");
-    if (hinstLib == NULL)
-    {
-        MessageBox(NULL, "Unable to load library", "Error", MB_OK|MB_ICONERROR);
-        return 0;
-    }
-    parser_py_init = (plugin_init_t)
-        GetProcAddress( hinstLib, "parser_py_init" );
-    #endif
-    
-    if (parser_py_init != NULL) {
-        parser_py_init(&osux_register_bm_callback, &DEFAULT_BEATMAP);
-    } else {
-        #ifdef __linux__
-        osux_error("WTF: %s\n", dlerror());
-        #elif _WIN32
-        osux_error("Windows error; cannot load method: parser_py_init\n");
-        #endif
-    }
+	plugin_init_t parser_py_init;
+		
+	if (!g_module_supported()){
+		fprintf(stderr, "1 cannot load PYTHON ;'(\n");
+		exit(EXIT_FAILURE);
+	}
+	GModule *pythonModule = g_module_open("python2.7", G_MODULE_BIND_LOCAL);
+	if (pythonModule == NULL) {
+		fprintf(stderr, "2 cannot load PYTHON 2;'(\n");
+		exit(EXIT_FAILURE);
+	}
+	if (!g_module_symbol(pythonModule, "", (gpointer) &parser_py_init)) {
+		fprintf(stderr, "3 cannot load PYTHON ;'(\n");
+		exit(EXIT_FAILURE);
+	}
+
+	parser_py_init(&osux_register_bm_callback, &DEFAULT_BEATMAP);
 }

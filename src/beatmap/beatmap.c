@@ -16,6 +16,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <glib.h>
 
 #include "util/error.h"
 #include "util/data.h"
@@ -171,8 +172,8 @@ static int osux_beatmap_prepare(osux_beatmap *bm, const char *filename)
     int l = strlen(filename);
     for (int i = l; i >= 0; --i) {
         if ('/' == filename[i]) {
-            bm->osu_filename = strdup(&filename[i+1]);
-            bm->path = strndup(filename, i-1);
+            bm->osu_filename = g_strdup(&filename[i+1]);
+            bm->path = g_strndup(filename, i-1);
             break;
         }
     }

@@ -1,7 +1,8 @@
 #define _GNU_SOURCE
+
+#include <glib.h>
 #include <stdio.h>
 #include <sys/types.h>
-
 #include <string.h>
 #include <stdbool.h>
 #include <stdarg.h>
@@ -9,24 +10,6 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <sqlite3.h>
-
-#ifdef _WIN32
-#    include "util/dirent_win32.h"
-#    include <io.h>
-#    define access _access
-
-enum {
-    F_OK = 00,
-    R_OK = 02,
-    W_OK = 04,
-    RW_OK = 06,
-};
-
-#else
-#    include <unistd.h>
-#    include <dirent.h>
-#endif
-
 
 #include "beatmap/parser/parser.h"
 #include "util/list.h"
@@ -49,8 +32,6 @@ struct osux_db {
     sqlite3 *sqlite_db;
 };
 
-
-
 static int db_query(
     sqlite3 *db, void *callback, void *context, const char *format, ...)
 {
@@ -72,7 +53,6 @@ static int db_query(
     free(query);
     return ret;
 }
-
 
 static int db_callback_get_uint32(
     void *context__,
@@ -101,21 +81,21 @@ int osux_db_update_stat(struct osux_db *db)
 }
 
 
-
-#ifdef __GNUC__
-
-#define DATE(X) ({struct tm tmp__; strptime((X), "%c", &tmp__); mktime(&tmp__);})
-#define HT_GET(X, WHAT) ({ char *tmp_; ht_get_entry(ht, (X), &tmp_); WHAT(tmp_);})
-
-#else
-#define DATE(X) get_time((X))
+#define DATE(X) (get_time((X)))
 #define HT_GET(X, WHAT)    WHAT(ht_get_(ht, (X)))
 
-static inline int get_time(const char *string)
+static inline gint64 get_time(const gchar *date_string)
 {
-	struct tm tmp__;
-	strptime(string, "%c", &tmp__);
-	return mktime(&tmp__);
+	GTimeVal time;
+	if (!g_time_val_from_iso8601(date_string, &time)) {
+		fprintf(stderr, "error parsing date\n");
+	}
+	
+	GDateTime *dateTime = g_date_time_new_from_timeval_local(&time);
+	g_assert(dateTime != NULL);
+	gint64 unixTime = g_date_time_to_unix(dateTime);
+	g_date_time_unref(dateTime);
+	return unixTime;
 }
 
 static inline char *ht_get_(struct hash_table *ht, const char *key)
@@ -124,7 +104,6 @@ static inline char *ht_get_(struct hash_table *ht, const char *key)
     ht_get_entry(ht, key, &_tmp);
     return _tmp;
 }
-#endif
 
 #define FLOAT(X) atof((X))
 #define INT(X) atoi((X));
@@ -340,41 +319,36 @@ static int load_beatmap_from_disk(
     return 0;
 }
 
-static int parse_beatmap_directory_rec(
-    const char *name, struct osux_db *db, int base_path_length, int level)
+static gboolean parse_beatmap_directory_recursive(
+    const char *path, struct osux_db *db, int base_path_length, int level)
 {
-    DIR *dir;
-    struct dirent *entry;
-
+    GDir *dir = NULL;
+	const gchar *entry_name;
+	
     assert( db != NULL );
 
-    if (!(dir = opendir(name)))
-        return -1;
-    if (!(entry = readdir(dir)))
-        return -1;
+    if ((dir = g_dir_open(path, 0, NULL)) == NULL)
+        return FALSE;
+    if ((entry_name = g_dir_read_name(dir)) == NULL)
+        return FALSE;
 
     do {
-        char *path = xasprintf("%s/%s", name, entry->d_name);
-        if (DT_DIR == entry->d_type) {
-            if (strcmp(entry->d_name, ".") == 0 ||
-                strcmp(entry->d_name, "..") == 0) {
-                free(path);
-                continue;
-            }
-            parse_beatmap_directory_rec(path, db, base_path_length, level+1);
-            free(path);
+        char *new_path = g_strdup_printf("%s/%s", path, entry_name);
+        if (g_file_test(new_path, G_FILE_TEST_IS_DIR)) {
+			// with GLib "." and ".." directories are ommited on Unix platforms
+            parse_beatmap_directory_recursive(new_path, db, base_path_length, level+1);
+            g_free(new_path);
         } else {
-            if (!string_have_extension(path, ".osu")) {
-                free(path);
+            if (!string_have_extension(new_path, ".osu")) {
+                g_free(new_path); // ignore non-osu file
                 continue;
             }
-            load_beatmap_from_disk(db, path, base_path_length);
-            free(path);
+            load_beatmap_from_disk(db, new_path, base_path_length);
+            g_free(new_path);
         }
-    } while ((entry = readdir(dir)) != NULL);
-    closedir(dir);
-
-    return 0;
+    } while ((entry_name = g_dir_read_name(dir)) != NULL);
+	g_dir_close(dir);
+    return TRUE;
 }
 
 int osux_db_create(struct osux_db **db_)
@@ -438,8 +412,8 @@ int osux_db_build(const char *directory_name, osux_db **db)
     osux_db_create(db);
     osux_db_init(*db);
 
-    return parse_beatmap_directory_rec(
-        directory_name, *db, strlen(directory_name), 0);
+    return parse_beatmap_directory_recursive(
+		directory_name, *db, strlen(directory_name), 0) == TRUE ? 0 : -1;
 }
 
 

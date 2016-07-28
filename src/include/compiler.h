@@ -50,15 +50,6 @@
  *  limitations under the License.
  */
 
-// VISIBILITY
-
-#define __internal
-#define __export
-
-#ifdef _WIN32
-#    unset __export
-#    define __export  __declspec(ddlexport)
-#endif
 
 #ifdef __GNUC__
 #  define UNUSED(x) x __attribute__((unused))

@@ -14,12 +14,12 @@
  *  limitations under the License.
  */
 
-#ifndef PYTHON_H
-#define PYTHON_H
+#ifndef osux_PYTHON_H
+#define osux_PYTHON_H
 
 #include <Python.h>
 
 PyObject *python_funcall_name_string_args(
     const char *module, const char *fun, int argc, const char *argv[]);
 
-#endif //PYTHON_H
+#endif //osux_PYTHON_H
