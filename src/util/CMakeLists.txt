@@ -1,7 +1,4 @@
 
-add_subdirectory(yaml)
-include_directories(yaml/include)
-
 set(UTIL_SOURCE
   hash_table.c	      hash_table.h 
   heap.c              heap.h
@@ -22,7 +19,7 @@ set(UTIL_SOURCE
 find_package(Threads REQUIRED)
 add_library(osux_util STATIC ${UTIL_SOURCE})
 target_link_libraries(
-  osux_util ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} yaml)
+    osux_util ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${LIBYAML_LIBRARIES})
 
 install(
   FILES osux_util.py

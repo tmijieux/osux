@@ -27,10 +27,14 @@ enable_testing()
 find_package(OpenSSL REQUIRED)
 find_package(GTS REQUIRED)
 
+find_package(LibLZMA)
+find_package(LibYAML)
+
 include_directories(${OPENSSL_INCLUDE_DIR})
 include_directories(include)
 include_directories(.)
 
+add_subdirectory(thirdparty)
 add_subdirectory(util)
 add_subdirectory(beatmap)
 add_subdirectory(database)

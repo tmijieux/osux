@@ -18,10 +18,10 @@ n *
 #include <stdlib.h>
 #include <string.h>
 
-#include "list.h"
-#include "split.h"
-#include "util/uleb128.h"
-#include "util/read.h"
+#include "./list.h"
+#include "./split.h"
+#include "./uleb128.h"
+#include "./read.h"
 
 unsigned int string_split(const char *str, const char *delim, char ***buf_addr)
 {

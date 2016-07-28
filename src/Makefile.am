@@ -1,6 +1,6 @@
 include $(top_srcdir)/common.mk
 
-SUBDIRS = util beatmap mod database replay . taikorank
+SUBDIRS = thirdparty util beatmap mod database replay . taikorank
 
 lib_LTLIBRARIES = libosux.la
 libosux_la_SOURCES = 

@@ -4,9 +4,10 @@ libreplay_la_SOURCES = \
 	replay.c \
 	xz_decomp.c
 
-libreplay_la_LIBADD = ../util/libosux_util.la
-libreplay_la_CFLAGS = $(LZMA_CFLAGS) $(AM_CFLAGS)
-libreplay_la_LDFLAGS = $(LZMA_LIBS) $(AM_LDFLAGS)
+libreplay_la_CFLAGS = $(AM_CFLAGS)
+libreplay_la_LDFLAGS = $(AM_LDFLAGS)
+libreplay_la_LIBADD = ../util/libosux_util.la \
+		      ../thirdparty/xz/src/liblzma/liblzma.la
 
 bin_PROGRAMS = parse_replay
 

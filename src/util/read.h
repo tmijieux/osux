@@ -1,7 +1,7 @@
 #ifndef READ_H
 #define READ_H
 
-#include "util/error.h"
+#include "./error.h"
 
 static inline void xfread(void *buf, size_t size, size_t nmemb, FILE *stream)
 {

@@ -2,12 +2,13 @@
 #include <yaml.h>
 #include <assert.h>
 
-#include "yaml2.h"
-#include "hash_table.h"
-#include "list.h"
-#include "stack.h"
-#include "data.h"
 #include "compiler.h"
+
+#include "./yaml2.h"
+#include "./hash_table.h"
+#include "./list.h"
+#include "./stack.h"
+#include "./data.h"
 
 static void mapping_dump(const char *name, void *data, void *args)
 {

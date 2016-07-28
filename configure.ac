@@ -8,11 +8,8 @@ AC_PROG_CC
 AC_CONFIG_HEADERS([config.h])
 
 PKG_CHECK_MODULES(PYTHON2, python2) 
-PKG_CHECK_MODULES(YAML, yaml-0.1) 
-PKG_CHECK_MODULES(LZMA, liblzma) 
 PKG_CHECK_MODULES(CRYPTO, libcrypto)
 PKG_CHECK_MODULES(SQLITE, sqlite3) 
-
 PKG_CHECK_MODULES(GTS, gts >= 0.7.2, ,
                        [AC_CHECK_PROG(GTS_CONFIG, gts-config,
                        gts-config, false)
@@ -29,6 +26,7 @@ AC_SUBST(GTS_LIBS)
 AC_CONFIG_FILES([
 		  Makefile
 		  src/Makefile
+		  src/thirdparty/Makefile
 		  src/util/Makefile
 		  src/mod/Makefile
 		  src/beatmap/Makefile
@@ -41,5 +39,10 @@ AC_CONFIG_FILES([
 		  src/taikorank/Makefile
 		  src/taikorank/yaml/Makefile
 ])
+AC_CONFIG_SUBDIRS([src/thirdparty/libyaml
+                   src/thirdparty/xz
+                   ])
+#PKG_CHECK_MODULES(YAML, yaml-0.1) 
+#PKG_CHECK_MODULES(LZMA, liblzma) 
 
 AC_OUTPUT
