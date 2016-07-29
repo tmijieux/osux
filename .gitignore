@@ -35,6 +35,7 @@ resources.tar.xz
 bigdb
 bigdb.tar.xz
 *.dll
+libtool
 TAGS
 
 # executables:
