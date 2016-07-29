@@ -14,21 +14,18 @@
  *  limitations under the License.
  */
 
-#include <math.h>
 #include <stdio.h>
+#include <math.h>
 
-#include "util/hash_table.h"
-#include "util/list.h"
-#include "util/yaml2.h"
+#include "osux.h"
 
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"
+
 #include "stats.h"
 #include "cst_yaml.h"
 #include "linear_fun.h"
 #include "print.h"
-#include "compiler.h"
-
 #include "accuracy.h"
 #include "spacing_count.h"
 

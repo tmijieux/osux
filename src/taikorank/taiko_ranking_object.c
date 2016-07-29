@@ -21,7 +21,6 @@
 #include <stdarg.h>
 
 #include "print.h"
-
 #include "bpm.h"
 #include "taiko_ranking_object.h"
 

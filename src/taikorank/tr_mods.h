@@ -14,8 +14,8 @@
  *  limitations under the License.
  */
 
-#ifndef MODS_H
-#define MODS_H
+#ifndef TR_MODS_H
+#define TR_MODS_H
 
 // --------------- MODS ---------------
 #define MODS_NONE 0
@@ -36,4 +36,4 @@ void trm_apply_mods(struct tr_map * map);
 void trm_print_mods(struct tr_map * map);
 char * trm_mods_to_str(struct tr_map * map);
 
-#endif //MODS_H
+#endif //TR_MODS_H

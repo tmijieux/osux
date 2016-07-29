@@ -18,7 +18,14 @@
 
 #define MSEC_IN_MINUTE 60000.
 
-double mpb_to_bpm(double mpb);
-double bpm_to_mpb(double bpm);
+static inline double mpb_to_bpm(double mpb)
+{
+    return MSEC_IN_MINUTE / mpb;
+}
+
+static inline double bpm_to_mpb(double bpm)
+{
+    return MSEC_IN_MINUTE / bpm;
+}
 
 #endif //BPM_H

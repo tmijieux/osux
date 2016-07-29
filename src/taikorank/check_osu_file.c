@@ -14,20 +14,12 @@
  *  limitations under the License.
  */
 
-#ifndef _WIN32
-#   include <unistd.h>
-#else
-#   include <io.h>
-#   define access _access
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "print.h"
-
 #include "check_osu_file.h"
+#include "print.h"
 
 int check_file(char * file_name)
 {

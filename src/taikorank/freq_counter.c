@@ -16,9 +16,8 @@
 #include <stdio.h>
 #include <math.h>
 
-#include "util/hash_table.h"
+#include "osux.h"
 #include "freq_counter.h"
-#include "compiler.h"
 
 typedef void (*ht_fun)(const char*,void*,void*);
 

@@ -25,4 +25,5 @@ void spc_add(struct spacing_count * spc, int rest, double val);
 void spc_print(const struct spacing_count * spc);
 double spc_get_total(const struct spacing_count * spc);
 double spc_get_nb(const struct spacing_count * spc, int rest);
+
 #endif //SPACING_COUNT_H

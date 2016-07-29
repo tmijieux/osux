@@ -34,7 +34,7 @@ endif(OPENMP_FOUND)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${GTS_C_FLAGS}")
 
 add_executable(taiko_ranking ${TR_SOURCE})
-target_link_libraries(taiko_ranking osux mysqlclient ${CMAKE_THREAD_LIBS_INIT} m ${GTS_LIBRARIES})
+target_link_libraries(taiko_ranking osux m mysqlclient ${CMAKE_THREAD_LIBS_INIT} ${GTS_LIBRARIES})
 
 install( 
      TARGETS taiko_ranking

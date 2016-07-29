@@ -20,10 +20,7 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "util/hash_table.h"
-#include "util/list.h"
-#include "util/yaml2.h"
-#include "util/table.h"
+#include "osux.h"
 
 #include "bpm.h"
 #include "taiko_ranking_map.h"
@@ -33,8 +30,6 @@
 #include "linear_fun.h"
 #include "vector.h"
 #include "print.h"
-#include "compiler.h"
-
 #include "tr_gts.h"
 #include "reading.h"
 

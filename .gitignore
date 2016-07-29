@@ -1,4 +1,3 @@
-a.out
 *~
 *.o
 *.lo
@@ -37,3 +36,10 @@ bigdb
 bigdb.tar.xz
 *.dll
 TAGS
+
+# executables:
+taiko_ranking
+readdb
+makedb
+a.out
+parse_replay

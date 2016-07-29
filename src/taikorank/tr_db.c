@@ -21,7 +21,7 @@
 #include <stdarg.h>
 #include <mysql/mysql.h>
 
-#include "compiler.h"
+#include "osux.h"
 
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_score.h"

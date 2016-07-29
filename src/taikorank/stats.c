@@ -24,7 +24,7 @@
 #include "interpolation.h"
 
 #include "stats.h"
-#include "util/sum.h"
+#include "osux.h"
 
 #define DEF_WEIGHT_X1 1.
 #define DEF_WEIGHT_Y1 1.

@@ -7,4 +7,3 @@ dist_yaml_DATA = \
 	final_cst.yaml \
 	pattern_cst.yaml \
 	reading_cst.yaml
-	

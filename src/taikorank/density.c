@@ -17,9 +17,7 @@
 #include <math.h>
 #include <stdio.h>
 
-#include "util/hash_table.h"
-#include "util/list.h"
-#include "util/yaml2.h"
+#include "osux.h"
 
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"
@@ -27,9 +25,7 @@
 #include "cst_yaml.h"
 #include "linear_fun.h"
 #include "print.h"
-
 #include "density.h"
-#include "compiler.h"
 
 static struct yaml_wrap * yw_dst;
 static struct hash_table * ht_cst_dst;

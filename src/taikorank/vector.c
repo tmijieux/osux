@@ -19,8 +19,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "util/list.h"
-#include "util/string2.h"
+#include "osux.h"
 
 #include "cst_yaml.h"
 #include "vector.h"

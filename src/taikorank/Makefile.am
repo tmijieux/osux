@@ -8,7 +8,6 @@ taiko_ranking_SOURCES = \
 	check_osu_file.c \
 	tr_mods.c \
 	print.c \
-	bpm.c \
 	taiko_ranking_map.c \
 	taiko_ranking_object.c \
 	taiko_ranking_score.c \
@@ -29,9 +28,13 @@ taiko_ranking_SOURCES = \
 	accuracy.c \
 	final_star.c
 
-taiko_ranking_LDADD = ../libosux.la \
-		../util/libosux_util.la
+taiko_ranking_LDADD = ../lib/libosux.la
 
-taiko_ranking_CFLAGS = -DMYSQL_TR_DB -fopenmp $(GTS_CFLAGS) $(AM_CFLAGS) 
-taiko_ranking_LDFLAGS = -lmysqlclient -pthread -lm $(GTS_LIBS) $(AM_LDFLAGS) 
+taiko_ranking_CFLAGS = \
+	$(MARIADB_CFLAGS) -DMYSQL_TR_DB \
+	-fopenmp $(GTS_CFLAGS) $(AM_CFLAGS)
+	-rpath $(pkglibdir)
 
+taiko_ranking_LDFLAGS = \
+	$(MARIADB_LIBS) -lm \
+	$(GTS_LIBS) $(AM_LDFLAGS)

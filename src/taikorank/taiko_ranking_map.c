@@ -17,15 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "beatmap/beatmap.h"
-#include "beatmap/taiko_autoconvert.h"
-#include "beatmap/hitobject.h"
-#include "beatmap/timingpoint.h"
-#include "beatmap/hitsound.h"
-#include "util/error.h"
-
-#include "database/osux_db.h"
-#include "util/md5.h"
+#include "osux.h"
 
 #include "bpm.h"
 #include "taiko_ranking_object.h"

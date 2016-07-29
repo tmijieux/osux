@@ -19,11 +19,7 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "util/hash_table.h"
-#include "util/list.h"
-#include "util/yaml2.h"
-#include "util/table.h"
-#include "compiler.h"
+#include "osux.h"
 
 #include "freq_counter.h"
 #include "taiko_ranking_map.h"
@@ -32,7 +28,6 @@
 #include "cst_yaml.h"
 #include "linear_fun.h"
 #include "print.h"
-
 #include "pattern.h"
 
 #define PROBA_SCALE 100.

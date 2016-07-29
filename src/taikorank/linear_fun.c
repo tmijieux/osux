@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "util/string2.h"
+#include "osux.h"
 
 #include "print.h"
 #include "cst_yaml.h"

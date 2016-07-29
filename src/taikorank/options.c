@@ -20,9 +20,7 @@
 #include "config.h"
 #include "print.h"
 #include "options.h"
-#include "compiler.h"
-
-#include "util/hash_table.h"
+#include "osux.h"
 
 #define ARG_OPT_AUTOCONVERT  "-autoconvert"
 

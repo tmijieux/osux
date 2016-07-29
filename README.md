@@ -1,8 +1,8 @@
 # osux
-This is an alternative osu developement kit in C. The project is also including [Cqfuj](https://github.com/Cqfuj)'s taiko star rating system.
+This is an experimental osu developement kit in C. The project is also including [Cqfuj](https://github.com/Cqfuj)'s taiko star rating system.
 
 ## Compilation
-The project can be compiled using Autotools or CMake.
+The project can be compiled using Autotools or CMake (Both are currently limited to Unix environment though).
 
 #### Cmake
 ``` bash
@@ -32,7 +32,17 @@ The project implements the following functionalities:
 #### Taiko ranking
 See [taiko ranking](https://github.com/tomtix/osux/tree/master/taikorank#taiko-ranking-project).
 
-## Dependencies
-* YAML
-* SQLite
+## (Bunch of) Dependencies
+* libyaml
+* libsqlite3
+* libmysqlclient (mysql C-connector/ or mariadb fork, doesn't matter)
+* libgts (GNU GTS)
+* glib2.0 (The Gnome Portable Library) :3
+* libcrypto (OpenSSL)
+* liblzma (aka xz, xz utils)
+
+Some of this dependencies have only the GNU buildsystem,
+others only CMake, so it's pretty hard to get the project to
+compile on Windows. We 'll try to make something up
+eventually with MinGW
 

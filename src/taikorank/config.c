@@ -18,14 +18,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "database/osux_db.h"
-#include "util/data.h"
+#include "osux.h"
 
-#include "util/hash_table.h"
-#include "util/list.h"
-#include "util/yaml2.h"
-
-#include "compiler.h"
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_score.h"
 #include "tr_db.h"

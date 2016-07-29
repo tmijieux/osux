@@ -16,7 +16,7 @@
 #include <stdio.h>
 
 #include "spacing_count.h"
-#include "util/list.h"
+#include "osux.h"
 
 struct spacing_count {
     struct osux_list * l;
