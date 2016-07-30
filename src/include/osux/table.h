@@ -36,6 +36,11 @@ static inline int table_max(const struct table * t)
     return t->max;
 }
 
+static inline int table_is_full(const struct table * t)
+{
+    return t->max <= t->len;
+}
+
 static inline const void * table_get(const struct table * t, int i)
 {
     return t->t[i];

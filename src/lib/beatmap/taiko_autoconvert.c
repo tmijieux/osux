@@ -15,6 +15,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "osux/beatmap.h"
 #include "osux/hitobject.h"
@@ -22,11 +23,17 @@
 #include "osux/taiko_autoconvert.h"
 #include "osux/list.h"
 
+#define OFFSET_EQUAL_PERCENTAGE 0.05
+
 struct taiko_converter {
     struct hit_object *ho;
-    double mpb;
+    double mpb; // ms per beat
+    double mpt; // ms per tick
     double length;
 };
+
+static inline int offset_eq(double o1, double o2);
+static inline int offset_le(double o1, double o2);
 
 static double ho_slider_length(const struct hit_object *ho,
 			       const struct timing_point *tp,
@@ -37,10 +44,10 @@ static void ho_taiko_free(struct hit_object * ho);
 
 static struct taiko_converter * taiko_converter_new(
     struct hit_object *ho, const struct timing_point *tp,
-    double sv);
+    double sv, double tick_rate);
 static void taiko_converter_free(struct taiko_converter * tc);
 
-static void taiko_converter_slider_to_circles_no_repeat(
+static void taiko_converter_slider_to_circles_normal(
     const struct taiko_converter *tc, struct osux_list *ho_list);
 static void taiko_converter_slider_to_circles_repeat(
     const struct taiko_converter *tc, struct osux_list *ho_list);
@@ -51,6 +58,18 @@ static void taiko_converter_convert(
 
 static struct osux_list * taiko_autoconvert_ho_list(const osux_beatmap *bm);
 static struct hit_object * osux_list_to_ho_array(const struct osux_list *l);
+
+//---------------------------------------------------------------
+
+static inline int offset_eq(double o1, double o2)
+{
+    return fabs(1. - o1 / o2) <= OFFSET_EQUAL_PERCENTAGE;
+}
+
+static inline int offset_le(double o1, double o2)
+{
+    return (o1 <= o2) || offset_eq(o1, o2);
+}
 
 //---------------------------------------------------------------
 
@@ -90,11 +109,12 @@ static void ho_taiko_free(struct hit_object * ho)
 
 static struct taiko_converter * taiko_converter_new(
     struct hit_object *ho, const struct timing_point *tp,
-    double sv)
+    double sv, double tick_rate)
 {
     struct taiko_converter * tc = malloc(sizeof(*tc));
     tc->ho = ho;
     tc->mpb = tp->last_uninherited->mpb;
+    tc->mpt = tc->mpb / tick_rate;
     if (HO_IS_SLIDER(*ho))
 	tc->length = ho_slider_length(ho, tp, sv);
     else
@@ -112,28 +132,32 @@ void taiko_converter_print(const struct taiko_converter * tc)
     fprintf(stderr, "Taiko_converter:\n");
     fprintf(stderr, "\toffset: %d\n", tc->ho->offset);
     fprintf(stderr, "\tmpb: %g\n", tc->mpb);
+    fprintf(stderr, "\tmpt: %g\n", tc->mpt);
     fprintf(stderr, "\tlength: %g\n", tc->length);
 }
 
 //---------------------------------------------------------------
 
-static void taiko_converter_slider_to_circles_no_repeat(
+static void taiko_converter_slider_to_circles_normal(
     const struct taiko_converter *tc, struct osux_list *ho_list)
-{
-    //fprintf(stderr, "to no repeat\n");
-
-    struct hit_object * ho1 = ho_taiko_new(
-        tc->ho->offset, tc->ho, 0);
-    osux_list_append(ho_list, ho1);
-
-    struct hit_object * ho2 = ho_taiko_new(
-        tc->ho->offset + tc->mpb, tc->ho, 1);
-    osux_list_append(ho_list, ho2);
-
-    if (tc->length >= 31./16. * tc->mpb) {
-	struct hit_object * ho3 = ho_taiko_new(
-            tc->ho->offset + 2 * tc->mpb, tc->ho, 0);
-	osux_list_append(ho_list, ho3);
+{    
+    //fprintf(stderr, "to normal\n");
+    if (tc->length <= tc->mpt) {
+	// slider is too short
+	struct hit_object * ho1 = ho_taiko_new(
+            tc->ho->offset, tc->ho, 0);
+	osux_list_append(ho_list, ho1);
+	struct hit_object * ho2 = ho_taiko_new(
+	    tc->ho->offset + tc->length, tc->ho, 1);
+	osux_list_append(ho_list, ho2);
+    } else {
+	unsigned int i = 0;
+	for (double offset = 0; offset_le(offset, tc->length); offset += tc->mpt) {
+	    struct hit_object * ho = ho_taiko_new(
+	        tc->ho->offset + offset, tc->ho, i % 2);
+	    osux_list_append(ho_list, ho);
+	    i++;
+	}
     }
 }
 
@@ -141,7 +165,6 @@ static void taiko_converter_slider_to_circles_repeat(
     const struct taiko_converter *tc, struct osux_list *ho_list)
 {
     //fprintf(stderr, "to repeat\n");
-
     double unit = tc->length / tc->ho->sli.repeat;
     for (unsigned int i = 0; i <= tc->ho->sli.repeat; i++) {
 	struct hit_object * ho = ho_taiko_new(
@@ -160,10 +183,10 @@ static void taiko_converter_convert_slider(
 	//fprintf(stderr, "to slider\n");
 	osux_list_append(ho_list, tc->ho);
     } else {
-	if (tc->ho->sli.repeat != 1 || tc->length <= tc->mpb)
+	if (tc->ho->sli.repeat != 1)
 	    taiko_converter_slider_to_circles_repeat(tc, ho_list);
 	else
-	    taiko_converter_slider_to_circles_no_repeat(tc, ho_list);
+	    taiko_converter_slider_to_circles_normal(tc, ho_list);
 	ho_free(tc->ho);
     }
 }
@@ -193,7 +216,7 @@ static struct osux_list * taiko_autoconvert_ho_list(const osux_beatmap *bm)
 
 	struct taiko_converter * tc = taiko_converter_new(
             &bm->HitObjects[i], &bm->TimingPoints[current_tp],
-	    bm->SliderMultiplier);
+	    bm->SliderMultiplier, bm->SliderTickRate);
 
 	taiko_converter_convert(tc, new_ho_list);
 	taiko_converter_free(tc);

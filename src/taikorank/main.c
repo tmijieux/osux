@@ -25,31 +25,31 @@
 
 int main(int argc, char *argv[])
 {
-	int nb_map = 0;
+    int nb_map = 0;
 
-	#pragma omp parallel
-	#pragma omp single
-	for (int i = 1; i < argc; i++) {
-		if (argv[i][0] == OPTIONS_PREFIX) {
-			i += options_set(argc - i, (const char **) &argv[i]);
-		} else {
-			nb_map++;
-			struct tr_map * map = trm_new(argv[i]);
-			if(map == NULL)
-			continue;
+#   pragma omp parallel
+#   pragma omp single
+    for (int i = 1; i < argc; i++) {
+	if (argv[i][0] == OPTIONS_PREFIX) {
+	    i += options_set(argc - i, (const char **) &argv[i]);
+	} else {
+	    nb_map++;
+	    struct tr_map * map = trm_new(argv[i]);
+	    if(map == NULL)
+		continue;
 
-			map->conf = tr_config_copy(CONF);
-			#pragma omp task firstprivate(map)
-			{
-				map->conf->tr_main(map);
-				tr_config_free(map->conf);
-				trm_free(map);
-			}
-		}
+	    map->conf = tr_config_copy(CONF);
+#           pragma omp task firstprivate(map)
+	    {
+		map->conf->tr_main(map);
+		tr_config_free(map->conf);
+		trm_free(map);
+	    }
 	}
+    }
   
-	if (nb_map == 0)
-		tr_error("No osu file D:");
+    if (nb_map == 0)
+	tr_error("No osu file D:");
     
-	return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }

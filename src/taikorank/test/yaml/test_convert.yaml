@@ -1,0 +1,144 @@
+tests:
+  #########################################################
+  - 
+    do: True
+    path: "./maps_test/convert/color/*.osu"
+    unit: 93
+    expected: |
+      KDKDK           160bpm[tick 4 - slider 4/4 = KDKDK (big)]
+      dDdDd           160bpm[tick 4 - slider 4/4 = dDdDd (big)]
+      dKdKd           160bpm[tick 4 - slider 4/4 = dKdKd (big)]
+      ddddd           160bpm[tick 4 - slider 4/4 = ddddd]
+      ddddd           160bpm[tick 4 - slider 4/4 = ddddd (2)]
+      dkdkd           160bpm[tick 4 - slider 4/4 = dkdkd]
+      kdkdk           160bpm[tick 4 - slider 4/4 = kdkdk]
+  #########################################################
+  - 
+    do: True
+    path: "./maps_test/convert/repetition/*13*.osu"
+    unit: 62
+    expected: |
+      d_d_d_d         160bpm[slider 1/3 x3 = [d_d_d_d]]
+  #########################################################
+  - 
+    do: True
+    path: "./maps_test/convert/repetition/*116*.osu"
+    unit: 93
+    expected: |
+      ddddddddddd     160bpm[slider 1/16 x10 = ddddddddddd (=11)]
+  #########################################################
+  - 
+    do: True
+    path: "./maps_test/convert/repetition/*14*.osu"
+    unit: 93
+    expected: |
+      ddddd           160bpm[slider 1/4 x4 = ddddd]
+      dddddddd        160bpm[slider 1/4 x7 = dddddddd]
+      ddkdddkk        160bpm[slider 1/4 x7 = ddkdddkk]
+      kddddddd        160bpm[slider 1/4 x7 = kddddddd]
+      kkkkdddd        160bpm[slider 1/4 x7 = kkkkdddd]
+      kkkkkkkk        160bpm[slider 1/4 x7 = kkkkkkkk]
+      r               160bpm[slider 1/4 x8 = r]
+  #########################################################
+  - 
+    do: True
+    path: "./maps_test/convert/slider/*.osu"
+    unit: 93
+    expected: |
+      dd              160bpm[slider 1/4 = dd]
+      dk              160bpm[slider 1/4 = dk]
+      kk              160bpm[slider 1/4 = kk]
+      r               160bpm[slider 10/4 = r]
+      d_d             160bpm[slider 2/4 = d_d]
+      d__d            160bpm[slider 3/4 = d__d]
+      d___d           160bpm[slider 30/16 = d___d]
+      d___d___d       160bpm[slider 31/16 = d___d___d]
+      d___k___d       160bpm[slider 31/16 = d___k___d]
+      k___k___k       160bpm[slider 31/16 = k___k___k]
+      d___d           160bpm[slider 4/4 = d___d]
+      d___d           160bpm[slider 5/4 = d___d]
+      d___k           160bpm[slider 5/4 = d___k]
+      k___k           160bpm[slider 5/4 = k___k]
+      d___d           160bpm[slider 6/4 = d___d]
+      d___d           160bpm[slider 7/4 = d___d]
+      r               160bpm[slider 8/4 = r]
+      r               160bpm[slider 9/4 = r]
+  #########################################################
+  - 
+    do: True
+    path: "./maps_test/convert/slider_curved/*.osu"
+    unit: 93
+    expected: |
+      dd              160bpm[slider 1/4 = dd]
+      d_d             160bpm[slider 2/4 = d_d]
+      d__d            160bpm[slider 3/4 = d__d]
+      d___d           160bpm[slider 4/4 = d___d]
+      d___d           160bpm[slider 5/4 = d___d]
+      d___d           160bpm[slider 6/4 = d___d]
+  #########################################################
+  - 
+    do: True
+    path: "./maps_test/convert/sv_tp/*.osu"
+    unit: 93
+    expected: |
+      dd              160bpm[sv x1.4 - tp x2 - slider 1/4 = dd]
+      d_d             160bpm[sv x1.4 - tp x2 - slider 2/4 = d_d]
+      d__d            160bpm[sv x1.4 - tp x2 - slider 3/4 = d__d]
+      d___d           160bpm[sv x1.4 - tp x2 - slider 4/4 = d___d]
+      d___d           160bpm[sv x1.4 - tp x2 - slider 6/4 = d___d]
+      r               160bpm[sv x1.4 - tp x2 - slider 8/4 = r]
+      dd              160bpm[sv x2 - tp x1 - slider 1/4 = dd]
+      d_d             160bpm[sv x2 - tp x1 - slider 2/4 = d_d]
+      d__d            160bpm[sv x2 - tp x1 - slider 3/4 = d__d]
+      d___d           160bpm[sv x2 - tp x1 - slider 4/4 = d___d]
+      d___d           160bpm[sv x2 - tp x1 - slider 6/4 = d___d]
+      r               160bpm[sv x2 - tp x1 - slider 8/4 = r]
+  #########################################################
+  - 
+    do: True
+    path: "./maps_test/convert/tick/*tick\\ 1*.osu"
+    unit: 93
+    expected: |
+      dd              160bpm[tick 1 - slider 1/4 = dd]
+      d_d             160bpm[tick 1 - slider 2/4 = d_d]
+      d__d            160bpm[tick 1 - slider 3/4 = d__d]
+      d___d           160bpm[tick 1 - slider 4/4 = d___d]
+      d___d           160bpm[tick 1 - slider 6/4 = d___d]
+      r               160bpm[tick 1 - slider 8/4 = r]
+  #########################################################
+  - 
+    do: True
+    path: "./maps_test/convert/tick/*tick\\ 2*.osu"
+    unit: 93
+    expected: |
+      dd              160bpm[tick 2 - slider 1/4 = dd]
+      d_d             160bpm[tick 2 - slider 2/4 = d_d]
+      d_d             160bpm[tick 2 - slider 3/4 = d_d]
+      d_d_d           160bpm[tick 2 - slider 4/4 = d_d_d]
+      d_d_d_d         160bpm[tick 2 - slider 6/4 = d_d_d_d]
+      r               160bpm[tick 2 - slider 8/4 = r]
+  #########################################################
+  - 
+    do: True
+    path: "./maps_test/convert/tick/*tick\\ 3*.osu"
+    unit: 62
+    expected: |
+      dd              160bpm[tick 3 - slider 1/4 = dd]
+      d_d             160bpm[tick 3 - slider 2/4 = [d_d]]
+      d_d_d           160bpm[tick 3 - slider 3/4 = [d_d_d]]
+      d_d_d_d         160bpm[tick 3 - slider 4/4 = [d_d_d_d]]
+      d_d_d_d_d       160bpm[tick 3 - slider 6/4 = [d_d_d_d_d]]
+      r               160bpm[tick 3 - slider 8/4 = r]
+  #########################################################
+  - 
+    do: True
+    path: "./maps_test/convert/tick/*tick\\ 4*.osu"
+    unit: 93
+    expected: |
+      dd              160bpm[tick 4 - slider 1/4 = dd]
+      ddd             160bpm[tick 4 - slider 2/4 = ddd]
+      dddd            160bpm[tick 4 - slider 3/4 = dddd]
+      ddddd           160bpm[tick 4 - slider 4/4 = ddddd]
+      ddddddd         160bpm[tick 4 - slider 6/4 = ddddddd]
+      r               160bpm[tick 4 - slider 8/4 = r]
+  #########################################################

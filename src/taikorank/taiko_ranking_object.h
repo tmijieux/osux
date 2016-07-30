@@ -37,7 +37,7 @@ enum played_state {
 
 struct tr_object
 {
-    // ---- basic data
+    // ---------------- basic data ----------------
     int offset;
     int end_offset;        // printed in basic+
     int bf;                // bitfield
@@ -47,21 +47,15 @@ struct tr_object
 
     const struct tr_object * objs;
 
-    // ---- additionnal data
+    // ---------------- additionnal data ----------------
     int length;
     int rest;            // printed in basic
 
-    // ---- pattern data
-    double proba;
-    double pattern_freq;
-    char type;
-    struct table * patterns;
-  
-    // ---- density data
+    // ---------------- density data ----------------
     double density_raw;
     double density_color;
 
-    // ---- reading data
+    // ---------------- reading data ----------------
     double obj_app;      // nb obj displayable on screen, without overlapping
     double obj_dis;      // nb obj where disappear
     int offset_app;      // in reading,  border left appear
@@ -82,12 +76,20 @@ struct tr_object
 
     double seen;
 
-    // ---- accuracy star
+    // ---------------- pattern data ----------------
+    int pattern_max_len;
+    double proba;
+    char type;
+    struct table * patterns;
+
+    double pattern_freq;
+
+    // ---------------- accuracy star ----------------
     double slow;         // slow, hard to acc
     double hit_window;
     double spacing;
 
-    // ---- star
+    // ---------------- star ----------------
     double density_star;
     double reading_star;
     double pattern_star;
@@ -108,7 +110,7 @@ int tro_get_length(const struct tr_object * obj);
 double tro_get_radius(const struct tr_object * obj);
 
 //-------------------------------------------------------------
-// inline 
+// inline
 static inline int tro_is_big(const struct tr_object * obj) {
     return obj->bf & TRO_BIG;
 }
@@ -145,13 +147,13 @@ static inline int tro_is_left_hand(const struct tr_object * obj) {
     return !!(obj->bf & TRO_LH);
 }
 
-static inline int tro_are_same_hand(const struct tr_object * o1, 
+static inline int tro_are_same_hand(const struct tr_object * o1,
 				    const struct tr_object * o2)
 {
     return TRO_HAND & o1->bf & o2->bf;
 }
 
-static inline int tro_are_same_type(const struct tr_object * o1, 
+static inline int tro_are_same_type(const struct tr_object * o1,
 				    const struct tr_object * o2)
 {
     if(TRO_S & (o1->bf | o2->bf)) // one is spinner

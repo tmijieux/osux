@@ -12,7 +12,7 @@ A final value is then computed giving global star rating for the map.
 
 ## Requirements
 Needed:
-* osux and mostly evrything that with with it
+* osux and mostly everything that comes with it
 * GNU Triangulated Surface
 
 Optional:

@@ -37,6 +37,7 @@ static struct hash_table * ht_cst_ptr;
 
 struct pattern {
     char * s;
+    int len;
     double proba_start;
     double proba_end;
 };
@@ -219,6 +220,7 @@ tro_extract_pattern(const struct tr_object * o, int i, int nb,
     p->proba_start = proba;
     p->proba_end   = PROBA_END;
     tro_pattern_set_str(o, i, nb, p);
+    p->len = strlen(p->s);
     return p;
 }
 
@@ -328,7 +330,7 @@ void tro_set_patterns(struct tr_object * o, int i, int nb)
     double proba = PROBA_START;
     while (proba < PROBA_END) {
 	struct pattern * p = tro_extract_pattern(o, i, nb, proba);
-	if (table_max(o->patterns) <= table_len(o->patterns)) {
+	if (table_is_full(o->patterns)) {
 	    fprintf(stderr, "Out of bounds %d/%d (offset %d)\n", 
 		    table_len(o->patterns), table_max(o->patterns), 
 		    o->offset);

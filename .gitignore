@@ -4,6 +4,8 @@
 *.so
 *.a
 *.la
+__pycache__/
+*.pyc
 *.cache
 .deps/
 .libs/

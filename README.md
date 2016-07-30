@@ -30,7 +30,7 @@ The project implements the following functionalities:
 * database for finding a beatmap path with its hash
 
 #### Taiko ranking
-See [taiko ranking](https://github.com/tomtix/osux/tree/master/taikorank#taiko-ranking-project).
+See [taiko ranking](https://github.com/tomtix/osux/tree/master/src/taikorank#taiko-ranking-project).
 
 ## (Bunch of) Dependencies
 * libyaml
