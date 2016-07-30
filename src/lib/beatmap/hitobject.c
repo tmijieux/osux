@@ -19,47 +19,47 @@
 
 #include "osux/hitobject.h"
 
-void ho_print(struct hit_object *ho, int version)
+void ho_print(struct hit_object *ho, int version, FILE *f)
 {
-    printf("%d,%d,%d,%d,%d",
-	   ho->x, ho->y, ho->offset, ho->type, ho->hs.sample);
+    fprintf(f, "%d,%d,%d,%d,%d",
+	    ho->x, ho->y, ho->offset, ho->type, ho->hs.sample);
     
     switch ( TYPE_OF(ho) ) {
     case HO_SLIDER:
-	printf(",%c", ho->sli.type);
+	fprintf(f, ",%c", ho->sli.type);
 	for (unsigned i = 0; i < ho->sli.point_count; ++i)
-	    printf("|%d:%d", ho->sli.pos[i].x, ho->sli.pos[i].y);
-	printf(",%d,%.15g", ho->sli.repeat, ho->sli.length);
+	    fprintf(f, "|%d:%d", ho->sli.pos[i].x, ho->sli.pos[i].y);
+	fprintf(f, ",%d,%.15g", ho->sli.repeat, ho->sli.length);
 	if (ho->sli.hs.additional) {
-	    printf(",");
+	    fprintf(f, ",");
 	    for (unsigned i = 0; i < ho->sli.repeat+1; ++i) {
-		if (i >= 1) printf("|");
-		printf("%d", ho->sli.hs.dat[i].sample);
+		if (i >= 1) fprintf(f, "|");
+		fprintf(f, "%d", ho->sli.hs.dat[i].sample);
 	    }
-	    printf(",");
+	    fprintf(f, ",");
 	    for (unsigned i = 0; i < ho->sli.repeat+1; ++i) {
-		if (i >= 1) printf("|");
-		printf("%d:%d", ho->sli.hs.dat[i].st,
+		if (i >= 1) fprintf(f, "|");
+		fprintf(f, "%d:%d", ho->sli.hs.dat[i].st,
 		       ho->sli.hs.dat[i].st_additional);
 	    }
 	}
 	break;
     case HO_SPINNER:
-	printf(",%d", ho->spi.end_offset);
+	fprintf(f, ",%d", ho->spi.end_offset);
 	break;
     }
     if (ho->hs.additional) {
-	printf(",%d:%d:%d",
+	fprintf(f, ",%d:%d:%d",
 	       ho->hs.st,
 	       ho->hs.st_additional,
 	       ho->hs.sample_set_index);
 	if (version > 11) {
-	    printf(":%d:%s",
+	    fprintf(f, ":%d:%s",
 		   ho->hs.volume,
 		   ho->hs.sfx_filename);
 	}
     }
-    printf("\r\n");
+    fprintf(f, "\r\n");
 }
 
 void ho_free(struct hit_object *ho)

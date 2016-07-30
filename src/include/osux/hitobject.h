@@ -96,7 +96,7 @@ struct hit_object {
     struct hitsound hs;
 };
 
-void ho_print(struct hit_object *ho, int version);
+void ho_print(struct hit_object *ho, int version, FILE *f);
 void ho_free(struct hit_object *ho);
 
 #endif //HIT_OBJECT_H

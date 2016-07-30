@@ -18,17 +18,17 @@
 
 #include "osux/timingpoint.h"
 
-void tp_print(struct timing_point *tp)
+void tp_print(struct timing_point *tp, FILE *f)
 {
-    printf("%.15g,%.15g,%d,%d,%d,%d,%d,%d\r\n",
-	   tp->offset,
-	   tp->mpb,
-	   tp->time_signature,
-	   tp->sample_type,
-	   tp->sample_set,
-	   tp->volume,
-	   tp->uninherited,
-	   tp->kiai);
+    fprintf(f, "%.15g,%.15g,%d,%d,%d,%d,%d,%d\r\n",
+	    tp->offset,
+	    tp->mpb,
+	    tp->time_signature,
+	    tp->sample_type,
+	    tp->sample_set,
+	    tp->volume,
+	    tp->uninherited,
+	    tp->kiai);
 }
 
 void tp_free(struct timing_point *tp)

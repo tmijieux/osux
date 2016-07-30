@@ -120,4 +120,6 @@ int osux_beatmap_save(const char *filename, const osux_beatmap* beatmap);
 int osux_beatmap_close(osux_beatmap *beatmap);
 int osux_beatmap_print(const osux_beatmap *m, FILE *f);
 
+char * osux_beatmap_default_filename(const osux_beatmap *bm);
+
 #endif //osux_BEATMAP_H

@@ -129,7 +129,7 @@ int osux_beatmap_print(const osux_beatmap *m, FILE *f)
 
     PRINT_SECTION( TimingPoints );
     for (unsigned int i = 0; i < m->tpc; ++i)
-	tp_print(&m->TimingPoints[i]);
+	tp_print(&m->TimingPoints[i], f);
 
     if (m->colc) {
 	PRINT_SECTION( Colours );
@@ -140,12 +140,23 @@ int osux_beatmap_print(const osux_beatmap *m, FILE *f)
 
     PRINT_SECTION( HitObjects );
     for (unsigned int i = 0; i < m->hoc; ++i)
-	ho_print(&m->HitObjects[i], m->version);
+	ho_print(&m->HitObjects[i], m->version, f);
     return 0;
+}
+
+static int osux_beatmap_save_default_filename(const osux_beatmap *bm)
+{
+    char * name = osux_beatmap_default_filename(bm);
+    int res = osux_beatmap_save(name, bm);
+    free(name);
+    return res;
 }
 
 int osux_beatmap_save(const char *filename, const osux_beatmap* bm)
 {
+    if (filename == NULL)
+	return osux_beatmap_save_default_filename(bm);
+
     FILE *f = fopen(filename, "w+");
     if (NULL == f) {
         osux_error("%s: %s\n", filename, strerror(errno));
@@ -258,4 +269,21 @@ static void osux_beatmap_set_tp_last_uninherited(osux_beatmap *bm)
 		bm->TimingPoints[i-1].last_uninherited;
     }
 
+}
+
+static char * SPECIAL_CHARS = "/";
+static char * REPLACE_CHARS = "_";
+
+char * osux_beatmap_default_filename(const osux_beatmap *bm)
+{
+    char * name = xasprintf("%s - %s (%s) [%s].osu", 
+			    bm->Artist,  bm->Title, 
+			    bm->Creator, bm->Version);
+    unsigned int len_spec = strlen(SPECIAL_CHARS);
+    unsigned int len_name = strlen(name);
+    for (unsigned int i = 0; i < len_name; i++)
+	for (unsigned int j = 0; j < len_spec; j++)
+	    if (name[i] == SPECIAL_CHARS[j])
+		name[i] = REPLACE_CHARS[j];
+    return name;
 }

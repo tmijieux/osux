@@ -37,7 +37,7 @@ struct timing_point {
     struct timing_point *last_uninherited;
 };
 
-void tp_print(struct timing_point *tp); // print one timing point
+void tp_print(struct timing_point *tp, FILE *f); // print one timing point
 void tp_free(struct timing_point *tp); // free one timing point
 
 #endif //TIMING_POINT_!H
