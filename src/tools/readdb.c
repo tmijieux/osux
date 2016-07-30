@@ -7,8 +7,9 @@
 int main(void)
 {
     struct osux_db *db;
-    
-    if (osux_db_load("./osu.db", &db) < 0) {
+    const char *dataBasePath = "./osu.db";
+    if (osux_db_load(dataBasePath, &db) < 0) {
+		fprintf(stderr, "Cannot load library '%s'", dataBasePath);
         exit(EXIT_FAILURE);
     }
 

@@ -31,10 +31,10 @@ taiko_ranking_SOURCES = \
 taiko_ranking_LDADD = ../lib/libosux.la
 
 taiko_ranking_CFLAGS = \
-	$(MARIADB_CFLAGS) -DMYSQL_TR_DB \
+	$(MYSQL_CFLAGS) -DMYSQL_TR_DB \
 	-fopenmp $(GTS_CFLAGS) $(AM_CFLAGS)
 	-rpath $(pkglibdir)
 
 taiko_ranking_LDFLAGS = \
-	$(MARIADB_LIBS) -lm \
+	$(MYSQL_LIBS) -lm \
 	$(GTS_LIBS) $(AM_LDFLAGS)

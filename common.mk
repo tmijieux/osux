@@ -10,3 +10,5 @@ AM_CFLAGS = \
 	$(GLIB_CFLAGS) $(GMODULE_CFLAGS)
 
 AM_LDFLAGS = $(GLIB_LIBS) $(GMODULE_LIBS) -no-undefined
+MYSQL_CFLAGS = -IC:/msys64/mingw64/include/mysql/ -march=x86-64 -mtune=generic -O2 -pipe -Wunused -Wno-uninitialized
+MYSQL_LIBS = -LC:/msys64/mingw64/lib/ -lmysqlclient

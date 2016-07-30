@@ -24,16 +24,15 @@ PKG_CHECK_MODULES(GTS, gts >= 0.7.2, ,
 
 AC_SUBST(GTS_CFLAGS)
 AC_SUBST(GTS_LIBS)
-PKG_CHECK_MODULES(
-        MYSQL, libmysqlclient, ,
-        [AC_CHECK_PROG(MYSQL_CONFIG, mysql_config, mysql_config, false)
-	       if test "x$MYSQL_CONFIG" = "xfalse" ; then
-                   AC_MSG_ERROR([mysql_config not in path, aborting])
-               fi
-               MYSQL_CFLAGS=$(${MYSQL_CONFIG} --cflags)
-               MYSQL_LIBS=$(${MYSQL_CONFIG} --libs)])
-AC_SUBST(MYSQL_CFLAGS)
-AC_SUBST(MYSQL_LIBS)
+#PKG_CHECK_MODULES(
+#        MYSQL, libmysqlclient, ,
+#        [AC_CHECK_PROG(MYSQL_CONFIG, mysql_config, mysql_config, false)
+#	       if test "x$MYSQL_CONFIG" = "xfalse" ; then
+#                   AC_MSG_ERROR([mysql_config not in path, aborting])
+#               fi
+#               MYSQL_CFLAGS=$(${MYSQL_CONFIG} --cflags)
+#               MYSQL_LIBS=$(${MYSQL_CONFIG} --libs)])
+
 
 AC_CONFIG_FILES([
 		  Makefile
