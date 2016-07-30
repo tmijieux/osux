@@ -1,13 +1,5 @@
 
-set(PARSER_PY_SRC 
-  pyfetch.c 		pyfetch.h
-  python_.c 		python_.h
-  )
-
-set(Python_ADDITIONAL_VERSIONS "2.7")
-find_package(PythonLibs REQUIRED)
-
-include_directories(${PYTHON_INCLUDE_DIRS})
+set(PARSER_PY_SRC  pyfetch.c python_internal.c )
 
 add_library(osux_parser_py MODULE ${PARSER_PY_SRC})
 target_link_libraries(osux_parser_py ${PYTHON_LIBRARIES})

@@ -3,7 +3,7 @@ set(TR_SOURCE
   check_osu_file.c		check_osu_file.h
   tr_mods.c			 	tr_mods.h
   print.c				print.h
-  bpm.c					bpm.h
+  bpm.h
   taiko_ranking_map.c 	taiko_ranking_map.h
   taiko_ranking_object.c taiko_ranking_object.h
   taiko_ranking_score.c	 taiko_ranking_score.h
@@ -24,22 +24,23 @@ set(TR_SOURCE
   accuracy.c			accuracy.h
   final_star.c			final_star.h
   )
-  
-find_package(OpenMP)
+
+
 if(OPENMP_FOUND)
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif(OPENMP_FOUND)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${GTS_C_FLAGS}")
 
 add_executable(taiko_ranking ${TR_SOURCE})
-target_link_libraries(taiko_ranking osux m mysqlclient ${CMAKE_THREAD_LIBS_INIT} ${GTS_LIBRARIES})
+target_link_libraries(taiko_ranking
+  osux m mysqlclient ${CMAKE_THREAD_LIBS_INIT} ${GTS_LIBRARIES})
 
 install( 
-     TARGETS taiko_ranking
-     RUNTIME DESTINATION bin
-)
+  TARGETS taiko_ranking
+  RUNTIME DESTINATION bin
+  )
 
 install(
   DIRECTORY yaml
