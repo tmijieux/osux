@@ -8,25 +8,6 @@ add_custom_command(
   )
 
 add_custom_target(generate_sql_c DEPENDS _db_sql_data.c)
-
-set(DB_SOURCE
-  _db_sql_data.c
-  osux_db.c)
-  
-add_library(osux_db STATIC ${DB_SOURCE})
-
+set(DB_SOURCE _db_sql_data.c osux_db.c)
+add_library(osux_db OBJECT ${DB_SOURCE})
 add_dependencies(osux_db generate_sql_c)
-#target_link_libraries(osux_db sqlite3)
-
-add_executable(makedb makedb.c)
-target_link_libraries(makedb osux_db osux_bm osux_util)
-
-add_executable(readdb readdb.c)
-target_link_libraries(readdb osux_db osux_bm osux_util )
-
-
-install( 
-     TARGETS makedb readdb
-     RUNTIME DESTINATION bin
-#     DESTINATION "${ASSIMP_BIN_INSTALL_DIR}" COMPONENT assimp-dev
-) 
