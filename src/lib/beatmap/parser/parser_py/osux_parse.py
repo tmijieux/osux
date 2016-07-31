@@ -17,7 +17,19 @@
 
 
 import sys, re
-from osux_util import Int, Float
+
+
+def Float(x):
+    try:
+        return float(x)
+    except:
+        return x
+
+def Int(x):
+    try:
+        return int(x)
+    except:
+        return x
 
 ################################################################################
 
@@ -135,8 +147,8 @@ def parse_event(line):
 def parse(osufilename):
     data = {}
     f = open(osufilename);
-    ver = f.readline()
-    m = re.match(u"^(\u00EF\u00BB\u00BF)?osu file format v([\d]+)\r\n", ver)
+    ver = f.readline().lstrip().rstrip()
+    m = re.match(u"^(\u00EF\u00BB\u00BF)?osu file format v([0-9]+)$", ver)
     if m:
         if m.group(1):
             data['BOM'] = True
@@ -202,7 +214,7 @@ def parse(osufilename):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print "error"
+        print "usage: %s /path/to/file.osu" % sys.argv[0]
         sys.exit(1)
 
     data = parse(sys.argv[1])

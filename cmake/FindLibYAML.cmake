@@ -4,7 +4,7 @@
 # If it's found it sets LIBYAML_FOUND to TRUE
 # and following variables are set:
 #    LIBYAML_INCLUDE_DIR
-#    LIBYAML_LIBRARY
+#    LIBYAML_LIBRARIES
 
 
 FIND_PATH(LIBYAML_INCLUDE_DIR NAMES yaml.h)

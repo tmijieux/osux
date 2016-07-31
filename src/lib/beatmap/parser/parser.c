@@ -45,17 +45,20 @@ INITIALIZER(parser_init)
     plugin_init_t parser_py_init;
 		
     if (!g_module_supported()){
-        fprintf(stderr, "1 cannot load PYTHON ;'(\n");
+        fprintf(stderr, "dynamic library loading is not supported'(\n");
         exit(EXIT_FAILURE);
     }
-    GModule *pythonModule = g_module_open(
-        MODULE_LOAD_PATH"/libosux_parser_py.so", G_MODULE_BIND_LOCAL);
+    gchar *fullPath = g_module_build_path(MODULE_LOAD_PATH, "osux_parser_py");
+    GModule *pythonModule = g_module_open(fullPath, G_MODULE_BIND_LOCAL);
+
     if (pythonModule == NULL) {
-        fprintf(stderr, "2 cannot load PYTHON ;'(\n");
+        fprintf(stderr, "cannot load %s\n", fullPath);
         exit(EXIT_FAILURE);
     }
+	g_free(fullPath);
+	
     if (!g_module_symbol(pythonModule, "parser_py_init", (gpointer) &parser_py_init)) {
-        fprintf(stderr, "3 cannot load PYTHON ;'(\n");
+        fprintf(stderr, "cannot find function \"parser_py_init\"\n");
         exit(EXIT_FAILURE);
     }
 

@@ -16,5 +16,3 @@ libosux_util_la_SOURCES = \
 
 libosux_util_la_CFLAGS = $(CRYPTO_CFLAGS) $(YAML_CFLAGS) $(AM_CFLAGS)
 libosux_util_la_LDFLAGS = $(CRYPTO_LIBS) $(YAML_LIBS) $(AM_LDFLAGS)
-
-dist_python_DATA = osux_util.py

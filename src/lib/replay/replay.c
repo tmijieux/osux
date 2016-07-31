@@ -38,21 +38,26 @@
 static unsigned int parse_replay_data(FILE *f, struct replay_data **repdata)
 {
     gchar *uncomp, **tab;
-    
+
     lzma_decompress(f, (uint8_t**) &uncomp);
     if (NULL == uncomp) {
         *repdata = NULL;
         return (unsigned) -1;
     }
-    
+
     tab = g_strsplit(uncomp, ",", 0);
     free(uncomp);
     gsize tabSize = 0;
     while (tab[tabSize] != NULL)
         tabSize++;
-    
+
     *repdata = calloc(sizeof(**repdata), tabSize);
     for (unsigned int i = 0; i < tabSize; ++i) {
+        if (!strcmp(tab[i], "")) {
+            --i; --tabSize;
+            continue;
+        }
+
         gchar **split = g_strsplit(tab[i], "|", 0);
         (*repdata)[i].previous_time = g_ascii_strtoull(split[0], NULL, 10);
         (*repdata)[i].x = g_ascii_strtod(split[1], NULL);
@@ -61,7 +66,7 @@ static unsigned int parse_replay_data(FILE *f, struct replay_data **repdata)
         g_strfreev(split);
     }
     g_strfreev(tab);
-	
+
     return tabSize;
 }
 
@@ -76,7 +81,7 @@ static time_t from_win_timestamp(uint64_t ticks)
 static void print_date(FILE *f, time_t t)
 {
     static gboolean locale_is_set = FALSE;
-    
+
     if (!locale_is_set) {
         setlocale(LC_TIME, ""); // TODO: move this
         locale_is_set = TRUE;
@@ -104,7 +109,7 @@ struct replay *replay_parse(FILE *f)
     read_string(&r->bm_md5_hash, f);
     read_string(&r->player_name, f);
     read_string(&r->replay_md5_hash, f);
-    
+
     xfread(&r->_300,  2, 1, f);
     xfread(&r->_100,  2, 1, f);
     xfread(&r->_50,   2, 1, f);
@@ -122,13 +127,19 @@ struct replay *replay_parse(FILE *f)
         free(r);
         return NULL;
     }
-	
+
     r->replife_size = 0;
     life = g_strsplit(r->lifebar_graph, ",", 0);
     while (life[r->replife_size] != NULL)
         ++ r->replife_size;
-	
+
+    r->replife = malloc(sizeof r->replife[0] * r->replife_size);
     for (unsigned int i = 0; i < r->replife_size; ++i) {
+        if (!strcmp(life[i], "")) {
+            --i; --r->replife_size;
+            continue;
+        }
+
         gchar **split = g_strsplit(life[i], "|", 0);
         r->replife[i].time_offset = g_ascii_strtoull(split[0], NULL, 10);
         r->replife[i].life_amount = g_ascii_strtod(split[1], NULL);
@@ -144,7 +155,7 @@ struct replay *replay_parse(FILE *f)
          parse_replay_data(f, &r->repdata)) == (unsigned)-1) {
         r->invalid = 1;
     }
-    
+
     return r;
 }
 
@@ -166,7 +177,7 @@ void replay_print(FILE *f, const struct replay *r)
     fprintf(f, "score: %u\n", r->score);
     fprintf(f, "max combo: %u\n", r->max_combo);
     fprintf(f, "Full combo: %u\n", r->fc);
-    fputs("mods: ", f);  mod_print(f, r->mods); fputs("\n", f);  
+    fputs("mods: ", f);  mod_print(f, r->mods); fputs("\n", f);
     fprintf(f, "lifebar_graph: "/*%s\n", r->lifebar_graph*/);
 
     for (unsigned int i = 0; i < r->replife_size; ++i) {

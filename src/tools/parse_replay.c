@@ -43,10 +43,11 @@ int main(int argc, char *argv[])
     osux_db_load("./osu.db", &db);
     printf("Replay map: %s\n",
            osux_db_relative_path_by_hash(db, r->bm_md5_hash));
+    osux_db_free(db);
 
+    
     replay_print(stdout, r);
     replay_free(r);
-    osux_db_free(db);
 
     return EXIT_SUCCESS;
 }
