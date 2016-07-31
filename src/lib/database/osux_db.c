@@ -527,11 +527,13 @@ int osux_db_dump(FILE *outfile, const osux_db *db)
 const char*
 osux_db_relative_path_by_hash(osux_db *db, const char *hash)
 {
-    char *path;
+    char *path = "not found";
     struct osux_beatmap *bm;
     osux_db_beatmap_get(hash, db, &bm);
-    path = strdup(bm->AudioFilename);
-    osux_beatmap_close(bm);
+    if (bm != NULL) {
+        path = strdup(bm->AudioFilename);
+        osux_beatmap_close(bm);
+    }
 
     return path;
 }
