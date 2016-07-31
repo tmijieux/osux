@@ -32,7 +32,7 @@ PKG_CHECK_MODULES(
                MYSQL_LIBS=-LC:/msys64/mingw64/lib/ -lmysqlclient
             else
                 MYSQL_CFLAGS=$(${MYSQL_CONFIG} --cflags)
-                MYSQL_LIBS=$(${MYSQL_CONFIG} --libs)])
+                MYSQL_LIBS=$(${MYSQL_CONFIG} --libs)
             fi
             ])
 AC_SUBST(MYSQL_CFLAGS)
