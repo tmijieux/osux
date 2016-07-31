@@ -142,3 +142,16 @@ tests:
       ddddddd         160bpm[tick 4 - slider 6/4 = ddddddd]
       r               160bpm[tick 4 - slider 8/4 = r]
   #########################################################
+  - 
+    do: True
+    path: "./maps_test/convert/extra_weird/*.osu"
+    unit: 93
+    expected: |
+      r               160bpm[sv x1.0 - tp x1 - slider 8/4 = r]
+      d___d___d       160bpm[sv x1.1 - tp x1 - slider 8/4 = d___d___d]
+      r               160bpm[sv x1.1 - tp x1 - slider 9/4 = r]
+      r               160bpm[sv x1.2 - tp x1 - slider 8/4 = r]
+      r               160bpm[sv x1.3 - tp x1 - slider 8/4 = r]
+      r               160bpm[sv x1.5 - tp x1 - slider 8/4 = r]
+      r               160bpm[sv x1.6 - tp x1 - slider 8/4 = r]
+  #########################################################

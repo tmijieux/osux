@@ -11,12 +11,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import yaml
 import sys
 
 from colors import Colors
 from tr_exec import TR_Exec
-from tr_test import TR_Tester, TR_Test_Str_List
+from tr_test import TR_Tester_Yaml, TR_Test_Str_List
 
 class TR_Test_Autoconvert(TR_Test_Str_List):
     MAX_LENGTH = 16
@@ -50,7 +49,7 @@ class TR_Test_Autoconvert(TR_Test_Str_List):
         s = ""
         for i in range(0, len(x['objects'])):
             if i != 0:
-                space = (x['objects'][i]['offset'] - 
+                space = (x['objects'][i]['offset'] -
                          x['objects'][i-1]['offset']) / self.unit
                 s += "_" * (int(space) - 1)
             s += x['objects'][i]['type']
@@ -70,25 +69,16 @@ class TR_Test_Autoconvert(TR_Test_Str_List):
 
 ########################################################
 
-class TR_Tester_Autoconvert(TR_Tester):
+class TR_Tester_Autoconvert(TR_Tester_Yaml):
     ########################################################
     def __init__(self, argv):
-        TR_Tester.__init__(self, argv)
-        self.errors = 0
-        self.total  = 0
+        TR_Tester_Yaml.__init__(self, argv)
     ########################################################
-    def test_basic(self, data):
-        for x in data:
-            test = TR_Test_Autoconvert(x)
-            if test.do:
-                print("")
-                err, tot = test.main() 
-                self.errors += err
-                self.total  += tot
-    ########################################################
-    def test(self, data):
+    def test_yaml(self, data):
         if 'tests' in data:
-            self.test_basic(data['tests'])
+            self.test_iterate(data['tests'],
+                              TR_Test_Autoconvert,
+                              TR_Test_Autoconvert.main)
         return (self.errors, self.total)
     ########################################################
 

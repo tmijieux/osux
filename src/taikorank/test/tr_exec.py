@@ -20,11 +20,13 @@ DEBUG = False
 
 class TR_Exec:
     EXE = "taiko_ranking"
-    OPT = {'db':    0,
-           'ptro':  0,
-           'pyaml': 1,
-           'quick': 1,
-           'score': 0}
+    OPT = {'db':          0,
+           'ptro':        0,
+           'autoconvert': 0,
+           'score':       0,
+           'pyaml':       1,
+           'quick':       1,
+           'mods':        '__'}
     #########################################################
     @staticmethod
     def options(opt = {}):
@@ -59,9 +61,19 @@ class TR_Exec:
             print("----------------ERR-----------------")
             print(str(err))
         #
-        res = yaml.load(out)
+        try:
+            res = yaml.load(out)
+        except yaml.parser.ParserError as e:
+            print("Failed to parse %s output." % TR_Exec.EXE)
+            print("Error: %s" % str(e))
+            print("----------------ERR-----------------")
+            print(str(err))
+            return []
+        #
         if res == None:
-            print("Error loading yaml", str(err))
+            print("Error loading yaml")
+            print("----------------ERR-----------------")
+            print(str(err))
             return []
         return res;
     #########################################################

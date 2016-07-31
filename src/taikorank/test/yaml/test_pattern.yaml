@@ -4,7 +4,7 @@ tests:
     do: True
     path: "./maps_test/pattern/stream_basic/"
     field: "pattern_star"
-    maps: |
+    expected: |
       170bpm bundle[12 ddk ddk ddk ddk]
       170bpm bundle[16 ddkd ddkd ddkd ddkd]
       170bpm bundle[16 dkdk dkdk dkdk dkdk]
@@ -14,7 +14,7 @@ tests:
     do: True
     path: "./maps_test/pattern/stream_kd*/"
     field: "pattern_star"
-    maps: |
+    expected: |
       170bpm bundle[12 ddk ddk ddk ddk]
       170bpm bundle[16 kddd kddd kddd kddd]
       170bpm bundle[10 ddddk ddddk]
@@ -26,7 +26,7 @@ tests:
     do: True
     path: "./maps_test/pattern/stream_kkd*/"
     field: "pattern_star"
-    maps: |
+    expected: |
       170bpm bundle[10 dddkk dddkk]
       170bpm bundle[12 dddd kk dddd kk]
       170bpm bundle[16 dddd ddkk dddd ddkk]
@@ -37,7 +37,7 @@ tests:
     do: True
     path: "./maps_test/pattern/stream16_kddd/"
     field: "pattern_star"
-    maps: |
+    expected: |
       170bpm bundle[16 kdkd dddd kdkd dddd]
       170bpm bundle[16 kddd kddd kddd kddd]
       170bpm bundle[16 kddd dddd kddd dddd]
@@ -47,7 +47,7 @@ tests:
     do: True
     path: "./maps_test/pattern/stream16_ddkk/"
     field: "pattern_star"
-    maps: |
+    expected: |
       170bpm bundle[16 dddd kkkk ddkk ddkk]
       170bpm bundle[16 dddd kkkk dddd kkkk]
       170bpm bundle[16 ddkk ddkk ddkk ddkk]
@@ -58,7 +58,7 @@ tests:
     do: True
     path: "./maps_test/pattern/stream12_xxxx_xx/"
     field: "pattern_star"
-    maps: |
+    expected: |
       170bpm bundle[12 ddkd kk ddkd kk]
       170bpm bundle[12 dddd kk dddd kk]
       170bpm bundle[12 kddd dd kddd dd]
@@ -68,7 +68,7 @@ tests:
     do: True
     path: "./maps_test/pattern/stream12_xxx_xxx/"
     field: "pattern_star"
-    maps: |
+    expected: |
       170bpm bundle[12 ddk ddk ddd kkk]
       170bpm bundle[12 ddd kkk ddd kkk]
       170bpm bundle[12 ddk ddk ddk ddk]
@@ -78,7 +78,7 @@ tests:
     do: True
     path: "./maps_test/pattern/repetition/2/"
     field: "pattern_star"
-    maps: |
+    expected: |
       160bpm space 2*1/1[ddd ddk dkd]
       160bpm space 2*1/1[ddd ddk]
       160bpm space 2*1/1[ddk]
@@ -88,7 +88,7 @@ tests:
     do: True
     path: "./maps_test/pattern/repetition/3/"
     field: "pattern_star"
-    maps: |
+    expected: |
       160bpm space 3*1/1[ddd ddk dkd]
       160bpm space 3*1/1[ddd ddk]
       160bpm space 3*1/1[ddk]
@@ -98,7 +98,7 @@ tests:
     do: True
     path: "./maps_test/pattern/repetition/4/"
     field: "pattern_star"
-    maps: |
+    expected: |
       160bpm space 4*1/1[ddd ddk dkd]
       160bpm space 4*1/1[ddd ddk]
       160bpm space 4*1/1[ddk]
@@ -108,7 +108,7 @@ tests:
     do: True
     path: "./maps_test/pattern/group_pattern/x_x_xxx_/"
     field: "pattern_star"
-    maps: |
+    expected: |
       160bpm[d_k_ddk_ d_k_ddk_]
       160bpm[d_d_ddk_ d_d_ddk_]
       160bpm[d_d_ddd_ d_d_ddd_]
@@ -117,7 +117,7 @@ tests:
     do: True
     path: "./maps_test/pattern/group_pattern/xxxxx___/"
     field: "pattern_star"
-    maps: |
+    expected: |
       160bpm[dkddk___ dkddk___]
       160bpm[ddddk___ ddddk___]
       160bpm[ddddd___ ddddd___]

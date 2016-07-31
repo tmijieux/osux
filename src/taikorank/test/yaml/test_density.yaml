@@ -4,7 +4,7 @@ tests:
     do: True
     path: "./maps_test/density/256_obj/by_2/"
     field: "density_star"
-    maps: |
+    expected: |
       256 objects[180bpm dd__ ____]
       256 objects[180bpm d_d_ ____]
       256 objects[180bpm d__d ____]
@@ -14,7 +14,7 @@ tests:
     do: True
     path: "./maps_test/density/256_obj/by_3/"
     field: "density_star"
-    maps: |
+    expected: |
       256 objects[180bpm ddd_ ____]
       256 objects[180bpm d_d_ d___]
       256 objects[180bpm d__d __d_]
@@ -23,7 +23,7 @@ tests:
     do: True
     path: "./maps_test/density/256_obj/by_4/"
     field: "density_star"
-    maps: |
+    expected: |
       256 objects[180bpm dddd ____]
       256 objects[180bpm ddd_ d___]
       256 objects[180bpm dd__ dd__]
@@ -33,7 +33,7 @@ tests:
     do: True
     path: "./maps_test/density/256_obj/by_5/"
     field: "density_star"
-    maps: |
+    expected: |
       256 objects[180bpm dddd d___]
       256 objects[180bpm ddd_ d_d_]
       256 objects[180bpm dd_d d_d_]
@@ -42,7 +42,7 @@ tests:
     do: True
     path: "./maps_test/density/256_obj/by_6/"
     field: "density_star"
-    maps: |
+    expected: |
       256 objects[180bpm dddd dd__]
       256 objects[180bpm dddd d_d_]
       256 objects[180bpm dddd _dd_]
@@ -52,7 +52,7 @@ tests:
     do: True
     path: "./maps_test/density/256_obj/grouped/"
     field: "density_star"
-    maps: |
+    expected: |
       256 objects[180bpm dddd dddd]
       256 objects[180bpm dddd ddd_]
       256 objects[180bpm dddd dd__]
@@ -66,7 +66,7 @@ tests:
     do: True
     path: "./maps_test/density/ddddkkkk_strain/"
     field: "density_star"
-    maps: |
+    expected: |
       bpm bundle[200bpm ddddkkkk]
       bpm bundle[180bpm ddddkkkk]
       bpm bundle[160bpm ddddkkkk]
@@ -81,7 +81,7 @@ tests:
     do: True
     path: "./maps_test/density/ddkk_strain/"
     field: "density_star"
-    maps: |
+    expected: |
       bpm bundle[200bpm ddkkddkk]
       bpm bundle[180bpm ddkkddkk]
       bpm bundle[160bpm ddkkddkk]
@@ -96,7 +96,7 @@ tests:
     do: True
     path: "./maps_test/density/dk_strain/"
     field: "density_star"
-    maps: |
+    expected: |
       bpm bundle[200bpm dkdkdkdk]
       bpm bundle[180bpm dkdkdkdk]
       bpm bundle[160bpm dkdkdkdk]
@@ -111,7 +111,7 @@ tests:
     do: True
     path: "./maps_test/density/d_strain/"
     field: "density_star"
-    maps: |
+    expected: |
       bpm bundle[800bpm dddddddd x2]
       bpm bundle[800bpm dddddddd]
       bpm bundle[720bpm dddddddd x2]
@@ -164,7 +164,7 @@ tests:
     do: True
     path: "./maps_test/pattern/group_pattern/xxxxx___/"
     field: "density_star"
-    maps: |
+    expected: |
       160bpm[ddddd___ ddddd___]
       160bpm[ddddk___ ddddk___]
       160bpm[dkddk___ dkddk___]
@@ -173,7 +173,7 @@ tests:
     do: True
     path: "./maps_test/pattern/group_pattern/x_x_xxx_/"
     field: "density_star"
-    maps: |
+    expected: |
       160bpm[d_d_ddd_ d_d_ddd_]
       160bpm[d_d_ddk_ d_d_ddk_]
       160bpm[d_k_ddk_ d_k_ddk_]
@@ -184,7 +184,7 @@ combined:
     do: True
     path: "./maps_test/density/ddddkkkk_strain/ ./maps_test/density/ddkk_strain/"
     field: "density_star"
-    maps: |
+    expected: |
       bpm bundle[200bpm ddddkkkk]
       bpm bundle[200bpm ddkkddkk]
       bpm bundle[180bpm ddddkkkk]

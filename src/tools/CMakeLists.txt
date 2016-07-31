@@ -8,8 +8,11 @@ target_link_libraries(makedb osux)
 add_executable(readdb readdb.c)
 target_link_libraries(readdb osux )
 
+add_executable(taiko_converter taiko_converter.c)
+target_link_libraries(taiko_converter osux )
+
 install( 
-     TARGETS parse_replay makedb readdb
+     TARGETS parse_replay makedb readdb taiko_converter
      RUNTIME DESTINATION bin
 #     DESTINATION "${ASSIMP_BIN_INSTALL_DIR}" COMPONENT assimp-dev
 ) 

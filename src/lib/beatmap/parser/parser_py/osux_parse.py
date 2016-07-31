@@ -112,6 +112,7 @@ def parse_timingpoint(line):
 # STORYBOARD
 
 SB_CURRENT_EVENT = {}
+SB_CURRENT_EVENT["value"] = []
 
 def parse_event(line):
     global SB_CURRENT_EVENT

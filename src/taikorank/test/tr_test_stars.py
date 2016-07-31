@@ -11,13 +11,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import yaml
 import sys
 
 from colors import Colors
 from levenshtein import Levenshtein
 from tr_exec import TR_Exec
-from tr_test import TR_Tester, TR_Test_Str_List
+from tr_test import TR_Tester_Yaml, TR_Test_Str_List
 
 class TR_Test_Stars(TR_Test_Str_List):
     def __init__(self, ht):
@@ -64,7 +63,7 @@ class TR_Test_Stars(TR_Test_Str_List):
         for mod in self.mods:
             res.extend(self.compute_one_mod(mod))
         #
-        self.res = sorted(res, key=lambda k: k['stars'][self.field], 
+        self.res = sorted(res, key=lambda k: k['stars'][self.field],
                           reverse=True)
         self.computed = True
     #########################################################
@@ -100,13 +99,11 @@ class TR_Test_Stars(TR_Test_Str_List):
 
 ########################################################
 
-class TR_Tester_Stars(TR_Tester):
+class TR_Tester_Stars(TR_Tester_Yaml):
     ########################################################
     def __init__(self, argv):
-        TR_Tester.__init__(self, argv)
-        self.errors = 0
-        self.total  = 0
-        self.tests  = {}
+        TR_Tester_Yaml.__init__(self, argv)
+        self.tests = {}
     ########################################################
     def test_basic(self, data):
         for x in data:
@@ -114,7 +111,7 @@ class TR_Tester_Stars(TR_Tester):
             self.tests[test.name] = test
             if test.do:
                 print("")
-                err, tot = test.main() 
+                err, tot = test.main()
                 self.errors += err
                 self.total  += tot
     ########################################################
@@ -124,11 +121,12 @@ class TR_Tester_Stars(TR_Tester):
             self.tests[test.name] = test
             if test.do:
                 print("")
-                err, tot = test.combine() 
+                test.combine(self.tests)
+                err, tot = test.main()
                 self.errors += err
                 self.total  += tot
     ########################################################
-    def test(self, data):
+    def test_yaml(self, data):
         if 'tests' in data:
             self.test_basic(data['tests'])
         if 'combined' in data:
