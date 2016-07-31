@@ -14,7 +14,3 @@ set(UTIL_SOURCE
 
 add_library(osux_util OBJECT ${UTIL_SOURCE})
 
-install(
-  FILES osux_util.py
-  DESTINATION lib/osux
-  )
