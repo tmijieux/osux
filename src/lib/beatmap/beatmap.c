@@ -20,6 +20,7 @@
 
 #include "osux/beatmap.h"
 #include "osux/error.h"
+#include "osux/string2.h"
 #include "osux/data.h"
 #include "osux/parser.h"
 #include "osux/hitobject.h"

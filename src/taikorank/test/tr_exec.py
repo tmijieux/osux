@@ -52,28 +52,32 @@ class TR_Exec:
         return TR_Exec.cmd(cmd)
     #
     @staticmethod
+    def debug_print(out, err):
+        print("----------------OUT-----------------")
+        print(str(out))
+        print("----------------ERR-----------------")
+        print(str(err))
+    #
+    @staticmethod
     def compute(args, opt = {}):
         out, err = TR_Exec.run(args, opt)
         #
         if DEBUG:
-            print("----------------OUT-----------------")
-            print(str(out))
-            print("----------------ERR-----------------")
-            print(str(err))
+            TR_Exec.debug_print(out, err)
         #
         try:
             res = yaml.load(out)
         except yaml.parser.ParserError as e:
             print("Failed to parse %s output." % TR_Exec.EXE)
             print("Error: %s" % str(e))
-            print("----------------ERR-----------------")
-            print(str(err))
+            if not DEBUG:
+                TR_Exec.debug_print(out, err)
             return []
         #
         if res == None:
             print("Error loading yaml")
-            print("----------------ERR-----------------")
-            print(str(err))
+            if not DEBUG:
+                TR_Exec.debug_print(out, err)
             return []
         return res;
     #########################################################

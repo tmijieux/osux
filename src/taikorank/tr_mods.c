@@ -88,7 +88,7 @@ static void trm_apply_mods_HD(struct tr_map * map);
 static void trm_apply_NM_app_dis(struct tr_map * map);
 static void trm_apply_NM_ms_coeff(struct tr_map * map);
 
-static int trm_print_one_mod(struct tr_map * map, int mods, int * i,
+static int trm_print_one_mod(const struct tr_map * map, int mods, int * i,
 			     char * buffer, char * string);
 
 //---------------------------------------------
@@ -233,7 +233,7 @@ void trm_apply_mods(struct tr_map * map)
 //---------------------------------------------
 //-------------------------------------------------
 
-static int trm_print_one_mod(struct tr_map * map, int mods, int * i,
+static int trm_print_one_mod(const struct tr_map * map, int mods, int * i,
 			     char * buffer, char * string)
 {
     if((map->mods & mods) != 0) {
@@ -246,7 +246,7 @@ static int trm_print_one_mod(struct tr_map * map, int mods, int * i,
 
 //-------------------------------------------------
 
-void trm_print_mods(struct tr_map * map)
+void trm_print_out_mods(const struct tr_map * map)
 {
     char * buffer = trm_mods_to_str(map);
     print_string_size(buffer, STR_MODS_LENGTH * MAX_MODS + 1, OUTPUT);
@@ -255,7 +255,7 @@ void trm_print_mods(struct tr_map * map)
 
 //-------------------------------------------------
 
-char * trm_mods_to_str(struct tr_map * map)
+char * trm_mods_to_str(const struct tr_map * map)
 {
     char * s = calloc(sizeof(char), STR_MODS_LENGTH * MAX_MODS + 1);
     int i = 0;

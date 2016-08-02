@@ -31,21 +31,21 @@ struct counter_entry {
     double nb;
 };
 
-struct heriter {
+struct inheriter {
     const struct counter * c;
     struct counter_entry * e;
-    herit_fun herit;
+    union {
+	inherit_fun inherit;
+	where_fun where;
+    } fun;
     double nb;
 };
 
 static struct counter_entry * cnte_new(const void * d, double nb);
 static void cnte_free(const char *key, struct counter_entry *e,  void *args);
-static void cnte_print(
-	const char *key, struct counter_entry *e, struct heriter *h);
-static void cnte_herit(
-	const char *key, struct counter_entry *e, struct heriter *h);
-static void cnte_add_nb_compressed(
-	const char *key, struct counter_entry *e, struct heriter *h);
+static void cnte_print(const char *key, struct counter_entry *e, struct inheriter *h);
+static void cnte_inherit(const char *key, struct counter_entry *e, struct inheriter *h);
+static void cnte_add_nb_inherit(const char *key, struct counter_entry *e, struct inheriter *h);
 
 //--------------------------------------------------
 
@@ -70,13 +70,13 @@ static void cnte_free(const char UNUSED(*key),
 
 static void cnte_print(const char *key,
                        struct counter_entry * e,
-		       struct heriter * h)
+		       struct inheriter * h)
 {
     if (h == NULL) {
-	printf("Entry:\t%s\t%.4g\t%.4f\n", 
+	printf("Entry:\t%s\t%.4g\t%.4f\n",
 	       key, e->nb, e->nb / h->c->total);
     } else {
-	double d = cnt_get_nb_compressed(h->c, key, h->herit);
+	double d = cnt_get_nb_inherit(h->c, key, h->fun.inherit);
 	printf("Entry:\t%s\t%.4g\t%.4g\t%.4f\t%.4f\n",
 	       key, e->nb, d, e->nb / h->c->total, d / h->c->total);
     }
@@ -84,18 +84,25 @@ static void cnte_print(const char *key,
 
 //--------------------------------------------------
 
-static void cnte_herit(const char UNUSED(*key),
-                       struct counter_entry *e,
-                       struct heriter *h)
+static void cnte_inherit(const char UNUSED(*key),
+			 struct counter_entry *e,
+			 struct inheriter *h)
 {
-    h->nb += e->nb * h->herit(h->e->data, e->data);
+    h->nb += e->nb * h->fun.inherit(h->e->data, e->data);
 }
 
-static void cnte_add_nb_compressed(const char *key,
-				   struct counter_entry *UNUSED(e),
-				   struct heriter *h)
+static void cnte_add_nb_inherit(const char *key,
+				struct counter_entry *UNUSED(e),
+				struct inheriter *h)
 {
-    h->nb += cnt_get_nb_compressed(h->c, key, h->herit);
+    h->nb += cnt_get_nb_inherit(h->c, key, h->fun.inherit);
+}
+
+static void cnte_where(const char UNUSED(*key),
+		       struct counter_entry *e,
+		       struct inheriter *h)
+{
+    h->nb += e->nb * h->fun.where(e->data);
 }
 
 //--------------------------------------------------
@@ -135,15 +142,15 @@ void cnt_add(struct counter * c, const void * data,
 
 //--------------------------------------------------
 
-double cnt_get_nb_compressed(const struct counter * c, 
-			     const char * key, herit_fun herit)
+double cnt_get_nb_inherit(const struct counter * c,
+			  const char * key, inherit_fun inherit)
 {
     struct counter_entry * e = NULL;
     ht_get_entry(c->ht, key, &e);
     if (e == NULL)
 	return 0;
-    struct heriter total = {NULL, e, herit, 0};
-    ht_for_each(c->ht, (ht_fun) cnte_herit, &total);
+    struct inheriter total = {NULL, e, {inherit}, 0};
+    ht_for_each(c->ht, (ht_fun) cnte_inherit, &total);
     return total.nb;
 }
 
@@ -156,16 +163,22 @@ double cnt_get_nb(const struct counter * c, const char * key)
     return e->nb;
 }
 
+double cnt_get_nb_where(const struct counter * c, where_fun where)
+{
+    struct inheriter h = {c, NULL, {.where = where}, 0};
+    ht_for_each(c->ht, (ht_fun) cnte_where, &h);
+    return h.nb;
+}
+
 double cnt_get_total(const struct counter * c)
 {
     return c->total;
 }
 
-double cnt_get_total_compressed(const struct counter * c,
-				herit_fun herit)
+double cnt_get_total_inherit(const struct counter * c, inherit_fun inherit)
 {
-    struct heriter h = {c, NULL, herit, 0};
-    ht_for_each(c->ht, (ht_fun) cnte_add_nb_compressed, &h);
+    struct inheriter h = {c, NULL, {inherit}, 0};
+    ht_for_each(c->ht, (ht_fun) cnte_add_nb_inherit, &h);
     return h.nb;
 }
 
@@ -178,10 +191,10 @@ void cnt_print(const struct counter * c)
     ht_for_each(c->ht, (ht_fun) cnte_print, NULL);
 }
 
-void cnt_print_compressed(const struct counter * c, herit_fun herit)
+void cnt_print_inherit(const struct counter * c, inherit_fun inherit)
 {
     printf("Counter: (%g)\n", c->total);
     printf("Entry:\tkey\tval\tcompr\tfreq\tfreq cp\n");
-    struct heriter h = {c, NULL, herit, INFINITY};
+    struct inheriter h = {c, NULL, {inherit}, INFINITY};
     ht_for_each(c->ht, (ht_fun) cnte_print, &h);
 }
