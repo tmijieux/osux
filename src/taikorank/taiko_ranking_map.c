@@ -152,19 +152,21 @@ void trm_free(struct tr_map * map)
 
 struct tr_map * trm_new(char * filename)
 {
-    int s = check_file(filename);
-    struct tr_map * res;
-    struct osux_beatmap * map;
-    switch(s) {
-    case 1:
+    struct tr_map *res;
+    osux_beatmap *map;
+
+    switch ( tr_check_file(filename) ) {
+    case TR_FILENAME_OSU_FILE:
 	res = trm_convert(filename);
-	if(res == NULL)
+	if (res == NULL)
 	    return NULL;
-	FILE * f = fopen(filename, "r");
+
+	FILE *f = fopen(filename, "r");
 	osux_md5_hash_file(f, &res->hash);
 	fclose(f);
 	return res;
-    case 2:
+
+    case TR_FILENAME_HASH:
 	if (ODB == NULL)
 	    break;
 	map = osux_db_get_beatmap_by_hash(ODB, filename);
@@ -173,8 +175,13 @@ struct tr_map * trm_new(char * filename)
 	res = trm_convert_map(map);
 	res->hash = strdup(filename);
 	return res;
+
+    default:
+    case TR_FILENAME_ERROR:
+        tr_error("Could not load: '%s'", filename);
+        break;
     }
-    tr_error("Could not load: '%s'", filename);
+
     return NULL;
 }
 
@@ -205,23 +212,23 @@ static int convert_get_type(struct hit_object * ho)
 
 //---------------------------------------------------------------
 
-static double convert_get_bpm_app(struct timing_point * tp,
-				  double sv)
+static double convert_get_bpm_app(struct timing_point *tp, double sv)
 {
     double sv_multiplication;
+
     if (tp->uninherited)
 	sv_multiplication = 1;
     else
 	sv_multiplication = -100. / tp->svm;
 
     return (mpb_to_bpm(tp->last_uninherited->mpb) *
-	    sv_multiplication * (sv / BASIC_SV));
+            sv_multiplication * (sv / BASIC_SV));
 }
 
 //---------------------------------------------------------------
 
 static int convert_get_end_offset(
-	struct hit_object * ho, int type, double bpm_app)
+    struct hit_object * ho, int type, double bpm_app)
 {
     if (type & TRO_S) {
 	return ho->spi.end_offset;
@@ -280,7 +287,7 @@ static struct osux_beatmap * trm_convert_map_prepare(struct osux_beatmap *map)
 
 //---------------------------------------------------------------
 
-static struct tr_map * trm_convert_map(struct osux_beatmap * map)
+static struct tr_map * trm_convert_map(struct osux_beatmap *map)
 {
     map = trm_convert_map_prepare(map);
     if (map == NULL)

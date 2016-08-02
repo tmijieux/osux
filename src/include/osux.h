@@ -36,4 +36,10 @@
 #include "./osux/table.h"
 #include "./osux/compiler.h"
 
+#ifdef _WIN32
+# include "./osux/windows.h"
+#else
+# include <unistd.h>
+#endif
+
 #endif //OSUX_H

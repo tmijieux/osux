@@ -1,6 +1,7 @@
 #define _GNU_SOURCE
 
 #include <glib.h>
+#include <glib/gstdio.h>
 #include <stdio.h>
 #include <sys/types.h>
 #include <string.h>
@@ -490,7 +491,7 @@ int osux_db_save(const char *filename, const osux_db *db)
 
 int osux_db_load(const char *filename, struct osux_db **db)
 {
-    if (access(filename, R_OK | W_OK) < 0) {
+    if (g_access(filename, R_OK | W_OK) < 0) {
         osux_error("%s: %s\n", filename, strerror(errno));
         *db = NULL;
         return -1;

@@ -18,20 +18,25 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+#include <glib.h>
+#include <glib/gstdio.h>
+#include "osux.h"
+
 #include "check_osu_file.h"
 #include "print.h"
 
-int check_file(char * file_name)
+int tr_check_file(char *file_name)
 {
     // cheking that it's a .osu file
     int length = strlen(file_name);
     if (strncmp(".osu", &file_name[length-4], 5) != 0)
-        return 2; // that's a hash
+        return TR_FILENAME_HASH; // that's a hash
 
     // check that the file existence
-    if (access(file_name, 0) == -1) {
-        tr_error("%s: Please let me open your file :S", file_name);
-        return 0;
+    if (g_access(file_name, R_OK) == -1) {
+        tr_error("%s: cannot open file for reading", file_name);
+        return TR_FILENAME_ERROR;
     }
-    return 1;
+    return TR_FILENAME_OSU_FILE;
 }

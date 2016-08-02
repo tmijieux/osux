@@ -19,6 +19,7 @@
 #include <glib.h>
 
 #include "osux/beatmap.h"
+#include "osux/string2.h"
 #include "osux/error.h"
 #include "osux/data.h"
 #include "osux/parser.h"
@@ -27,13 +28,11 @@
 #include "osux/storyboard.h"
 #include "osux/color.h"
 
-static int osux_beatmap_prepare(osux_beatmap *bm, const char *filename);
-static void osux_beatmap_set_tp_last_uninherited(osux_beatmap *bm);
 
 osux_beatmap DEFAULT_BEATMAP = { 0 };
 
-#define PRINT_SECTION(section)		\
-    fprintf(f, "\r\n["#section"]\r\n")	\
+#define PRINT_SECTION(section)                  \
+    fprintf(f, "\r\n["#section"]\r\n")          \
 
 #define PRINT_STRING(map, file, Field)		\
     fprintf(f, #Field ": %s\r\n", m->Field)	\
@@ -46,9 +45,8 @@ osux_beatmap DEFAULT_BEATMAP = { 0 };
 
 int osux_beatmap_print(const osux_beatmap *m, FILE *f)
 {
-    if (m->bom) {
+    if (m->bom)
 	fprintf(f, "%c%c%c", 0xef, 0xbb, 0xbf);
-    }
     fprintf(f, "osu file format v%d\r\n", m->version);
 
     PRINT_SECTION( General );
@@ -80,20 +78,18 @@ int osux_beatmap_print(const osux_beatmap *m, FILE *f)
     PRINT_INT(m, f, GridSize);
     PRINT_DOUBLE(m, f, TimelineZoom);
 
+    #undef PRINT_STRING
+    #undef PRINT_DOUBLE
+    #undef PRINT_INT
 
-#undef PRINT_STRING
-#undef PRINT_DOUBLE
-#undef PRINT_INT
+    #define PRINT_STRING(map, file, Field)      \
+        fprintf(f, #Field ":%s\r\n", m->Field)	\
 
-#define PRINT_STRING(map, file, Field)		\
-    fprintf(f, #Field ":%s\r\n", m->Field)	\
+    #define PRINT_DOUBLE(map, file, Field)		\
+        fprintf(f, #Field ":%.15g\r\n", m->Field)	\
 
-#define PRINT_DOUBLE(map, file, Field)		\
-    fprintf(f, #Field ":%.15g\r\n", m->Field)	\
-
-#define PRINT_INT(map, file, Field)		\
-    fprintf(f, #Field ":%d\r\n", m->Field)	\
-
+    #define PRINT_INT(map, file, Field)		\
+        fprintf(f, #Field ":%d\r\n", m->Field)	\
 
     PRINT_SECTION( Metadata );
     PRINT_STRING(m, f, Title);
@@ -146,7 +142,7 @@ int osux_beatmap_print(const osux_beatmap *m, FILE *f)
 
 static int osux_beatmap_save_default_filename(const osux_beatmap *bm)
 {
-    char * name = osux_beatmap_default_filename(bm);
+    char *name = osux_beatmap_default_filename(bm);
     int res = osux_beatmap_save(name, bm);
     free(name);
     return res;
@@ -190,6 +186,17 @@ static int osux_beatmap_prepare(osux_beatmap *bm, const char *filename)
     return 0;
 }
 
+static void osux_beatmap_set_tp_last_uninherited(osux_beatmap *bm)
+{
+    for (unsigned i = 0; i < bm->tpc; i++) {
+	if (bm->TimingPoints[i].uninherited)
+	    bm->TimingPoints[i].last_uninherited = &bm->TimingPoints[i];
+	else
+	    bm->TimingPoints[i].last_uninherited =
+		bm->TimingPoints[i-1].last_uninherited;
+    }
+}
+
 int osux_beatmap_open(const char *filename, osux_beatmap **beatmap)
 {
     osux_beatmap *(*osux_parse_beatmap)(const char *filename);
@@ -201,7 +208,6 @@ int osux_beatmap_open(const char *filename, osux_beatmap **beatmap)
     if (NULL == *beatmap)
         return -1;
     osux_beatmap_prepare(*beatmap, filename);
-
     osux_beatmap_set_tp_last_uninherited(*beatmap);
     return 0;
 }
@@ -255,35 +261,30 @@ int osux_beatmap_close(osux_beatmap *beatmap)
         osux_beatmap_free(beatmap);
         return 0;
     }
+
     return -1;
 }
 
-static void osux_beatmap_set_tp_last_uninherited(osux_beatmap *bm)
+
+static const char *sp_chr = "/";
+static const char *replace_chr = "_";
+
+char *osux_beatmap_default_filename(const osux_beatmap *bm)
 {
-    for(unsigned int i = 0; i < bm->tpc; i++) {
-	if(bm->TimingPoints[i].uninherited)
-	    bm->TimingPoints[i].last_uninherited =
-		&bm->TimingPoints[i];
-	else
-	    bm->TimingPoints[i].last_uninherited =
-		bm->TimingPoints[i-1].last_uninherited;
+    char *name = xasprintf(
+        "%s - %s (%s) [%s].osu", bm->Artist, bm->Title, bm->Creator, bm->Version);
+
+    unsigned len_name = strlen(name);
+    unsigned len_spec = strlen(sp_chr);
+
+    for (unsigned i = 0; i < len_name; i++)
+    {
+	for (unsigned j = 0; j < len_spec; j++)
+        {
+	    if (name[i] == sp_chr[j])
+		name[i] = replace_chr[j];
+        }
     }
 
-}
-
-static char * SPECIAL_CHARS = "/";
-static char * REPLACE_CHARS = "_";
-
-char * osux_beatmap_default_filename(const osux_beatmap *bm)
-{
-    char * name = xasprintf("%s - %s (%s) [%s].osu", 
-			    bm->Artist,  bm->Title, 
-			    bm->Creator, bm->Version);
-    unsigned int len_spec = strlen(SPECIAL_CHARS);
-    unsigned int len_name = strlen(name);
-    for (unsigned int i = 0; i < len_name; i++)
-	for (unsigned int j = 0; j < len_spec; j++)
-	    if (name[i] == SPECIAL_CHARS[j])
-		name[i] = REPLACE_CHARS[j];
     return name;
 }

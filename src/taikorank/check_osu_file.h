@@ -14,9 +14,15 @@
  *  limitations under the License.
  */
 
-#ifndef LOAD_OSU_H
-#define LOAD_OSU_H
+#ifndef TR_LOAD_OSU_H
+#define TR_LOAD_OSU_H
 
-int check_file(char * file_name);
+enum tr_load_osu {
+    TR_FILENAME_ERROR = 0,
+    TR_FILENAME_OSU_FILE = 1,
+    TR_FILENAME_HASH = 2,
+};
 
-#endif //LOAD_OSU_H
+int tr_check_file(char *file_name);
+
+#endif // TR_LOAD_OSU_H
