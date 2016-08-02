@@ -29,11 +29,15 @@
 #define SLIDER_LINE     'L'   // two points line
 #define SLIDER_P        'P'   // three points line 
 #define SLIDER_BEZIER   'B'   // 4 and more points line
+#define SLIDER_C        'C'
+// some v5 have 'C' slider, and I dont know what this means
+
 /*
   Basically they all use the bezier interpolation
   but the formulas for the L and P types are simpler than
   the general case.
  */
+
 #define HO_TYPE_OF(ho_ptr)    ((ho_ptr)->type & (~HO_NEWCOMBO) & 0x0F)
 // this get rid of the 'new_combo' flag to get the hit object's type
 // more easily
