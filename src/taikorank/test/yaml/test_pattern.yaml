@@ -122,3 +122,21 @@ tests:
       160bpm[ddddk___ ddddk___]
       160bpm[ddddd___ ddddd___]
   #########################################################
+  -
+    do: True
+    path: "./maps_test/pattern/packing/dddd/"
+    field: "pattern_star"
+    expected: |
+      64obj - 160bpm[dddd dddd dddd dddd]
+      64obj - 160bpm[dddd [dddd]__ dddd [dddd]__]
+      64obj - 160bpm[[dddd]__ [dddd]__ [dddd]__ [dddd]__]
+  #########################################################
+  -
+    do: True
+    path: "./maps_test/pattern/packing/dddd_kkkk/"
+    field: "pattern_star"
+    expected: |
+      64obj - 160bpm[dddd kkkk dddd kkkk]
+      64obj - 160bpm[dddd [kkkk]__ dddd [kkkk]__]
+      64obj - 160bpm[[dddd]__ [kkkk]__ [dddd]__ [kkkk]__]
+  #########################################################
