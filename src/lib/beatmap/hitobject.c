@@ -36,12 +36,12 @@ static int parse_slider_points(osux_hitobject *ho, char *pointstr)
 {
     int err = 0;
     char **spl_points = g_strsplit(pointstr, "|", 0);
-    int size = strsplit_size(spl_points);
+    unsigned size = strsplit_size(spl_points);
 
     ho->slider.point_count = size-1;
     ho->slider.points = g_malloc((size-1) * sizeof*ho->slider.points);
 
-    for (int i = 1; i < size; ++i) {
+    for (unsigned i = 1; i < size; ++i) {
         osux_point *pt = &ho->slider.points[i-1];
         if (scanf("%d:%d", &pt->x, &pt->y) != 2) {
             err = OSUX_ERR_INVALID_HITOBJECT;
@@ -57,7 +57,7 @@ static int parse_slider_sample_type(osux_hitobject *ho, char *ststr)
 {
     int err = 0;
     char **split = g_strsplit(ststr, "|", 0);
-    int size = strsplit_size(split);
+    unsigned size = strsplit_size(split);
     if (size != ho->slider.repeat+1) {
         g_strfreev(split);
         return OSUX_ERR_INVALID_HITOBJECT;
@@ -67,7 +67,7 @@ static int parse_slider_sample_type(osux_hitobject *ho, char *ststr)
         ho->slider.edgehitsounds = g_malloc0(
             size * sizeof*ho->slider.edgehitsounds);
     }
-    for (int i = 0; i < size; ++i) {
+    for (unsigned i = 0; i < size; ++i) {
         osux_edgehitsound *eht = &ho->slider.edgehitsounds[i];
         if (sscanf(split[i], "%d:%d", &eht->sample_type,
                    &eht->addon_sample_type) != 2) {
@@ -82,7 +82,7 @@ static int parse_slider_sample_type(osux_hitobject *ho, char *ststr)
 static int parse_slider_sample(osux_hitobject *ho, char *samplestr)
 {
     char **split = g_strsplit(samplestr, "|", 0);
-    int size = strsplit_size(split);
+    unsigned size = strsplit_size(split);
     if (size != ho->slider.repeat+1) {
         g_strfreev(split);
         return OSUX_ERR_INVALID_HITOBJECT;
@@ -92,7 +92,7 @@ static int parse_slider_sample(osux_hitobject *ho, char *samplestr)
         ho->slider.edgehitsounds = g_malloc0(
             size * sizeof*ho->slider.edgehitsounds);
     }
-    for (int i = 0; i < size; ++i) {
+    for (unsigned i = 0; i < size; ++i) {
         osux_edgehitsound *eht = &ho->slider.edgehitsounds[i];
         eht->sample = atoi(split[i]);
     }
@@ -100,7 +100,7 @@ static int parse_slider_sample(osux_hitobject *ho, char *samplestr)
     return 0;
 }
 
-static int parse_slider(osux_hitobject *ho, char **split, int size)
+static int parse_slider(osux_hitobject *ho, char **split, unsigned size)
 {
     int err = 0;
     char *curve = split[5];
@@ -115,7 +115,7 @@ static int parse_slider(osux_hitobject *ho, char **split, int size)
     ho->slider.repeat = atoi(split[6]);
     ho->slider.length = strtod(split[7], NULL);
 
-    for (int i = 8; i < size; ++i) {
+    for (unsigned i = 8; i < size; ++i) {
         if (string_contains(split[i], '|') && string_contains(split[i], ':')) {
             // edge hitsound sample type
             if ((err = parse_slider_sample_type(ho, split[i])) < 0)
@@ -131,7 +131,7 @@ static int parse_slider(osux_hitobject *ho, char **split, int size)
     return 0;
 }
 
-static int parse_spinner(osux_hitobject *ho, char **split, int size)
+static int parse_spinner(osux_hitobject *ho, char **split, unsigned size)
 {
     if (size < 6)
         return OSUX_ERR_INVALID_HITOBJECT;
@@ -143,7 +143,7 @@ static int parse_spinner(osux_hitobject *ho, char **split, int size)
 static int parse_addon_hitsound(osux_hitobject *ho, char *addonstr)
 {
     char **split = g_strsplit(addonstr, ":", 0);
-    int size = strsplit_size(split);
+    unsigned size = strsplit_size(split);
 
     if (size < 3 || (ho->_osu_version > 10 && size < 4)) {
         g_strfreev(split);
@@ -167,7 +167,7 @@ static int parse_addon_hitsound(osux_hitobject *ho, char *addonstr)
     return 0;
 }
 
-static int parse_base_hitobject(osux_hitobject *ho, char **split, int size)
+static int parse_base_hitobject(osux_hitobject *ho, char **split, unsigned size)
 {
     g_assert(size >= 5);
     ho->x = atoi(split[0]);
@@ -191,7 +191,7 @@ int osux_hitobject_init(osux_hitobject *ho, char *line, uint32_t osu_version)
 {
     int err = OSUX_ERR_INVALID_HITOBJECT;
     char **split = g_strsplit(line, ",", 0);
-    int size = strsplit_size(split);
+    unsigned size = strsplit_size(split);
 
     // memset(ho, 0, sizeof *ho);
     ho->_osu_version = osu_version;

@@ -17,6 +17,6 @@
 char *osux_getline(FILE *file);
 char *bytearray2hexstr(uint8_t const *bytearray, size_t size);
 char *osux_get_file_hashstr(char const *file_path);
-int strsplit_size(char **split);
+unsigned strsplit_size(char **split);
 
 #endif // OSUX_UTIL_H

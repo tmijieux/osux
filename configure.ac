@@ -45,9 +45,6 @@ AC_CONFIG_FILES([
       		  src/lib/Makefile
 		  src/lib/util/Makefile
 		  src/lib/beatmap/Makefile
-		  src/lib/beatmap/parser/Makefile
-      		  src/lib/beatmap/parser/parser_py/Makefile
- 		  src/lib/beatmap/parser/parser_c/Makefile
 		  src/lib/mod/Makefile
                	  src/lib/database/Makefile
 		  src/lib/replay/Makefile

@@ -7,6 +7,7 @@ int osux_md5_init(osux_md5 *md5)
 {
     MD5_Init(&md5->ctx);
     memset(md5->digest, 0, sizeof md5->digest);
+    return 0;
 }
 
 int osux_md5_update_file(osux_md5 *md5, char const *file_path)

@@ -42,6 +42,7 @@ int osux_beatmap_free(osux_beatmap *beatmap)
 	osux_hitobject_free(&beatmap->hitobjects[i]);
 
     g_free(beatmap->hitobjects);
+    return 0;
 }
 
 static int parse_osu_version(osux_beatmap *beatmap, FILE *file)
@@ -130,7 +131,7 @@ static bool get_new_section(char const *line, char **section_name)
 }
 
 static int parse_option_entry(
-    char const *line, osux_hashtable *section, uint32_t line_count)
+    char const *line, osux_hashtable *section)
 {
     char *sep = strstr(line, ":");
     if (sep == NULL)
@@ -139,6 +140,7 @@ static int parse_option_entry(
     osux_hashtable_insert(section, split[0], split[1]);
     g_free(split); // this should do; dont use g_strfreev here because hash table
     // may not copy the data
+    return 0;
 }
 
 #define CHECK_TIMING_POINT(x)
@@ -195,9 +197,7 @@ static int parse_objects(osux_beatmap *beatmap, FILE *file)
     ALLOC_ARRAY(beatmap->events, beatmap->event_bufsize, 500);
 
     char *line;
-    uint32_t line_count = 1;
     for (line = NULL; (line = osux_getline(file)) != NULL; g_free(line)) {
-        ++ line_count;
 
         if (line_is_empty_or_comment(line))
             continue;
@@ -248,7 +248,7 @@ static int parse_objects(osux_beatmap *beatmap, FILE *file)
             continue;
         }
 
-        parse_option_entry(line, current_section, line_count);
+        parse_option_entry(line, current_section);
     }
     return 0;
 }

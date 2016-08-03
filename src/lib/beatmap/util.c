@@ -70,8 +70,7 @@ char *osux_get_file_hashstr(char const *file_path)
     return hash;
 }
 
-
-int strsplit_size(char **split)
+unsigned strsplit_size(char **split)
 {
     if (split == NULL)
         return 0;
