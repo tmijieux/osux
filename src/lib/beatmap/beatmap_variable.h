@@ -11,17 +11,21 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+
 static inline double osux_strtod(char *str) { return strtod(str, NULL); }
 static inline double osux_strtoull(char *str) { return strtoull(str, NULL, 10); }
 static inline bool osux_tobool(char *str) { return !!atoi(str); }
 
+
+// VALUE(section, fieldname, type, default_value, from_string_conversion_method)
+
 #define DEFAULT_VALUES(VALUE)                                           \
     VALUE( General, AudioFilename, char*, "", g_strdup)                 \
     VALUE( General, AudioLeadIn, int, 0, atoi )                         \
-    VALUE( General, PreviewTime, int, 0, atoi)                          \
+    VALUE( General, PreviewTime, int, -1, atoi)                         \
     VALUE( General, Countdown, int, 0, atoi )                           \
     VALUE( General, SampleSet, char*, "Normal", g_strdup)               \
-    VALUE( General, StackLeniency, double,  0, osux_strtod)             \
+    VALUE( General, StackLeniency, double,  0.7, osux_strtod)           \
     VALUE( General, Mode, int, 0, atoi)                                 \
     VALUE( General, LetterboxInBreaks, bool, true,  osux_tobool)        \
     VALUE( General, WidescreenStoryboard, bool, true, osux_tobool)      \
