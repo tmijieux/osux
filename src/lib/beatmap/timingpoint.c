@@ -15,16 +15,48 @@
  */
 
 #include <stdio.h>
+#include <glib.h>
+
 #include "osux/timingpoint.h"
+#include "osux/util.h"
+#include "osux/error.h"
 
 int osux_timingpoint_init(osux_timingpoint *tp,
                           osux_timingpoint const **last_non_inherited,
                           char *line, uint32_t osu_version)
 {
-    
+    char **split = g_strsplit(line, ",", 0);
+    int size = strsplit_size(split);
+    tp->_osu_version = osu_version;
+
+    if (size < 7 || (osu_version > 5 && size < 8)) {
+        g_strfreev(split);
+        return OSUX_ERR_INVALID_HITOBJECT;
+    }
+
+    tp->offset = strtod(split[0], NULL);
+    tp->millisecond_per_beat = strtod(split[1], NULL);
+    tp->time_signature = atoi(split[2]);
+    tp->sample_type = atoi(split[3]);
+    tp->sample_set_index = atoi(split[4]);
+    tp->volume = atoi(split[5]);
+    tp->inherited = (atoi(split[6]) == 0);
+    tp->kiai = (osu_version > 5) ? (atoi(split[7]) != 0) : false;
+
+    if (tp->inherited) {
+        tp->last_non_inherited = *last_non_inherited;
+        g_assert(last_non_inherited != NULL);
+
+        tp->slider_velocity_multiplier = tp->millisecond_per_beat;
+        tp->millisecond_per_beat = tp->last_non_inherited->millisecond_per_beat;
+    } else {
+        *last_non_inherited = tp;
+        tp->last_non_inherited = tp;
+        tp->slider_velocity_multiplier = 0.;
+    }
+    g_strfreev(split);
     return 0;
 }
-
 
 void osux_timingpoint_print(osux_timingpoint *tp, FILE *f)
 {
@@ -43,6 +75,6 @@ void osux_timingpoint_print(osux_timingpoint *tp, FILE *f)
 }
 
 void osux_timingpoint_free(osux_timingpoint *tp)
-{ 
+{
     (void) tp; // nathing !
 }

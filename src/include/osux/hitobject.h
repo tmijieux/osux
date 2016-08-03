@@ -77,7 +77,6 @@ typedef struct osux_slider {
     double length;
     
     uint32_t point_count;
-    uint32_t point_bufsize;
     osux_point *points;
     osux_edgehitsound *edgehitsounds; // bufsize = 0 or 'repeat'
 } osux_slider;

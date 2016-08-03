@@ -32,7 +32,8 @@ typedef struct osux_timingpoint {
     bool inherited;
     bool kiai;
 
-    struct timing_point *last_non_inherited;
+    struct osux_timingpoint const *last_non_inherited;
+    int _osu_version;
 } osux_timingpoint;
 
 

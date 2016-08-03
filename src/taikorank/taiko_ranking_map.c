@@ -183,7 +183,7 @@ static int convert_get_type(osux_hitobject * ho)
 {
     int bits = 0;
     int sample = ho->hitsound.sample;
-    
+
     if(HIT_OBJECT_IS_SLIDER(ho))
 	bits |= TRO_R;
     else if(HIT_OBJECT_IS_SPINNER(ho))
@@ -261,7 +261,7 @@ static int trm_convert_map_prepare(osux_beatmap *map)
 	} else
 	    tr_error("autoconverting map from std game mode is disabled...");
         return -1;
-        
+
     case GAME_MODE_TAIKO:
 	return 0;
 
@@ -319,8 +319,8 @@ static struct tr_map * trm_convert_map(osux_beatmap *map)
     }
 
     // get other data
-    tr_map->hash = map->md5_hash;
-    tr_map->od = map->OverallDifficulty;
+    tr_map->hash = strdup(map->md5_hash);
+    tr_map->od =    map->OverallDifficulty;
     tr_map->title      = strdup(map->Title);
     tr_map->artist     = strdup(map->Artist);
     tr_map->source     = strdup(map->Source);

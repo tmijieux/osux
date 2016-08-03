@@ -2,6 +2,7 @@
 
 set(BM_SOURCE
   beatmap.c
+  beatmap_variable.c
   beatmap_old.c
   util.c
   color.c

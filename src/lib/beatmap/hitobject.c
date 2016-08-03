@@ -24,8 +24,110 @@
 #include "osux/error.h"
 #include "osux/string2.h"
 
+
+static int check_slider_type(char type)
+{
+    if (!(type == 'C' || type == 'L' || type == 'P' || type == 'B'))
+        return OSUX_ERR_INVALID_HITOBJECT;
+    return 0;
+}
+
+static int parse_slider_points(osux_hitobject *ho, char *pointstr)
+{
+    int err = 0;
+    char **spl_points = g_strsplit(pointstr, "|", 0);
+    int size = strsplit_size(spl_points);
+
+    ho->slider.point_count = size-1;
+    ho->slider.points = g_malloc((size-1) * sizeof*ho->slider.points);
+
+    for (int i = 1; i < size; ++i) {
+        osux_point *pt = &ho->slider.points[i-1];
+        if (scanf("%d:%d", &pt->x, &pt->y) != 2) {
+            err = OSUX_ERR_INVALID_HITOBJECT;
+            break;
+        }
+    }
+    g_strfreev(spl_points);
+    return err;
+}
+
+
+static int parse_slider_sample_type(osux_hitobject *ho, char *ststr)
+{
+    int err = 0;
+    char **split = g_strsplit(ststr, "|", 0);
+    int size = strsplit_size(split);
+    if (size != ho->slider.repeat+1) {
+        g_strfreev(split);
+        return OSUX_ERR_INVALID_HITOBJECT;
+    }
+
+    if (ho->slider.edgehitsounds == NULL) {
+        ho->slider.edgehitsounds = g_malloc0(
+            size * sizeof*ho->slider.edgehitsounds);
+    }
+    for (int i = 0; i < size; ++i) {
+        osux_edgehitsound *eht = &ho->slider.edgehitsounds[i];
+        if (sscanf(split[i], "%d:%d", &eht->sample_type,
+                   &eht->addon_sample_type) != 2) {
+            err = OSUX_ERR_INVALID_HITOBJECT;
+            break;
+        }
+    }
+    g_strfreev(split);
+    return err;
+}
+
+static int parse_slider_sample(osux_hitobject *ho, char *samplestr)
+{
+    char **split = g_strsplit(samplestr, "|", 0);
+    int size = strsplit_size(split);
+    if (size != ho->slider.repeat+1) {
+        g_strfreev(split);
+        return OSUX_ERR_INVALID_HITOBJECT;
+    }
+
+    if (ho->slider.edgehitsounds == NULL) {
+        ho->slider.edgehitsounds = g_malloc0(
+            size * sizeof*ho->slider.edgehitsounds);
+    }
+    for (int i = 0; i < size; ++i) {
+        osux_edgehitsound *eht = &ho->slider.edgehitsounds[i];
+        eht->sample = atoi(split[i]);
+    }
+    g_strfreev(split);
+    return 0;
+}
+
 static int parse_slider(osux_hitobject *ho, char **split, int size)
 {
+    int err = 0;
+    char *curve = split[5];
+
+    ho->slider.type = curve[0];
+    if ((err = check_slider_type(ho->slider.type)) < 0)
+        return err;
+
+    if ((err = parse_slider_points(ho, curve)) < 0)
+        return err;
+
+    ho->slider.repeat = atoi(split[6]);
+    ho->slider.length = strtod(split[7], NULL);
+
+    for (int i = 8; i < size; ++i) {
+        if (string_contains(split[i], '|') && string_contains(split[i], ':')) {
+            // edge hitsound sample type
+            if ((err = parse_slider_sample_type(ho, split[i])) < 0)
+                return err;
+        } else if (string_contains(split[i], '|') &&
+                   !string_contains(split[i], ':')) {
+            // edge hitsound sample
+            if ((err = parse_slider_sample(ho, split[i])) < 0)
+                return err;
+        }
+    }
+
     return 0;
 }
 
@@ -33,15 +135,36 @@ static int parse_spinner(osux_hitobject *ho, char **split, int size)
 {
     if (size < 6)
         return OSUX_ERR_INVALID_HITOBJECT;
-        
+
     ho->spinner.end_offset = strtoull(split[5], NULL, 10);
     return 0;
 }
 
 static int parse_addon_hitsound(osux_hitobject *ho, char *addonstr)
 {
+    char **split = g_strsplit(addonstr, ":", 0);
+    int size = strsplit_size(split);
 
-    return -1;
+    if (size < 3 || (ho->_osu_version > 10 && size < 4)) {
+        g_strfreev(split);
+        return OSUX_ERR_INVALID_HITOBJECT;
+    }
+
+    ho->hitsound.sample_type = atoi(split[0]);
+    ho->hitsound.addon_sample_type = atoi(split[1]);
+    ho->hitsound.sample_set_index = atoi(split[2]);
+    if (split[3] != NULL) {
+        ho->hitsound.volume = atoi(split[3]);
+        if (split[4] != NULL)
+            ho->hitsound.sfx_filename = g_strdup(split[4]);
+        else
+            ho->hitsound.sfx_filename = g_strdup("");
+    } else {
+        ho->hitsound.volume = 70;
+        ho->hitsound.sfx_filename = g_strdup("");
+    }
+    g_strfreev(split);
+    return 0;
 }
 
 static int parse_base_hitobject(osux_hitobject *ho, char **split, int size)
@@ -60,7 +183,7 @@ static int parse_base_hitobject(osux_hitobject *ho, char **split, int size)
         if ((err = parse_addon_hitsound(ho, split[size-1])) < 0)
             return err;
     }
-    
+
     return 0;
 }
 
@@ -69,18 +192,18 @@ int osux_hitobject_init(osux_hitobject *ho, char *line, uint32_t osu_version)
     int err = OSUX_ERR_INVALID_HITOBJECT;
     char **split = g_strsplit(line, ",", 0);
     int size = strsplit_size(split);
-    
+
     // memset(ho, 0, sizeof *ho);
     ho->_osu_version = osu_version;
-    
+
     if (size < 5) {
         g_strfreev(split);
         return err;
     }
-    
+
     if ((err = parse_base_hitobject(ho, split, size)) < 0)
         return err;
-    
+
     int value = atoi(split[3]);
     int type = (value & 0x0F) & ~HITOBJECT_NEWCOMBO;
 
@@ -98,7 +221,7 @@ void osux_hitobject_print(osux_hitobject *ho, int version, FILE *f)
 {
     fprintf(f, "%d,%d,%d,%d,%d",
 	    ho->x, ho->y, ho->offset, ho->type, ho->hitsound.sample);
-    
+
     switch ( HIT_OBJECT_TYPE(ho) ) {
     case HITOBJECT_SLIDER:
 	fprintf(f, ",%c", ho->slider.type);

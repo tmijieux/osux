@@ -14,10 +14,11 @@ int osux_beatmap_free(osux_beatmap *beatmap)
 {
     if (beatmap == NULL)
         return -1;
-    
+
     g_free(beatmap->file_path);
+    g_free(beatmap->osu_filename);
     g_free(beatmap->md5_hash);
-    
+
     g_free(beatmap->AudioFilename);
     g_free(beatmap->SampleSet);
     g_free(beatmap->Bookmarks);
@@ -33,7 +34,7 @@ int osux_beatmap_free(osux_beatmap *beatmap)
 
     for (unsigned i = 0; i < beatmap->timingpoint_count; ++i)
 	osux_timingpoint_free(&beatmap->timingpoints[i]);
-    
+
     g_free(beatmap->timingpoints);
     g_free(beatmap->colors);
 
@@ -50,7 +51,7 @@ static int parse_osu_version(osux_beatmap *beatmap, FILE *file)
 
     int err = 0;
     char *line = osux_getline(file);
-    
+
     if (line == NULL)
         return OSUX_ERR_BAD_OSU_VERSION;
 
@@ -58,7 +59,7 @@ static int parse_osu_version(osux_beatmap *beatmap, FILE *file)
         beatmap->byte_order_mark = true;
         line += sizeof BOM;
     }
-    
+
     if (regexp == NULL)
         regexp = g_regex_new("^osu file format v([0-9]+)$", 0, 0, NULL);
 
@@ -67,7 +68,7 @@ static int parse_osu_version(osux_beatmap *beatmap, FILE *file)
         g_free(line);
         return OSUX_ERR_BAD_OSU_VERSION;
     }
-    
+
     if (g_match_info_matches(info)) {
         gchar *version = g_match_info_fetch(info, 1);
         beatmap->osu_version = atoi(version);
@@ -113,11 +114,11 @@ static bool get_new_section(char const *line, char **section_name)
     static GRegex *regexp = NULL;
     if (regexp == NULL)
         regexp = g_regex_new("^\\[(.*)\\]$", 0, 0, NULL);
-    
+
     GMatchInfo *info = NULL;
     if (!g_regex_match(regexp, line, 0, &info))
         return false;
-    
+
     if (g_match_info_matches(info)) {
         g_free(*section_name);
         *section_name = g_match_info_fetch(info, 1);
@@ -155,7 +156,7 @@ static int parse_objects(osux_beatmap *beatmap, FILE *file)
     osux_timingpoint const *last_non_inherited = NULL;
     osux_hashtable *current_section = NULL;
     char *section_name = g_strdup("");
-    
+
     beatmap->sections = osux_hashtable_new(0);
 
     ALLOC_ARRAY(beatmap->hitobjects, beatmap->hitobject_bufsize, 500);
@@ -217,29 +218,47 @@ static int parse_objects(osux_beatmap *beatmap, FILE *file)
     return 0;
 }
 
+#include "./beatmap_variable.h"
+
+#define FETCH( section, field, type, value, method )                    \
+    do {                                                                \
+        osux_hashtable *section_ = NULL;                                \
+        osux_hashtable_lookup(beatmap->sections, #section, &section_);  \
+                                                                        \
+        char *str_ = NULL;                                              \
+        if (osux_hashtable_lookup(section_, #field, &str_) < 0) {       \
+            beatmap->field = osux_beatmap_default_value_##field;        \
+        } else {                                                        \
+            beatmap->field = method(str_);                              \
+        }                                                               \
+    } while (0);
+
+
 static int fetch_variables(osux_beatmap *beatmap)
 {
-    return -1;
+    DEFAULT_VALUES(FETCH);
+    return 0;
 }
 
 int osux_beatmap_init(osux_beatmap *beatmap, char const *file_path)
 {
     int err = 0;
     memset(beatmap, 0, sizeof *beatmap);
-    
+
     FILE *file = fopen(file_path, "r");
     if (file == NULL) {
         osux_error("Cannot open file for reading: '%s'\n", file_path);
         return OSUX_ERR_FILE_PERM;
     }
-    
+
     beatmap->file_path = strdup(file_path);
+    beatmap->osu_filename = g_path_get_basename(file_path);
     
     if ((err = compute_metadata(beatmap, file)) < 0) {
         osux_beatmap_free(beatmap);
         return err;
     }
-    
+
     if ((err = parse_objects(beatmap, file)) < 0) {
         osux_beatmap_free(beatmap);
         return err;
@@ -249,6 +268,6 @@ int osux_beatmap_init(osux_beatmap *beatmap, char const *file_path)
         osux_beatmap_free(beatmap);
         return err;
     }
-    
+
     return 0;
 }
