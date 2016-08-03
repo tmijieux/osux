@@ -4,6 +4,8 @@ tests:
     do: True
     path: "./maps_test/other/obj/"
     field: "final_star"
+    mods: ['__', 'DT', 'HT']
+    merge_mods: False
     expected: |
       160bpm 1/4[1024 obj]
       160bpm 1/4[768 obj]
@@ -22,6 +24,8 @@ tests:
     do: True
     path: "./maps_test/other/density_pattern/pack_1/"
     field: "final_star"
+    mods: ['__', 'DT', 'HT']
+    merge_mods: False
     expected: |
       160bpm 256obj[ddkd ddkd ddkd ddkd]
       160bpm 256obj[ddkd ddk_ ddkd ddk_]
@@ -36,6 +40,8 @@ tests:
     do: True
     path: "./maps_test/other/density_pattern/pack_2/"
     field: "final_star"
+    mods: ['__', 'DT', 'HT']
+    merge_mods: False
     expected: |
       160bpm 256obj[ddkd ddkd ddkd ddkd]
       160bpm 256obj[ddkd ddk_ ddkd ddk_]

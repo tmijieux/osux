@@ -130,7 +130,7 @@ static void trs_free(struct tr_score * score)
 static void trs_print_and_db(struct tr_score * score)
 {
     if(OPT_PRINT_TRO)
-	trm_print_tro(score->map, OPT_PRINT_FILTER);
+	trm_print_out_tro(score->map, OPT_PRINT_FILTER);
     if(OPT_PRINT_YAML)
 	trm_print_yaml(score->map);
     else
