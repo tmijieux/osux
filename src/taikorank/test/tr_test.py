@@ -175,4 +175,6 @@ class TR_Test_Str_List(TR_Test_Yaml):
             print(Colors.fail("Incorrect list length"))
             print("expected: %d" % (len(self.expected)))
             print("got:      %d" % (len(res)))
+            print(str(self.expected))
+            print(str(res))
             raise TR_Exception("Incorrect list length")

@@ -357,12 +357,17 @@ static void tro_mark_mesh_offset(struct tr_object * o,
 
 static int tro_get_next_mesh_offset(struct tr_object * o)
 {
+    // If the interest value is finished mark the object as done and
+    // return
     if (o->count >= INTEREST_VECT->len) {
 	tro_set_done(o, OFFSET_APP);
 	return 0;
     }
-
+    
+    // next offset where the interest value change of slope.
     int offset = o->end_offset_dis_2 - INTEREST_VECT->t[o->count][0];
+
+    
     int max;
     if (!tro_is_done(o, END_OFFSET_DIS) && 
 	o->end_offset_dis != o->end_offset_dis_2) { // when starting HD
@@ -598,6 +603,10 @@ static struct edge_rect * tro_adv_mesh(struct tr_object * o,
 				       struct edge_rect * rect)
 {
     struct edge_rect * r_old = rect;
+
+    /*
+      Get it offset where the mesh 
+     */
     while (1) {
 	int offset = tro_get_next_mesh_offset(o);
 	if (tro_is_done(o, OFFSET_APP))
@@ -645,7 +654,10 @@ static double tro_seen(const struct tr_object *o)
 
     //tro_inter(o);
     double seen = gts_surface_volume(o->mesh);
+
+    // Add the object height dimension
     seen *= tro_get_radius(o);
+
     return lf_eval(SEEN_LF, seen);
 }
 
@@ -750,6 +762,23 @@ void tro_set_mesh(struct tr_object * o)
     o->mesh = tr_gts_surface_new();
     o->count = 0;
     o->done = 0;
+
+    /*
+      Creating the mesh in three dimension:
+      x = time in ms
+      y = object width reprenseted by the object borders positions in
+          number of objects positionable without superposition
+	  before.
+      z = interest
+
+      Example for y:
+      1/4 stream, "|" are the border of the screen
+      |ddddkkkkddddkkkk|
+       ^ object to play
+      The first kat as 4 objects positionable without superposition 
+      on its left border and 5 objects positionable without 
+      superposition on its right border.
+     */
 
     struct edge_rect * rect = tro_open_mesh(o);
 
@@ -894,6 +923,32 @@ void trm_compute_reading(struct tr_map * map)
     /*
       Computation rely on how long and which portion of the object
       is seen.
+      Four dimensions are used for this:
+      - object width
+      - object height
+      - time
+      - interest
+      Width and height are used as if the object was a square because
+      it maximizes its visibility.
+
+      Object width:
+      The hit object width, this value is not constant as objects may
+      be superposed. For example with a regular slider velocity 
+      objects in 1/6 are superposed and therefore less visible.
+
+      Object height:
+      The hit object height. As this value is constant it is not 
+      included in the mesh and is added at the end.
+      See tro_seen().
+
+      Time:
+      The object visibility depends obviously depends on time. 
+      Starting when the object is on the right of the screen and 
+      ending when it is on the left.
+
+      Interest:
+      Seeing the object is not always useful. Watching it just before
+      playing it does not help a lot.
      */
     trm_set_app_dis_offset(map);
     trm_set_obj_hiding(map);

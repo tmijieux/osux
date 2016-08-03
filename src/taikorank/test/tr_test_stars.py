@@ -16,22 +16,29 @@ import sys
 from colors import Colors
 from levenshtein import Levenshtein
 from tr_exec import TR_Exec
-from tr_test import TR_Tester_Yaml, TR_Test_Str_List
+from tr_test import TR_Tester_Yaml, TR_Test_Str_List, TR_Exception
 
 class TR_Test_Stars(TR_Test_Str_List):
     def __init__(self, ht):
         TR_Test_Str_List.__init__(self, ht)
-        #
-        self.field = self.get_if_exists('field', ht, 'final_star')
-        self.mods  = self.get_if_exists('mods',  ht, ['__'])
+        self.field = self.get_if_exists('field',   ht, 'final_star')
+        self.mods  = self.get_if_exists('mods',    ht, ['__'])
+        self.merge_mods = self.get_if_exists('merge_mods', ht, True)
         self.computed = False
     #########################################################
     def combine(self, tests):
-        res = []
+        res = {}
         for key in self.name.split(" "):
-            res.extend(tests[key].res)
-        self.res = sorted(res, key=lambda k: k['stars'][self.field],
-                          reverse=True)
+            for mod in tests[key].res.keys():
+                if mod not in res:
+                    res[mod] = []
+                res[mod].extend(tests[key].res[mod])
+        #
+        for mod in res.keys():
+            res[mod] = sorted(res[mod],
+                              key=lambda k: k['stars'][self.field],
+                              reverse=True)
+        self.res = res
         self.computed = True
     #########################################################
     def str_full(self, data):
@@ -46,7 +53,7 @@ class TR_Test_Stars(TR_Test_Str_List):
     #########################################################
     def str_brief(self, data):
         s = ("%s[%s]" % (data['title'], data['difficulty']))
-        if data['mods']:
+        if data['mods'] and self.merge_mods:
             return s + "(%s)" % (data['mods'])
         else:
             return s
@@ -59,22 +66,33 @@ class TR_Test_Stars(TR_Test_Str_List):
         if self.computed:
             return
         #
-        res = []
+        res = {}
         for mod in self.mods:
-            res.extend(self.compute_one_mod(mod))
+            res[mod] = self.compute_one_mod(mod)
         #
-        self.res = sorted(res, key=lambda k: k['stars'][self.field],
-                          reverse=True)
+        if self.merge_mods:
+            l = []
+            for key in res:
+                l.extend(res[key])
+            self.res = {'__': l}
+        else:
+            self.res = res
+        #
+        for key in self.res:
+            self.res[key] = sorted(self.res[key],
+                                   key=lambda k: k['stars'][self.field],
+                                   reverse=True)
+        #
         self.computed = True
     #########################################################
     S_OK   = "%s - %%s"       % (Colors.green("OK"))
     S_FAIL = "%s - %%s {%%s}" % (Colors.fail("<>"))
-    def check(self):
-        self.check_same_len(self.res)
+    def check_one_mod(self, mod):
+        self.check_same_len(self.res[mod])
         #
         brief = []
         full  = []
-        for test in self.res:
+        for test in self.res[mod]:
             brief.append(self.str_brief(test))
             full.append(self.str_full(test))
         #
@@ -88,12 +106,16 @@ class TR_Test_Stars(TR_Test_Str_List):
         return Levenshtein(self.expected, brief).dist()
     #########################################################
     def dump(self):
-        for x in self.res:
+        for x in self.res['__']:
             print(self.str_brief(x))
     #########################################################
     def compare(self):
-        errors = self.check()
-        total  = len(self.expected)
+        errors = 0
+        for mod in self.res.keys():
+            if not self.merge_mods:
+                print(Colors.blue("Test on mod '%s'" % mod))
+            errors += self.check_one_mod(mod)
+        total  = len(self.expected) * len(self.res.keys())
         return (errors, total)
     ########################################################
 

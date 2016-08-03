@@ -4,7 +4,6 @@
 #include "osux/error.h"
 
 #include "osux/beatmap.h"
-#include "osux/hash_table.h"
 #include "osux/hitobject.h"
 #include "osux/timingpoint.h"
 #include "osux/event.h"

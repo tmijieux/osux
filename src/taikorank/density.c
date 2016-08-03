@@ -142,11 +142,14 @@ static double tro_density(const struct tr_object * obj1,
 	    if(o->objs[j].ps == MISS)				\
 		continue;					\
 	    if(TRO_TEST(&o->objs[j], o)) {			\
+		/* each object give a density value */		\
+		/* based on the time between the two objects */	\
 		double d = tro_density(&o->objs[j], o);		\
 		if (d == 0)					\
 		    break; /* j-- density won't increase */	\
-		sum += d;			}		\
+		sum += d;					\
 	    }							\
+	}							\
 	sum *= tro_get_coeff_density(o);			\
 	o->density_##TYPE = sum;				\
     }								\
@@ -161,12 +164,15 @@ static double tro_density(const struct tr_object * obj1,
 static inline int tro_true(const struct tr_object UNUSED(*o1), 
 			   const struct tr_object UNUSED(*o2))
 {
+    // for hands density, all objects give a density value
     return 1;
 }
 
 static inline int tro_are_same_density(const struct tr_object *o1, 
 				       const struct tr_object *o2)
 {
+    // for finger density, only objects played with the same finger
+    // give a density value.
     return tro_are_same_type(o1, o2) && tro_are_same_hand(o1, o2);
 }
 
