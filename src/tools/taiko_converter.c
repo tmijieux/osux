@@ -22,7 +22,7 @@
 static void check_arg(int argc, char **argv)
 {
     if (argc < 2) {
-	fprintf(stderr, "Usage:\nt%s /path/to/input.osu\n", argv[0]);
+	fprintf(stderr, "Usage:\n\t%s /path/to/input.osu\n", argv[0]);
 	exit(EXIT_FAILURE);
     }
 }

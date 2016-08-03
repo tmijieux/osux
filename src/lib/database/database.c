@@ -22,8 +22,9 @@ static int CALLBACK_SQLITE fill_result(
 
     for (int i = 0; i < col_count; ++i)
         if (col_text[i] != NULL)
-            osux_hashtable_insert(dict, col_name[i], col_text[i]);
+            osux_hashtable_insert(dict, col_name[i], g_strdup(col_text[i]));
     osux_list_append(query_result, dict);
+    return 0;
 }
 
 static sqlite3 *get_handle(osux_database *db)
@@ -46,7 +47,9 @@ int osux_database_exec_prepared_query(osux_database *db, osux_list *query_result
 
         int col_count = sqlite3_data_count(db->prepared_query);
         for (int i = 0; i < col_count; ++i) {
-            char const *col_text = sqlite3_column_text(db->prepared_query, i);
+            char const *col_text;
+            col_text = (char const*) sqlite3_column_text(db->prepared_query, i);
+
             if (col_text != NULL) {
                 char const *col_name = sqlite3_column_name(db->prepared_query, i);
                 osux_hashtable_insert(dict, col_name, g_strdup(col_text));
@@ -56,6 +59,7 @@ int osux_database_exec_prepared_query(osux_database *db, osux_list *query_result
     }
     sqlite3_reset(db->prepared_query);
     sqlite3_clear_bindings(db->prepared_query);
+    return 0;
 }
 
 int osux_database_exec_query(
@@ -126,6 +130,7 @@ int osux_database_init(osux_database *db, char const *file_path)
         sqlite3_close(db->file_handle);
         return OSUX_ERR_DATABASE;
     }
+    return 0;
 }
 
 static int load_or_save_memory(osux_database *db, bool is_save)
@@ -181,7 +186,7 @@ int osux_database_prepare_query(osux_database *db, char const *query)
     int ret;
     if (&db->prepared_query != NULL)
         sqlite3_finalize(db->prepared_query);
-    
+
     ret = sqlite3_prepare_v2(get_handle(db), query, -1,
                              &db->prepared_query, NULL);
     if (ret != SQLITE_OK) {

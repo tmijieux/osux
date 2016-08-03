@@ -190,17 +190,19 @@ int osux_beatmap_db_init(
         if ((err = init_schema(db)) < 0)
             return err;
         if (populate)
-            parse_beatmap_directory(db, song_dir);
+            return parse_beatmap_directory(db, song_dir);
     }
+    return 0;
 }
 
 int osux_beatmap_db_free(osux_beatmap_db *db)
 {
     g_free(db->song_dir);
     osux_database_free(&db->base);
+    return 0;
 }
     
 int osux_beatmap_db_dump(osux_beatmap_db *db, FILE *out)
 {
-    osux_database_print_query(&db->base, "SELECT * FROM beatmap", out);
+    return osux_database_print_query(&db->base, "SELECT * FROM beatmap", out);
 }

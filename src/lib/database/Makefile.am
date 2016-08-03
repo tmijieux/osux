@@ -2,7 +2,9 @@ include $(top_srcdir)/common.mk
 
 BUILT_SOURCES = beatmap_db.sql.h beatmap_db.sql.c
 noinst_LTLIBRARIES = libosux_db.la
-libosux_db_la_SOURCES = osux_db.c beatmap_db.sql.c beatmap_db.sql.h db.sql
+libosux_db_la_SOURCES = \
+	beatmap_database.c database.c \
+	beatmap_db.sql.c beatmap_db.sql.h beatmap_db.sql
 
 beatmap_db.sql.c beatmap_db.sql.h:
 	$(top_srcdir)/scripts/embedder2.py $(srcdir)/beatmap_db.sql

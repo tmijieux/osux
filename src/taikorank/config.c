@@ -154,7 +154,7 @@ static void config_odb_build(char * song_dir)
     atexit(config_odb_exit);
 }
 
-static void config_odb_load(char * db_path)
+static void config_odb_load(void)
 {
     ODB = malloc(sizeof *ODB);
     osux_beatmap_db_init(ODB, OPT_ODB_PATH, ".", false);
@@ -168,7 +168,7 @@ void config_odb_apply_state(char odb_state)
 	config_odb_build(OPT_ODB_SGDIR);
 	break;
     case 'l':
-	config_odb_load(OPT_ODB_PATH);
+	config_odb_load();
 	break;
     default:
 	break;
