@@ -39,7 +39,7 @@ int osux_database_exec_prepared_query(osux_database *db, osux_list *query_result
 
     while (ret != SQLITE_DONE) {
         if (ret != SQLITE_ROW) {
-            osux_debug("%s\n", sqlite_errmsg(get_handle(db)));
+            osux_debug("%s\n", sqlite3_errmsg(get_handle(db)));
             return OSUX_ERR_DATABASE;
         }
         osux_hashtable *dict = osux_hashtable_new(0);

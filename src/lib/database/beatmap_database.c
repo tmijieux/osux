@@ -13,11 +13,14 @@ static int init_schema(osux_beatmap_db *db)
 static bool beatmap_table_is_present(osux_beatmap_db *db)
 {
     osux_list *result = osux_list_new(0);
-    return osux_database_exec_query(
+    int err = osux_database_exec_query(
         &db->base, "SELECT name FROM sqlite_master "
         "WHERE type='table' AND name='beatmap'", result);
+    if (err < 0)
+        return false;
 
     bool present = osux_list_size(result) == 1;
+    printf("osux_list_size(result) = %d\n", osux_list_size(result));
     osux_list_free(result);
     return present;
 }
@@ -51,7 +54,7 @@ static int beatmap_insert(osux_beatmap_db *db, osux_beatmap *bm)
             "mania_scroll_speed)"
             " VALUES"
             "(:osu_beatmap_id, :game_mode, :audio_filename, :diff_name,"
-            ":md5_hash, :osu_filename, :file_path"
+            ":md5_hash, :osu_filename, :file_path,"
             ":circles, :sliders, :spinners, :last_modification, :last_checked,"
             ":approach_rate, :circle_size, :hp_drain, :overall_diff,"
             ":slider_velocity, :stack_leniency, :drain_time, :total_time,"
@@ -113,7 +116,8 @@ static int load_beatmap_from_disk(
         osux_error("Cannot load beatmap %s\n", filepath);
         return -1;
     }
-    beatmap_insert(db, &beatmap);
+    if (beatmap_insert(db, &beatmap) < 0)
+        fprintf(stderr, "inserting beatmap '%s' failed\n", filepath);
     osux_beatmap_free(&beatmap);
     return 0;
 }
@@ -181,7 +185,7 @@ int osux_beatmap_db_init(
     db->song_dir = g_strdup(song_dir);
     db->song_dir_length = strlen(song_dir);
     db->insert_prepared = false;
-    
+
     if (populate || !beatmap_table_is_present(db)) {
         if ((err = init_schema(db)) < 0)
             return err;

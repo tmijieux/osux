@@ -21,6 +21,7 @@ CREATE TABLE beatmap_set
 
 CREATE TABLE beatmap
 (
+-- do not replace integer by int for primary key !!
         beatmap_id      integer PRIMARY KEY NOT NULL,
         osu_beatmap_id  int,
         osu_forum_thrd  int,
