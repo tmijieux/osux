@@ -4,19 +4,21 @@
 
 #include "osux.h"
 
-int main(void)
+int main(int argc, char **argv)
 {
-    struct osux_db *db;
-    const char *dataBasePath = "./osu.db";
-    if (osux_db_load(dataBasePath, &db) < 0) {
-		fprintf(stderr, "Cannot load library '%s'", dataBasePath);
+    osux_beatmap_db db;
+    const char *db_path = "./osu.db";
+    
+    if (argc > 1)
+        db_path = argv[1];
+    
+    if (osux_beatmap_db_init(&db, db_path, ".", false) < 0) {
+        fprintf(stderr, "Cannot load databse '%s'", db_path);
         exit(EXIT_FAILURE);
     }
 
-    osux_db_update_stat(db);
-    osux_db_print_stat(stdout, db);
-    osux_db_dump(stdout, db);
-    osux_db_free(db);
+    osux_beatmap_db_dump(&db, stdout);
+    osux_beatmap_db_free(&db);
     
     return EXIT_SUCCESS;
 }

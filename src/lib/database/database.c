@@ -72,6 +72,19 @@ int osux_database_exec_query(
     return 0;
 }
 
+int osux_database_print_query(osux_database *db, char const *query, FILE *out)
+{
+    char *errmsg = NULL;
+    int ret = sqlite3_exec(get_handle(db), query, print_row,
+                           (void*) out, &errmsg);
+    if (ret != SQLITE_OK && errmsg != NULL) {
+        osux_debug("%s\n", errmsg);
+        sqlite3_free(errmsg);
+        return OSUX_ERR_DATABASE;
+    }
+    return 0;
+}
+
 int osux_database_bind_int(osux_database *db, char const *name, int i)
 {
     int index = sqlite3_bind_parameter_index(db->prepared_query, name);

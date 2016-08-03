@@ -39,13 +39,13 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    struct osux_db *db;
-    osux_db_load("./osu.db", &db);
-    printf("Replay map: %s\n",
-           osux_db_get_beatmap_path_by_hash(db, r->bm_md5_hash));
-    osux_db_free(db);
-
-    
+    osux_beatmap_db db;
+    if (osux_beatmap_db_init(&db, "./osu.db", ".", false) == 0) {
+        char *path = osux_beatmap_db_get_path_by_hash(&db, r->bm_md5_hash);
+        printf("Replay map: %s\n", path);
+        osux_beatmap_db_free(&db);
+    }
+        
     replay_print(stdout, r);
     replay_free(r);
 

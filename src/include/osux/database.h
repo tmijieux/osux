@@ -22,6 +22,7 @@ void osux_database_free(osux_database *db);
 
 int osux_database_exec_query(
     osux_database *db, char const *query, osux_list *query_result);
+int osux_database_print_query(osux_database *db, char const *query, FILE *out);
 
 int osux_database_prepare_query(osux_database *db, char const *query);
 int osux_database_bind_int(osux_database *db, char const *name, int i);

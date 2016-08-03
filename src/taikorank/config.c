@@ -50,7 +50,7 @@ char * TR_DB_PASSWD;
 char * OPT_ODB_PATH;
 char * OPT_ODB_SGDIR;
 char * OPT_ODB_STATE;
-struct osux_db * ODB;
+osux_beatmap_db * ODB;
 
 struct tr_config * CONF;
 
@@ -140,14 +140,24 @@ void config_score(void)
 
 static void config_odb_exit(void)
 {
-    if (ODB != NULL)
-	osux_db_free(ODB);
+    if (ODB != NULL) {
+	osux_beatmap_db_free(ODB);
+        free(ODB);
+        ODB = NULL;
+    }
 }
 
 static void config_odb_build(char * song_dir)
 {
-    osux_db_build(song_dir, &ODB);
-    osux_db_save(OPT_ODB_PATH, ODB);
+    ODB = malloc(sizeof *ODB);
+    osux_beatmap_db_init(ODB, OPT_ODB_PATH, song_dir, true);
+    atexit(config_odb_exit);
+}
+
+static void config_odb_load(char * db_path)
+{
+    ODB = malloc(sizeof *ODB);
+    osux_beatmap_db_init(ODB, OPT_ODB_PATH, ".", false);
     atexit(config_odb_exit);
 }
 
@@ -158,7 +168,7 @@ void config_odb_apply_state(char odb_state)
 	config_odb_build(OPT_ODB_SGDIR);
 	break;
     case 'l':
-	osux_db_load(OPT_ODB_PATH, &ODB);
+	config_odb_load(OPT_ODB_PATH);
 	break;
     default:
 	break;

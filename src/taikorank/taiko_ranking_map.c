@@ -157,7 +157,7 @@ struct tr_map *trm_new(char *filename)
             tr_error("database lookup disabled");
             break;
         }
-        path = osux_db_get_beatmap_path_by_hash(ODB, filename);
+        path = osux_beatmap_db_get_path_by_hash(ODB, filename);
         if (path == NULL) {
             tr_error("could not find beatmap for hash '%s'", filename);
             break;

@@ -1,3 +1,6 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+
 /*
  *  Copyright (©) 2015-2016 Lucas Maugère, Thomas Mijieux
  *
@@ -13,8 +16,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-#ifndef CONFIG_H
-#define CONFIG_H
+
+#include "osux/beatmap_database.h"
 
 enum score_input {
     SCORE_INPUT_ACC = 0,
@@ -53,7 +56,7 @@ extern char * TR_DB_IP;
 extern char * TR_DB_LOGIN;
 extern char * TR_DB_PASSWD;
 
-extern struct osux_db * ODB;
+extern osux_beatmap_db * ODB;
 extern char * OPT_ODB_PATH;
 extern char * OPT_ODB_SGDIR;
 extern char * OPT_ODB_STATE;

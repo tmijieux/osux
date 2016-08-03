@@ -4,20 +4,17 @@
 
 #include "osux.h"
 
-int main(void)
+int main(int argc, char **argv)
 {
-    osux_db *db;
     const char *songDirPath = "/mnt/windata/Songs2/";
-    if (osux_db_build(songDirPath, &db) < 0) {
+    if (argc > 2)
+        songDirPath = argv[1];
+    
+    osux_beatmap_db db;    
+    if (osux_beatmap_db_init(&db, "./osu.db", songDirPath, true) < 0) {
         fprintf(stderr, "Cannot build database from directory '%s'", songDirPath);
         exit(EXIT_FAILURE);
     }
-    /* osux_db_load("osu.db", &db); */
-    /* osux_db_init(db); */
-    /* osux_db_query_print(stdout, "select * from beatmap", db); */
-    
-    osux_db_save("osu.db", db);
-    osux_db_free(db);
-
+    osux_beatmap_db_free(&db);
     return EXIT_SUCCESS;
 }

@@ -149,7 +149,7 @@ static int parse_beatmap_directory(osux_beatmap_db *db, char const *path)
     return 0;
 }
 
-char *osux_beatmap_db_get_beatmap_path_by_hash(
+char *osux_beatmap_db_get_path_by_hash(
     osux_beatmap_db *db, char const *md5_hash)
 {
     osux_list *query_result = osux_list_new(0);
@@ -192,7 +192,11 @@ int osux_beatmap_db_init(
 
 int osux_beatmap_db_free(osux_beatmap_db *db)
 {
+    g_free(db->song_dir);
     osux_database_free(&db->base);
 }
     
-
+int osux_beatmap_db_dump(osux_beatmap_db *db, FILE *out)
+{
+    osux_database_print_query(&db->base, "SELECT * FROM beatmap", out);
+}
