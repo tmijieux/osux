@@ -1,11 +1,11 @@
 include $(top_srcdir)/common.mk
 
-BUILT_SOURCES = _db_sql_data.c
+BUILT_SOURCES = beatmap_db.sql.h beatmap_db.sql.c
 noinst_LTLIBRARIES = libosux_db.la
-libosux_db_la_SOURCES = osux_db.c _db_sql_data.c db.sql
+libosux_db_la_SOURCES = osux_db.c beatmap_db.sql.c beatmap_db.sql.h db.sql
 
-_db_sql_data.c:
-	$(top_srcdir)/scripts/embedder.py $(srcdir)/db.sql > $@
+beatmap_db.sql.c beatmap_db.sql.h:
+	$(top_srcdir)/scripts/embedder2.py $(srcdir)/beatmap_db.sql
 
 CLEAN_FILES = _db_sql_data.c
 

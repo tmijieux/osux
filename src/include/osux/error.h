@@ -9,12 +9,12 @@
 
 
 enum osux_error {
-    OSUX_UNSPECIFIED_ERROR = -1,
-    OSUX_ERR_FILE_PERM = -2,
-    OSUX_ERR_BAD_OSU_VERSION = -3,
-    OSUX_ERR_MALFORMED_OSU_FILE = -4,
-    OSUX_ERR_INVALID_HITOBJECT = -5,
-    
+    OSUX_UNSPECIFIED_ERROR       = -1,
+    OSUX_ERR_FILE_PERM           = -2,
+    OSUX_ERR_BAD_OSU_VERSION     = -3,
+    OSUX_ERR_MALFORMED_OSU_FILE  = -4,
+    OSUX_ERR_INVALID_HITOBJECT   = -5,
+    OSUX_ERR_DATABASE            = -6,
 };
 
 #ifndef __GNUC__

@@ -5,10 +5,12 @@
 #include "osux/error.h"
 
 #include "osux/beatmap.h"
+#include "osux/beatmap_variable.h"
 #include "osux/hitobject.h"
 #include "osux/timingpoint.h"
 #include "osux/event.h"
 #include "osux/util.h"
+
 
 int osux_beatmap_free(osux_beatmap *beatmap)
 {
@@ -252,8 +254,6 @@ static int parse_objects(osux_beatmap *beatmap, FILE *file)
     }
     return 0;
 }
-
-#include "./beatmap_variable.h"
 
 #define FETCH( section, field, type, value, method )                    \
     do {                                                                \

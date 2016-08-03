@@ -1,7 +1,11 @@
 
-create table beatmap_set
+DROP TABLE IF EXISTS beatmap_set;
+DROP TABLE IF EXISTS beatmap;
+
+CREATE TABLE beatmap_set
 (
-        beatmap_set_id      int primary key not null,
+-- do not replace integer by int for primary key !!
+        beatmap_set_id      integer PRIMARY KEY NOT NULL,
         osu_beatmap_set_id  int,
         creator             text,
         artist              text,
@@ -15,9 +19,9 @@ create table beatmap_set
         status              int
 );
 
-create table beatmap
+CREATE TABLE beatmap
 (
-        beatmap_id      integer primary key not null,
+        beatmap_id      integer PRIMARY KEY NOT NULL,
         osu_beatmap_id  int,
         osu_forum_thrd  int,
         beatmap_set_id  int,
@@ -26,8 +30,9 @@ create table beatmap
 
         audio_filename  text,
         diff_name       text,
-        md5_hash        text,
+        md5_hash        text UNIQUE,
         osu_filename    text,
+        file_path       text,
         
         circles         int,
         sliders         int,
@@ -62,5 +67,5 @@ create table beatmap
         disable_video   int,
         visual_override int,
         mania_scroll_speed      int,
-        foreign key(beatmap_set_id) references beatmap_set(beatmap_set_id)  
+        FOREIGN KEY(beatmap_set_id) REFERENCES beatmap_set(beatmap_set_id)  
 );
