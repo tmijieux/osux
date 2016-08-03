@@ -51,11 +51,12 @@ struct osux_beatmap {
     uint16_t circles;
     uint16_t sliders;
     uint16_t spinners;
+
     uint32_t drain_time;
     uint32_t total_time;
-    uint16_t bpm_avg;
-    uint16_t bpm_max;
-    uint16_t bpm_min;
+    double bpm_avg;
+    double bpm_max;
+    double bpm_min;
     bool already_played;
     time_t last_played;
 
@@ -80,17 +81,17 @@ struct osux_beatmap {
     uint32_t AudioLeadIn;
     uint32_t PreviewTime;
     uint32_t Countdown;
-    
+
     char *SampleSet;  // sample type !
     uint32_t sample_type;
-    
+
     double StackLeniency;
-    
+
     union {
         uint32_t Mode; // game mode
         uint32_t game_mode;
     };
-    
+
     uint32_t LetterboxInBreaks;
     uint32_t WidescreenStoryboard;
 
@@ -107,18 +108,18 @@ struct osux_beatmap {
     char *Artist;
     char *ArtistUnicode;
     char *Creator;
-    
+
     union {
         char *Version; // difficulty name
         char *difficulty_name;
     };
 
     char *Source;
-    
+
     uint32_t tag_count;
     uint32_t tag_bufsize;
     char **tags;
-    
+
     uint32_t BeatmapID;
     uint32_t BeatmapSetID;
 
@@ -130,7 +131,7 @@ struct osux_beatmap {
     double SliderMultiplier;
     double SliderTickRate;
 
-        
+
     uint32_t color_count;
     uint32_t color_bufsize;
     osux_color *colors;
@@ -143,7 +144,7 @@ struct osux_beatmap {
     uint32_t timingpoint_count;
     uint32_t timingpoint_bufsize;
     osux_timingpoint *timingpoints;
-    
+
     uint32_t hitobject_count;
     uint32_t hitobject_bufsize;
     osux_hitobject *hitobjects;

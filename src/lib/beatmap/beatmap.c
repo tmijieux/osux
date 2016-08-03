@@ -1,4 +1,5 @@
 #include <glib.h>
+#include <float.h>
 
 #include "osux/md5.h"
 #include "osux/error.h"
@@ -144,6 +145,35 @@ static int parse_option_entry(
 #define CHECK_HIT_OBJECT(x)
 #define CHECK_EVENT(x)
 
+
+#define UPDATE_STAT_HO_COUNT(beatmap, hitobject)        \
+    do {                                                \
+        if (HIT_OBJECT_IS_SLIDER(hitobject)) {          \
+            beatmap->sliders ++;                        \
+        } else if (HIT_OBJECT_IS_CIRCLE(hitobject)) {   \
+            beatmap->circles ++;                        \
+        } else if (HIT_OBJECT_IS_SPINNER(hitobject)) {  \
+            beatmap->spinners ++;                       \
+        }                                               \
+    } while(0)
+
+#define UPDATE_STAT_BPM(beatmap, timingpoint)                   \
+    do {                                                        \
+        if ((timingpoint)->inherited) break;                    \
+        double bpm = TP_GET_BPM(timingpoint);                   \
+        if (bpm > (beatmap)->bpm_max) {                         \
+            (beatmap)->bpm_max = bpm;                           \
+        }                                                       \
+        if (bpm < (beatmap)->bpm_min) {                         \
+            (beatmap)->bpm_min = bpm;                           \
+        }                                                       \
+        beatmap->bpm_avg *= (beatmap)->hitobject_count;         \
+        beatmap->bpm_avg += bpm;                                \
+        beatmap->bpm_avg /= (beatmap)->hitobject_count+1;       \
+    } while(0)
+
+
+
 #define ALLOC_ARRAY(array_var, size_var, size_literal)                  \
     do {                                                                \
         array_var = g_malloc0((size_literal) * sizeof(*(array_var)));   \
@@ -160,6 +190,8 @@ static int parse_objects(osux_beatmap *beatmap, FILE *file)
 
     ALLOC_ARRAY(beatmap->hitobjects, beatmap->hitobject_bufsize, 500);
     ALLOC_ARRAY(beatmap->timingpoints, beatmap->timingpoint_bufsize, 500);
+
+    beatmap->bpm_min = DBL_MAX;
     ALLOC_ARRAY(beatmap->events, beatmap->event_bufsize, 500);
 
     char *line;
@@ -186,6 +218,8 @@ static int parse_objects(osux_beatmap *beatmap, FILE *file)
                 &beatmap->timingpoints[beatmap->timingpoint_count],
                 &last_non_inherited, line, beatmap->osu_version);
             CHECK_TIMING_POINT(&beatmap->timingpoints[beatmap->timingpoint_count]);
+            UPDATE_STAT_BPM(
+                beatmap, &beatmap->timingpoints[beatmap->timingpoint_count]);
             ++ beatmap->timingpoint_count;
             continue;
         }
@@ -197,6 +231,8 @@ static int parse_objects(osux_beatmap *beatmap, FILE *file)
             osux_hitobject_init(&beatmap->hitobjects[beatmap->hitobject_count],
                                 line, beatmap->osu_version);
             CHECK_HIT_OBJECT(&beatmap->hitobjects[beatmap->hitobject_count]);
+            UPDATE_STAT_HO_COUNT(
+                beatmap, &beatmap->hitobjects[beatmap->hitobject_count]);
             ++ beatmap->hitobject_count;
             continue;
         }
@@ -252,7 +288,7 @@ int osux_beatmap_init(osux_beatmap *beatmap, char const *file_path)
 
     beatmap->file_path = strdup(file_path);
     beatmap->osu_filename = g_path_get_basename(file_path);
-    
+
     if ((err = compute_metadata(beatmap, file)) < 0) {
         osux_beatmap_free(beatmap);
         return err;

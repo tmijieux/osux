@@ -153,9 +153,13 @@ struct tr_map *trm_new(char *filename)
 	res = trm_from_file(filename);
         break;
     case TR_FILENAME_HASH:
-	if (ODB = NULL) break;
+	if (ODB == NULL)
+            tr_error("database lookup disabled");
+            break;
         path = osux_db_get_beatmap_path_by_hash(ODB, filename);
-        if (path == NULL) break;
+        if (path == NULL)
+            tr_error("could not find beatmap for hash '%s'", filename);
+            break;
         res = trm_from_file(path);
         break;
     default:

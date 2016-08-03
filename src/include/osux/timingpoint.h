@@ -36,6 +36,8 @@ typedef struct osux_timingpoint {
     int _osu_version;
 } osux_timingpoint;
 
+#define TP_GET_BPM(hitobject)                           \
+    (60.  * 1000. / (hitobject)->millisecond_per_beat)
 
 int osux_timingpoint_init(osux_timingpoint *tp,
                           osux_timingpoint const **last_non_inherited,
