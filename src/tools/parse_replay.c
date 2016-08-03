@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     struct osux_db *db;
     osux_db_load("./osu.db", &db);
     printf("Replay map: %s\n",
-           osux_db_relative_path_by_hash(db, r->bm_md5_hash));
+           osux_db_get_beatmap_path_by_hash(db, r->bm_md5_hash));
     osux_db_free(db);
 
     

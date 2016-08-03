@@ -1,3 +1,6 @@
+#ifndef OSUX_LIST_H
+#define OSUX_LIST_H
+
 /*
  *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
  *
@@ -14,17 +17,17 @@
  *  limitations under the License.
  */
 
-#ifndef LIST_H
-#define LIST_H
+typedef struct osux_list osux_list;
 
 #include <stdlib.h>
 #include <assert.h>
+#include "osux/hash_table.h"
 // FLAGS for list_new():
 #define LI_ELEM  (1 << 1)	// null terminated initializer list
 #define LI_FREE  (1 << 2)	// second argument is a free function for elements
 // END FLAGS
 
-typedef struct osux_list osux_list;
+
 
 // ! !
 // NUMBERED FROM 1 !!!!!!!!
@@ -51,7 +54,7 @@ void osux_list_append(struct osux_list *list, const void *element);
 void osux_list_append_list(struct osux_list *l1, const struct osux_list *l2);
 struct osux_list *osux_list_copy(const struct osux_list *l);
 void *osux_list_to_array(const struct osux_list *l);
-struct hash_table *osux_list_to_hashtable(
+osux_hashtable *osux_list_to_hashtable(
     const struct osux_list *l, const char *(*element_keyname) (void *));
 void osux_list_each(const struct osux_list *l, void (*fun)(void*));
 void osux_list_each_r(
@@ -60,4 +63,4 @@ struct osux_list *osux_list_map(const struct osux_list *l, void *(*fun)(void*));
 struct osux_list *osux_list_map_r(
     const struct osux_list *l, void *(*fun)(void*, void*), void *args);
 
-#endif //LIST_H
+#endif // OSUX_LIST_H

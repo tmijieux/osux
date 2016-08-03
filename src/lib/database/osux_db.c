@@ -63,7 +63,7 @@ static int db_callback_get_uint32(
 {
     (void) count;
     (void) column_name;
-    
+
     uint32_t *value_ptr = context__;
     *value_ptr = atoi(column_text[0]);
     return 0;
@@ -87,22 +87,22 @@ int osux_db_update_stat(struct osux_db *db)
 
 static inline gint64 get_time(const gchar *date_string)
 {
-	GTimeVal time;
-	if (!g_time_val_from_iso8601(date_string, &time)) {
-		fprintf(stderr, "error parsing date\n");
-	}
-	
-	GDateTime *dateTime = g_date_time_new_from_timeval_local(&time);
-	g_assert(dateTime != NULL);
-	gint64 unixTime = g_date_time_to_unix(dateTime);
-	g_date_time_unref(dateTime);
-	return unixTime;
+    GTimeVal time;
+    if (!g_time_val_from_iso8601(date_string, &time)) {
+        fprintf(stderr, "error parsing date\n");
+    }
+
+    GDateTime *dateTime = g_date_time_new_from_timeval_local(&time);
+    g_assert(dateTime != NULL);
+    gint64 unixTime = g_date_time_to_unix(dateTime);
+    g_date_time_unref(dateTime);
+    return unixTime;
 }
 
-static inline char *ht_get_(struct hash_table *ht, const char *key)
+static inline char *ht_get_(osux_hashtable *ht, const char *key)
 {
     char *_tmp;
-    ht_get_entry(ht, key, &_tmp);
+    osux_hashtable_lookup(ht, key, &_tmp);
     return _tmp;
 }
 
@@ -115,11 +115,11 @@ static int beatmap_db_get_callback(
 {
     struct osux_list *bm_list = context__;
     struct osux_beatmap *bm = calloc(sizeof*bm, 1);
-    struct hash_table *ht = ht_create(0, NULL);
+    osux_hashtable *ht = osux_hashtable_new(0);
 
     osux_list_append(bm_list, bm);
     for (int i = 0; i < count; ++i)
-        ht_add_entry(ht, column_name[i], column_text[i]);
+        osux_hashtable_insert(ht, column_name[i], column_text[i]);
 
     bm->beatmap_id = HT_GET("beatmap_id", INT);
     bm->BeatmapID = HT_GET("osu_beatmap_id", INT);
@@ -157,10 +157,23 @@ static int beatmap_db_get_callback(
     bm->visual_override = HT_GET("visual_override", INT);
     bm->mania_scroll_speed  = HT_GET("mania_scroll_speed", INT);
 
-    ht_free(ht);
+    osux_hashtable_delete(ht);
     return 0;
 }
 
+static int fill_dict_list(
+        void *user_data, int count, char **column_text, char **column_name)
+{
+    osux_list *query_result = (osux_list*) user_data;
+    osux_hashtable *dict = osux_hashtable_new(0);
+    
+    for (int i = 0; i < count; ++i)
+        osux_hashtable_insert(dict, column_name[i], column_text[i]);
+
+    osux_list_append(query_result, dict);
+    return 0;
+}
+    
 #define DB_BIND_TEXT(STMT, NAME, TEXT)                                  \
     if (sqlite3_bind_text(                                              \
         STMT,                                                           \
@@ -210,12 +223,12 @@ static int beatmap_db_insert(osux_beatmap *bm, osux_db *db)
         ":online_offset, :already_played, :last_played, :ignore_hitsound,"
         ":ignore_skin, :disable_sb, :disable_video, :visual_override,"
         ":mania_scroll_speed)", -1, &stmt, NULL);
-    
+
     if (ret != SQLITE_OK) {
         osux_error("%s\n", sqlite3_errmsg(db->sqlite_db));
         return -1;
     }
-    
+
     DB_BIND_INT(stmt, "osu_beatmap_id", bm->BeatmapID);
     DB_BIND_INT(stmt, "game_mode", bm->Mode);
     DB_BIND_TEXT(stmt, "audio_filename", bm->AudioFilename);
@@ -259,64 +272,43 @@ static int beatmap_db_insert(osux_beatmap *bm, osux_db *db)
     return 0;
 }
 
-int osux_db_beatmap_get(
-    const char *md5_hash, osux_db *db, struct osux_beatmap **bm)
+char *osux_db_get_beatmap_path_by_hash(osux_db *db, const char *md5_hash)
 {
-    int ret; size_t s;
-    struct osux_list *bm_l = osux_list_new(0);
-    ret = db_query(db->sqlite_db, beatmap_db_get_callback, bm_l,
-                   "select * from beatmap where md5_hash = '%s'", md5_hash);
-    if (ret < 0) {
-        *bm = NULL;
-        return ret;
+    int err;
+    osux_list *query_result = osux_list_new(0);
+    err = db_query(db->sqlite_db, &fill_dict_list, query_result,
+                   "select path from beatmap where md5_hash = '%s'", md5_hash);
+    if (err < 0 || osux_list_size(query_result) == 0) {
+        osux_list_free(query_result);
+        return NULL;
     }
 
-    s = osux_list_size(bm_l);
-    if (0 == s) {
-        *bm = NULL;
-        return -1;
+    if (osux_list_size(query_result) != 1) {
+        g_warning("multiple result for beatmap query on field "
+                  "'hash=%s';(hash collision?)", md5_hash);
     }
-    *bm = osux_list_get(bm_l, 1);
-    if (s > 1) {
-        osux_error("HASH COLLISION? %s\n", md5_hash);
-        osux_list_free(bm_l);
-        return -2;
-    }
-    osux_list_free(bm_l);
-    return 0;
+
+    osux_hashtable *dict = osux_list_get(query_result, 1);
+
+    char *path;
+    if (osux_hashtable_lookup(dict, "path", &path) < 0)
+        path = NULL;
+    osux_list_free(query_result);
+    osux_hashtable_delete(dict);
+    return path;
 }
 
-// TODO think of beatmap_set
-// idea : pass a beatmap_set as an argument and when it is NULL,
-// create it and return it to the caller
 static int load_beatmap_from_disk(
-    struct osux_db *odb, const char *filename, int base_path_length)
+    struct osux_db *db, const char *filepath, int base_path_length)
 {
-    FILE *f;
-    osux_beatmap *bm = NULL;
+    osux_beatmap beatmap;
 
-    f = fopen(filename, "r");
-    if (NULL != f) {
-        printf("db_parse: osu file: %s\n", filename);
-    } else {
-        osux_error("osu file BUG: %s\n", filename);
+    if (osux_beatmap_init(&beatmap, filepath) < 0) {
+        osux_error("Cannot load beatmap %s\n", filepath);
         return -1;
     }
-
-    if (osux_beatmap_open(filename, &bm) < 0) {
-        osux_error("Cannot open beatmap %s\n", filename);
-        exit(EXIT_FAILURE);
-    }
-    if (NULL != bm) {
-        osux_md5_hash_file(f, &bm->md5_hash);
-        bm->path = strdup(filename + base_path_length);
-        beatmap_db_insert(bm, odb);
-        osux_beatmap_close(bm);
-    } else {
-        osux_error("Cannot parse `%s´ map. Skipping.\n", filename);
-    }
-
-    fclose(f);
+    beatmap_db_insert(&beatmap, db);
+    osux_beatmap_free(&beatmap);
     return 0;
 }
 
@@ -324,8 +316,8 @@ static gboolean parse_beatmap_directory_recursive(
     const char *path, struct osux_db *db, int base_path_length, int level)
 {
     GDir *dir = NULL;
-	const gchar *entry_name;
-	
+    const gchar *entry_name;
+
     assert( db != NULL );
 
     if ((dir = g_dir_open(path, 0, NULL)) == NULL)
@@ -336,7 +328,7 @@ static gboolean parse_beatmap_directory_recursive(
     do {
         char *new_path = g_strdup_printf("%s/%s", path, entry_name);
         if (g_file_test(new_path, G_FILE_TEST_IS_DIR)) {
-			// with GLib "." and ".." directories are ommited on Unix platforms
+            // with GLib "." and ".." directories are ommited on Unix platforms
             parse_beatmap_directory_recursive(new_path, db, base_path_length, level+1);
             g_free(new_path);
         } else {
@@ -348,7 +340,7 @@ static gboolean parse_beatmap_directory_recursive(
             g_free(new_path);
         }
     } while ((entry_name = g_dir_read_name(dir)) != NULL);
-	g_dir_close(dir);
+    g_dir_close(dir);
     return TRUE;
 }
 
@@ -414,7 +406,7 @@ int osux_db_build(const char *directory_name, osux_db **db)
     osux_db_init(*db);
 
     return parse_beatmap_directory_recursive(
-		directory_name, *db, strlen(directory_name), 0) == TRUE ? 0 : -1;
+        directory_name, *db, strlen(directory_name), 0) == TRUE ? 0 : -1;
 }
 
 
@@ -525,27 +517,3 @@ int osux_db_dump(FILE *outfile, const osux_db *db)
     return 0;
 }
 
-const char*
-osux_db_relative_path_by_hash(osux_db *db, const char *hash)
-{
-    char *path = "not found";
-    struct osux_beatmap *bm;
-    osux_db_beatmap_get(hash, db, &bm);
-    if (bm != NULL) {
-        path = strdup(bm->AudioFilename);
-        osux_beatmap_close(bm);
-    }
-
-    return path;
-}
-
-struct osux_beatmap *
-osux_db_get_beatmap_by_hash(osux_db *db, const char *hash)
-{
-    osux_beatmap *bm;
-
-    osux_db_beatmap_get(hash, db, &bm);
-    osux_beatmap_reopen(bm, &bm);
-
-    return bm;
-}

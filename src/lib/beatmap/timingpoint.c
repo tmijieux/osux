@@ -15,24 +15,34 @@
  */
 
 #include <stdio.h>
-
 #include "osux/timingpoint.h"
 
-void tp_print(struct timing_point *tp, FILE *f)
+int osux_timingpoint_init(osux_timingpoint *tp,
+                          osux_timingpoint const **last_non_inherited,
+                          char *line, uint32_t osu_version)
 {
-    fprintf(f, "%.15g,%.15g,%d,%d,%d,%d,%d,%d\r\n",
-	    tp->offset,
-	    tp->mpb,
-	    tp->time_signature,
-	    tp->sample_type,
-	    tp->sample_set,
-	    tp->volume,
-	    tp->uninherited,
-	    tp->kiai);
+    
+    return 0;
 }
 
-void tp_free(struct timing_point *tp)
+
+void osux_timingpoint_print(osux_timingpoint *tp, FILE *f)
 {
-    (void) tp;
-    // nothing
+    fprintf(f, "%.15g,%.15g,%d,%d,%d,%d,%d,%d\n",
+            tp->offset,
+            (  tp->inherited ?
+               tp->slider_velocity_multiplier :
+               tp->millisecond_per_beat) ,
+            tp->time_signature,
+            tp->sample_type,
+            tp->sample_set_index,
+            tp->volume,
+            tp->inherited ? 0 : 1,
+            tp->kiai
+    );
+}
+
+void osux_timingpoint_free(osux_timingpoint *tp)
+{ 
+    (void) tp; // nathing !
 }

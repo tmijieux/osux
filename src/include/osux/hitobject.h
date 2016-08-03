@@ -1,3 +1,6 @@
+#ifndef OSUX_HIT_OBJECT_H
+#define OSUX_HIT_OBJECT_H
+
 /*
  *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
  *
@@ -14,23 +17,22 @@
  *  limitations under the License.
  */
 
-#ifndef HIT_OBJECT_H
-#define HIT_OBJECT_H
-
 #include <stdint.h>
+#include <stdbool.h>
 
-// HitObject '~~ TYPE'
-#define HO_CIRCLE   1
-#define HO_SLIDER   2
-#define HO_NEWCOMBO 4 // <-- !!!
-#define HO_SPINNER  8
+enum hitobject_type {
+    HITOBJECT_CIRCLE   = 1,
+    HITOBJECT_SLIDER   = 2,
+    HITOBJECT_NEWCOMBO = 4,
+    HITOBJECT_SPINNER  = 8,
+};
 
-// SLIDER type
-#define SLIDER_LINE     'L'   // two points line
-#define SLIDER_P        'P'   // three points line 
-#define SLIDER_BEZIER   'B'   // 4 and more points line
-#define SLIDER_C        'C'
-// some v5 have 'C' slider, and I dont know what this means
+enum slider_type {
+    SLIDER_LINE     = 'L',   // two points line
+    SLIDER_P        = 'P',   // three points line 
+    SLIDER_BEZIER   = 'B',   // 4 and more points line
+    SLIDER_C        = 'C', // seen on v5, unknown usage
+};
 
 /*
   Basically they all use the bezier interpolation
@@ -38,70 +40,68 @@
   the general case.
  */
 
-#define HO_TYPE_OF(ho_ptr)    ((ho_ptr)->type & (~HO_NEWCOMBO) & 0x0F)
-// this get rid of the 'new_combo' flag to get the hit object's type
-// more easily
+// get rid of the 'new_combo' flag to get the hit object's type more easily
+#define HIT_OBJECT_TYPE(ho_ptr)    ((ho_ptr)->type & (~HITOBJECT_NEWCOMBO) & 0x0F)
 
-#define TYPE_OF HO_TYPE_OF
+#define HIT_OBJECT_IS_CIRCLE(x)  (HIT_OBJECT_TYPE(x) == HITOBJECT_CIRCLE)
+#define HIT_OBJECT_IS_SLIDER(x)  (HIT_OBJECT_TYPE(x) == HITOBJECT_SLIDER)
+#define HIT_OBJECT_IS_SPINNER(x) (HIT_OBJECT_TYPE(x) == HITOBJECT_SPINNER)
 
-#define HO_IS_SPINNER(x) (HO_TYPE_OF(&(x)) == HO_SPINNER)
-#define HO_IS_CIRCLE(x)  (HO_TYPE_OF(&(x)) == HO_CIRCLE)
-#define HO_IS_SLIDER(x)  (HO_TYPE_OF(&(x)) == HO_SLIDER)
 
-struct point {
+typedef struct osux_point {
     int x;
     int y;
-};
+} osux_point;
 
-struct hitsound {
+typedef struct osux_hitsound {
     int sample;
-    
-    // additionals:
-    int additional;
-    
-    int st;
-    int st_additional;
+    bool have_addon;    
+    int sample_type;
+    int addon_sample_type;
     int sample_set_index;
     int volume;
     char *sfx_filename;
-};
+} osux_hitsound;
 
-struct add_hs {
+
+typedef struct osux_edgehitsound {
+    // hitsound on slider extremities ('edge')
     int sample;
-    int st;
-    int st_additional;
-};
+    int sample_type;
+    int addon_sample_type;
+} osux_edgehitsound;
 
-struct slider {
-    int type;
+typedef struct osux_slider {
+    int type; // 'L', 'P' or 'B' (or 'C')
     uint32_t repeat;
     double length;
     
     uint32_t point_count;
-    struct point *pos;
-    struct {
-	int additional;
-	struct add_hs *dat;
-    } hs;
-};
+    uint32_t point_bufsize;
+    osux_point *points;
+    osux_edgehitsound *edgehitsounds; // bufsize = 0 or 'repeat'
+} osux_slider;
 
-struct spinner {
-    int end_offset;
-};
+typedef struct osux_spinner {
+    unsigned end_offset;
+} osux_spinner;
 
-struct hit_object {
+typedef struct osux_hitobject {
     int x;
     int y;
-    int offset;
-    int type;
+    uint32_t offset;
+    uint32_t type;
         
-    struct slider sli;
-    struct spinner spi;
-    struct hitsound hs;
-};
+    osux_slider slider;
+    osux_spinner spinner;
+    osux_hitsound hitsound;
 
-void ho_print(struct hit_object *ho, int version, FILE *f);
-void ho_free(struct hit_object *ho);
+    uint32_t _osu_version;
+} osux_hitobject;
 
-#endif //HIT_OBJECT_H
+int osux_hitobject_init(osux_hitobject *ho, char *line, uint32_t osu_version);
+void osux_hitobject_print(osux_hitobject *ho, int version, FILE *f);
+void osux_hitobject_free(osux_hitobject *ho);
+
+#endif //OSUX_HIT_OBJECT_H
 

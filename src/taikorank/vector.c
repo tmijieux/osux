@@ -57,7 +57,7 @@ void vect_free(struct vector * v)
 
 //--------------------------------------------------
 
-struct vector * cst_vect_from_list(struct hash_table * ht, const char * key)
+struct vector * cst_vect_from_list(osux_hashtable * ht, const char * key)
 {
     struct osux_list * l = cst_list(ht, key);
     if (l == NULL)
@@ -73,7 +73,7 @@ struct vector * cst_vect_from_list(struct hash_table * ht, const char * key)
     return v;
 }
 
-struct vector * cst_vect_from_decl(struct hash_table * ht, const char * key)
+struct vector * cst_vect_from_decl(osux_hashtable * ht, const char * key)
 {
     char *s = xasprintf("%s_length", key);
     struct vector * v = vect_new(cst_i(ht, s), CST_VECT_DIM);
@@ -96,9 +96,9 @@ struct vector * cst_vect_from_decl(struct hash_table * ht, const char * key)
 
 //--------------------------------------------------
 
-struct vector * cst_vect(struct hash_table * ht, const char * key)
+struct vector * cst_vect(osux_hashtable * ht, const char * key)
 {
-    typedef struct vector* (*cst_vect_f)(struct hash_table*, const char*);
+    typedef struct vector* (*cst_vect_f)(osux_hashtable*, const char*);
     static cst_vect_f funs[] = {
 	cst_vect_from_decl,
 	cst_vect_from_list,

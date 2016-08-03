@@ -1,290 +1,254 @@
-/*
- *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- */
-
-#include <stdio.h>
-#include <stdlib.h>
 #include <glib.h>
 
-#include "osux/beatmap.h"
-#include "osux/string2.h"
+#include "osux/md5.h"
 #include "osux/error.h"
-#include "osux/data.h"
-#include "osux/parser.h"
+
+#include "osux/beatmap.h"
+#include "osux/hash_table.h"
 #include "osux/hitobject.h"
 #include "osux/timingpoint.h"
-#include "osux/storyboard.h"
-#include "osux/color.h"
+#include "osux/event.h"
+#include "osux/util.h"
 
-
-osux_beatmap DEFAULT_BEATMAP = { 0 };
-
-#define PRINT_SECTION(section)                  \
-    fprintf(f, "\r\n["#section"]\r\n")          \
-
-#define PRINT_STRING(map, file, Field)		\
-    fprintf(f, #Field ": %s\r\n", m->Field)	\
-
-#define PRINT_DOUBLE(map, file, Field)		\
-    fprintf(f, #Field ": %.15g\r\n", m->Field)	\
-
-#define PRINT_INT(map, file, Field)		\
-    fprintf(f, #Field ": %d\r\n", m->Field)	\
-
-int osux_beatmap_print(const osux_beatmap *m, FILE *f)
+int osux_beatmap_free(osux_beatmap *beatmap)
 {
-    if (m->bom)
-	fprintf(f, "%c%c%c", 0xef, 0xbb, 0xbf);
-    fprintf(f, "osu file format v%d\r\n", m->version);
-
-    PRINT_SECTION( General );
-
-    PRINT_STRING(m, f, AudioFilename);
-    PRINT_INT(m, f, AudioLeadIn);
-    PRINT_INT(m, f, PreviewTime);
-    PRINT_INT(m, f, Countdown);
-    PRINT_STRING(m, f, SampleSet);  // THIS IS SAMPLE TYPE! ;(
-
-    PRINT_DOUBLE(m, f, StackLeniency);
-    PRINT_INT(m, f, Mode);
-    PRINT_INT(m, f, LetterboxInBreaks);
-    PRINT_INT(m, f, WidescreenStoryboard);
-
-    PRINT_SECTION( Editor );
-    if (m->bkmkc) {
-	fprintf(f, "Bookmarks: ");
-	for (unsigned int i = 0; i < m->bkmkc; ++i) {
-	    if (i>=1)
-		fprintf(f, ",");
-	    fprintf(f, "%d", m->Bookmarks[i]);
-	}
-	fputs("\r\n", f);
-    }
-
-    PRINT_DOUBLE(m, f, DistanceSpacing);
-    PRINT_INT(m, f, BeatDivisor);
-    PRINT_INT(m, f, GridSize);
-    PRINT_DOUBLE(m, f, TimelineZoom);
-
-    #undef PRINT_STRING
-    #undef PRINT_DOUBLE
-    #undef PRINT_INT
-
-    #define PRINT_STRING(map, file, Field)      \
-        fprintf(f, #Field ":%s\r\n", m->Field)	\
-
-    #define PRINT_DOUBLE(map, file, Field)		\
-        fprintf(f, #Field ":%.15g\r\n", m->Field)	\
-
-    #define PRINT_INT(map, file, Field)		\
-        fprintf(f, #Field ":%d\r\n", m->Field)	\
-
-    PRINT_SECTION( Metadata );
-    PRINT_STRING(m, f, Title);
-    if (m->TitleUnicode != NULL)
-	PRINT_STRING(m, f, TitleUnicode);
-    PRINT_STRING(m, f, Artist);
-    if (m->ArtistUnicode != NULL)
-	PRINT_STRING(m, f, ArtistUnicode);
-    PRINT_STRING(m, f, Creator);
-    PRINT_STRING(m, f, Version);
-    PRINT_STRING(m, f, Source);
-    fprintf(f, "Tags:");
-    for (unsigned int i = 0; i < m->tagc; ++i) {
-	fprintf(f, "%s", m->Tags[i]);
-	if (i < m->tagc-1)
-	    fprintf(f, " ");
-    }
-    fputs("\r\n", f);
-
-    PRINT_INT(m, f, BeatmapID);
-    PRINT_INT(m, f, BeatmapSetID);
-
-
-    PRINT_SECTION( Difficulty );
-    PRINT_DOUBLE(m, f, HPDrainRate);
-    PRINT_DOUBLE(m, f, CircleSize);
-    PRINT_DOUBLE(m, f, OverallDifficulty);
-    PRINT_DOUBLE(m, f, ApproachRate);
-    PRINT_DOUBLE(m, f, SliderMultiplier);
-    PRINT_DOUBLE(m, f, SliderTickRate);
-
-    PRINT_SECTION( Events );
-
-    PRINT_SECTION( TimingPoints );
-    for (unsigned int i = 0; i < m->tpc; ++i)
-	tp_print(&m->TimingPoints[i], f);
-
-    if (m->colc) {
-	PRINT_SECTION( Colours );
-	for (unsigned int i = 0; i < m->colc; ++i)
-	    col_print(f, &m->Colours[i], i+1);
-	fputs("\r\n", f);
-    }
-
-    PRINT_SECTION( HitObjects );
-    for (unsigned int i = 0; i < m->hoc; ++i)
-	ho_print(&m->HitObjects[i], m->version, f);
-    return 0;
-}
-
-static int osux_beatmap_save_default_filename(const osux_beatmap *bm)
-{
-    char *name = osux_beatmap_default_filename(bm);
-    int res = osux_beatmap_save(name, bm);
-    free(name);
-    return res;
-}
-
-int osux_beatmap_save(const char *filename, const osux_beatmap* bm)
-{
-    if (filename == NULL)
-	return osux_beatmap_save_default_filename(bm);
-
-    FILE *f = fopen(filename, "w+");
-    if (NULL == f) {
-        osux_error("%s: %s\n", filename, strerror(errno));
+    if (beatmap == NULL)
         return -1;
+    
+    g_free(beatmap->file_path);
+    g_free(beatmap->md5_hash);
+    
+    g_free(beatmap->AudioFilename);
+    g_free(beatmap->SampleSet);
+    g_free(beatmap->Bookmarks);
+    g_free(beatmap->Title);
+    g_free(beatmap->TitleUnicode);
+    g_free(beatmap->Artist);
+    g_free(beatmap->ArtistUnicode);
+    g_free(beatmap->Creator);
+    g_free(beatmap->Version);
+    g_free(beatmap->Source);
+
+    g_strfreev(beatmap->tags);
+
+    for (unsigned i = 0; i < beatmap->timingpoint_count; ++i)
+	osux_timingpoint_free(&beatmap->timingpoints[i]);
+    
+    g_free(beatmap->timingpoints);
+    g_free(beatmap->colors);
+
+    for (unsigned i = 0; i < beatmap->hitobject_count; ++i)
+	osux_hitobject_free(&beatmap->hitobjects[i]);
+
+    g_free(beatmap->hitobjects);
+}
+
+static int parse_osu_version(osux_beatmap *beatmap, FILE *file)
+{
+    static uint8_t BOM[] = { 0xEF, 0xBB, 0xBF };
+    static GRegex *regexp = NULL;
+
+    int err = 0;
+    char *line = osux_getline(file);
+    
+    if (line == NULL)
+        return OSUX_ERR_BAD_OSU_VERSION;
+
+    if (memcmp(line, BOM, sizeof BOM) == 0) {
+        beatmap->byte_order_mark = true;
+        line += sizeof BOM;
     }
-    osux_beatmap_print(bm, f);
-    fclose(f);
-    return 0;
-}
+    
+    if (regexp == NULL)
+        regexp = g_regex_new("^osu file format v([0-9]+)$", 0, 0, NULL);
 
-static int osux_beatmap_prepare(osux_beatmap *bm, const char *filename)
-{
-    bm->circles = bm->sliders = bm->spinners = 0;
-
-    for (unsigned i = 0; i < bm->hoc; ++i) {
-        if (HO_IS_CIRCLE(bm->HitObjects[i]))
-            ++ bm->circles ;
-        else if (HO_IS_SLIDER(bm->HitObjects[i]))
-            bm->sliders ++;
-        else if (HO_IS_SPINNER(bm->HitObjects[i]))
-            bm->spinners ++;
+    GMatchInfo *info = NULL;
+    if (!g_regex_match(regexp, line, 0, &info)) {
+        g_free(line);
+        return OSUX_ERR_BAD_OSU_VERSION;
     }
-    int l = strlen(filename);
-    for (int i = l; i >= 0; --i) {
-        if ('/' == filename[i]) {
-            bm->osu_filename = g_strdup(&filename[i+1]);
-            bm->path = g_strndup(filename, i-1);
-            break;
-        }
-    }
-    return 0;
+    
+    if (g_match_info_matches(info)) {
+        gchar *version = g_match_info_fetch(info, 1);
+        beatmap->osu_version = atoi(version);
+        g_free(version);
+    } else
+        err = OSUX_ERR_BAD_OSU_VERSION;
+
+    g_free(line);
+    g_match_info_free(info);
+    return err;
 }
 
-static void osux_beatmap_set_tp_last_uninherited(osux_beatmap *bm)
+static int compute_metadata(osux_beatmap *beatmap, FILE *file)
 {
-    for (unsigned i = 0; i < bm->tpc; i++) {
-	if (bm->TimingPoints[i].uninherited)
-	    bm->TimingPoints[i].last_uninherited = &bm->TimingPoints[i];
-	else
-	    bm->TimingPoints[i].last_uninherited =
-		bm->TimingPoints[i-1].last_uninherited;
-    }
-}
+    int err;
+    beatmap->md5_hash = osux_get_file_hashstr(beatmap->file_path);
 
-int osux_beatmap_open(const char *filename, osux_beatmap **beatmap)
-{
-    osux_beatmap *(*osux_parse_beatmap)(const char *filename);
-    osux_parse_beatmap = osux_get_parser();
-    if (osux_parse_beatmap == NULL)
-	return -1;
+    /* GFile *gfile; */
+    /* GFileInfo *ginfo; */
+    /* gfile = g_file_new_for_path(file_path); */
+    /* ginfo = g_file_query_info(gfile, G_FILE_ATTRIBUTE_TIME_MODIFIED, */
+    /*                          G_FILE_QUERY_INFO_NONE, NULL, NULL); */
+    /* g_file_info_get_last_modification(ginfo, &beatmap->last_modification); */
+    /* g_object_unref(ginfo); */
+    /* g_object_unref(gfile); */
 
-    *beatmap = osux_parse_beatmap(filename);
-    if (NULL == *beatmap)
-        return -1;
-    osux_beatmap_prepare(*beatmap, filename);
-    osux_beatmap_set_tp_last_uninherited(*beatmap);
-    return 0;
-}
-
-int osux_beatmap_reopen(osux_beatmap *bm_in, osux_beatmap **bm_out)
-{
-    int ret;
-    char *path;
-    if (NULL == bm_in) {
-        *bm_out = NULL;
-        return -1;
-    }
-    path = osux_prefix_path(osux_get_song_path(), bm_in->osu_filename);
-    ret = osux_beatmap_open(path, bm_out);
-    free(path);
-    return ret;
-}
-
-static void osux_beatmap_free(osux_beatmap *m)
-{
-    free(m->AudioFilename);
-    free(m->SampleSet);
-    free(m->Bookmarks);
-    free(m->Title);
-    free(m->TitleUnicode);
-    free(m->Artist);
-    free(m->ArtistUnicode);
-    free(m->Creator);
-    free(m->Version);
-    free(m->Source);
-
-    for (unsigned int i = 0; i < m->tagc; ++i)
-	free(m->Tags[i]);
-    free(m->Tags);
-
-    for (unsigned int i = 0; i < m->tpc; ++i)
-	tp_free(&m->TimingPoints[i]);
-    free(m->TimingPoints);
-    free(m->Colours);
-
-    for (unsigned int i = 0; i < m->hoc; ++i)
-	ho_free(&m->HitObjects[i]);
-
-    free(m->HitObjects);
-    free(m);
-}
-
-int osux_beatmap_close(osux_beatmap *beatmap)
-{
-    if (NULL != beatmap) {
+    if ((err = parse_osu_version(beatmap, file)) < 0) {
         osux_beatmap_free(beatmap);
-        return 0;
+        return err;
     }
 
+    return 0;
+}
+
+static bool line_is_empty_or_comment(char *line)
+{
+    return strcmp("", line) == 0 ||
+        (strlen(line) >= 2 && strncmp("//", line, 2) == 0);
+}
+
+static bool get_new_section(char const *line, char **section_name)
+{
+    static GRegex *regexp = NULL;
+    if (regexp == NULL)
+        regexp = g_regex_new("^\\[(.*)\\]$", 0, 0, NULL);
+    
+    GMatchInfo *info = NULL;
+    if (!g_regex_match(regexp, line, 0, &info))
+        return false;
+    
+    if (g_match_info_matches(info)) {
+        g_free(*section_name);
+        *section_name = g_match_info_fetch(info, 1);
+        g_match_info_free(info);
+        return true;
+    }
+    g_match_info_free(info);
+    return false;
+}
+
+static int parse_option_entry(
+    char const *line, osux_hashtable *section, uint32_t line_count)
+{
+    char *sep = strstr(line, ":");
+    if (sep == NULL)
+        return OSUX_ERR_MALFORMED_OSU_FILE;
+    char **split = g_strsplit(line, ":", 2);
+    osux_hashtable_insert(section, split[0], split[1]);
+    g_free(split); // this should do; dont use g_strfreev here because hash table
+    // may not copy the data
+}
+
+#define CHECK_TIMING_POINT(x)
+#define CHECK_HIT_OBJECT(x)
+#define CHECK_EVENT(x)
+
+#define ALLOC_ARRAY(array_var, size_var, size_literal)                  \
+    do {                                                                \
+        array_var = g_malloc0((size_literal) * sizeof(*(array_var)));   \
+        size_var = (size_literal);                                      \
+    } while (0)
+
+static int parse_objects(osux_beatmap *beatmap, FILE *file)
+{
+    osux_timingpoint const *last_non_inherited = NULL;
+    osux_hashtable *current_section = NULL;
+    char *section_name = g_strdup("");
+    
+    beatmap->sections = osux_hashtable_new(0);
+
+    ALLOC_ARRAY(beatmap->hitobjects, beatmap->hitobject_bufsize, 500);
+    ALLOC_ARRAY(beatmap->timingpoints, beatmap->timingpoint_bufsize, 500);
+    ALLOC_ARRAY(beatmap->events, beatmap->event_bufsize, 500);
+
+    char *line;
+    uint32_t line_count = 1;
+    for (line = NULL; (line = osux_getline(file)) != NULL; g_free(line)) {
+        ++ line_count;
+
+        if (line_is_empty_or_comment(line))
+            continue;
+
+        if (get_new_section(line, &section_name)) {
+            current_section = osux_hashtable_new(0);
+            osux_hashtable_insert(
+                beatmap->sections, section_name, current_section);
+            //printf("section='%s'\n", section_name);
+            continue;
+        }
+
+        if (!strcmp(section_name, "TimingPoints")) {
+            HANDLE_ARRAY_SIZE(beatmap->timingpoints,
+                              beatmap->timingpoint_count,
+                              beatmap->timingpoint_bufsize);
+            osux_timingpoint_init(
+                &beatmap->timingpoints[beatmap->timingpoint_count],
+                &last_non_inherited, line, beatmap->osu_version);
+            CHECK_TIMING_POINT(&beatmap->timingpoints[beatmap->timingpoint_count]);
+            ++ beatmap->timingpoint_count;
+            continue;
+        }
+
+        if (!strcmp(section_name, "HitObjects")) {
+            HANDLE_ARRAY_SIZE(beatmap->hitobjects,
+                              beatmap->hitobject_count,
+                              beatmap->hitobject_bufsize);
+            osux_hitobject_init(&beatmap->hitobjects[beatmap->hitobject_count],
+                                line, beatmap->osu_version);
+            CHECK_HIT_OBJECT(&beatmap->hitobjects[beatmap->hitobject_count]);
+            ++ beatmap->hitobject_count;
+            continue;
+        }
+
+        if (!strcmp(section_name, "Events")) {
+            HANDLE_ARRAY_SIZE(beatmap->events,
+                              beatmap->event_count,
+                              beatmap->event_bufsize);
+            osux_event_init(&beatmap->events[beatmap->event_count],
+                       line, beatmap->osu_version);
+            CHECK_EVENT(&beatmap->events[beatmap->event_count]);
+            ++ beatmap->event_count;
+            continue;
+        }
+
+        parse_option_entry(line, current_section, line_count);
+    }
+    return 0;
+}
+
+static int fetch_variables(osux_beatmap *beatmap)
+{
     return -1;
 }
 
-
-static const char *sp_chr = "/";
-static const char *replace_chr = "_";
-
-char *osux_beatmap_default_filename(const osux_beatmap *bm)
+int osux_beatmap_init(osux_beatmap *beatmap, char const *file_path)
 {
-    char *name = xasprintf(
-        "%s - %s (%s) [%s].osu", bm->Artist, bm->Title, bm->Creator, bm->Version);
-
-    unsigned len_name = strlen(name);
-    unsigned len_spec = strlen(sp_chr);
-
-    for (unsigned i = 0; i < len_name; i++)
-    {
-	for (unsigned j = 0; j < len_spec; j++)
-        {
-	    if (name[i] == sp_chr[j])
-		name[i] = replace_chr[j];
-        }
+    int err = 0;
+    memset(beatmap, 0, sizeof *beatmap);
+    
+    FILE *file = fopen(file_path, "r");
+    if (file == NULL) {
+        osux_error("Cannot open file for reading: '%s'\n", file_path);
+        return OSUX_ERR_FILE_PERM;
+    }
+    
+    beatmap->file_path = strdup(file_path);
+    
+    if ((err = compute_metadata(beatmap, file)) < 0) {
+        osux_beatmap_free(beatmap);
+        return err;
+    }
+    
+    if ((err = parse_objects(beatmap, file)) < 0) {
+        osux_beatmap_free(beatmap);
+        return err;
     }
 
-    return name;
+    if ((err = fetch_variables(beatmap)) < 0) {
+        osux_beatmap_free(beatmap);
+        return err;
+    }
+    
+    return 0;
 }

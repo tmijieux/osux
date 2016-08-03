@@ -1,3 +1,6 @@
+#ifndef OSUX_BEATMAP_H
+#define OSUX_BEATMAP_H
+
 /*
  *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
  *
@@ -14,17 +17,20 @@
  *  limitations under the License.
  */
 
-#ifndef osux_BEATMAP_H
-#define osux_BEATMAP_H
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <openssl/md5.h>
 
-#include "osux/storyboard.h"
+#include "osux/hitobject.h"
 #include "osux/game_mode.h"
+#include "osux/hash_table.h"
+
+#include "osux/color.h"
+#include "osux/timingpoint.h"
+#include "osux/event.h"
+
 
 typedef struct osux_beatmap osux_beatmap;
 
@@ -36,7 +42,7 @@ struct osux_beatmap {
 
     char *md5_hash;
     char *osu_filename;
-    char *path;
+    char *file_path;
 
     time_t last_modification;
     time_t last_checked;
@@ -66,17 +72,25 @@ struct osux_beatmap {
     uint8_t mania_scroll_speed;
 
     // .osu  SECTION :
-    uint32_t version;
-    uint32_t bom; // byte order mark; utf-8 stuff
+    uint32_t osu_version;
+    bool byte_order_mark; // byte order mark; utf-8 stuff
 
     // general info
     char *AudioFilename;
     uint32_t AudioLeadIn;
     uint32_t PreviewTime;
     uint32_t Countdown;
+    
     char *SampleSet;  // sample type !
+    uint32_t sample_type;
+    
     double StackLeniency;
-    uint32_t Mode;
+    
+    union {
+        uint32_t Mode; // game mode
+        uint32_t game_mode;
+    };
+    
     uint32_t LetterboxInBreaks;
     uint32_t WidescreenStoryboard;
 
@@ -93,9 +107,18 @@ struct osux_beatmap {
     char *Artist;
     char *ArtistUnicode;
     char *Creator;
-    char *Version; // difficulty name
+    
+    union {
+        char *Version; // difficulty name
+        char *difficulty_name;
+    };
+
     char *Source;
-    uint32_t tagc;  char **Tags;
+    
+    uint32_t tag_count;
+    uint32_t tag_bufsize;
+    char **tags;
+    
     uint32_t BeatmapID;
     uint32_t BeatmapSetID;
 
@@ -107,19 +130,34 @@ struct osux_beatmap {
     double SliderMultiplier;
     double SliderTickRate;
 
-    struct storyboard sb;
+        
+    uint32_t color_count;
+    uint32_t color_bufsize;
+    osux_color *colors;
 
-    uint32_t tpc;  struct timing_point *TimingPoints;
-    uint32_t colc; struct color *Colours;
-    uint32_t hoc;  struct hit_object *HitObjects;
+    uint32_t event_count;
+    uint32_t event_bufsize;
+    osux_event *events;
+
+
+    uint32_t timingpoint_count;
+    uint32_t timingpoint_bufsize;
+    osux_timingpoint *timingpoints;
+    
+    uint32_t hitobject_count;
+    uint32_t hitobject_bufsize;
+    osux_hitobject *hitobjects;
+
+    osux_hashtable *sections;
 };
 
-int osux_beatmap_open(const char *filename, osux_beatmap **beatmap);
-int osux_beatmap_reopen(osux_beatmap *bm_in, osux_beatmap **bm_out);
-int osux_beatmap_save(const char *filename, const osux_beatmap* beatmap);
-int osux_beatmap_close(osux_beatmap *beatmap);
+int osux_beatmap_init(osux_beatmap *beatmap, char const *filename);
+int osux_beatmap_free(osux_beatmap *beatmap);
+char *osux_beatmap_default_filename(const osux_beatmap *bm);
 int osux_beatmap_print(const osux_beatmap *m, FILE *f);
+int osux_beatmap_save(osux_beatmap const *beatmap,
+                      char const *filename, bool use_default_filename);
 
-char * osux_beatmap_default_filename(const osux_beatmap *bm);
 
-#endif //osux_BEATMAP_H
+
+#endif // OSUX_BEATMAP_H

@@ -24,16 +24,16 @@
 
 #define INITIAL_HASH_TABLE_SIZE     113
 
-struct ht_entry {
+struct osux_hashtable_entry {
     char *key;
     void *data;
-    struct ht_entry *next;
+    struct osux_hashtable_entry *next;
 };
 
-struct hash_table {
+struct osux_hashtable {
     int (*hash) (const char*);
     size_t size;
-    struct ht_entry **buf;
+    struct osux_hashtable_entry **buf;
     int entry_count;
 };
 
@@ -79,16 +79,16 @@ static int default_hash(const char *x)
     return (int) v.i;
 }
 
-static struct ht_entry* new_entry(const char *key, void *data)
+static struct osux_hashtable_entry* new_entry(const char *key, void *data)
 {
-    struct ht_entry *he = malloc(sizeof(*he));
+    struct osux_hashtable_entry *he = malloc(sizeof(*he));
     he->key = strdup(key);
     he->data = data;
     he->next = NULL;
     return he;
 }
 
-static void free_entry(struct ht_entry *he)
+static void free_entry(struct osux_hashtable_entry *he)
 {
     if (he) {
 	free(he->key);
@@ -96,13 +96,10 @@ static void free_entry(struct ht_entry *he)
     }
 }
 
-struct hash_table* ht_create(size_t size, int (*hash)(const char*))
+osux_hashtable* osux_hashtable_new(size_t size)
 {
-    struct hash_table *ht = (struct hash_table*) malloc(sizeof(*ht));
-    if (hash)
-	ht->hash = hash;
-    else
-	ht->hash = &default_hash;
+    osux_hashtable *ht = (osux_hashtable*) malloc(sizeof(*ht));
+    ht->hash = &default_hash;
     if (size > 0)
 	    ht->size = size;
     else
@@ -111,24 +108,24 @@ struct hash_table* ht_create(size_t size, int (*hash)(const char*))
     return ht;
 }
 
-int ht_add_entry(struct hash_table* ht, const char *key, void *data)
+int osux_hashtable_insert(osux_hashtable* ht, const char *key, void *data)
 {
     int hash = ht->hash(key);
     int pos = hash % ht->size;
 
-    struct ht_entry *he = new_entry(key, data);
+    struct osux_hashtable_entry *he = new_entry(key, data);
     he->next = ht->buf[pos];
     ht->buf[pos] = he;
 
     return 0;
 }
 
-int ht_remove_entry(struct hash_table *ht, const char *key)
+int osux_hashtable_remove(osux_hashtable *ht, const char *key)
 {
     int hash = ht->hash(key);
     int pos = hash % ht->size;
 
-    struct ht_entry *he = ht->buf[pos], *prev = NULL;
+    struct osux_hashtable_entry *he = ht->buf[pos], *prev = NULL;
 
     while (he) {
 	if (!strcmp(he->key, key)) {
@@ -145,12 +142,12 @@ int ht_remove_entry(struct hash_table *ht, const char *key)
     return -1;
 }
 
-int ht_has_entry(struct hash_table *ht, const char *key)
+int osux_hashtable_contains(osux_hashtable *ht, const char *key)
 {
     int hash = ht->hash(key);
     int pos = hash % ht->size;
 
-    struct ht_entry *he = ht->buf[pos];
+    struct osux_hashtable_entry *he = ht->buf[pos];
 
     while (he) {
 	if (!strcmp(he->key, key))
@@ -160,12 +157,12 @@ int ht_has_entry(struct hash_table *ht, const char *key)
     return 0;
 }
 
-int ht_get_entry(struct hash_table *ht, const char *key, void *ret)
+int osux_hashtable_lookup(osux_hashtable *ht, const char *key, void *ret)
 {
     int hash = ht->hash(key);
     int pos = hash % ht->size;
 
-    struct ht_entry *he = ht->buf[pos];
+    struct osux_hashtable_entry *he = ht->buf[pos];
 
     while (he) {
 	if (!strcmp(he->key, key)) {
@@ -178,18 +175,18 @@ int ht_get_entry(struct hash_table *ht, const char *key, void *ret)
     return -1;
 }
 
-int ht_hash(struct hash_table *ht, const char *key)
+int osux_hashtable_hash(osux_hashtable *ht, const char *key)
 {
     return ht->hash(key);
 }
 
-void ht_free(struct hash_table* ht)
+void osux_hashtable_delete(osux_hashtable* ht)
 {
     if (ht) {
 	for (unsigned i = 0; i < ht->size; ++i) {
-	    struct ht_entry *he = ht->buf[i];
+	    struct osux_hashtable_entry *he = ht->buf[i];
 	    while (he) {
-		struct ht_entry *tmp = he;
+		struct osux_hashtable_entry *tmp = he;
 		he = he->next;
 		free_entry(tmp);
 	    }
@@ -199,12 +196,12 @@ void ht_free(struct hash_table* ht)
     }
 }
 
-void ht_for_each(struct hash_table* ht,
+void osux_hashtable_for_each(osux_hashtable* ht,
 		 void (*fun)(const char *, void*, void*), void *args)
 {
     if (ht) {
 	for (unsigned i = 0; i < ht->size; ++i) {
-	    struct ht_entry *he = ht->buf[i];
+	    struct osux_hashtable_entry *he = ht->buf[i];
 	    while (he) {
 		fun(he->key, he->data, args);
 		he = he->next;
@@ -214,12 +211,12 @@ void ht_for_each(struct hash_table* ht,
 }
 
 
-struct osux_list* ht_to_list(const struct hash_table *ht)
+struct osux_list* osux_hashtable_to_list(const osux_hashtable *ht)
 {
     struct osux_list *l = osux_list_new(0);
     if (ht) {
 	for (unsigned i = 0; i < ht->size; ++i) {
-	    struct ht_entry *he = ht->buf[i];
+	    struct osux_hashtable_entry *he = ht->buf[i];
 	    while (he) {
 		osux_list_append(l, he->data);
 		he = he->next;

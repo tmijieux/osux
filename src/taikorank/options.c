@@ -45,14 +45,14 @@
 #define ARG_OPT_ODB_PATH   "-path"
 #define ARG_OPT_ODB_SGDIR  "-songdir"
 
-static struct hash_table * ht_opt;
+static osux_hashtable * ht_opt;
 
 //-----------------------------------------------------
 
 int options_set(int argc, const char ** argv)
 {
     int (* opt)(int, const char **) = NULL;
-    ht_get_entry(ht_opt, argv[0], &opt);
+    osux_hashtable_lookup(ht_opt, argv[0], &opt);
     if(opt == NULL) {
 	tr_error("Unknown option: '%s'.", argv[0]);
 	return 0;
@@ -213,35 +213,35 @@ static int opt_odb_path(int argc, const char ** argv)
 
 static void options_exit(void)
 {
-	ht_free(ht_opt);
+    osux_hashtable_delete(ht_opt);
 }
 
 INITIALIZER(options_init)
 {
-    ht_opt = ht_create(0, NULL);
+    ht_opt = osux_hashtable_new(0);
   
-    ht_add_entry(ht_opt, ARG_OPT_AUTOCONVERT,  opt_autoconvert);
+    osux_hashtable_insert(ht_opt, ARG_OPT_AUTOCONVERT,  opt_autoconvert);
 
-    ht_add_entry(ht_opt, ARG_OPT_DB,           opt_db);
+    osux_hashtable_insert(ht_opt, ARG_OPT_DB,           opt_db);
 
-    ht_add_entry(ht_opt, ARG_OPT_MODS,         opt_mods);
-    ht_add_entry(ht_opt, ARG_OPT_NO_BONUS,     opt_no_bonus);
-    ht_add_entry(ht_opt, ARG_OPT_FLAT,         opt_flat);
+    osux_hashtable_insert(ht_opt, ARG_OPT_MODS,         opt_mods);
+    osux_hashtable_insert(ht_opt, ARG_OPT_NO_BONUS,     opt_no_bonus);
+    osux_hashtable_insert(ht_opt, ARG_OPT_FLAT,         opt_flat);
 
-    ht_add_entry(ht_opt, ARG_OPT_SCORE,        opt_score);
-    ht_add_entry(ht_opt, ARG_OPT_SCORE_QUICK,  opt_score_quick);
-    ht_add_entry(ht_opt, ARG_OPT_SCORE_INPUT,  opt_score_input);
-    ht_add_entry(ht_opt, ARG_OPT_SCORE_ACC,    opt_score_acc);
-    ht_add_entry(ht_opt, ARG_OPT_SCORE_GGM,    opt_score_ggm);
+    osux_hashtable_insert(ht_opt, ARG_OPT_SCORE,        opt_score);
+    osux_hashtable_insert(ht_opt, ARG_OPT_SCORE_QUICK,  opt_score_quick);
+    osux_hashtable_insert(ht_opt, ARG_OPT_SCORE_INPUT,  opt_score_input);
+    osux_hashtable_insert(ht_opt, ARG_OPT_SCORE_ACC,    opt_score_acc);
+    osux_hashtable_insert(ht_opt, ARG_OPT_SCORE_GGM,    opt_score_ggm);
 
-    ht_add_entry(ht_opt, ARG_OPT_PRINT_TRO,    opt_print_tro);
-    ht_add_entry(ht_opt, ARG_OPT_PRINT_YAML,   opt_print_yaml);
-    ht_add_entry(ht_opt, ARG_OPT_PRINT_ORDER,  opt_print_order);
-    ht_add_entry(ht_opt, ARG_OPT_PRINT_FILTER, opt_print_filter);
+    osux_hashtable_insert(ht_opt, ARG_OPT_PRINT_TRO,    opt_print_tro);
+    osux_hashtable_insert(ht_opt, ARG_OPT_PRINT_YAML,   opt_print_yaml);
+    osux_hashtable_insert(ht_opt, ARG_OPT_PRINT_ORDER,  opt_print_order);
+    osux_hashtable_insert(ht_opt, ARG_OPT_PRINT_FILTER, opt_print_filter);
 
-    ht_add_entry(ht_opt, ARG_OPT_ODB_STATE,    opt_odb_state);
-    ht_add_entry(ht_opt, ARG_OPT_ODB_SGDIR,    opt_odb_sgdir);
-    ht_add_entry(ht_opt, ARG_OPT_ODB_PATH,     opt_odb_path);
+    osux_hashtable_insert(ht_opt, ARG_OPT_ODB_STATE,    opt_odb_state);
+    osux_hashtable_insert(ht_opt, ARG_OPT_ODB_SGDIR,    opt_odb_sgdir);
+    osux_hashtable_insert(ht_opt, ARG_OPT_ODB_PATH,     opt_odb_path);
 
     atexit(options_exit);
 }

@@ -1,3 +1,5 @@
+#ifndef OSUX_TIMINGPOINT_H
+#define OSUX_TIMINGPOINT_H
 /*
  *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
  *
@@ -14,30 +16,33 @@
  *  limitations under the License.
  */
 
+#include <stdbool.h>
+#include <stdint.h>
 
-#ifndef TIMING_POINT_H
-#define TIMING_POINT_H
-
-struct timing_point {
+typedef struct osux_timingpoint {
     double offset;
-
-    union {
-	double mpb; // millisecond per beats
-	double svm; // slider velocity multiplier : percentage
-    };
+    double millisecond_per_beat; 
+    double slider_velocity_multiplier;// percentage < 0
 
     int time_signature;
     int sample_type;
-    int sample_set;
+    int sample_set_index;
     int volume;
     
-    int uninherited;
-    int kiai;
+    bool inherited;
+    bool kiai;
 
-    struct timing_point *last_uninherited;
-};
+    struct timing_point *last_non_inherited;
+} osux_timingpoint;
 
-void tp_print(struct timing_point *tp, FILE *f); // print one timing point
-void tp_free(struct timing_point *tp); // free one timing point
 
-#endif //TIMING_POINT_!H
+int osux_timingpoint_init(osux_timingpoint *tp,
+                          osux_timingpoint const **last_non_inherited,
+                          char *line, uint32_t osu_version);
+
+void osux_timingpoint_print(osux_timingpoint *tp, FILE *f);
+
+// free timing point's internal resources (super HARD)
+void osux_timingpoint_free(osux_timingpoint *tp); 
+
+#endif // OSUX_TIMINGPOINT_H

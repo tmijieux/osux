@@ -30,7 +30,7 @@ void yaml2_dump(FILE *out, const struct yaml_wrap *yw)
 
     case YAML_MAPPING:
 	fprintf(out, "yaml mapping start:\n");
-	ht_for_each(yw->content.mapping, mapping_dump, out);
+	osux_hashtable_for_each(yw->content.mapping, mapping_dump, out);
 	fprintf(out, "yaml mapping end\n");
 	break;
 
@@ -51,7 +51,7 @@ void parser_stack_push(struct stack *parser_stack,
 	struct yaml_wrap *head = stack_peek(parser_stack);
 	
 	if (YAML_MAPPING == head->type)
-	    ht_add_entry(head->content.mapping, keyname, newhead);
+	    osux_hashtable_insert(head->content.mapping, keyname, newhead);
 	else if (YAML_SEQUENCE == head->type) {
 	    osux_list_append(head->content.sequence, newhead);
 	}
@@ -111,7 +111,7 @@ int yaml2_parse_file(struct yaml_wrap **yamlw, const char *file_name)
 	case YAML_MAPPING_START_EVENT:
 	    key = 0;
 	    parser_stack_push(parser_stack, YAML_MAPPING,
-			      ht_create(100, NULL), keyname);
+			      osux_hashtable_new(100), keyname);
 	    keyname = NULL;
 	    break;
 		
@@ -174,8 +174,8 @@ void yaml2_free(struct yaml_wrap *yw)
         return;
     switch (yw->type) {
     case YAML_MAPPING:
-        ht_for_each(yw->content.mapping, &mapping_free, NULL);
-        ht_free(yw->content.mapping);
+        osux_hashtable_for_each(yw->content.mapping, &mapping_free, NULL);
+        osux_hashtable_delete(yw->content.mapping);
         break;
 
     case YAML_SEQUENCE:

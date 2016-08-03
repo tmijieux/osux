@@ -31,3 +31,8 @@ char *xasprintf(const char *format, ...)
     va_end(ap);
     return res;
 }
+
+bool string_contains(char const *str, char c)
+{
+    return strchr(str, c) != NULL;
+}

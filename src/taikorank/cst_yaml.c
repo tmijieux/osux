@@ -41,7 +41,7 @@ struct yaml_wrap * cst_get_yw(const char * file_name)
 
 //--------------------------------------------------
 
-struct hash_table * yw_extract_ht(struct yaml_wrap * yw)
+osux_hashtable * yw_extract_ht(struct yaml_wrap * yw)
 {
     if (yw->type != YAML_MAPPING) {
 	tr_error("Constant is not a hash table.");
@@ -70,10 +70,10 @@ char * yw_extract_scalar(struct yaml_wrap * yw)
 
 //--------------------------------------------------
 
-struct osux_list * cst_list(struct hash_table * ht, const char * key)
+struct osux_list * cst_list(osux_hashtable * ht, const char * key)
 {
     struct yaml_wrap * yw = NULL;
-    ht_get_entry(ht, key, &yw);
+    osux_hashtable_lookup(ht, key, &yw);
     if (yw == NULL) {
 	tr_error("List '%s' not found.", key);
 	return NO_SEQUENCE;
@@ -81,10 +81,10 @@ struct osux_list * cst_list(struct hash_table * ht, const char * key)
     return yw_extract_list(yw);
 }
 
-char * cst_str(struct hash_table * ht, const char * key)
+char * cst_str(osux_hashtable * ht, const char * key)
 {
     struct yaml_wrap * yw = NULL;
-    ht_get_entry(ht, key, &yw);
+    osux_hashtable_lookup(ht, key, &yw);
     if (yw == NULL) {
 	tr_error("Scalar '%s' not found.", key);
 	return NO_SCALAR;
@@ -92,29 +92,29 @@ char * cst_str(struct hash_table * ht, const char * key)
     return yw_extract_scalar(yw);
 }
 
-double cst_f(struct hash_table * ht, const char * key)
+double cst_f(osux_hashtable * ht, const char * key)
 {
     return atof(cst_str(ht, key));
 }
 
-int cst_i(struct hash_table * ht, const char * key)
+int cst_i(osux_hashtable * ht, const char * key)
 {
     return atoi(cst_str(ht, key));
 }
 
 //--------------------------------------------------
 
-struct stats * cst_stats(struct hash_table * ht, const char * key)
+struct stats * cst_stats(osux_hashtable * ht, const char * key)
 {
     struct stats * stats = calloc(sizeof(*stats), 1);
     struct yaml_wrap * yw = NULL;
-    ht_get_entry(ht, key, &yw);
+    osux_hashtable_lookup(ht, key, &yw);
     if (yw == NULL) {
 	tr_error("Stats '%s' not found.", key);
     } else if (yw->type != YAML_MAPPING) {
 	tr_error("Stats '%s' is not a mapping.", key);
     } else {
-	struct hash_table * ht_stats = yw->content.mapping;
+	osux_hashtable * ht_stats = yw->content.mapping;
 	stats->scaling = cst_f(ht_stats, "scaling");
 	stats->median  = cst_f(ht_stats, "median");
 	stats->mean    = cst_f(ht_stats, "mean");

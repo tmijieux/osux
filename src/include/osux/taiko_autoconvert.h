@@ -1,3 +1,6 @@
+#ifndef OSUX_TAIKO_AUTOCONVERT_H
+#define OSUX_TAIKO_AUTOCONVERT_H
+
 /*
  *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
  *
@@ -13,8 +16,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-#ifndef TAIKO_AUTOCONVERT_H
-#define TAIKO_AUTOCONVERT_H
 
 /*
   Return 0 on success
@@ -22,4 +23,4 @@
 */
 int osux_beatmap_taiko_autoconvert(osux_beatmap *bm);
 
-#endif //TAIKO_AUTOCONVERT_H
+#endif // OSUX_TAIKO_AUTOCONVERT_H

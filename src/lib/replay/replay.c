@@ -22,7 +22,7 @@
 #include <time.h>
 #include <locale.h>
 
-#include "osux/beatmap.h" // game modes
+#include "osux/game_mode.h"
 #include "osux/uleb128.h"
 #include "osux/list.h"
 #include "osux/split.h"

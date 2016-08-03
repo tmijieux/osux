@@ -22,7 +22,7 @@
 typedef void (*ht_fun)(const char*,void*,void*);
 
 struct counter {
-    struct hash_table * ht;
+    osux_hashtable * ht;
     double total;
 };
 
@@ -103,7 +103,7 @@ static void cnte_add_nb_compressed(const char *key,
 struct counter * cnt_new(void)
 {
     struct counter * c = malloc(sizeof(*c));
-    c->ht = ht_create(0, NULL);
+    c->ht = osux_hashtable_new(0);
     c->total = 0;
     return c;
 }
@@ -112,8 +112,8 @@ void cnt_free(struct counter * c)
 {
     if (c == NULL)
 	return;
-    ht_for_each(c->ht, (ht_fun) cnte_free, NULL);
-    ht_free(c->ht);
+    osux_hashtable_for_each(c->ht, (ht_fun) cnte_free, NULL);
+    osux_hashtable_delete(c->ht);
     free(c);
 }
 
@@ -123,12 +123,12 @@ void cnt_add(struct counter * c, const void * data,
 	     const char * key, double val)
 {
     struct counter_entry * e = NULL;
-    ht_get_entry(c->ht, key, &e);
+    osux_hashtable_lookup(c->ht, key, &e);
     if (e != NULL) {
 	e->nb += val;
     } else {
 	e = cnte_new(data, val);
-	ht_add_entry(c->ht, key, e);
+	osux_hashtable_insert(c->ht, key, e);
     }
     c->total += val;
 }
@@ -139,18 +139,18 @@ double cnt_get_nb_compressed(const struct counter * c,
 			     const char * key, herit_fun herit)
 {
     struct counter_entry * e = NULL;
-    ht_get_entry(c->ht, key, &e);
+    osux_hashtable_lookup(c->ht, key, &e);
     if (e == NULL)
 	return 0;
     struct heriter total = {NULL, e, herit, 0};
-    ht_for_each(c->ht, (ht_fun) cnte_herit, &total);
+    osux_hashtable_for_each(c->ht, (ht_fun) cnte_herit, &total);
     return total.nb;
 }
 
 double cnt_get_nb(const struct counter * c, const char * key)
 {
     struct counter_entry * e = NULL;
-    ht_get_entry(c->ht, key, &e);
+    osux_hashtable_lookup(c->ht, key, &e);
     if (e == NULL)
 	return 0;
     return e->nb;
@@ -165,7 +165,7 @@ double cnt_get_total_compressed(const struct counter * c,
 				herit_fun herit)
 {
     struct heriter h = {c, NULL, herit, 0};
-    ht_for_each(c->ht, (ht_fun) cnte_add_nb_compressed, &h);
+    osux_hashtable_for_each(c->ht, (ht_fun) cnte_add_nb_compressed, &h);
     return h.nb;
 }
 
@@ -175,7 +175,7 @@ void cnt_print(const struct counter * c)
 {
     printf("Counter: (%g)\n", c->total);
     printf("Entry:\tkey\tval\tfreq\n");
-    ht_for_each(c->ht, (ht_fun) cnte_print, NULL);
+    osux_hashtable_for_each(c->ht, (ht_fun) cnte_print, NULL);
 }
 
 void cnt_print_compressed(const struct counter * c, herit_fun herit)
@@ -183,5 +183,5 @@ void cnt_print_compressed(const struct counter * c, herit_fun herit)
     printf("Counter: (%g)\n", c->total);
     printf("Entry:\tkey\tval\tcompr\tfreq\tfreq cp\n");
     struct heriter h = {c, NULL, herit, INFINITY};
-    ht_for_each(c->ht, (ht_fun) cnte_print, &h);
+    osux_hashtable_for_each(c->ht, (ht_fun) cnte_print, &h);
 }

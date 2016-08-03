@@ -19,17 +19,18 @@
 
 #include <stdlib.h>
 
-struct hash_table;
+typedef struct osux_hashtable osux_hashtable;
 
-struct hash_table* ht_create(size_t size, int (*hash)(const char*));
-
-int ht_add_entry(struct hash_table* ht, const char *key, void *data);
-int ht_remove_entry(struct hash_table *ht, const char *key);
-int ht_has_entry(struct hash_table *ht, const char *key);
-int ht_get_entry(struct hash_table *ht, const char *key, void *ret);
-int ht_hash(struct hash_table *ht, const char *key);
-void ht_free(struct hash_table* ht);
-void ht_for_each(struct hash_table* ht,
-		 void (*fun)(const char *, void*, void*), void *args);
+struct osux_hashtable* osux_hashtable_new(size_t size);
+int osux_hashtable_insert(osux_hashtable* ht, const char *key, void *data);
+int osux_hashtable_remove(osux_hashtable *ht, const char *key);
+int osux_hashtable_contains(osux_hashtable *ht, const char *key);
+int osux_hashtable_lookup(osux_hashtable *ht,
+                          const char *lookup_key,
+                          void *ret_value);
+int osux_hashtable_hashstr(osux_hashtable *ht, const char *key);
+void osux_hashtable_for_each(
+    osux_hashtable* ht, void (*fun)(const char *, void*, void*), void *args);
+void osux_hashtable_delete(osux_hashtable *ht);
 
 #endif //HASH_TABLE_H

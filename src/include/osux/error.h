@@ -7,6 +7,16 @@
 #include <string.h>
 #include <errno.h>
 
+
+enum osux_error {
+    OSUX_UNSPECIFIED_ERROR = -1,
+    OSUX_ERR_FILE_PERM = -2,
+    OSUX_ERR_BAD_OSU_VERSION = -3,
+    OSUX_ERR_MALFORMED_OSU_FILE = -4,
+    OSUX_ERR_INVALID_HITOBJECT = -5,
+    
+};
+
 #ifndef __GNUC__
 #	define __PRETTY_FUNCTION__    __FUNCDNAME__
 #endif

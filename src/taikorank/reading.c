@@ -59,7 +59,7 @@ struct edge_2_rect {
 //--------------------------------------------------
 
 static struct yaml_wrap * yw_rdg;
-static struct hash_table * ht_cst_rdg;
+static osux_hashtable * ht_cst_rdg;
 
 static double tro_seen(const struct tr_object *o);
 static struct table *
@@ -88,7 +88,7 @@ static struct linear_fun * READING_SCALE_LF;
 
 //-----------------------------------------------------
 
-static void reading_global_init(struct hash_table * ht_cst)
+static void reading_global_init(osux_hashtable * ht_cst)
 {
     INTEREST_VECT = cst_vect(ht_cst, "vect_interest");
     INTEREST_LF = cst_lf(ht_cst, "vect_interest");

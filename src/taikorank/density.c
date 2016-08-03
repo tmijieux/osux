@@ -28,7 +28,7 @@
 #include "density.h"
 
 static struct yaml_wrap * yw_dst;
-static struct hash_table * ht_cst_dst;
+static osux_hashtable * ht_cst_dst;
 
 static inline int tro_true(const struct tr_object UNUSED(*o1), 
 			   const struct tr_object UNUSED(*o2));
@@ -67,7 +67,7 @@ static struct linear_fun * DENSITY_SCALE_LF;
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static void density_global_init(struct hash_table * ht_cst)
+static void density_global_init(osux_hashtable * ht_cst)
 {
     DENSITY_LF       = cst_lf(ht_cst, "vect_density");
     DENSITY_SCALE_LF = cst_lf(ht_cst, "vect_scale");

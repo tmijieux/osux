@@ -1,12 +1,12 @@
 
 
-add_subdirectory(parser)
-
 set(BM_SOURCE
   beatmap.c
+  beatmap_old.c
+  util.c
   color.c
   hitobject.c
-  storyboard.c
+  event.c
   timingpoint.c
   taiko_autoconvert.c )
 

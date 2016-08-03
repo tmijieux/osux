@@ -12,7 +12,7 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
-n */
+ */
 
 #include <stdlib.h>
 #include <stdarg.h>
@@ -175,15 +175,15 @@ void *osux_list_to_array(const struct osux_list *l)
     return array;
 }
 
-struct hash_table *
+osux_hashtable *
 osux_list_to_hashtable(const struct osux_list *l,
                        const char *(*element_keyname) (void *))
 {
-    struct hash_table *ht = ht_create(2 * l->size, NULL);
+    osux_hashtable *ht = osux_hashtable_new(2 * l->size);
 
     for (unsigned i = 0; i < l->size; ++i) {
 	void *el = osux_list_get(l, i+1);
-	ht_add_entry(ht, element_keyname(el), el);
+	osux_hashtable_insert(ht, element_keyname(el), el);
     }
     return ht;
 }

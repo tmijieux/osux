@@ -5,12 +5,12 @@ set(UTIL_SOURCE
   list.c      
   split.c     
   stack.c     
-  yaml2.c     
+  yaml.c     
   uleb128.c   
   sum.c       
   data.c      
   md5.c       
-  string2.c  )
+  str.c  )
 
 add_library(osux_util OBJECT ${UTIL_SOURCE})
 

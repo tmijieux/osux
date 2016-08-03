@@ -1,3 +1,6 @@
+#ifndef OSUX_HITSOUND_H
+#define OSUX_HITSOUND_H
+
 /*
  *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
  *
@@ -14,21 +17,18 @@
  *  limitations under the License.
  */
 
-#ifndef HITSOUND_H
-#define HITSOUND_H
+enum hitsound_sample {
+    SAMPLE_NORMAL  = 0x01,
+    SAMPLE_WHISTLE = 0x02,
+    SAMPLE_FINISH  = 0x04,
+    SAMPLE_CLAP    = 0x08,
+};
 
-// HitSound
-#define HS_NORMAL  1
-#define HS_WHISTLE 2
-#define HS_FINISH  4
-#define HS_CLAP    8
+enum hitsound_sample_type {
+    SAMPLE_TYPE_DEFAULT   = 0,  // defaults to timing section sample type.
+    SAMPLE_TYPE_NORMAL    = 1,
+    SAMPLE_TYPE_SOFT      = 2,
+    SAMPLE_TYPE_DRUM      = 3,
+};
 
-// HitSound Sample Type
-#define HS_DEFAULT   0  // defaults to timing section sample type.
-#define HS_NORMAL    1
-#define HS_SOFT      2
-#define HS_DRUM      3
-
-
-
-#endif //HITSOUND_H
+#endif // OSUX_HITSOUND_H

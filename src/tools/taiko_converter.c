@@ -19,51 +19,50 @@
 
 #include "osux.h"
 
-static void check_arg(int argc)
+static void check_arg(int argc, char **argv)
 {
     if (argc < 2) {
-	fprintf(stderr, "Usage:\ntaiko_converter path/to/input.osu\n");
+	fprintf(stderr, "Usage:\nt%s /path/to/input.osu\n", argv[0]);
 	exit(EXIT_FAILURE);
     }
 }
 
-static osux_beatmap * load_beatmap(const char * path)
+static bool load_beatmap(osux_beatmap *bm, char const *path)
 {
-    osux_beatmap * bm = NULL;
-    int res = osux_beatmap_open(path, &bm);
-    if (res < 0) {
+    if (osux_beatmap_init(bm, path) < 0) {
 	fprintf(stderr, "Failed to load beatmap '%s'\n", path);
-	return NULL;
+        return false;
     }
-    return bm;
+    return true;
 }
 
 
 int main(int argc, char * argv[])
 {
-    check_arg(argc);
+    check_arg(argc, argv);
+
     for (int i = 1; i < argc; i++) {
-	osux_beatmap * bm = load_beatmap(argv[i]);
-	if (bm == NULL)
+        osux_beatmap bm;
+        
+	if (!load_beatmap(&bm, argv[i]))
 	    continue;
 	
-	int res_convert = osux_beatmap_taiko_autoconvert(bm);
-	if (res_convert < 0) {
+	if (osux_beatmap_taiko_autoconvert(&bm) < 0) {
 	    fprintf(stderr, "Failed to convert beatmap '%s'\n", argv[i]);
 	    goto end;
 	}
-
-	bm->Version = xasprintf("%s%s", bm->Version, " convert");
+        char *new_diff_name = xasprintf("%s convert", bm.Version);
+	free(bm.Version);
+        bm.Version = new_diff_name;
 	
-	int res_save = osux_beatmap_save(NULL, bm);
-	if (res_save < 0) {
+	if (osux_beatmap_save(&bm, NULL, true) < 0) {
 	    fprintf(stderr, "Failed to save beatmap '%s'\n", argv[i]);
 	    goto end;
 	}
 	    
 	fprintf(stderr, "Successful output for beatmap '%s'\n", argv[i]);
     end:
-	osux_beatmap_close(bm);
+	osux_beatmap_free(&bm);
     }
     return EXIT_SUCCESS;
 }

@@ -55,7 +55,7 @@ struct osux_db * ODB;
 struct tr_config * CONF;
 
 static struct yaml_wrap * yw;
-static struct hash_table * ht_conf;
+static osux_hashtable * ht_conf;
 
 //-----------------------------------------------------
 

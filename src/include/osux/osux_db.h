@@ -28,8 +28,7 @@ int osux_db_dump(FILE *outfile, const osux_db *odb);
 int osux_db_free(osux_db *odb);
 int osux_db_hash(osux_db *odb);
 
-const char *osux_db_relative_path_by_hash(osux_db *odb, const char *hash);
-osux_beatmap *osux_db_get_beatmap_by_hash(osux_db *odb, const char *hash);
+char *osux_db_get_beatmap_path_by_hash(osux_db *odb, const char *hash);
 
 #endif //OSUXDB_H
 

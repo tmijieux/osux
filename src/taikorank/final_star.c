@@ -45,7 +45,7 @@ static void trm_set_global_stars(struct tr_map * map);
 #define FINAL_FILE "final_cst.yaml"
 
 static struct yaml_wrap * yw_fin;
-static struct hash_table * ht_cst_fin;
+static osux_hashtable * ht_cst_fin;
 
 static double DST_POW;
 static double RDG_POW;
@@ -58,7 +58,7 @@ static struct linear_fun * WEIGHT_LF;
 
 //-----------------------------------------------------
 
-static void final_global_init(struct hash_table * ht_cst)
+static void final_global_init(osux_hashtable * ht_cst)
 {
     FINAL_INFLU_LF = cst_lf(ht_cst, "vect_influence");
     WEIGHT_LF = cst_lf(ht_cst, "vect_weight");

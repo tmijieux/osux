@@ -32,21 +32,21 @@
 
 #define BASIC_SV 1.4
 
-#define TYPE(type)    (type & (~HO_NEWCOMBO) & 0x0F)
+#define TYPE(type)    (type & (~HITOBJECT_NEWCOMBO) & 0x0F)
 // this get rid of the 'new_combo' flag to get the hit object's type
 // more easily
 
-static int convert_get_type(struct hit_object * ho);
-static double convert_get_bpm_app(struct timing_point * tp,
+static int convert_get_type(osux_hitobject * ho);
+static double convert_get_bpm_app(osux_timingpoint * tp,
 				  double sv);
-static int convert_get_end_offset(struct hit_object * ho, int type,
+static int convert_get_end_offset(osux_hitobject * ho, int type,
 				  double bpm_app);
 static struct tr_map * trm_convert(char* file_name);
 static void trm_add_to_ps(struct tr_map * map,
 			  enum played_state ps, int i);
 
 static void trm_acc(struct tr_map * map);
-static struct tr_map * trm_convert_map(struct osux_beatmap * map);
+static struct tr_map * trm_convert_map(osux_beatmap * map);
 static struct tr_map * trm_convert(char * filename);
 
 //--------------------------------------------------
@@ -150,61 +150,51 @@ void trm_free(struct tr_map * map)
 
 //--------------------------------------------------
 
-struct tr_map * trm_new(char * filename)
+struct tr_map *trm_new(char *filename)
 {
-    struct tr_map *res;
-    osux_beatmap *map;
+    struct tr_map *res = NULL;
+    char *path = NULL;
 
     switch ( tr_check_file(filename) ) {
     case TR_FILENAME_OSU_FILE:
 	res = trm_convert(filename);
-	if (res == NULL)
-	    return NULL;
-
-	FILE *f = fopen(filename, "r");
-	osux_md5_hash_file(f, &res->hash);
-	fclose(f);
-	return res;
-
+        break;
     case TR_FILENAME_HASH:
-	if (ODB == NULL)
-	    break;
-	map = osux_db_get_beatmap_by_hash(ODB, filename);
-	if (map == NULL)
-	    break;
-	res = trm_convert_map(map);
-	res->hash = strdup(filename);
-	return res;
-
+	if (ODB = NULL) break;
+        path = osux_db_get_beatmap_path_by_hash(ODB, filename);
+        if (path == NULL) break;
+        res = trm_convert(path);
+        break;
     default:
     case TR_FILENAME_ERROR:
         tr_error("Could not load: '%s'", filename);
         break;
     }
 
-    return NULL;
+    free(path);
+    return res;
 }
 
 //---------------------------------------------------------------
 //---------------------------------------------------------------
 //---------------------------------------------------------------
 
-static int convert_get_type(struct hit_object * ho)
+static int convert_get_type(osux_hitobject * ho)
 {
-    int type = ho->type;
-    int sample = ho->hs.sample;
     int bits = 0;
-    if(TYPE(type) == HO_SLIDER)
+    int sample = ho->hitsound.sample;
+    
+    if(HIT_OBJECT_IS_SLIDER(ho))
 	bits |= TRO_R;
-    else if(TYPE(type) == HO_SPINNER)
+    else if(HIT_OBJECT_IS_SPINNER(ho))
 	bits |= TRO_S;
-    else if(TYPE(type) == HO_CIRCLE) {
-	if((sample & (HS_WHISTLE | HS_CLAP)) != 0)
+    else if(HIT_OBJECT_IS_CIRCLE(ho)) {
+	if((sample & (SAMPLE_WHISTLE | SAMPLE_CLAP)) != 0)
 	    bits |= TRO_K;
 	else
 	    bits |= TRO_D;
     }
-    if((sample & HS_FINISH) != 0)
+    if((sample & SAMPLE_FINISH) != 0)
 	return bits | TRO_BIG;
     else
 	return bits;
@@ -212,29 +202,29 @@ static int convert_get_type(struct hit_object * ho)
 
 //---------------------------------------------------------------
 
-static double convert_get_bpm_app(struct timing_point *tp, double sv)
+static double convert_get_bpm_app(osux_timingpoint *tp, double sv)
 {
     double sv_multiplication;
 
-    if (tp->uninherited)
-	sv_multiplication = 1;
+    if (!tp->inherited)
+	sv_multiplication = 1.;
     else
-	sv_multiplication = -100. / tp->svm;
+	sv_multiplication = -100. / tp->slider_velocity_multiplier;
 
-    return (mpb_to_bpm(tp->last_uninherited->mpb) *
+    return (mpb_to_bpm(tp->millisecond_per_beat) *
             sv_multiplication * (sv / BASIC_SV));
 }
 
 //---------------------------------------------------------------
 
 static int convert_get_end_offset(
-    struct hit_object * ho, int type, double bpm_app)
+    osux_hitobject * ho, int type, double bpm_app)
 {
     if (type & TRO_S) {
-	return ho->spi.end_offset;
+	return ho->spinner.end_offset;
     }
     if (type & TRO_R) {
-	return ho->offset + ((ho->sli.length * ho->sli.repeat) *
+	return ho->offset + ((ho->slider.length * ho->slider.repeat) *
 			     (MSEC_IN_MINUTE / (100. * BASIC_SV)) /
 			     bpm_app);
     }
@@ -246,75 +236,76 @@ static int convert_get_end_offset(
 //---------------------------------------------------------------
 //---------------------------------------------------------------
 
-static struct tr_map * trm_convert(char *filename)
+static struct tr_map *trm_convert(char *filename)
 {
-    struct osux_beatmap *map = NULL;
-    if (osux_beatmap_open(filename, &map) < 0) {
+    osux_beatmap map;
+    if (osux_beatmap_init(&map, filename) < 0) {
         osux_error("Cannot open beatmap %s\n", filename);
         exit(EXIT_FAILURE);
     }
-    return trm_convert_map(map);
+    struct tr_map *res = trm_convert_map(&map);
+    osux_beatmap_free(&map);
+    return res;
 }
 
 //---------------------------------------------------------------
 
-static struct osux_beatmap * trm_convert_map_prepare(struct osux_beatmap *map)
+static int trm_convert_map_prepare(osux_beatmap *map)
 {
-    switch(map->Mode) {
-    case MODE_STD:
+    switch (map->game_mode) {
+    case GAME_MODE_STD:
 	if (OPT_AUTOCONVERT) {
-	    int res = osux_beatmap_taiko_autoconvert(map);
-	    if (res == 0)
-		return map;
-	    tr_error("Error in autoconvertion.");
+	    if (osux_beatmap_taiko_autoconvert(map) == 0)
+                return 0;
+	    tr_error("autoconversion error.");
 	} else
-	    tr_error("Autoconverts are said to be bad...");
-	break;
+	    tr_error("autoconverting map from std game mode is disabled...");
+        return -1;
+        
+    case GAME_MODE_TAIKO:
+	return 0;
 
-    case MODE_TAIKO:
-	return map;
-
-    case MODE_CTB:
+    case GAME_MODE_CTB:
 	tr_error("Catch the beat?!");
-	break;
-    case MODE_MANIA:
-	tr_error("Taiko is not 2k.");
-	break;
+        return -1;
+    case GAME_MODE_MANIA:
+        tr_error("Taiko is not 2k."); // lol
+        return -1;
+    default:
+        break;
     }
-    osux_beatmap_close(map);
-    return NULL;
+    return -1;
 }
 
 //---------------------------------------------------------------
 
-static struct tr_map * trm_convert_map(struct osux_beatmap *map)
+static struct tr_map * trm_convert_map(osux_beatmap *map)
 {
-    map = trm_convert_map_prepare(map);
-    if (map == NULL)
-	return NULL;
+    if (trm_convert_map_prepare(map) < 0)
+        return NULL;
 
     struct tr_map * tr_map = calloc(sizeof(struct tr_map), 1);
-    tr_map->nb_object = map->hoc;
-    tr_map->object = calloc(sizeof(struct tr_object), map->hoc);
+    tr_map->nb_object = map->hitobject_count;
+    tr_map->object = calloc(sizeof(struct tr_object), map->hitobject_count);
 
     // set objects
     unsigned int current_tp = 0;
     tr_map->max_combo = 0;
-    for(unsigned int i = 0; i < map->hoc; i++) {
-	while(current_tp < (map->tpc - 1) &&
-	      map->TimingPoints[current_tp + 1].offset
-	      <= map->HitObjects[i].offset)
+    for(unsigned int i = 0; i < map->hitobject_count; i++) {
+	while(current_tp < (map->timingpoint_count - 1) &&
+	      map->timingpoints[current_tp + 1].offset
+	      <= map->hitobjects[i].offset)
 	    current_tp++;
 
 	tr_map->object[i].offset     =
-	    (int) map->HitObjects[i].offset;
+	    (int) map->hitobjects[i].offset;
 	tr_map->object[i].bf         =
-	    convert_get_type(&map->HitObjects[i]);
+	    convert_get_type(&map->hitobjects[i]);
 	tr_map->object[i].bpm_app    =
-	    convert_get_bpm_app(&map->TimingPoints[current_tp],
+	    convert_get_bpm_app(&map->timingpoints[current_tp],
 				map->SliderMultiplier);
 	tr_map->object[i].end_offset =
-	    convert_get_end_offset(&map->HitObjects[i],
+	    convert_get_end_offset(&map->hitobjects[i],
 				   tr_map->object[i].bf,
 				   tr_map->object[i].bpm_app);
 
@@ -328,6 +319,7 @@ static struct tr_map * trm_convert_map(struct osux_beatmap *map)
     }
 
     // get other data
+    tr_map->hash = map->md5_hash;
     tr_map->od = map->OverallDifficulty;
     tr_map->title      = strdup(map->Title);
     tr_map->artist     = strdup(map->Artist);
@@ -353,7 +345,6 @@ static struct tr_map * trm_convert_map(struct osux_beatmap *map)
     else
 	tr_map->acc = 0;
 
-    osux_beatmap_close(map);
     return tr_map;
 }
 

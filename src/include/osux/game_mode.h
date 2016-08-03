@@ -1,12 +1,12 @@
-#ifndef GAME_MODE_H
-#define GAME_MODE_H
+#ifndef OSUX_GAME_MODE_H
+#define OSUX_GAME_MODE_H
 
-
-enum game_mode {
-    MODE_STD   =  0,
-    MODE_TAIKO =  1,
-    MODE_CTB   =  2,
-    MODE_MANIA =  3
+enum osux_game_mode {
+    
+    GAME_MODE_STD   =  0,
+    GAME_MODE_TAIKO =  1,
+    GAME_MODE_CTB   =  2,
+    GAME_MODE_MANIA =  3,
 };
 
-#endif //GAME_MODE_H
+#endif // OSUX_GAME_MODE_H

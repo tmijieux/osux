@@ -122,7 +122,7 @@ double lf_eval(struct linear_fun * lf, double x)
 
 //--------------------------------------------------
 
-struct linear_fun * cst_lf(struct hash_table * ht, const char * key)
+struct linear_fun * cst_lf(osux_hashtable * ht, const char * key)
 {
     struct vector * v = cst_vect(ht, key);
     struct linear_fun * lf = lf_new(v);

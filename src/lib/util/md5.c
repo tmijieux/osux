@@ -1,62 +1,47 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <openssl/md5.h>
-#include <assert.h>
-
-#include "osux/error.h"
+#include <glib.h>
 #include "osux/md5.h"
+#include "osux/error.h"
 
-#ifndef min
-#define min(x, y)  ((x) < (y) ? (x) : (y))
-#endif
 
-int osux_md5_hash_file(FILE *f, char **md5_hash_str)
+int osux_md5_init(osux_md5 *md5)
 {
-    if (f == NULL || md5_hash_str == NULL) {
-        osux_error("invalid argument");
-        return -1;
-    }
+    MD5_Init(&md5->ctx);
+    memset(md5->digest, 0, sizeof md5->digest);
+}
 
-    MD5_CTX mdContext;
-    int bytes = 0;
-    unsigned char data[1024];
-    unsigned char hash[MD5_DIGEST_LENGTH];
-
-    assert( NULL != f );
-    rewind(f);
-    MD5_Init(&mdContext);
-    while ((bytes = fread(data, 1, 1024, f)) != 0)
-        MD5_Update(&mdContext, data, bytes);
-    MD5_Final(hash, &mdContext);
+int osux_md5_update_file(osux_md5 *md5, char const *file_path)
+{
+    gchar *data;
+    gsize length;
     
-    *md5_hash_str = calloc(MD5_DIGEST_LENGTH*2+1, sizeof*md5_hash_str);
-    for (int i = 0; i < MD5_DIGEST_LENGTH; ++i)
-        sprintf(&(*md5_hash_str)[i*2], "%02x", (unsigned int)hash[i]);
-    (*md5_hash_str)[MD5_DIGEST_LENGTH * 2] = '\0';
-    rewind(f);
+    if (!g_file_get_contents(file_path, &data, &length, NULL))
+        return OSUX_UNSPECIFIED_ERROR;
+    osux_md5_update(md5, data, length);
     return 0;
 }
 
-int osux_md5_hash_buf(
-    size_t size, const unsigned char *buf, unsigned char *md5_hash)
+void osux_md5_update_string(osux_md5 *md5, char const *str)
 {
-    if (buf == NULL || md5_hash == NULL) {
-        osux_error("invalid argument");
-        return -1;
-    } else if (0 == size) {
-        return 0;
-    }
-    
-    MD5_CTX mdContext;
-    int bytes = 0;
-    const unsigned char *data = buf;
-    
-    MD5_Init(&mdContext);
-    while ( data < buf+size ) {
-        bytes = min(1024, (buf+size)-data);
-        MD5_Update(&mdContext, data, bytes);
-        data += bytes;
-    }
-    MD5_Final(md5_hash, &mdContext);
-    return 0;
+    MD5_Update(&md5->ctx, (uint8_t*) str, strlen(str));
 }
+
+void osux_md5_update(osux_md5 *md5, void *data, size_t size)
+{
+    MD5_Update(&md5->ctx, data, size);
+}
+
+void osux_md5_finalize(osux_md5 *md5)
+{
+    MD5_Final(md5->digest, &md5->ctx);
+}
+
+uint8_t const *osux_md5_get_digest(osux_md5 const *md5)
+{
+    return md5->digest;
+}
+
+size_t osux_md5_digest_length(osux_md5 const *md5)
+{
+    return sizeof md5->digest;
+}
+

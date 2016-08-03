@@ -17,7 +17,7 @@
 #include <stdio.h>
 #include "osux/color.h"
 
-void col_print(FILE *f, struct color *c, int id)
+void osux_color_print(FILE *f, osux_color *c, int id)
 {
     fprintf(f, "Combo%d : %hhu,%hhu,%hhu\r\n", id,  c->r, c->g, c->b);
 }
