@@ -56,6 +56,7 @@ int osux_database_exec_prepared_query(osux_database *db, osux_list *query_result
             }
         }
         osux_list_append(query_result, dict);
+        ret = sqlite3_step(db->prepared_query);
     }
     sqlite3_reset(db->prepared_query);
     sqlite3_clear_bindings(db->prepared_query);

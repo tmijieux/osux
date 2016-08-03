@@ -20,7 +20,6 @@ static bool beatmap_table_is_present(osux_beatmap_db *db)
         return false;
 
     bool present = osux_list_size(result) == 1;
-    printf("osux_list_size(result) = %d\n", osux_list_size(result));
     osux_list_free(result);
     return present;
 }
@@ -117,7 +116,7 @@ static int load_beatmap_from_disk(
         return -1;
     }
     if (beatmap_insert(db, &beatmap) < 0)
-        fprintf(stderr, "inserting beatmap '%s' failed\n", filepath);
+        fprintf(stderr, "inserting beatmap '%s' failed\n", beatmap.difficulty_name);
     osux_beatmap_free(&beatmap);
     return 0;
 }

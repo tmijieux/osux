@@ -7,6 +7,7 @@ add_subdirectory(mod)
 add_subdirectory(replay)
 
 add_library(osux STATIC
+  ${osux_src}
   $<TARGET_OBJECTS:osux_util>
   $<TARGET_OBJECTS:osux_bm>
   $<TARGET_OBJECTS:osux_db>

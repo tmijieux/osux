@@ -1,0 +1,11 @@
+version "0.1"
+package "dbctl"
+purpose "perform basic operation on the osux database"
+
+option "database" d "set the database" string optional default="osux.sqlite"
+option "list" l "list existing databases" optional
+option "config" c "set the configuration file used by the application" string optional default="db.cfg"
+option "song" s "set the song directory for the beatmap database" string optional default="."
+option "populate" p "populate the database with beatmap from the song directory"  optional
+option "show" t "show the content of the database" optional
+option "hash" f "retrieve the path of the beatmap identified by the string argument" string optional
