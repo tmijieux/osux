@@ -176,8 +176,6 @@ static int parse_option_entry(
         beatmap->bpm_avg /= (beatmap)->hitobject_count+1;       \
     } while(0)
 
-
-
 #define ALLOC_ARRAY(array_var, size_var, size_literal)                  \
     do {                                                                \
         array_var = g_malloc0((size_literal) * sizeof(*(array_var)));   \
@@ -298,6 +296,7 @@ int osux_beatmap_init(osux_beatmap *beatmap, char const *file_path)
         osux_beatmap_free(beatmap);
         return err;
     }
+    fclose(file);
 
     if ((err = fetch_variables(beatmap)) < 0) {
         osux_beatmap_free(beatmap);

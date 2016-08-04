@@ -18,6 +18,7 @@ int osux_md5_update_file(osux_md5 *md5, char const *file_path)
     if (!g_file_get_contents(file_path, &data, &length, NULL))
         return OSUX_UNSPECIFIED_ERROR;
     osux_md5_update(md5, data, length);
+    g_free(data);
     return 0;
 }
 

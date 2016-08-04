@@ -65,7 +65,8 @@ char *osux_get_file_hashstr(char const *file_path)
     osux_md5_update_file(&md5, file_path);
     osux_md5_finalize(&md5);
     
-    hash = bytearray2hexstr(osux_md5_get_digest(&md5), osux_md5_digest_length(&md5));
+    hash = bytearray2hexstr(osux_md5_get_digest(&md5),
+                            osux_md5_digest_length(&md5));
     osux_md5_free(&md5);
     return hash;
 }

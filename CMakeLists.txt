@@ -5,6 +5,8 @@ project(osux C)
 set(CMAKE_MODULE_PATH ${osux_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/install)
 
+find_package(Sanitizers)
+
 add_definitions(-DDEBUG=1)
 add_subdirectory(src)
 
