@@ -22,6 +22,8 @@
 typedef struct osux_hashtable osux_hashtable;
 
 struct osux_hashtable* osux_hashtable_new(size_t size);
+struct osux_hashtable* osux_hashtable_new_full(size_t size, void(*free)(void*));
+
 int osux_hashtable_insert(osux_hashtable* ht, const char *key, void *data);
 int osux_hashtable_remove(osux_hashtable *ht, const char *key);
 int osux_hashtable_contains(osux_hashtable *ht, const char *key);

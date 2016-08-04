@@ -11,7 +11,6 @@
 #include "osux/event.h"
 #include "osux/util.h"
 
-
 int osux_beatmap_free(osux_beatmap *beatmap)
 {
     if (beatmap == NULL)
@@ -33,17 +32,22 @@ int osux_beatmap_free(osux_beatmap *beatmap)
     g_free(beatmap->Source);
 
     g_strfreev(beatmap->tags);
+    g_free(beatmap->colors);
 
     for (unsigned i = 0; i < beatmap->timingpoint_count; ++i)
 	osux_timingpoint_free(&beatmap->timingpoints[i]);
-
-    g_free(beatmap->timingpoints);
-    g_free(beatmap->colors);
-
     for (unsigned i = 0; i < beatmap->hitobject_count; ++i)
 	osux_hitobject_free(&beatmap->hitobjects[i]);
+    for (unsigned i = 0; i < beatmap->event_count; ++i)
+	osux_event_free(&beatmap->events[i]);
 
+    g_free(beatmap->events);
     g_free(beatmap->hitobjects);
+    g_free(beatmap->timingpoints);
+
+    if (beatmap->sections != NULL)
+        osux_hashtable_delete(beatmap->sections);
+
     return 0;
 }
 
@@ -69,6 +73,7 @@ static int parse_osu_version(osux_beatmap *beatmap, FILE *file)
     GMatchInfo *info = NULL;
     if (!g_regex_match(regexp, line, 0, &info)) {
         g_free(line);
+        g_match_info_free(info);
         return OSUX_ERR_BAD_OSU_VERSION;
     }
 
@@ -119,8 +124,10 @@ static bool get_new_section(char const *line, char **section_name)
         regexp = g_regex_new("^\\[(.*)\\]$", 0, 0, NULL);
 
     GMatchInfo *info = NULL;
-    if (!g_regex_match(regexp, line, 0, &info))
+    if (!g_regex_match(regexp, line, 0, &info)) {
+        g_match_info_free(info);
         return false;
+    }
 
     if (g_match_info_matches(info)) {
         g_free(*section_name);
@@ -139,9 +146,8 @@ static int parse_option_entry(
     if (sep == NULL)
         return OSUX_ERR_MALFORMED_OSU_FILE;
     char **split = g_strsplit(line, ":", 2);
-    osux_hashtable_insert(section, split[0], split[1]);
-    g_free(split); // this should do; dont use g_strfreev here because hash table
-    // may not copy the data
+    osux_hashtable_insert(section, split[0], g_strdup(split[1]));
+    g_strfreev(split);
     return 0;
 }
 
@@ -186,9 +192,10 @@ static int parse_objects(osux_beatmap *beatmap, FILE *file)
 {
     osux_timingpoint const *last_non_inherited = NULL;
     osux_hashtable *current_section = NULL;
-    char *section_name = g_strdup("");
+    char *section_name = NULL;
 
-    beatmap->sections = osux_hashtable_new(0);
+    beatmap->sections = osux_hashtable_new_full(
+        0, (void(*)(void*)) &osux_hashtable_delete);
 
     ALLOC_ARRAY(beatmap->hitobjects, beatmap->hitobject_bufsize, 500);
     ALLOC_ARRAY(beatmap->timingpoints, beatmap->timingpoint_bufsize, 500);
@@ -203,7 +210,7 @@ static int parse_objects(osux_beatmap *beatmap, FILE *file)
             continue;
 
         if (get_new_section(line, &section_name)) {
-            current_section = osux_hashtable_new(0);
+            current_section = osux_hashtable_new_full(0, g_free);
             osux_hashtable_insert(
                 beatmap->sections, section_name, current_section);
             //printf("section='%s'\n", section_name);
@@ -250,6 +257,7 @@ static int parse_objects(osux_beatmap *beatmap, FILE *file)
 
         parse_option_entry(line, current_section);
     }
+    g_free(section_name);
     return 0;
 }
 

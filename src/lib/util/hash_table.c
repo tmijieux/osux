@@ -31,10 +31,12 @@ struct osux_hashtable_entry {
 };
 
 struct osux_hashtable {
-    int (*hash) (const char*);
     size_t size;
     struct osux_hashtable_entry **buf;
     int entry_count;
+
+    int (*hash) (const char*);
+    void (*free)(void*);
 };
 
 static const unsigned char T[256] = {
@@ -63,7 +65,7 @@ static int default_hash(const char *x)
  // Pearson's hash:
  // adapted from :
  // http://cs.mwsu.edu/~griffin/courses/2133/downloads/Spring11/p677-pearson.pdf
-    
+
     union {
         unsigned char hh[4];
         uint32_t i;
@@ -75,7 +77,7 @@ static int default_hash(const char *x)
 	}
         v.hh[j] = h;
     }
-    
+
     return (int) v.i;
 }
 
@@ -90,13 +92,14 @@ static struct osux_hashtable_entry* new_entry(const char *key, void *data)
 
 static void free_entry(struct osux_hashtable_entry *he)
 {
-    if (he) {
-	free(he->key);
-	free(he);
-    }
 }
 
 osux_hashtable* osux_hashtable_new(size_t size)
+{
+    return osux_hashtable_new_full(size, NULL);
+}
+
+osux_hashtable* osux_hashtable_new_full(size_t size, void (*free_v)(void*))
 {
     osux_hashtable *ht = (osux_hashtable*) malloc(sizeof(*ht));
     ht->hash = &default_hash;
@@ -104,6 +107,8 @@ osux_hashtable* osux_hashtable_new(size_t size)
 	    ht->size = size;
     else
 	    ht->size = INITIAL_HASH_TABLE_SIZE;
+    ht->free = free_v;
+
     ht->buf = calloc(sizeof(*ht->buf), ht->size);
     return ht;
 }
@@ -133,8 +138,9 @@ int osux_hashtable_remove(osux_hashtable *ht, const char *key)
 		prev->next = he->next;
 	    else
 		ht->buf[pos] = he->next;
-	    free_entry(he);
-	    return 0;
+
+            free(he->key);
+            free(he);
 	}
 	prev = he;
 	he = he->next;
@@ -171,7 +177,7 @@ int osux_hashtable_lookup(osux_hashtable *ht, const char *key, void *ret)
 	}
 	he = he->next;
     }
-	*(const void**) ret = NULL; 
+	*(const void**) ret = NULL;
     return -1;
 }
 
@@ -188,7 +194,11 @@ void osux_hashtable_delete(osux_hashtable* ht)
 	    while (he) {
 		struct osux_hashtable_entry *tmp = he;
 		he = he->next;
-		free_entry(tmp);
+                free(tmp->key);
+
+                if (ht->free)
+                    ht->free(tmp->data);
+                free(tmp);
 	    }
 	}
 	free(ht->buf);

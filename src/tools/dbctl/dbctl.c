@@ -7,7 +7,6 @@
 #include "cmdline.h"
 
 
-
 static void list_database(GKeyFile *key_file)
 {
     gsize len;
@@ -83,6 +82,8 @@ int main(int argc, char *argv[])
 
     g_key_file_set_string(key_file, database, "songDir", song_directory);
     g_key_file_save_to_file(key_file, info.config_arg, NULL);
+
+    cmdline_parser_free(&info);
 
     return EXIT_SUCCESS;
 }
