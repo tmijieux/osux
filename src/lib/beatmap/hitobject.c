@@ -43,7 +43,7 @@ static int parse_slider_points(osux_hitobject *ho, char *pointstr)
 
     for (unsigned i = 1; i < size; ++i) {
         osux_point *pt = &ho->slider.points[i-1];
-        if (scanf("%d:%d", &pt->x, &pt->y) != 2) {
+        if (sscanf(spl_points[i], "%d:%d", &pt->x, &pt->y) != 2) {
             err = OSUX_ERR_INVALID_HITOBJECT;
             break;
         }

@@ -1,12 +1,8 @@
 include $(top_srcdir)/common.mk
 
-bin_PROGRAMS = makedb readdb parse_replay taiko_converter
+SUBDIRS = dbctl
 
-makedb_SOURCES = makedb.c
-makedb_LDADD = ../lib/libosux.la
-
-readdb_SOURCES = readdb.c
-readdb_LDADD = ../lib/libosux.la
+bin_PROGRAMS = parse_replay taiko_converter
 
 parse_replay_SOURCES = parse_replay.c
 parse_replay_LDADD = ../lib/libosux.la
