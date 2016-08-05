@@ -68,16 +68,12 @@ static double ho_slider_length(
 // return the newly created taiko circle!
 
 static struct hit_object * ho_taiko_new(
-    int offset, const struct hit_object *old_slider, 
-    int edge_hs_index)
+    int offset,
+    const struct hit_object *old_slider,
+    int edge_hs_index
+)
 {
     struct hit_object *ho = calloc(sizeof(*ho), 1);
-
-    // flag the object
-    // taiko converter hitobjects are allocated while the beatmap
-    // hitobjects aren't.
-    // This will help us finding them in order to free them later.
-    ho->spi.end_offset = -1;
 
     ho->offset = offset;
     ho->type   = HO_CIRCLE;
@@ -108,12 +104,6 @@ static struct hit_object * ho_taiko_new(
     }
 
     return ho;
-}
-
-static void ho_taiko_free(struct hit_object * ho)
-{
-    if (ho->spi.end_offset == -1)
-	free(ho);
 }
 
 //---------------------------------------------------------------
@@ -288,7 +278,7 @@ int osux_beatmap_taiko_autoconvert(osux_beatmap *bm)
     hoc = osux_list_size(new_ho_list);
     array = osux_list_to_ho_array(new_ho_list);
 
-    osux_list_each(new_ho_list, (void (*)(void*))ho_taiko_free);
+    osux_list_each(new_ho_list, free);
     osux_list_free(new_ho_list);
 
     free(bm->HitObjects);
