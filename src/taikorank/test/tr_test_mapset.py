@@ -29,13 +29,13 @@ class TR_Test_Mapset(TR_Test_Stars):
         ht['mods']     = ['__']
         TR_Test_Stars.__init__(self, ht)
     ########################################################
-    def check(self):
-        self.expected = self.create_expected()
-        return TR_Test_Stars.check(self)
+    def check_one_mod(self, mod):
+        self.expected = self.create_expected(mod)
+        return TR_Test_Stars.check_one_mod(self, mod)
     ########################################################
-    def create_expected(self):
+    def create_expected(self, mod):
         expected = []
-        res = self.res.copy()
+        res = self.res[mod].copy()
         #
         for i in range(0, len(res)):
             name = res[i]['difficulty']
