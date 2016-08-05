@@ -52,7 +52,6 @@ static int parse_slider_points(osux_hitobject *ho, char *pointstr)
     return err;
 }
 
-
 static int parse_slider_sample_type(osux_hitobject *ho, char *ststr)
 {
     int err = 0;
@@ -60,7 +59,7 @@ static int parse_slider_sample_type(osux_hitobject *ho, char *ststr)
     unsigned size = strsplit_size(split);
     if (size != ho->slider.repeat+1) {
         g_strfreev(split);
-        return -OSUX_ERR_INVALID_HITOBJECT;
+        return -OSUX_ERR_INVALID_HITOBJECT_EDGE_SAMPLE_TYPE;
     }
 
     if (ho->slider.edgehitsounds == NULL) {

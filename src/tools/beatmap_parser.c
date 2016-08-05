@@ -29,9 +29,10 @@ int main(int argc, char *argv[])
     }
 
     osux_beatmap bm;
-    osux_beatmap_init(&bm, argv[1]);
-    osux_beatmap_print(&bm, stdout);
-    osux_beatmap_free(&bm);
+    if (osux_beatmap_init(&bm, argv[1]) == 0) {
+        osux_beatmap_print(&bm, stdout);
+        osux_beatmap_free(&bm);
+    }
 
     return EXIT_SUCCESS;
 }

@@ -236,12 +236,12 @@ static int get_tro_end_offset_from_osux_ho(
 //---------------------------------------------------------------
 //---------------------------------------------------------------
 
-static struct tr_map * trm_from_file(char *filename)
+static struct tr_map *trm_from_file(char *filename)
 {
     osux_beatmap map;
     if (osux_beatmap_init(&map, filename) < 0) {
         osux_error("Cannot open beatmap %s\n", filename);
-        exit(EXIT_FAILURE);
+        return NULL;
     }
     struct tr_map *res = trm_from_osux_map(&map);
     osux_beatmap_free(&map);
