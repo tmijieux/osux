@@ -43,7 +43,7 @@ osux_beatmap DEFAULT_BEATMAP = { 0 };
 #define PRINT_INT(map, file, Field)		\
     fprintf(f, #Field ": %d\r\n", m->Field)	\
 
-int osux_beatmap_print(const osux_beatmap *m, FILE *f)
+int osux_beatmap_print(osux_beatmap const *m, FILE *f)
 {
     if (m->byte_order_mark)
 	fprintf(f, "%c%c%c", 0xef, 0xbb, 0xbf);

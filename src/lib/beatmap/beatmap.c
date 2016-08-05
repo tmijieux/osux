@@ -61,7 +61,7 @@ static int parse_osu_version(osux_beatmap *beatmap, FILE *file)
     char *line = osux_getline(file);
 
     if (line == NULL)
-        return OSUX_ERR_BAD_OSU_VERSION;
+        return -OSUX_ERR_BAD_OSU_VERSION;
 
     if (memcmp(line, BOM, sizeof BOM) == 0) {
         beatmap->byte_order_mark = true;
@@ -75,7 +75,7 @@ static int parse_osu_version(osux_beatmap *beatmap, FILE *file)
     if (!g_regex_match(regexp, line, 0, &info)) {
         g_free(line);
         g_match_info_free(info);
-        return OSUX_ERR_BAD_OSU_VERSION;
+        return -OSUX_ERR_BAD_OSU_VERSION;
     }
 
     if (g_match_info_matches(info)) {
@@ -83,7 +83,10 @@ static int parse_osu_version(osux_beatmap *beatmap, FILE *file)
         beatmap->osu_version = atoi(version);
         g_free(version);
     } else
-        err = OSUX_ERR_BAD_OSU_VERSION;
+        err = -OSUX_ERR_BAD_OSU_VERSION;
+
+    if (beatmap->byte_order_mark)
+        line -= sizeof BOM;
 
     g_free(line);
     g_match_info_free(info);
@@ -145,22 +148,23 @@ static int parse_option_entry(
 {
     char *sep = strstr(line, ":");
     if (sep == NULL)
-        return OSUX_ERR_MALFORMED_OSU_FILE;
+        return -OSUX_ERR_MALFORMED_OSU_FILE;
     char **split = g_strsplit(line, ":", 2);
     osux_hashtable_insert(section, split[0], g_strdup(split[1]));
     g_strfreev(split);
     return 0;
 }
 
-#define CHECK_TIMING_POINT(x)
-#define CHECK_HIT_OBJECT(r, x)                                          \
-    if (r < 0) {                                                        \
-        osux_debug("failed to parse hitobject line %d\n", line_count);  \
+#define CHECK_OBJECT(r, s)                                              \
+    if ((r) < 0) {                                                      \
+        osux_error("failed to parse "s" line %d: %s\n",                 \
+                   line_count, osux_errmsg((r)));                       \
+        return r;                                                       \
     }
 
-
-#define CHECK_EVENT(x)
-
+#define CHECK_TIMING_POINT(r, x) CHECK_OBJECT(r, "timing point")
+#define CHECK_HIT_OBJECT(r, x) CHECK_OBJECT(r, "hit object")
+#define CHECK_EVENT(r, x) CHECK_OBJECT(r, "event")
 
 #define UPDATE_STAT_HO_COUNT(beatmap, hitobject)        \
     do {                                                \
@@ -227,10 +231,10 @@ static int parse_objects(osux_beatmap *beatmap, FILE *file)
             HANDLE_ARRAY_SIZE(beatmap->timingpoints,
                               beatmap->timingpoint_count,
                               beatmap->timingpoint_bufsize);
-            osux_timingpoint_init(
+            int r = osux_timingpoint_init(
                 &beatmap->timingpoints[beatmap->timingpoint_count],
                 &last_non_inherited, line, beatmap->osu_version);
-            CHECK_TIMING_POINT(&beatmap->timingpoints[beatmap->timingpoint_count]);
+            CHECK_TIMING_POINT(r, &beatmap->timingpoints[beatmap->timingpoint_count]);
             UPDATE_STAT_BPM(
                 beatmap, &beatmap->timingpoints[beatmap->timingpoint_count]);
             ++ beatmap->timingpoint_count;
@@ -241,9 +245,9 @@ static int parse_objects(osux_beatmap *beatmap, FILE *file)
             HANDLE_ARRAY_SIZE(beatmap->hitobjects,
                               beatmap->hitobject_count,
                               beatmap->hitobject_bufsize);
-            int r;
-            r = osux_hitobject_init(&beatmap->hitobjects[beatmap->hitobject_count],
-                                    line, beatmap->osu_version);
+            int r = osux_hitobject_init(
+                &beatmap->hitobjects[beatmap->hitobject_count],
+                line, beatmap->osu_version);
             CHECK_HIT_OBJECT(r, &beatmap->hitobjects[beatmap->hitobject_count]);
             UPDATE_STAT_HO_COUNT(
                 beatmap, &beatmap->hitobjects[beatmap->hitobject_count]);
@@ -255,9 +259,10 @@ static int parse_objects(osux_beatmap *beatmap, FILE *file)
             HANDLE_ARRAY_SIZE(beatmap->events,
                               beatmap->event_count,
                               beatmap->event_bufsize);
-            osux_event_init(&beatmap->events[beatmap->event_count],
-                       line, beatmap->osu_version);
-            CHECK_EVENT(&beatmap->events[beatmap->event_count]);
+            int r = osux_event_init(
+                &beatmap->events[beatmap->event_count],
+                line, beatmap->osu_version);
+            CHECK_EVENT(r, &beatmap->events[beatmap->event_count]);
             ++ beatmap->event_count;
             continue;
         }
@@ -271,7 +276,11 @@ static int parse_objects(osux_beatmap *beatmap, FILE *file)
 #define FETCH( section, field, type, default_value, method )            \
     do {                                                                \
         osux_hashtable *section_ = NULL;                                \
-        osux_hashtable_lookup(beatmap->sections, #section, &section_);  \
+        if (osux_hashtable_lookup(beatmap->sections, #section, &section_) < 0) { \
+            osux_debug("No section '%s'\n", #section);                  \
+            beatmap->field = (default_value);                           \
+            break;                                                      \
+        }                                                               \
                                                                         \
         char *str_ = NULL;                                              \
         if (osux_hashtable_lookup(section_, #field, &str_) < 0) {       \
@@ -295,7 +304,7 @@ int osux_beatmap_init(osux_beatmap *beatmap, char const *file_path)
     FILE *file = g_fopen(file_path, "r");
     if (file == NULL) {
         osux_error("Cannot open file for reading: '%s'\n", file_path);
-        return OSUX_ERR_FILE_PERM;
+        return -OSUX_ERR_FILE_ACCESS;
     }
 
     beatmap->file_path = strdup(file_path);

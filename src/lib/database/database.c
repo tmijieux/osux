@@ -41,7 +41,7 @@ int osux_database_exec_prepared_query(osux_database *db, osux_list *query_result
     while (ret != SQLITE_DONE) {
         if (ret != SQLITE_ROW) {
             osux_debug("%s\n", sqlite3_errmsg(get_handle(db)));
-            return OSUX_ERR_DATABASE;
+            return -OSUX_ERR_DATABASE;
         }
         osux_hashtable *dict = osux_hashtable_new(0);
 
@@ -72,7 +72,7 @@ int osux_database_exec_query(
     if (ret != SQLITE_OK && errmsg != NULL) {
         osux_debug("%s\n", errmsg);
         sqlite3_free(errmsg);
-        return OSUX_ERR_DATABASE;
+        return -OSUX_ERR_DATABASE;
     }
     return 0;
 }
@@ -85,7 +85,7 @@ int osux_database_print_query(osux_database *db, char const *query, FILE *out)
     if (ret != SQLITE_OK && errmsg != NULL) {
         osux_debug("%s\n", errmsg);
         sqlite3_free(errmsg);
-        return OSUX_ERR_DATABASE;
+        return -OSUX_ERR_DATABASE;
     }
     return 0;
 }
@@ -95,7 +95,7 @@ int osux_database_bind_int(osux_database *db, char const *name, int i)
     int index = sqlite3_bind_parameter_index(db->prepared_query, name);
     if (sqlite3_bind_int(db->prepared_query, index, i) != SQLITE_OK) {
         osux_debug("%s\n", sqlite3_errmsg(get_handle(db)));
-        return OSUX_ERR_DATABASE;
+        return -OSUX_ERR_DATABASE;
     }
     return 0;
 }
@@ -105,7 +105,7 @@ int osux_database_bind_double(osux_database *db, char const *name, double d)
     int index = sqlite3_bind_parameter_index(db->prepared_query, name);
     if (sqlite3_bind_double(db->prepared_query, index, d) != SQLITE_OK) {
         osux_debug("%s\n", sqlite3_errmsg(get_handle(db)));
-        return OSUX_ERR_DATABASE;
+        return -OSUX_ERR_DATABASE;
     }
     return 0;
 }
@@ -115,7 +115,7 @@ int osux_database_bind_string(osux_database *db, char const *name, char const *s
     int index = sqlite3_bind_parameter_index(db->prepared_query, name);
     if (sqlite3_bind_text(db->prepared_query, index, str, -1, SQLITE_TRANSIENT) != SQLITE_OK) {
         osux_debug("%s\n", sqlite3_errmsg(get_handle(db)));
-        return OSUX_ERR_DATABASE;
+        return -OSUX_ERR_DATABASE;
     }
     return 0;
 }
@@ -129,7 +129,7 @@ int osux_database_init(osux_database *db, char const *file_path)
     if (ret) {
         osux_debug("%s\n", sqlite3_errmsg(db->file_handle));
         sqlite3_close(db->file_handle);
-        return OSUX_ERR_DATABASE;
+        return -OSUX_ERR_DATABASE;
     }
     return 0;
 }
@@ -168,7 +168,7 @@ static int load_to_memory(osux_database *db)
         if (ret) {
             osux_debug("%s\n", sqlite3_errmsg(db->mem_handle));
             sqlite3_close(db->mem_handle);
-            return OSUX_ERR_DATABASE;
+            return -OSUX_ERR_DATABASE;
         }
         load_or_save_memory(db, false);
         db->in_memory = true;
@@ -191,7 +191,7 @@ int osux_database_prepare_query(osux_database *db, char const *query)
                              &db->prepared_query, NULL);
     if (ret != SQLITE_OK) {
         osux_debug("%s\n", sqlite3_errmsg(get_handle(db)));
-        return OSUX_ERR_DATABASE;
+        return -OSUX_ERR_DATABASE;
     }
     return 0;
 }

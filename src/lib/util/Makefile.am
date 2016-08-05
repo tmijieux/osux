@@ -12,7 +12,8 @@ libosux_util_la_SOURCES = \
 	sum.c sum.h \
 	data.c data.h \
 	md5.c md5.h \
-	str.c string2.h
+	str.c string2.h \
+	error.c
 
 libosux_util_la_CFLAGS = $(CRYPTO_CFLAGS) $(YAML_CFLAGS) $(AM_CFLAGS)
 libosux_util_la_LDFLAGS = $(CRYPTO_LIBS) $(YAML_LIBS) $(AM_LDFLAGS)

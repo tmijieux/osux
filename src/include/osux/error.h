@@ -7,15 +7,30 @@
 #include <string.h>
 #include <errno.h>
 
+#define OSUX_ERROR_TO_ENUM(error) error,
 
-enum osux_error {
-    OSUX_UNSPECIFIED_ERROR       = -1,
-    OSUX_ERR_FILE_PERM           = -2,
-    OSUX_ERR_BAD_OSU_VERSION     = -3,
-    OSUX_ERR_MALFORMED_OSU_FILE  = -4,
-    OSUX_ERR_INVALID_HITOBJECT   = -5,
-    OSUX_ERR_DATABASE            = -6,
+#define OSUX_ERROR_LIST(ERROR)                                  \
+    ERROR(OSUX_SUCCESS)                                         \
+    ERROR(OSUX_ERR_UNKNOWN_ERROR)                               \
+    ERROR(OSUX_ERR_FILE_ERROR)                                  \
+    ERROR(OSUX_ERR_FILE_ACCESS)                                 \
+    ERROR(OSUX_ERR_BAD_OSU_VERSION)                             \
+    ERROR(OSUX_ERR_MALFORMED_OSU_FILE)                          \
+    ERROR(OSUX_ERR_DATABASE)                                    \
+    ERROR(OSUX_ERR_INVALID_TIMINGPOINT)                         \
+    ERROR(OSUX_ERR_INVALID_HITOBJECT)                           \
+    ERROR(OSUX_ERR_INVALID_HITOBJECT_SPINNER)                   \
+    ERROR(OSUX_ERR_INVALID_HITOBJECT_ADDON_HITSOUND)            \
+    ERROR(OSUX_ERR_INVALID_HITOBJECT_EDGE_SAMPLE)               \
+    ERROR(OSUX_ERR_INVALID_HITOBJECT_EDGE_SAMPLE_TYPE)          \
+    ERROR(OSUX_ERR_INVALID_HITOBJECT_SLIDER_TYPE)               \
+    ERROR(OSUX_ERR_INVALID_HITOBJECT_SLIDER_POINTS)             \
+
+enum osux_error_code {
+    OSUX_ERROR_LIST(OSUX_ERROR_TO_ENUM)
 };
+
+const char *osux_errmsg(int errcode);
 
 #ifndef __GNUC__
 #	define __PRETTY_FUNCTION__    __FUNCDNAME__

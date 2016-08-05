@@ -33,7 +33,7 @@ int osux_timingpoint_init(osux_timingpoint *tp,
 
     if (size < 7 || (osu_version > 5 && size < 8)) {
         g_strfreev(split);
-        return OSUX_ERR_INVALID_HITOBJECT;
+        return -OSUX_ERR_INVALID_TIMINGPOINT;
     }
 
     tp->offset = strtod(split[0], NULL);
