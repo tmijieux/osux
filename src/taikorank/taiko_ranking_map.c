@@ -422,18 +422,46 @@ void tr_print_yaml_exit(void)
     }
 }
 
+static void fprintf_escape_char(FILE * out, const char * s, 
+				char c, const char * escaped)
+{
+    char * str = strdup(s);
+    char ch[2] = { c, '\0'};
+    char * token = strtok(str, ch);
+    while (1) {
+	fprintf(out, "%s", token);
+	token = strtok(NULL, ch);
+	if (token != NULL)
+	    fprintf(out, "%s", escaped);
+	else
+	    break;
+    }
+    free(str);
+}
+
+#define fprintf_dquote_escape(out, str) \
+    fprintf_escape_char(out, str, '"', "\\\"")
+
 void trm_print_yaml(const struct tr_map * map)
 {
     char * mods = trm_mods_to_str(map);
 
     fprintf(OUTPUT, "%s{", yaml_prefix);
-    fprintf(OUTPUT, "title: \"%s\", ", map->title);
-    fprintf(OUTPUT, "title_uni: \"%s\", ", map->title_uni);
-    fprintf(OUTPUT, "artist: \"%s\", ", map->artist);
-    fprintf(OUTPUT, "artist_uni: \"%s\", ", map->artist_uni);
-    fprintf(OUTPUT, "source: \"%s\", ", map->source);
-    fprintf(OUTPUT, "creator: \"%s\", ", map->creator);
-    fprintf(OUTPUT, "difficulty: \"%s\", ", map->diff);
+    fprintf(OUTPUT, "title: \"");
+    fprintf_dquote_escape(OUTPUT, map->title);
+    fprintf(OUTPUT, "\", title_uni: \"");
+    fprintf_dquote_escape(OUTPUT, map->title_uni);
+    fprintf(OUTPUT, "\", artist: \"");
+    fprintf_dquote_escape(OUTPUT, map->artist);
+    fprintf(OUTPUT, "\", artist_uni: \"");
+    fprintf_dquote_escape(OUTPUT, map->artist_uni);
+    fprintf(OUTPUT, "\", source: \"");
+    fprintf_dquote_escape(OUTPUT, map->source);
+    fprintf(OUTPUT, "\", creator: \"");
+    fprintf_dquote_escape(OUTPUT, map->creator);
+    fprintf(OUTPUT, "\", difficulty: \"");
+    fprintf_dquote_escape(OUTPUT, map->diff);
+    fprintf(OUTPUT, "\", ");
 
     fprintf(OUTPUT, "accuracy: %g, ", map->acc * COEFF_MAX_ACC);
     fprintf(OUTPUT, "great: %d, ",  map->great);
