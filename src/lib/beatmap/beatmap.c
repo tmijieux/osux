@@ -189,7 +189,7 @@ static int parse_option_entry(
 
 #define ALLOC_ARRAY(array_var, size_var, size_literal)                  \
     do {                                                                \
-        array_var = g_malloc0((size_literal) * sizeof(*(array_var)));   \
+        array_var = g_malloc((size_literal) * sizeof(*(array_var)));    \
         size_var = (size_literal);                                      \
     } while (0)
 
@@ -199,15 +199,13 @@ static int parse_objects(osux_beatmap *beatmap, FILE *file)
     osux_hashtable *current_section = NULL;
     char *section_name = NULL;
 
+    beatmap->bpm_min = DBL_MAX;
     beatmap->sections = osux_hashtable_new_full(
         0, (void(*)(void*)) &osux_hashtable_delete);
 
     ALLOC_ARRAY(beatmap->hitobjects, beatmap->hitobject_bufsize, 500);
     ALLOC_ARRAY(beatmap->timingpoints, beatmap->timingpoint_bufsize, 500);
-
-    beatmap->bpm_min = DBL_MAX;
     ALLOC_ARRAY(beatmap->events, beatmap->event_bufsize, 500);
-
 
     char *line;
     int line_count = 0;
@@ -242,8 +240,9 @@ static int parse_objects(osux_beatmap *beatmap, FILE *file)
             HANDLE_ARRAY_SIZE(beatmap->hitobjects,
                               beatmap->hitobject_count,
                               beatmap->hitobject_bufsize);
-            int r = osux_hitobject_init(&beatmap->hitobjects[beatmap->hitobject_count],
-                                line, beatmap->osu_version);
+            int r;
+            r = osux_hitobject_init(&beatmap->hitobjects[beatmap->hitobject_count],
+                                    line, beatmap->osu_version);
             CHECK_HIT_OBJECT(r, &beatmap->hitobjects[beatmap->hitobject_count]);
             UPDATE_STAT_HO_COUNT(
                 beatmap, &beatmap->hitobjects[beatmap->hitobject_count]);
@@ -280,7 +279,6 @@ static int parse_objects(osux_beatmap *beatmap, FILE *file)
             beatmap->field = method(str_);                              \
         }                                                               \
     } while (0);
-
 
 static int fetch_variables(osux_beatmap *beatmap)
 {

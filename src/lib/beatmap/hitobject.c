@@ -193,7 +193,8 @@ int osux_hitobject_init(osux_hitobject *ho, char *line, uint32_t osu_version)
     char **split = g_strsplit(line, ",", 0);
     unsigned size = strsplit_size(split);
 
-    // memset(ho, 0, sizeof *ho);
+    memset(ho, 0, sizeof *ho);
+
     ho->_osu_version = osu_version;
 
     if (size < 5) {

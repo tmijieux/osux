@@ -131,7 +131,6 @@ struct osux_beatmap {
     double SliderMultiplier;
     double SliderTickRate;
 
-
     uint32_t color_count;
     uint32_t color_bufsize;
     osux_color *colors;
@@ -139,7 +138,6 @@ struct osux_beatmap {
     uint32_t event_count;
     uint32_t event_bufsize;
     osux_event *events;
-
 
     uint32_t timingpoint_count;
     uint32_t timingpoint_bufsize;

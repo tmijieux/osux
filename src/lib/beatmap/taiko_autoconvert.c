@@ -48,7 +48,7 @@ static inline int offset_le(double o1, double o2)
 
 static inline osux_hitobject *hitobject_copy(osux_hitobject *ho)
 {
-    osux_hitobject *copy = g_malloc0(sizeof*ho);
+    osux_hitobject *copy = g_malloc(sizeof*ho);
     *copy = *ho;
     return copy;
 }
@@ -271,8 +271,7 @@ static osux_hitobject *osux_list_to_ho_array(osux_list const *l)
 {
     osux_hitobject *array;
     unsigned size = osux_list_size(l);
-    array = g_malloc0(sizeof*array * size);
-    memset(array, 0, sizeof*array * size);
+    array = g_malloc(sizeof*array * size);
 
     for (unsigned i = 0; i < size; ++i)
 	array[i] = *(osux_hitobject*) osux_list_get(l, i+1);
