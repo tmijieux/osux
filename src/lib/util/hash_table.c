@@ -90,10 +90,6 @@ static struct osux_hashtable_entry* new_entry(const char *key, void *data)
     return he;
 }
 
-static void free_entry(struct osux_hashtable_entry *he)
-{
-}
-
 osux_hashtable* osux_hashtable_new(size_t size)
 {
     return osux_hashtable_new_full(size, NULL);
@@ -219,7 +215,6 @@ void osux_hashtable_for_each(osux_hashtable* ht,
 	}
     }
 }
-
 
 struct osux_list* osux_hashtable_to_list(const osux_hashtable *ht)
 {
