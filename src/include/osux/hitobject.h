@@ -21,15 +21,24 @@
 #include <stdbool.h>
 
 enum hitobject_type {
-    HITOBJECT_CIRCLE   = 1,
-    HITOBJECT_SLIDER   = 2,
-    HITOBJECT_NEWCOMBO = 4,
-    HITOBJECT_SPINNER  = 8,
+    HITOBJECT_CIRCLE   = 0x01,
+    HITOBJECT_SLIDER   = 0x02, // roll (yellow) in taiko
+    HITOBJECT_NEWCOMBO = 0x04,
+    HITOBJECT_SPINNER  = 0x08, // bananas in ctb
+
+    HITOBJECT_UNK1     = 0x10, // these unknown flags appear in a few map
+    HITOBJECT_UNK2     = 0x20, // example: Nekomata Master - scar in the earth
+    HITOBJECT_UNK3     = 0x40, // (Reisen Udongein) [Bunny Style].osu
+    HITOBJECT_HOLD     = 0x80, // mania hold
+
+    HITOBJECT_TYPE_MASK         = (HITOBJECT_CIRCLE | HITOBJECT_SLIDER |
+                                   HITOBJECT_SPINNER | HITOBJECT_HOLD),
+    HITOBJECT_UNKNOWN_FLAG_MASK = ~HITOBJECT_TYPE_MASK & ~HITOBJECT_NEWCOMBO,
 };
 
 enum slider_type {
     SLIDER_LINE     = 'L',   // two points line
-    SLIDER_P        = 'P',   // three points line 
+    SLIDER_P        = 'P',   // three points line
     SLIDER_BEZIER   = 'B',   // 4 and more points line
     SLIDER_C        = 'C', // seen on v5, unknown usage
 };
@@ -41,11 +50,12 @@ enum slider_type {
  */
 
 // get rid of the 'new_combo' flag to get the hit object's type more easily
-#define HIT_OBJECT_TYPE(ho_ptr)    ((ho_ptr)->type & (~HITOBJECT_NEWCOMBO) & 0x0F)
+#define HIT_OBJECT_TYPE(ho_ptr)    ((ho_ptr)->type & HITOBJECT_TYPE_MASK)
 
 #define HIT_OBJECT_IS_CIRCLE(x)  (HIT_OBJECT_TYPE(x) == HITOBJECT_CIRCLE)
 #define HIT_OBJECT_IS_SLIDER(x)  (HIT_OBJECT_TYPE(x) == HITOBJECT_SLIDER)
 #define HIT_OBJECT_IS_SPINNER(x) (HIT_OBJECT_TYPE(x) == HITOBJECT_SPINNER)
+#define HIT_OBJECT_IS_HOLD(x) (HIT_OBJECT_TYPE(x) == HITOBJECT_HOLD)
 
 
 typedef struct osux_point {
@@ -55,7 +65,7 @@ typedef struct osux_point {
 
 typedef struct osux_hitsound {
     int sample;
-    bool have_addon;    
+    bool have_addon;
     int sample_type;
     int addon_sample_type;
     int sample_set_index;
@@ -75,7 +85,7 @@ typedef struct osux_slider {
     int type; // 'L', 'P' or 'B' (or 'C')
     uint32_t repeat;
     double length;
-    
+
     uint32_t point_count;
     osux_point *points;
     osux_edgehitsound *edgehitsounds; // bufsize = 0 or 'repeat'
@@ -84,15 +94,17 @@ typedef struct osux_slider {
 typedef struct osux_spinner {
     unsigned end_offset;
 } osux_spinner;
+typedef struct osux_spinner osux_hold;
 
 typedef struct osux_hitobject {
     int x;
     int y;
     uint32_t offset;
     uint32_t type;
-        
+
     osux_slider slider;
     osux_spinner spinner;
+    osux_hold hold;
     osux_hitsound hitsound;
 
     uint32_t _osu_version;

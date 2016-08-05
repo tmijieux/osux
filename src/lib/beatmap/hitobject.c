@@ -139,10 +139,24 @@ static int parse_spinner(osux_hitobject *ho, char **split, unsigned size)
     return 0;
 }
 
+static int parse_hold(osux_hitobject *ho, char **split, unsigned size)
+{
+    if (size < 6)
+        return -OSUX_ERR_INVALID_HITOBJECT_HOLD;
+
+    ho->hold.end_offset = strtoull(split[5], NULL, 10);
+    return 0;
+}
+
 static int parse_addon_hitsound(osux_hitobject *ho, char *addonstr)
 {
     char **split = g_strsplit(addonstr, ":", 0);
     unsigned size = strsplit_size(split);
+
+    if (HIT_OBJECT_IS_HOLD(ho)) {
+        ++ split;
+        -- size;
+    }
 
     if (size < 3 || (ho->_osu_version > 11 && size < 4)) {
         g_strfreev(split);
@@ -159,9 +173,12 @@ static int parse_addon_hitsound(osux_hitobject *ho, char *addonstr)
         else
             ho->hitsound.sfx_filename = g_strdup("");
     } else {
-        ho->hitsound.volume = 70;
+        ho->hitsound.volume = 42;
         ho->hitsound.sfx_filename = g_strdup("");
     }
+    if (HIT_OBJECT_IS_HOLD(ho))
+        -- split;
+
     g_strfreev(split);
     ho->hitsound.have_addon = true;
     return 0;
@@ -189,7 +206,7 @@ static int parse_base_hitobject(osux_hitobject *ho, char **split, unsigned size)
 
 int osux_hitobject_init(osux_hitobject *ho, char *line, uint32_t osu_version)
 {
-    int err = -OSUX_ERR_INVALID_HITOBJECT;
+    int err;
     char **split = g_strsplit(line, ",", 0);
     unsigned size = strsplit_size(split);
 
@@ -199,20 +216,28 @@ int osux_hitobject_init(osux_hitobject *ho, char *line, uint32_t osu_version)
 
     if (size < 5) {
         g_strfreev(split);
-        return err;
+        return -OSUX_ERR_INVALID_HITOBJECT;
     }
 
     if ((err = parse_base_hitobject(ho, split, size)) < 0)
         return err;
 
     int value = atoi(split[3]);
-    int type = (value & 0x0F) & ~HITOBJECT_NEWCOMBO;
+    /*
+      if (value & HITOBJECT_UNKNOWN_FLAG_MASK) {
+      osux_debug("warning: hitobject use extra flag: %d\n",
+      value & HITOBJECT_UNKNOWN_FLAG_MASK);
+      }
+    */
+
+    int type = value & HITOBJECT_TYPE_MASK;
 
     switch (type) {
     case HITOBJECT_CIRCLE: err = 0; break;
     case HITOBJECT_SLIDER: err = parse_slider(ho, split, size); break;
     case HITOBJECT_SPINNER: err = parse_spinner(ho, split, size); break;
-    default: err = -OSUX_ERR_INVALID_HITOBJECT;   break;
+    case HITOBJECT_HOLD: err = parse_hold(ho, split, size); break;
+    default: err = -OSUX_ERR_INVALID_HITOBJECT_TYPE; break;
     }
     g_strfreev(split);
     return err;
@@ -239,24 +264,29 @@ void osux_hitobject_print(osux_hitobject *ho, int version, FILE *f)
 	    for (unsigned i = 0; i < ho->slider.repeat+1; ++i) {
 		if (i >= 1) fprintf(f, "|");
 		fprintf(f, "%d:%d", ho->slider.edgehitsounds[i].sample_type,
-		       ho->slider.edgehitsounds[i].addon_sample_type);
+                        ho->slider.edgehitsounds[i].addon_sample_type);
 	    }
 	}
 	break;
     case HITOBJECT_SPINNER:
-        osux_debug("end offset: %d\n", ho->spinner.end_offset);
 	fprintf(f, ",%d", ho->spinner.end_offset);
 	break;
+    case HITOBJECT_HOLD:
+        fprintf(f, ",%d", ho->hold.end_offset);
+        break;
+    default:
+        break;
     }
     if (ho->hitsound.have_addon) {
-	fprintf(f, ",%d:%d:%d",
-	       ho->hitsound.sample_type,
-	       ho->hitsound.addon_sample_type,
-	       ho->hitsound.sample_set_index);
+	fprintf(f, "%c%d:%d:%d",
+                HIT_OBJECT_IS_HOLD(ho) ? ':' : ',',
+                ho->hitsound.sample_type,
+                ho->hitsound.addon_sample_type,
+                ho->hitsound.sample_set_index);
 	if (version > 11) {
 	    fprintf(f, ":%d:%s",
-		   ho->hitsound.volume,
-		   ho->hitsound.sfx_filename);
+                    ho->hitsound.volume,
+                    ho->hitsound.sfx_filename);
 	}
     }
     fprintf(f, "\r\n");
@@ -265,9 +295,9 @@ void osux_hitobject_print(osux_hitobject *ho, int version, FILE *f)
 void osux_hitobject_free(osux_hitobject *ho)
 {
     if ( HIT_OBJECT_IS_SLIDER(ho) ) {
-	free(ho->slider.points);
-        free(ho->slider.edgehitsounds);
+	g_free(ho->slider.points);
+        g_free(ho->slider.edgehitsounds);
     }
-    free(ho->hitsound.sfx_filename);
+    g_free(ho->hitsound.sfx_filename);
 }
 

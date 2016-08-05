@@ -173,6 +173,7 @@ static int load_to_memory(osux_database *db)
         load_or_save_memory(db, false);
         db->in_memory = true;
     }
+    return 0;
 }
 
 void osux_database_free(osux_database *db)

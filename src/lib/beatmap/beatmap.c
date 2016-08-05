@@ -277,7 +277,7 @@ static int parse_objects(osux_beatmap *beatmap, FILE *file)
     do {                                                                \
         osux_hashtable *section_ = NULL;                                \
         if (osux_hashtable_lookup(beatmap->sections, #section, &section_) < 0) { \
-            osux_debug("No section '%s'\n", #section);                  \
+            /*osux_debug("No section '%s'\n", #section);*/              \
             beatmap->field = (default_value);                           \
             break;                                                      \
         }                                                               \

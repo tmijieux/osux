@@ -14,6 +14,9 @@
         }                                                               \
     } while (0)                                                         \
 
+
+#define ARRAY_SIZE(array) (sizeof (array) / sizeof((array)[0]))
+
 char *osux_getline(FILE *file);
 char *bytearray2hexstr(uint8_t const *bytearray, size_t size);
 char *osux_get_file_hashstr(char const *file_path);

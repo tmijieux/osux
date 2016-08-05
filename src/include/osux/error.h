@@ -19,7 +19,9 @@
     ERROR(OSUX_ERR_DATABASE)                                    \
     ERROR(OSUX_ERR_INVALID_TIMINGPOINT)                         \
     ERROR(OSUX_ERR_INVALID_HITOBJECT)                           \
+    ERROR(OSUX_ERR_INVALID_HITOBJECT_TYPE)                      \
     ERROR(OSUX_ERR_INVALID_HITOBJECT_SPINNER)                   \
+    ERROR(OSUX_ERR_INVALID_HITOBJECT_HOLD)                      \
     ERROR(OSUX_ERR_INVALID_HITOBJECT_ADDON_HITSOUND)            \
     ERROR(OSUX_ERR_INVALID_HITOBJECT_EDGE_SAMPLE)               \
     ERROR(OSUX_ERR_INVALID_HITOBJECT_EDGE_SAMPLE_TYPE)          \
