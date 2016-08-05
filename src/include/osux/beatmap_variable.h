@@ -20,7 +20,7 @@ static inline bool osux_tobool(char *str) { return !!atoi(str); }
 // VALUE(section, fieldname, type, default_value, from_string_conversion_method)
 
 #define DEFAULT_VALUES(VALUE)                                           \
-    VALUE( General, AudioFilename, char*, "", g_strdup)                 \
+    VALUE( General, AudioFilename, char*, g_strdup(""), g_strdup)       \
     VALUE( General, AudioLeadIn, int, 0, atoi )                         \
     VALUE( General, PreviewTime, int, -1, atoi)                         \
     VALUE( General, Countdown, int, 0, atoi )                           \
@@ -35,13 +35,13 @@ static inline bool osux_tobool(char *str) { return !!atoi(str); }
     VALUE( Editor, GridSize, int, 1, atoi )                             \
     VALUE( Editor, TimelineZoom, double, 1, osux_strtod)                \
                                                                         \
-    VALUE( Metadata, Title,char*, "", g_strdup)                         \
-    VALUE( Metadata, TitleUnicode, char*, "", g_strdup)                 \
-    VALUE( Metadata, Artist, char*, "", g_strdup )                      \
-    VALUE( Metadata, ArtistUnicode, char*, "", g_strdup)                \
-    VALUE( Metadata, Creator, char* ,"", g_strdup )                     \
-    VALUE( Metadata, Version, char*, "", g_strdup )                     \
-    VALUE( Metadata, Source, char*, "", g_strdup)                       \
+    VALUE( Metadata, Title,char*, g_strdup(""), g_strdup)               \
+    VALUE( Metadata, TitleUnicode, char*, g_strdup(""), g_strdup)       \
+    VALUE( Metadata, Artist, char*, g_strdup(""), g_strdup )            \
+    VALUE( Metadata, ArtistUnicode, char*, g_strdup(""), g_strdup)      \
+    VALUE( Metadata, Creator, char* ,g_strdup(""), g_strdup )           \
+    VALUE( Metadata, Version, char*, g_strdup(""), g_strdup )           \
+    VALUE( Metadata, Source, char*, g_strdup(""), g_strdup)             \
     VALUE( Metadata, BeatmapID, int, 0, atoi)                           \
     VALUE( Metadata, BeatmapSetID, int, -1, atoi)                       \
                                                                         \
@@ -52,6 +52,6 @@ static inline bool osux_tobool(char *str) { return !!atoi(str); }
     VALUE( Difficulty, SliderMultiplier, double, 1., osux_strtod)       \
     VALUE( Difficulty, SliderTickRate, double, 1., osux_strtod)         \
 
-DEFAULT_VALUES(DECLARE_DEFAULT_VALUE);
+/* DEFAULT_VALUES(DECLARE_DEFAULT_VALUE); */
 
 #endif // OSUX_BEATMAP_VARIABLE_H

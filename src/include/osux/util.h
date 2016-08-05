@@ -11,6 +11,8 @@
             array_capacity *= 2;                                        \
             g_assert(array_capacity > array_size);                      \
             array = g_realloc(array, sizeof(*(array)) * array_capacity); \
+            memset(array+(array_capacity/2), 0,                         \
+                   (array_capacity/2)*sizeof(*(array)));                \
         }                                                               \
     } while (0)                                                         \
 

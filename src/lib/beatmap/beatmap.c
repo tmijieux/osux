@@ -268,14 +268,14 @@ static int parse_objects(osux_beatmap *beatmap, FILE *file)
     return 0;
 }
 
-#define FETCH( section, field, type, value, method )                    \
+#define FETCH( section, field, type, default_value, method )            \
     do {                                                                \
         osux_hashtable *section_ = NULL;                                \
         osux_hashtable_lookup(beatmap->sections, #section, &section_);  \
                                                                         \
         char *str_ = NULL;                                              \
         if (osux_hashtable_lookup(section_, #field, &str_) < 0) {       \
-            beatmap->field = osux_beatmap_default_value_##field;        \
+            beatmap->field = (default_value);                           \
         } else {                                                        \
             beatmap->field = method(str_);                              \
         }                                                               \

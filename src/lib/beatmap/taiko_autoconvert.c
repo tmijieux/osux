@@ -46,6 +46,13 @@ static inline int offset_le(double o1, double o2)
     return (o1 <= o2) || offset_eq(o1, o2);
 }
 
+static inline osux_hitobject *hitobject_copy(osux_hitobject *ho)
+{
+    osux_hitobject *copy = g_malloc0(sizeof*ho);
+    *copy = *ho;
+    return copy;
+}
+
 //---------------------------------------------------------------
 
 // this function return the full length of the slider in ms, repetitions are included
@@ -57,7 +64,7 @@ static double ho_slider_length(
 )
 {
     g_assert( HIT_OBJECT_IS_SLIDER(ho) );
-    
+
     if (tp->inherited)
 	slider_velocity *= -100. / tp->slider_velocity_multiplier;
 
@@ -76,11 +83,12 @@ static osux_hitobject *ho_taiko_new(
 )
 {
     g_assert( HIT_OBJECT_IS_SLIDER(old_slider) );
-    
-    osux_hitobject *ho = calloc(sizeof(*ho), 1);
+
+    osux_hitobject *ho = g_malloc0(sizeof*ho);
+
     ho->offset = offset;
     ho->type   = HITOBJECT_CIRCLE;
-    
+
     // by default the hit_object inherit the slider global hitsound
     // when the slider has no additional hitsounds the global hitsound is kept
     ho->hitsound.sample = old_slider->hitsound.sample;
@@ -90,10 +98,10 @@ static osux_hitobject *ho_taiko_new(
 	// of them.
 	// Taiko use additional hitsounds located one the slider edges:
 	// one at the start, one on each "repeat" and one at the end
-	// Sometimes, the additional hitsound used may not be correspond the the 
+	// Sometimes, the additional hitsound used may not be correspond the the
 	// circle offset. Mostly with simple sliders and high tick rate.
 
-	// Example: 
+	// Example:
 	// with 1/4 (each character represent 1/4 beat) and tick rate = 4
 	// Simple slider (does not repeat):
 	// s----
@@ -101,7 +109,7 @@ static osux_hitobject *ho_taiko_new(
 	// d---k
 	// Circle in taiko:
 	// dkdkd
-	// As you can see, the end circle is a don while the slider end 
+	// As you can see, the end circle is a don while the slider end
 	// hitsound is a kat.
 
         ho->hitsound.sample =
@@ -120,7 +128,7 @@ taiko_slider_converter_init(struct taiko_slider_converter *tc,
                             double tick_rate)
 {
     memset(tc, 0, sizeof *tc);
-    
+
     tc->ho = ho;
     tc->mpb = tp->millisecond_per_beat;
     tc->mpt = tc->mpb / tick_rate; // millisecond per (slider) tick
@@ -139,7 +147,7 @@ void taiko_slider_converter_print(struct taiko_slider_converter const *tc)
 //---------------------------------------------------------------
 
 static void taiko_slider_converter_slider_to_circles_normal(
-    const struct taiko_slider_converter *tc, struct osux_list *ho_list)
+    const struct taiko_slider_converter *tc, osux_list *ho_list)
 {
     if (tc->length <= tc->mpt) {
 	// if slider length is lower than duration of 1 (slider) tick
@@ -147,11 +155,11 @@ static void taiko_slider_converter_slider_to_circles_normal(
         // positions are start and end of the old slider
 
         osux_hitobject *ho1, *ho2;
-	
+
 	// start
 	ho1 = ho_taiko_new(tc->ho->offset, tc->ho, 0);
 	osux_list_append(ho_list, ho1);
-	
+
 	// end
         ho2 = ho_taiko_new(tc->ho->offset + tc->length, tc->ho, 1);
 	osux_list_append(ho_list, ho2);
@@ -162,10 +170,10 @@ static void taiko_slider_converter_slider_to_circles_normal(
         double offset;
 
 	// add a circle for each tick, without exceeding slider length
-	// But there is a small margin in the comparision, sliders are 
-	// considered slightly longer than they are. 
+	// But there is a small margin in the comparision, sliders are
+	// considered slightly longer than they are.
 	// It is quite hard to guess how peppy is computing this margin
-	// so the margin used here is likely to be wrong. 
+	// so the margin used here is likely to be wrong.
 	// See offset_eq and offset_le for the margin computation.
 	for (i = 0, offset = 0.;
              offset_le(offset, tc->length);
@@ -194,7 +202,7 @@ static void taiko_slider_converter_slider_to_circles_repeat(
     for (unsigned i = 0; i <= tc->ho->slider.repeat; i++) {
 	osux_hitobject *ho;
 
-	// the edge hitsound used is the one corresponding to the 
+	// the edge hitsound used is the one corresponding to the
 	// i-th repeat part.
         ho = ho_taiko_new(tc->ho->offset + (i * unit), tc->ho, i);
 	osux_list_append(ho_list, ho);
@@ -208,7 +216,7 @@ static void taiko_slider_converter_convert(
 {
     if (tc->length >= 2*tc->mpb)
         // if slider length if big enough, keep the slider
-	osux_list_append(ho_list, tc->ho);
+	osux_list_append(ho_list, hitobject_copy(tc->ho));
     else {
         // when the slider is too short, convert it to circles:
         // (two rules according to the slider being repeated or not)
@@ -226,7 +234,7 @@ static void taiko_slider_converter_convert(
 static struct osux_list * taiko_autoconvert_ho_list(const osux_beatmap *bm)
 {
     uint32_t current_tp = 0;
-    osux_list *new_ho_list = osux_list_new(0);
+    osux_list *new_ho_list = osux_list_new(LI_FREE, g_free);
 
     for (uint32_t i = 0; i < bm->hitobject_count; ++i) {
 	osux_hitobject *ho = &bm->hitobjects[i];
@@ -241,7 +249,7 @@ static struct osux_list * taiko_autoconvert_ho_list(const osux_beatmap *bm)
 
 	if (HIT_OBJECT_IS_SPINNER(ho) || HIT_OBJECT_IS_CIRCLE(ho)) {
 	    // keep spinner and circle
-	    osux_list_append(new_ho_list, ho);
+	    osux_list_append(new_ho_list, hitobject_copy(ho));
 	} else if (HIT_OBJECT_IS_SLIDER(ho)) {
 	    // build convert helper
 	    struct taiko_slider_converter tc;
@@ -263,7 +271,8 @@ static osux_hitobject *osux_list_to_ho_array(osux_list const *l)
 {
     osux_hitobject *array;
     unsigned size = osux_list_size(l);
-    array = malloc(sizeof*array * size);
+    array = g_malloc0(sizeof*array * size);
+    memset(array, 0, sizeof*array * size);
 
     for (unsigned i = 0; i < size; ++i)
 	array[i] = *(osux_hitobject*) osux_list_get(l, i+1);
@@ -284,10 +293,9 @@ int osux_beatmap_taiko_autoconvert(osux_beatmap *bm)
     hitobject_count = osux_list_size(new_ho_list);
     array = osux_list_to_ho_array(new_ho_list);
 
-    osux_list_each(new_ho_list, free);
     osux_list_free(new_ho_list);
-    free(bm->hitobjects);
-    
+    g_free(bm->hitobjects);
+
     bm->game_mode       = GAME_MODE_TAIKO;
     bm->hitobject_count = hitobject_count;
     bm->hitobject_bufsize = hitobject_count;

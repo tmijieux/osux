@@ -5,5 +5,5 @@
 #include "osux/beatmap_variable.h"
 
 
-DEFAULT_VALUES(DEFINE_DEFAULT_VALUE);
+/* DEFAULT_VALUES(DEFINE_DEFAULT_VALUE); */
 
