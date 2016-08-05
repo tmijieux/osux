@@ -12,7 +12,7 @@ static int init_schema(osux_beatmap_db *db)
 
 static bool beatmap_table_is_present(osux_beatmap_db *db)
 {
-    osux_list *result = osux_list_new(0);
+    osux_list *result = osux_list_new(LI_FREE, osux_hashtable_delete);
     int err = osux_database_exec_query(
         &db->base, "SELECT name FROM sqlite_master "
         "WHERE type='table' AND name='beatmap'", result);

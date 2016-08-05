@@ -17,7 +17,7 @@ static int CALLBACK_SQLITE print_row(
 static int CALLBACK_SQLITE fill_result(
     void *user_data, int col_count, char **col_text, char **col_name)
 {
-    osux_hashtable *dict = osux_hashtable_new(0);
+    osux_hashtable *dict = osux_hashtable_new_full(0, g_free);
     osux_list *query_result = (osux_list*) user_data;
 
     for (int i = 0; i < col_count; ++i)
@@ -179,16 +179,15 @@ void osux_database_free(osux_database *db)
 {
     if (db->in_memory)
         save_from_memory(db);
+    sqlite3_finalize(db->prepared_query);
     sqlite3_close(db->file_handle);
 }
 
 int osux_database_prepare_query(osux_database *db, char const *query)
 {
-    int ret;
-    if (&db->prepared_query != NULL)
-        sqlite3_finalize(db->prepared_query);
+    sqlite3_finalize(db->prepared_query);
 
-    ret = sqlite3_prepare_v2(get_handle(db), query, -1,
+    int ret = sqlite3_prepare_v2(get_handle(db), query, -1,
                              &db->prepared_query, NULL);
     if (ret != SQLITE_OK) {
         osux_debug("%s\n", sqlite3_errmsg(get_handle(db)));

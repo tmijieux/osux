@@ -152,7 +152,12 @@ static int parse_option_entry(
 }
 
 #define CHECK_TIMING_POINT(x)
-#define CHECK_HIT_OBJECT(x)
+#define CHECK_HIT_OBJECT(r, x)                                          \
+    if (r < 0) {                                                        \
+        osux_debug("failed to parse hitobject line %d\n", line_count);  \
+    }
+
+
 #define CHECK_EVENT(x)
 
 
@@ -203,9 +208,11 @@ static int parse_objects(osux_beatmap *beatmap, FILE *file)
     beatmap->bpm_min = DBL_MAX;
     ALLOC_ARRAY(beatmap->events, beatmap->event_bufsize, 500);
 
-    char *line;
-    for (line = NULL; (line = osux_getline(file)) != NULL; g_free(line)) {
 
+    char *line;
+    int line_count = 0;
+    for (line = NULL; (line = osux_getline(file)) != NULL; g_free(line)) {
+        ++ line_count;
         if (line_is_empty_or_comment(line))
             continue;
 
@@ -235,9 +242,9 @@ static int parse_objects(osux_beatmap *beatmap, FILE *file)
             HANDLE_ARRAY_SIZE(beatmap->hitobjects,
                               beatmap->hitobject_count,
                               beatmap->hitobject_bufsize);
-            osux_hitobject_init(&beatmap->hitobjects[beatmap->hitobject_count],
+            int r = osux_hitobject_init(&beatmap->hitobjects[beatmap->hitobject_count],
                                 line, beatmap->osu_version);
-            CHECK_HIT_OBJECT(&beatmap->hitobjects[beatmap->hitobject_count]);
+            CHECK_HIT_OBJECT(r, &beatmap->hitobjects[beatmap->hitobject_count]);
             UPDATE_STAT_HO_COUNT(
                 beatmap, &beatmap->hitobjects[beatmap->hitobject_count]);
             ++ beatmap->hitobject_count;

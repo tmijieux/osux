@@ -1,3 +1,6 @@
+#ifndef OSUX_LIST_NODE_H
+#define OSUX_LIST_NODE_H
+
 /*
  *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
  *
@@ -13,9 +16,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-#ifndef LIST_NODE_H
-#define LIST_NODE_H
 
 #include <stdlib.h>
 
