@@ -42,7 +42,6 @@ TAGS
 
 # executables:
 taiko_ranking
-readdb
-makedb
+dbctl
 a.out
 parse_replay

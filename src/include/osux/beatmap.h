@@ -157,6 +157,4 @@ int osux_beatmap_print(const osux_beatmap *m, FILE *f);
 int osux_beatmap_save(osux_beatmap const *beatmap,
                       char const *filename, bool use_default_filename);
 
-
-
 #endif // OSUX_BEATMAP_H

@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
+#include <glib/gstdio.h>
 
 #include "osux/data.h"
 #include "osux/error.h"
@@ -9,7 +11,7 @@ static FILE *
 osux_open_prefixed(const char *prefix, const char *path, const char *mode)
 {
     char *full_path = osux_prefix_path(prefix, path);
-    FILE *f = fopen(full_path, mode);
+    FILE *f = g_fopen(full_path, mode);
     free(full_path);
 
     return f;

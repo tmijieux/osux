@@ -190,6 +190,8 @@ static void trs_print(struct tr_score * score)
   #include "replay/replay.h"
   #include "mod/game_mode.h"
   #include "mod/mods.h"
+  #include <glib.h>
+  #include <glib/gstdio.h>
 
   #define CONVERT_MOD(RP_MOD, TR_MOD, rp_mods, mods)	\
   if((rp_mods & RP_MOD) != 0)				\
@@ -197,7 +199,7 @@ static void trs_print(struct tr_score * score)
 
   void trs_main_replay(char * replay_file_name, struct tr_map * map)
   {
-  FILE * f = fopen(replay_file_name, "r");
+  FILE * f = g_fopen(replay_file_name, "r");
   struct replay * replay = replay_parse(f);
 
   if(replay->game_mode != MODE_TAIKO)

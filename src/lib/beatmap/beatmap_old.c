@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <glib.h>
+#include <glib/gstdio.h>
 
 #include "osux/beatmap.h"
 #include "osux/string2.h"
@@ -148,7 +149,7 @@ int osux_beatmap_save(
 
     g_assert(filename != NULL);
 
-    FILE *file = fopen(filename, "w+");
+    FILE *file = g_fopen(filename, "w+");
     if (file == NULL) {
         osux_error("%s: %s\n", filename, strerror(errno));
         return -1;

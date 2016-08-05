@@ -1,4 +1,5 @@
 #include <glib.h>
+#include <glib/gstdio.h>
 #include <float.h>
 
 #include "osux/md5.h"
@@ -291,7 +292,7 @@ int osux_beatmap_init(osux_beatmap *beatmap, char const *file_path)
     int err = 0;
     memset(beatmap, 0, sizeof *beatmap);
 
-    FILE *file = fopen(file_path, "r");
+    FILE *file = g_fopen(file_path, "r");
     if (file == NULL) {
         osux_error("Cannot open file for reading: '%s'\n", file_path);
         return OSUX_ERR_FILE_PERM;

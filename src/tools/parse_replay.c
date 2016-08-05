@@ -16,6 +16,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <glib.h>
+#include <glib/gstdio.h>
 
 #include "osux.h"
 
@@ -26,7 +28,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    FILE *f = fopen(argv[1], "r");
+    FILE *f = g_fopen(argv[1], "r");
     if (!f) {
         perror(argv[1]);
         exit(EXIT_FAILURE);
