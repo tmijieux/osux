@@ -7,6 +7,10 @@ AM_CFLAGS = \
 	-DPKG_DATA_DIR=\"$(pkgdatadir)\" \
 	-DPKG_CONFIG_DIR=\"$(pkgconfdir)\" \
 	-std=gnu99 \
-	$(GLIB_CFLAGS) $(GMODULE_CFLAGS)
+	$(GLIB_CFLAGS) $(GMODULE_CFLAGS) \
+	$(GOBJECT_CFLAGS) $(GIO_CFLAGS)
 
-AM_LDFLAGS = $(GLIB_LIBS) $(GMODULE_LIBS) -no-undefined
+AM_LDFLAGS = \
+	$(GLIB_LIBS) $(GMODULE_LIBS) \
+	$(GOBJECT_LIBS) $(GIO_LIBS) \
+	-no-undefined

@@ -1,3 +1,6 @@
+#ifndef OSUX_MODS_H
+#define OSUX_MODS_H
+
 /*
  *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
  *
@@ -13,9 +16,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-#ifndef MODS_H
-#define MODS_H
 
 void mod_print(FILE *f, uint32_t mod_bitfield);
     

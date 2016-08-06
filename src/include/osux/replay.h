@@ -1,3 +1,6 @@
+#ifndef OSU_REPLAY_H
+#define OSU_REPLAY_H
+
 /*
  *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
  *
@@ -13,9 +16,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-#ifndef REPLAY_H
-#define REPLAY_H
 
 #include <stdio.h>
 #include <stdint.h>
@@ -34,14 +34,13 @@ struct replay_life {
     double life_amount;
 };
 
-struct replay {
-    bool invalid;
+typedef struct osux_replay_ {
     
     uint8_t game_mode;
     uint32_t game_version;
-    char *bm_md5_hash;
+    char *beatmap_hash;
     char *player_name;
-    char *replay_md5_hash;
+    char *replay_hash;
     
     uint16_t _300; // [ taiko: 100%, great, 300pts], mania: 300(not MAX)
     uint16_t _100;  // [taiko: 50%, good, 150pts] , mania: 200
@@ -57,24 +56,24 @@ struct replay {
     uint32_t mods;  // this is a bitfield, see general/mods.h
 
     /* list of time|life separated by commas,  where time is in milliseconds
-       and life is a percentage
-
-       this represent the graph of life during the play  */
-    char *lifebar_graph;
-    uint32_t replife_size;
-    struct replay_life *replife;
+       and life is a percentage this represent the graph of life
+       during the play  */
+    
+    uint32_t life_count;
+    struct replay_life *life;
 
     /* the date and time of the play  */
     time_t timestamp;
 
     /* number of bytes in the compressed lzma stream */
     uint32_t replay_length;
-    uint64_t repdata_count;
-    struct replay_data *repdata;
-};
+    
+    uint64_t data_count;
+    struct replay_data *data;
+} osux_replay;
 
-struct replay *replay_parse(FILE *f);
-void replay_print(FILE *f, const struct replay *r);
-void replay_free(struct replay *r);
+int osux_replay_init(osux_replay *r, char const *file_path);
+void osux_replay_print(osux_replay const *r, FILE *f);
+void osux_replay_free(osux_replay *r);
 
-#endif //REPLAY_H
+#endif // OSU_REPLAY_H

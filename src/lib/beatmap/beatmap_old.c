@@ -63,12 +63,12 @@ int osux_beatmap_print(osux_beatmap const *m, FILE *f)
     PRINT_INT(m, f, WidescreenStoryboard);
 
     PRINT_SECTION( Editor );
-    if (m->bkmkc) {
+    if (m->bookmark_count) {
 	fprintf(f, "Bookmarks: ");
-	for (unsigned int i = 0; i < m->bkmkc; ++i) {
+	for (unsigned int i = 0; i < m->bookmark_count; ++i) {
 	    if (i>=1)
 		fprintf(f, ",");
-	    fprintf(f, "%d", m->Bookmarks[i]);
+	    fprintf(f, "%d", m->bookmarks[i]);
 	}
 	fputs("\r\n", f);
     }

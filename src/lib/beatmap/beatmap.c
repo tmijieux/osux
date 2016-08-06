@@ -15,7 +15,7 @@
 int osux_beatmap_free(osux_beatmap *beatmap)
 {
     if (beatmap == NULL)
-        return -1;
+        return -OSUX_ERR_INVAL;
 
     g_free(beatmap->file_path);
     g_free(beatmap->osu_filename);
@@ -23,7 +23,7 @@ int osux_beatmap_free(osux_beatmap *beatmap)
 
     g_free(beatmap->AudioFilename);
     g_free(beatmap->SampleSet);
-    g_free(beatmap->Bookmarks);
+    g_free(beatmap->bookmarks);
     g_free(beatmap->Title);
     g_free(beatmap->TitleUnicode);
     g_free(beatmap->Artist);
@@ -49,6 +49,8 @@ int osux_beatmap_free(osux_beatmap *beatmap)
     if (beatmap->sections != NULL)
         osux_hashtable_delete(beatmap->sections);
 
+    //this allow multiple free to be harmless:
+    memset(beatmap, 0, sizeof *beatmap);
     return 0;
 }
 
@@ -73,9 +75,8 @@ static int parse_osu_version(osux_beatmap *beatmap, FILE *file)
 
     GMatchInfo *info = NULL;
     if (!g_regex_match(regexp, line, 0, &info)) {
-        g_free(line);
-        g_match_info_free(info);
-        return -OSUX_ERR_BAD_OSU_VERSION;
+        err = -OSUX_ERR_BAD_OSU_VERSION;
+        goto finally;
     }
 
     if (g_match_info_matches(info)) {
@@ -85,6 +86,7 @@ static int parse_osu_version(osux_beatmap *beatmap, FILE *file)
     } else
         err = -OSUX_ERR_BAD_OSU_VERSION;
 
+finally:
     if (beatmap->byte_order_mark)
         line -= sizeof BOM;
 
@@ -107,11 +109,8 @@ static int compute_metadata(osux_beatmap *beatmap, FILE *file)
     /* g_object_unref(ginfo); */
     /* g_object_unref(gfile); */
 
-    if ((err = parse_osu_version(beatmap, file)) < 0) {
-        osux_beatmap_free(beatmap);
+    if ((err = parse_osu_version(beatmap, file)) < 0)
         return err;
-    }
-
     return 0;
 }
 
@@ -191,12 +190,6 @@ static int parse_option_entry(
         beatmap->bpm_avg += bpm;                                \
         beatmap->bpm_avg /= (beatmap)->hitobject_count+1;       \
     } while(0)
-
-#define ALLOC_ARRAY(array_var, size_var, size_literal)                  \
-    do {                                                                \
-        array_var = g_malloc((size_literal) * sizeof(*(array_var)));    \
-        size_var = (size_literal);                                      \
-    } while (0)
 
 static int parse_objects(osux_beatmap *beatmap, FILE *file)
 {

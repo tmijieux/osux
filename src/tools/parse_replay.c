@@ -16,40 +16,32 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <glib.h>
-#include <glib/gstdio.h>
 
 #include "osux.h"
 
 int main(int argc, char *argv[])
 {
     if (argc != 2)  {
-        fprintf(stderr, "Usage: %s replay.osr\n", argv[0]);
+        fprintf(stderr, "Usage: %s /path/to/replay.osr\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
-    FILE *f = g_fopen(argv[1], "r");
-    if (!f) {
-        perror(argv[1]);
+    osux_replay r;
+    if (osux_replay_init(&r, argv[1]) < 0) {
+        printf("Cannot parse replay %s\n", argv[1]);
         exit(EXIT_FAILURE);
     }
-
-    struct replay *r = replay_parse(f);
-    fclose(f);
-    if (r == NULL || r->invalid) {
-        printf("Invalid replay: are your sure this really is a replay?\n");
-        exit(EXIT_FAILURE);
-    }
+    osux_replay_print(&r, stdout);
 
     osux_beatmap_db db;
-    if (osux_beatmap_db_init(&db, "./osu.db", ".", false) == 0) {
-        char *path = osux_beatmap_db_get_path_by_hash(&db, r->bm_md5_hash);
-        printf("Replay map: %s\n", path);
+    if (osux_beatmap_db_init(&db, "./osux.sqlite", ".", false) == 0) {
+        char *path = osux_beatmap_db_get_path_by_hash(&db, r.beatmap_hash);
+        if (path != NULL)
+            printf("Replay map: %s\n", path);
+        else
+            printf("Replay map: Not found.\n");
         osux_beatmap_db_free(&db);
     }
-        
-    replay_print(stdout, r);
-    replay_free(r);
-
+    osux_replay_free(&r);
     return EXIT_SUCCESS;
 }

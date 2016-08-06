@@ -22,7 +22,7 @@ struct mod_designation {
     const char *short_;
 };
 
-struct mod_designation none = { "None",        "" };
+struct mod_designation none = { "None",        "None" };
 
 struct mod_designation md[] = {
     [ IMOD_NOFAIL ]       = { "NoFail",      "NF" },
@@ -58,22 +58,18 @@ struct mod_designation md[] = {
 
 void mod_print(FILE *f, uint32_t mod_bitfield)
 {
-    int count = 0;
+    unsigned count = 0;
     
-    if (mod_bitfield == 0)
-    {
+    if (mod_bitfield == 0) {
 	fputs(none.short_, f);
 	return;
     }
     
-    for (int i = 0; i < IMOD_MAX; ++i)
-    {
-	if ( ((mod_bitfield >> i) % 2) != 0)
-	{
-	    if (count > 0)
-		fprintf(f, "|");
+    for (int i = 0; i < IMOD_MAX; ++i) {
+	if ((mod_bitfield >> i) % 2) {
+	    if (count) fprintf(f, "|");
 	    fputs(md[i].short_, f);
-	    count++;
+	    ++ count;
 	}
     }
 }

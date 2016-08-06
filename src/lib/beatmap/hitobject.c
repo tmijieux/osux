@@ -158,24 +158,33 @@ static int parse_addon_hitsound(osux_hitobject *ho, char *addonstr)
         -- size;
     }
 
-    if (size < 3 || (ho->_osu_version > 11 && size < 4)) {
+    if (size < 2 || (ho->_osu_version > 10 && size < 3)
+                 || (ho->_osu_version > 11 && size < 4)) {
         g_strfreev(split);
         return -OSUX_ERR_INVALID_HITOBJECT_ADDON_HITSOUND;
     }
 
     ho->hitsound.sample_type = atoi(split[0]);
     ho->hitsound.addon_sample_type = atoi(split[1]);
-    ho->hitsound.sample_set_index = atoi(split[2]);
-    if (split[3] != NULL) {
-        ho->hitsound.volume = atoi(split[3]);
-        if (split[4] != NULL)
-            ho->hitsound.sfx_filename = g_strdup(split[4]);
-        else
+
+    if (split[2] != NULL) {
+        ho->hitsound.sample_set_index = atoi(split[2]);
+        if (split[3] != NULL) {
+            ho->hitsound.volume = atoi(split[3]);
+            if (split[4] != NULL)
+                ho->hitsound.sfx_filename = g_strdup(split[4]);
+            else
+                ho->hitsound.sfx_filename = g_strdup("");
+        } else {
+            ho->hitsound.volume = 70;
             ho->hitsound.sfx_filename = g_strdup("");
+        }
     } else {
-        ho->hitsound.volume = 42;
+        ho->hitsound.sample_set_index = 0;
+        ho->hitsound.volume = 70;
         ho->hitsound.sfx_filename = g_strdup("");
     }
+
     if (HIT_OBJECT_IS_HOLD(ho))
         -- split;
 

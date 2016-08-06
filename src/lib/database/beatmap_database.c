@@ -102,26 +102,28 @@ static int beatmap_insert(osux_beatmap_db *db, osux_beatmap *bm)
     DB_BIND_INT(db, "visual_override", bm->visual_override);
     DB_BIND_INT(db, "mania_scroll_speed", bm->mania_scroll_speed);
     
-    osux_database_exec_prepared_query(&db->base, NULL);
-    return 0;
+    return osux_database_exec_prepared_query(&db->base, NULL);
 }
 
 static int load_beatmap_from_disk(
     osux_beatmap_db *db, const char *filepath, size_t song_dir_length)
 {
+    int err = 0;
     osux_beatmap beatmap;
 
-    if (osux_beatmap_init(&beatmap, filepath) < 0) {
+    if ((err = osux_beatmap_init(&beatmap, filepath)) < 0) {
         osux_error("Cannot load beatmap %s\n", filepath);
-        return -1;
+        return err;
     }
-    if (beatmap_insert(db, &beatmap) < 0)
-        fprintf(stderr, "inserting beatmap '%s' failed\n", beatmap.difficulty_name);
+    if ((err = beatmap_insert(db, &beatmap) < 0))
+        fprintf(stderr, "inserting beatmap '%s' failed\n", beatmap.file_path);
+    else
+        ++ db->parsed_beatmap_count;
     osux_beatmap_free(&beatmap);
-    return 0;
+    return err;
 }
 
-static int parse_beatmap_directory(osux_beatmap_db *db, char const *path)
+static gboolean parse_beatmap_directory(osux_beatmap_db *db, char const *path)
 {
     GDir *dir = NULL;
     const gchar *entry_name;
@@ -129,9 +131,9 @@ static int parse_beatmap_directory(osux_beatmap_db *db, char const *path)
     assert( db != NULL );
 
     if ((dir = g_dir_open(path, 0, NULL)) == NULL)
-        return FALSE;
+        return -1;
     if ((entry_name = g_dir_read_name(dir)) == NULL)
-        return FALSE;
+        return 0;
 
     do {
         char *file_entry = g_strdup_printf("%s/%s", path, entry_name);
@@ -188,8 +190,11 @@ int osux_beatmap_db_init(
     if (populate || !beatmap_table_is_present(db)) {
         if ((err = init_schema(db)) < 0)
             return err;
-        if (populate)
-            return parse_beatmap_directory(db, song_dir);
+        if (populate) {
+            parse_beatmap_directory(db, song_dir);
+            printf("parsed %lu beatmap%s.\n",
+                   db->parsed_beatmap_count, db->parsed_beatmap_count ? "s":"");
+        }
     }
     return 0;
 }

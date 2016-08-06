@@ -78,12 +78,14 @@ int osux_timingpoint_init(osux_timingpoint *tp,
     tp->kiai = size >= 8 ? (atoi(split[7]) != 0) : false;
 
     if (tp->inherited) {
-        tp->last_non_inherited = *last_non_inherited;
         g_assert(last_non_inherited != NULL);
-
+        if (*last_non_inherited == NULL)
+            return -OSUX_ERR_INVALID_INHERITED_TIMINGPOINT;
+        tp->last_non_inherited = *last_non_inherited;
         tp->slider_velocity_multiplier = tp->millisecond_per_beat;
         tp->millisecond_per_beat = tp->last_non_inherited->millisecond_per_beat;
     } else {
+        g_assert(last_non_inherited != NULL);
         *last_non_inherited = tp;
         tp->last_non_inherited = tp;
         tp->slider_velocity_multiplier = 0.;

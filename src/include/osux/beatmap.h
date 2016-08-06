@@ -96,11 +96,14 @@ struct osux_beatmap {
     uint32_t WidescreenStoryboard;
 
     // Editor settings
-    uint32_t bkmkc;  uint32_t *Bookmarks;
     double DistanceSpacing;
     uint32_t BeatDivisor;
     uint32_t GridSize;
     double TimelineZoom;
+
+    uint32_t bookmark_count;
+    uint32_t bookmark_bufsize;
+    uint32_t *bookmarks;
 
     // Metadata
     char *Title;

@@ -23,55 +23,61 @@
 #include <locale.h>
 
 #include "osux/game_mode.h"
-#include "osux/uleb128.h"
+#include "osux/util.h"
 #include "osux/list.h"
-#include "osux/split.h"
 #include "osux/read.h"
 #include "osux/mods.h"
 #include "osux/replay.h"
-#include "osux/xz_decomp.h"
+#include "osux/buffer_reader.h"
 
 #define read_string(buf_ptr_, file_) read_string_ULEB128(buf_ptr_, file_)
 
-#define DATE_MAXSIZE 200
-
-static unsigned int parse_replay_data(FILE *f, struct replay_data **repdata)
+static int replay_data_init(struct replay_data *d, char *datastr)
 {
-    gchar *uncomp, **tab;
+    gchar **split = g_strsplit(datastr, "|", 0);
+    unsigned size = strsplit_size(split);
 
-    lzma_decompress(f, (uint8_t**) &uncomp);
-    if (NULL == uncomp) {
-        *repdata = NULL;
-        return (unsigned) -1;
-    }
-
-    tab = g_strsplit(uncomp, ",", 0);
-    free(uncomp);
-    gsize tabSize = 0;
-    while (tab[tabSize] != NULL)
-        tabSize++;
-
-    *repdata = calloc(sizeof(**repdata), tabSize);
-    for (unsigned int i = 0; i < tabSize; ++i) {
-        if (!strcmp(tab[i], "")) {
-            --i; --tabSize;
-            continue;
-        }
-
-        gchar **split = g_strsplit(tab[i], "|", 0);
-        (*repdata)[i].previous_time = g_ascii_strtoull(split[0], NULL, 10);
-        (*repdata)[i].x = g_ascii_strtod(split[1], NULL);
-        (*repdata)[i].y = g_ascii_strtod(split[2], NULL);
-        (*repdata)[i].keys = atoi(split[3]);
+    if (size != 4) {
         g_strfreev(split);
+        return -OSUX_ERR_REPLAY_DATA;
     }
-    g_strfreev(tab);
+    
+    d->previous_time = g_ascii_strtoull(split[0], NULL, 10);
+    d->x = g_ascii_strtod(split[1], NULL);
+    d->y = g_ascii_strtod(split[2], NULL);
+    d->keys = atoi(split[3]);
+    
+    g_strfreev(split);
+    return 0;
+}
 
-    return tabSize;
+static int parse_replay_data(osux_replay *r, char const *data)
+{
+    int err = 0;
+    if (data == NULL)
+        return 0; // not an error: replay with no data can exist
+
+    char **data_split = g_strsplit(data, ",", 0);
+    unsigned size = strsplit_size(data_split);
+
+    ALLOC_ARRAY(r->data, r->data_count, size);
+    for (unsigned i = 0; i < size; ++i) {
+        if (i == size-1 && !strcmp(data_split[i], "")) {
+            // see parse_life_graph()
+            -- r->data_count;
+            break;
+        }
+        if ((err = replay_data_init(&r->data[i], data_split[i])) < 0)
+            break;
+    }
+    g_strfreev(data_split);
+    return err;
 }
 
 #define TICKS_PER_SECONDS 10000000L
 #define TICKS_AT_EPOCH  621355968000000000L
+// enum wont work here because C enum cannot be anything else than 'int' type
+// and TICKS_AT_EPOCH may be truncated by the compiler :D
 
 static time_t from_win_timestamp(uint64_t ticks)
 {
@@ -95,77 +101,119 @@ static void print_date(FILE *f, time_t t)
     g_date_time_unref(dateTime);
 }
 
-struct replay *replay_parse(FILE *f)
+static int replay_life_init(struct replay_life *life, char const *lifestr)
 {
-    char **life = NULL;
-    uint64_t ticks;
-    struct replay *r = calloc(sizeof(*r), 1);
-    r->invalid = false;
-    rewind(f);
-
-    xfread(&r->game_mode, 1, 1, f);
-    xfread(&r->game_version, 4, 1, f);
-
-    read_string(&r->bm_md5_hash, f);
-    read_string(&r->player_name, f);
-    read_string(&r->replay_md5_hash, f);
-
-    xfread(&r->_300,  2, 1, f);
-    xfread(&r->_100,  2, 1, f);
-    xfread(&r->_50,   2, 1, f);
-    xfread(&r->_geki, 2, 1, f);
-    xfread(&r->_katu, 2, 1, f);
-    xfread(&r->_miss, 2, 1, f);
-
-    xfread(&r->score, 4, 1, f);
-    xfread(&r->max_combo, 2, 1, f);
-    xfread(&r->fc, 1, 1, f);
-    xfread(&r->mods, 4, 1, f);
-
-    read_string(&r->lifebar_graph, f);
-    if (r->lifebar_graph == NULL) {
-        free(r);
-        return NULL;
-    }
-
-    r->replife_size = 0;
-    life = g_strsplit(r->lifebar_graph, ",", 0);
-    while (life[r->replife_size] != NULL)
-        ++ r->replife_size;
-
-    r->replife = malloc(sizeof r->replife[0] * r->replife_size);
-    for (unsigned int i = 0; i < r->replife_size; ++i) {
-        if (!strcmp(life[i], "")) {
-            --i; --r->replife_size;
-            continue;
-        }
-
-        gchar **split = g_strsplit(life[i], "|", 0);
-        r->replife[i].time_offset = g_ascii_strtoull(split[0], NULL, 10);
-        r->replife[i].life_amount = g_ascii_strtod(split[1], NULL);
+    gchar **split = g_strsplit(lifestr, "|", 0);
+    unsigned size = strsplit_size(split);
+    if (size != 2) {
         g_strfreev(split);
-    }
-    g_strfreev(life);
-
-    xfread(&ticks, 8, 1, f);
-    r->timestamp = from_win_timestamp(ticks);
-
-    xfread(&r->replay_length, 4, 1, f);
-    if ((r->repdata_count =
-         parse_replay_data(f, &r->repdata)) == (unsigned)-1) {
-        r->invalid = 1;
+        return -OSUX_ERR_REPLAY_LIFE_BAR;
     }
 
-    return r;
+    life->time_offset = g_ascii_strtoull(split[0], NULL, 10);
+    life->life_amount = g_ascii_strtod(split[1], NULL);
+
+    g_strfreev(split);
+    return 0;
 }
 
-void replay_print(FILE *f, const struct replay *r)
+static int parse_life_graph(osux_replay *r, char const *life_graph)
 {
-    fprintf(f, "game mode: %u\n", r->game_mode);
-    fprintf(f, "game version: %u\n", r->game_version);
-    fprintf(f, "beatmap md5 hash: %s\n", r->bm_md5_hash);
-    fprintf(f, "player name: %s\n", r->player_name);
-    fprintf(f, "replay md5 hash: %s\n", r->replay_md5_hash);
+    int err = 0;
+
+    if (life_graph == NULL) {
+        // not an error:
+        // 'pure score' .osr file have no data and no life graph
+        return 0;
+    }
+
+    char **life_split = g_strsplit(life_graph, ",", 0);
+    unsigned size = strsplit_size(life_split);
+
+    ALLOC_ARRAY(r->life, r->life_count, size);
+    for (unsigned i = 0; i < size; ++i) {
+        if (i == size-1 && !strcmp(life_split[i], "")) {
+            // this often happens: a comma get appended in the end
+            // but glib will still report a empty token
+            -- r->life_count;
+            break;
+        }
+        if ((err = replay_life_init(&r->life[i], life_split[i])) < 0)
+            break;
+    }
+    g_strfreev(life_split);
+    return err;
+}
+
+#define READ_S(handle, var)  obr_read_string(&(handle), &(var))
+#define READ_V(handle, var)  obr_read(&(handle), &(var), sizeof (var))
+
+int osux_replay_init(osux_replay *r, char const *filepath)
+{
+    int err = 0;
+    gsize length;  gchar *contents;
+    if (!g_file_get_contents(filepath, &contents, &length, NULL))
+        return -OSUX_ERR_FILE_ERROR;
+
+    osux_buffer_reader br;
+    osux_buffer_reader_init(&br, contents, length);
+
+    memset(r, 0, sizeof *r);
+
+    READ_V(br, r->game_mode);
+    READ_V(br, r->game_version);
+
+    READ_S(br, r->beatmap_hash);
+    READ_S(br, r->player_name);
+    READ_S(br, r->replay_hash);
+
+    READ_V(br, r->_300);
+    READ_V(br, r->_100);
+    READ_V(br, r->_50);
+    READ_V(br, r->_geki);
+    READ_V(br, r->_katu);
+    READ_V(br, r->_miss);
+
+    READ_V(br, r->score);
+    READ_V(br, r->max_combo);
+    READ_V(br, r->fc);
+    READ_V(br, r->mods);
+
+    char *life_graph = NULL;
+    READ_S(br, life_graph);
+    if ((err = parse_life_graph(r, life_graph)) < 0) {
+        osux_replay_free(r);
+        osux_buffer_reader_free(&br);
+        return err;
+    }
+    g_free(life_graph);
+
+    uint64_t ticks;
+    READ_V(br, ticks);
+    r->timestamp = from_win_timestamp(ticks);
+    
+    READ_V(br, r->replay_length);
+    char *data = NULL;
+    obr_read_lzma(&br, &data, r->replay_length);
+    if ((err = parse_replay_data(r, data)) < 0) {
+        osux_replay_free(r);
+        osux_buffer_reader_free(&br);
+        return err;
+    }
+    g_free(data);
+
+    osux_buffer_reader_free(&br);
+    
+    return 0;
+}
+
+void osux_replay_print(osux_replay const *r, FILE *f)
+{
+    fprintf(f, "GameMode: %u\n", r->game_mode);
+    fprintf(f, "Game version: %u\n", r->game_version);
+    fprintf(f, "Beatmap hash: %s\n", r->beatmap_hash);
+    fprintf(f, "Player name: %s\n", r->player_name);
+    fprintf(f, "Replay hash: %s\n", r->replay_hash);
 
     fprintf(f, "300: %u\n", r->_300);
     fprintf(f, "100: %u\n", r->_100);
@@ -174,40 +222,36 @@ void replay_print(FILE *f, const struct replay *r)
     fprintf(f, "katu: %u\n", r->_katu);
 
     fprintf(f, "miss: %u\n", r->_miss);
-    fprintf(f, "score: %u\n", r->score);
-    fprintf(f, "max combo: %u\n", r->max_combo);
-    fprintf(f, "Full combo: %u\n", r->fc);
-    fputs("mods: ", f);  mod_print(f, r->mods); fputs("\n", f);
-    fprintf(f, "lifebar_graph: "/*%s\n", r->lifebar_graph*/);
+    fprintf(f, "Score: %u\n", r->score);
+    fprintf(f, "MaxCombo: %u\n", r->max_combo);
+    fprintf(f, "FullCombo: %u\n", r->fc);
+    fputs("Mods: ", f);  mod_print(f, r->mods); fputs("\n", f);
+    fprintf(f, "Life Graph: "/*%s\n", r->lifebar_graph*/);
 
-    for (unsigned int i = 0; i < r->replife_size; ++i) {
-        struct replay_life *rl = &r->replife[i];
-        g_fprintf(f, "%"G_GUINT64_FORMAT"|%lg%s", rl->time_offset, rl->life_amount,
-                  i == r->replife_size-1 ? "" : ",");
+    for (unsigned i = 0; i < r->life_count; ++i) {
+        struct replay_life *l = &r->life[i];
+        g_fprintf(f, "%"G_GUINT64_FORMAT"|%lg,",
+                  l->time_offset, l->life_amount);
     }
-    fputs("\n", f);
+    fprintf(f, "\n");
 
     print_date(f, r->timestamp);
 
-    fprintf(f, "replay length: %u bytes\n", r->replay_length);
-    fprintf(f, "\n");
-    fprintf(f, "__ DATA __ :\n");
+    fprintf(f, "Replay size: %u bytes\n\n", r->replay_length);
+    fprintf(f, "Data:\n");
 
-    for (unsigned int i = 0; i < r->repdata_count; ++i) {
-    	struct replay_data *rd = &r->repdata[i];
-    	g_fprintf(f, "%"G_GINT64_FORMAT"|%g|%g|%u\n", rd->previous_time, rd->x, rd->y, rd->keys);
+    for (unsigned i = 0; i < r->data_count; ++i) {
+    	struct replay_data *d = &r->data[i];
+    	g_fprintf(f, "%"G_GINT64_FORMAT"|%g|%g|%u\n",
+                  d->previous_time, d->x, d->y, d->keys);
     }
 }
 
-void replay_free(struct replay *r)
+void osux_replay_free(osux_replay *r)
 {
-    free(r->bm_md5_hash);
-    free(r->player_name);
-    free(r->replay_md5_hash);
-    free(r->lifebar_graph);
-    free(r->replife);
-    free(r->repdata);
-    free(r);
+    g_free(r->beatmap_hash);
+    g_free(r->player_name);
+    g_free(r->replay_hash);
+    g_free(r->life);
+    g_free(r->data);
 }
-
-

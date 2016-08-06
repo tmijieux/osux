@@ -19,6 +19,8 @@ add_library(osux STATIC ${osux_src})
 target_link_libraries(osux
   ${GLIB_LIBRARIES}
   ${GLIB_GMODULE_LIBRARIES}
+  ${GLIB_GIO_LIBRARIES}
+  ${GLIB_GOBJECT_LIBRARIES}
   ${OPENSSL_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
   ${LIBLZMA_LIBRARIES}

@@ -18,6 +18,7 @@
 #include <lzma.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <gio/gio.h>
 
 #include "osux/read.h"
 #include "osux/xz_decomp.h"
@@ -54,14 +55,14 @@ static void lzma_error(lzma_ret error_code)
 }
 
 /* note: in_file and out_file must be open already */
-static int lzma_legacy_decompress(FILE *in_file, FILE *out_file)
+static int lzma_legacy_decompress(GInputStream *in_file, GOutputStream *out_file)
 {
     lzma_stream strm = LZMA_STREAM_INIT; /* alloc and init lzma_stream struct */
     const uint64_t memory_limit = UINT64_MAX; /* no memory limit */
     uint8_t in_buf [IN_BUF_MAX];
     uint8_t out_buf [OUT_BUF_MAX];
-    size_t in_len;	/* length of useful data in in_buf */
-    size_t out_len;	/* length of useful data in out_buf */
+    ssize_t in_len;	/* length of useful data in in_buf */
+    ssize_t out_len;	/* length of useful data in out_buf */
     bool in_finished = false;
     bool out_finished = false;
     lzma_action action;
@@ -77,17 +78,19 @@ static int lzma_legacy_decompress(FILE *in_file, FILE *out_file)
 	return RET_ERROR_INIT;
     }
 
-    while ((! in_finished) && (! out_finished)) {
+    while ((!in_finished) && (!out_finished)) {
 	/* read incoming data */
-	in_len = fread(in_buf, 1, IN_BUF_MAX, in_file);
+	in_len = g_input_stream_read(in_file, in_buf, IN_BUF_MAX, NULL, NULL);
 
-	if (feof (in_file)) {
-	    in_finished = true;
-	}
-	if (ferror (in_file)) {
+	if (in_len == 0)
+	    in_finished = true; //end of file
+
+	if (in_len < 0) {
 	    in_finished = true;
 	    ret = RET_ERROR_INPUT;
-	}
+            in_len = 0;
+        }
+
 	strm.next_in = in_buf;
 	strm.avail_in = in_len;
 
@@ -103,7 +106,7 @@ static int lzma_legacy_decompress(FILE *in_file, FILE *out_file)
 	    strm.avail_out = OUT_BUF_MAX;
 
 	    /* decompress data */
-	    ret_xz = lzma_code (&strm, action);
+	    ret_xz = lzma_code(&strm, action);
 
 	    if ((ret_xz != LZMA_OK) && (ret_xz != LZMA_STREAM_END)) {
                 lzma_error(ret_xz);
@@ -112,8 +115,9 @@ static int lzma_legacy_decompress(FILE *in_file, FILE *out_file)
 	    } else {
 		/* write decompressed data */
 		out_len = OUT_BUF_MAX - strm.avail_out;
-		fwrite (out_buf, 1, out_len, out_file);
-		if (ferror(out_file)) {
+                ssize_t err;
+		err = g_output_stream_write(out_file, out_buf, out_len, NULL, NULL);
+		if (err < 0) {
 		    out_finished = true;
 		    ret = RET_ERROR_OUTPUT;
 		}
@@ -125,23 +129,20 @@ static int lzma_legacy_decompress(FILE *in_file, FILE *out_file)
     return ret;
 }
 
-void lzma_decompress(FILE *f, uint8_t **buf)
+void lzma_decompress(uint8_t *in_buf, size_t in_size,
+                     uint8_t **out_buf, size_t *out_len)
 {
-    struct stat st;
-    FILE *out =  tmpfile();
-    int ret;
-    
-    ret = lzma_legacy_decompress(f, out);
-    if (RET_ERROR_DECOMPRESSION == ret || RET_ERROR_OUTPUT == ret) {
-        *buf = NULL;
-        return;
+    GInputStream *is = g_memory_input_stream_new_from_data(
+        in_buf, in_size, NULL);
+    GOutputStream *os = g_memory_output_stream_new(NULL, 0, g_realloc, NULL);
+    if (lzma_legacy_decompress(is, os) != 0) {
+        *out_len = 0;
+        *out_buf = NULL;
+    } else {
+        *out_buf = g_memory_output_stream_get_data((GMemoryOutputStream*) os);
+        *out_len = g_memory_output_stream_get_size((GMemoryOutputStream*) os);
     }
-        
-    fflush(out);
-    fstat(fileno(out), &st);
-    *buf = malloc(st.st_size+1);
-    rewind(out);
-    xfread(*buf, 1, st.st_size, out);
-    (*buf)[st.st_size] = 0;
-    fclose(out);
+
+    g_object_unref(is);
+    g_object_unref(os);
 }

@@ -14,6 +14,12 @@
         }                                                               \
     } while (0)                                                         \
 
+#define ALLOC_ARRAY(array_var, size_var, size_literal)                  \
+    do {                                                                \
+        array_var = g_malloc((size_literal) * sizeof(*(array_var)));    \
+        size_var = (size_literal);                                      \
+    } while (0)
+
 
 #define ARRAY_SIZE(array) (sizeof (array) / sizeof((array)[0]))
 

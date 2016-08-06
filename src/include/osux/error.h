@@ -1,5 +1,5 @@
-#ifndef ERROR_H
-#define ERROR_H
+#ifndef OSUX_ERROR_H
+#define OSUX_ERROR_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,6 +11,7 @@
 
 #define OSUX_ERROR_LIST(ERROR)                                  \
     ERROR(OSUX_SUCCESS)                                         \
+    ERROR(OSUX_ERR_INVAL)                                       \
     ERROR(OSUX_ERR_UNKNOWN_ERROR)                               \
     ERROR(OSUX_ERR_FILE_ERROR)                                  \
     ERROR(OSUX_ERR_FILE_ACCESS)                                 \
@@ -18,6 +19,7 @@
     ERROR(OSUX_ERR_MALFORMED_OSU_FILE)                          \
     ERROR(OSUX_ERR_DATABASE)                                    \
     ERROR(OSUX_ERR_INVALID_TIMINGPOINT)                         \
+    ERROR(OSUX_ERR_INVALID_INHERITED_TIMINGPOINT)               \
     ERROR(OSUX_ERR_INVALID_HITOBJECT)                           \
     ERROR(OSUX_ERR_INVALID_HITOBJECT_TYPE)                      \
     ERROR(OSUX_ERR_INVALID_HITOBJECT_SPINNER)                   \
@@ -27,6 +29,19 @@
     ERROR(OSUX_ERR_INVALID_HITOBJECT_EDGE_SAMPLE_TYPE)          \
     ERROR(OSUX_ERR_INVALID_HITOBJECT_SLIDER_TYPE)               \
     ERROR(OSUX_ERR_INVALID_HITOBJECT_SLIDER_POINTS)             \
+    ERROR(OSUX_ERR_REPLAY_LIFE_BAR)                             \
+    ERROR(OSUX_ERR_REPLAY_DATA)                                 \
+    ERROR(OSUX_ERR_BUFFER_READER_RANGE)                         \
+
+
+#define CHECK_ERROR(expr, finally)              \
+    do {                                        \
+        int err_macro_;                         \
+        if ((err_macro_ = (expr)) < 0) {        \
+            finally;                            \
+            return err_macro_;                  \
+        }                                       \
+    } while (0)
 
 enum osux_error_code {
     OSUX_ERROR_LIST(OSUX_ERROR_TO_ENUM)
@@ -71,4 +86,4 @@ const char *osux_errmsg(int errcode);
 #endif
 
 
-#endif //ERROR_H
+#endif // OSUX_ERROR_H

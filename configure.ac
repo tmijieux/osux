@@ -13,6 +13,8 @@ PKG_CHECK_MODULES(CRYPTO, libcrypto)
 PKG_CHECK_MODULES(SQLITE, sqlite3)
 PKG_CHECK_MODULES([GLIB], [glib-2.0])
 PKG_CHECK_MODULES([GMODULE], [gmodule-2.0])
+PKG_CHECK_MODULES([GIO], [gio-2.0])
+PKG_CHECK_MODULES([GOBJECT], [gobject-2.0])
 PKG_CHECK_MODULES(GTS, gts >= 0.7.2, ,
                        [AC_CHECK_PROG(GTS_CONFIG, gts-config,
                        gts-config, false)

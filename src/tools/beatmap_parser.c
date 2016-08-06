@@ -28,11 +28,16 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
+    int err;
     osux_beatmap bm;
-    if (osux_beatmap_init(&bm, argv[1]) == 0) {
-        osux_beatmap_print(&bm, stdout);
-        osux_beatmap_free(&bm);
+    if ((err = osux_beatmap_init(&bm, argv[1])) < 0) {
+        fprintf(stderr, "Cannot parse beatmap '%s': %s\n",
+                argv[1], osux_errmsg(err));
+        return EXIT_FAILURE;
     }
+
+    osux_beatmap_print(&bm, stdout);
+    osux_beatmap_free(&bm);
 
     return EXIT_SUCCESS;
 }
