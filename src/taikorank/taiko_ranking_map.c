@@ -68,7 +68,7 @@ void trm_main(const struct tr_map * map)
     trm_print(map_copy);
 
     // db
-    if (OPT_DATABASE)
+    if (GLOBAL_CONFIG->db_enable)
 	trm_db_insert(map_copy);
 
     // free
@@ -87,9 +87,9 @@ void trm_set_read_only_objects(struct tr_map * map)
 
 void trm_add_modifier(struct tr_map * map)
 {
-    if (OPT_FLAT)
+    if (map->conf->flat)
 	trm_flat_big(map);
-    if (OPT_NO_BONUS)
+    if (map->conf->no_bonus)
 	trm_remove_bonus(map);
 }
 
@@ -160,9 +160,9 @@ struct tr_map * trm_new(char * filename)
 	return res;
 
     case TR_FILENAME_HASH:
-	if (ODB == NULL)
+	if (GLOBAL_CONFIG->odb == NULL)
 	    break;
-	map = osux_db_get_beatmap_by_hash(ODB, filename);
+	map = osux_db_get_beatmap_by_hash(GLOBAL_CONFIG->odb, filename);
 	if (map == NULL)
 	    break;
 	res = trm_from_osux_map(map);
@@ -255,7 +255,7 @@ static struct osux_beatmap * osux_map_check_mode(struct osux_beatmap *map)
 {
     switch(map->Mode) {
     case MODE_STD:
-	if (OPT_AUTOCONVERT) {
+	if (GLOBAL_CONFIG->autoconvert_enable) {
 	    int res = osux_beatmap_taiko_autoconvert(map);
 	    if (res == 0)
 		return map;
@@ -390,7 +390,7 @@ void trm_print_out_tro(const struct tr_map * map, int filter)
 
 static void trm_print_out_results(const struct tr_map * map)
 {
-    char * order = OPT_PRINT_ORDER;
+    char * order = GLOBAL_CONFIG->print_order;
     int i = 0;
     while(order[i]) {
 	switch(order[i]) {
@@ -418,7 +418,7 @@ static char * yaml_prefix = "maps: [";
 
 void tr_print_yaml_exit(void)
 {
-    if (OPT_PRINT_YAML) {
+    if (GLOBAL_CONFIG->print_yaml) {
 	if (yaml_prefix[0] != 'm')
 	    fprintf(OUTPUT, "]\n");
 	else
@@ -429,6 +429,8 @@ void tr_print_yaml_exit(void)
 static void fprintf_escape_char(FILE * out, const char * s, 
 				char c, const char * escaped)
 {
+    if (s == NULL || s[0] == '\0')
+	return;
     char * str = strdup(s);
     char ch[2] = { c, '\0'};
     char * token = strtok(str, ch);
@@ -486,7 +488,7 @@ void trm_print_yaml(const struct tr_map * map)
     fprintf(OUTPUT, "final_star: %g", map->final_star);
     fprintf(OUTPUT, "}");
 
-    if (OPT_PRINT_TRO) {
+    if (GLOBAL_CONFIG->print_tro) {
 	fprintf(OUTPUT, ", objects: [");
 	for (int i = 0; i < map->nb_object; i++) {
 	    tro_print_yaml(&map->object[i]);
@@ -505,8 +507,8 @@ void trm_print_yaml(const struct tr_map * map)
 
 static void trm_print_out(const struct tr_map * map)
 {
-    if (OPT_PRINT_TRO)
-	trm_print_out_tro(map, OPT_PRINT_FILTER);
+    if (GLOBAL_CONFIG->print_tro)
+	trm_print_out_tro(map, GLOBAL_CONFIG->print_filter);
     trm_print_out_results(map);
 }
 
@@ -514,7 +516,7 @@ static void trm_print_out(const struct tr_map * map)
 
 void trm_print(const struct tr_map * map)
 {
-    if (OPT_PRINT_YAML)
+    if (GLOBAL_CONFIG->print_yaml)
 	trm_print_yaml(map);
     else
 	trm_print_out(map);

@@ -23,26 +23,36 @@
 #include "config.h"
 #include "options.h"
 
+static int apply_global_options(int argc, const char ** argv)
+{
+    int i = 1;
+    while (argv[i][0] == GLOBAL_OPT_PREFIX[0])
+	i += global_opt_set(argc - i, &argv[i]);
+    init_enabled();
+    return i;
+}
+
 int main(int argc, char *argv[])
 {
     int nb_map = 0;
+    int start = apply_global_options(argc, (const char **) argv);
 
 #   pragma omp parallel
 #   pragma omp single
-    for (int i = 1; i < argc; i++) {
-	if (argv[i][0] == OPTIONS_PREFIX) {
-	    i += options_set(argc - i, (const char **) &argv[i]);
+    for (int i = start; i < argc; i++) {
+	if (argv[i][0] == LOCAL_OPT_PREFIX[0]) {
+	    i += local_opt_set(argc - i, (const char **) &argv[i]);
 	} else {
 	    nb_map++;
 	    struct tr_map * map = trm_new(argv[i]);
 	    if(map == NULL)
 		continue;
 
-	    map->conf = tr_config_copy(CONF);
+	    map->conf = tr_local_config_copy();
 #           pragma omp task firstprivate(map)
 	    {
 		map->conf->tr_main(map);
-		tr_config_free(map->conf);
+		tr_local_config_free(map->conf);
 		trm_free(map);
 	    }
 	}

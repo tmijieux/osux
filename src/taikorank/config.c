@@ -32,151 +32,124 @@
 
 #define MOD_STR_LENGTH 2
 
-int OPT_AUTOCONVERT;
-
-int OPT_DATABASE;
-int OPT_PRINT_TRO;
-int OPT_PRINT_YAML;
-int OPT_PRINT_FILTER;
-char * OPT_PRINT_ORDER;
-
-int OPT_FLAT;
-int OPT_NO_BONUS;
-
-char * TR_DB_IP;
-char * TR_DB_LOGIN;
-char * TR_DB_PASSWD;
-
-char * OPT_ODB_PATH;
-char * OPT_ODB_SGDIR;
-char * OPT_ODB_STATE;
-struct osux_db * ODB;
-
-struct tr_config * CONF;
+struct tr_global_config * GLOBAL_CONFIG;
+struct tr_local_config * LOCAL_CONFIG;
 
 static struct yaml_wrap * yw;
 static struct hash_table * ht_conf;
 
+static void local_config_score(void);
+
 //-----------------------------------------------------
 
-static struct tr_config * tr_config_new(void)
+static struct tr_global_config * tr_global_config_new(void)
 {
-    return malloc(sizeof(struct tr_config));
+    return malloc(sizeof(struct tr_global_config));
 }
 
-void tr_config_free(struct tr_config * conf)
+void tr_global_config_free(struct tr_global_config *conf)
 {
     free(conf);
 }
 
-struct tr_config * tr_config_copy(struct tr_config * conf)
+//-----------------------------------------------------
+
+static struct tr_local_config * tr_local_config_new(void)
 {
-    struct tr_config * copy = tr_config_new();
-    memcpy(copy, conf, sizeof(*conf));
+    return malloc(sizeof(struct tr_local_config));
+}
+
+void tr_local_config_free(struct tr_local_config *conf)
+{
+    free(conf);
+}
+
+struct tr_local_config * tr_local_config_copy(void)
+{
+    struct tr_local_config * copy = tr_local_config_new();
+    memcpy(copy, LOCAL_CONFIG, sizeof(*LOCAL_CONFIG));
     return copy;
 }
 
 //-----------------------------------------------------
 
-static void global_init(void)
+static void config_init(void)
 {
-    CONF = tr_config_new();
+    GLOBAL_CONFIG = tr_global_config_new();
+    LOCAL_CONFIG  = tr_local_config_new();
 
-    OPT_AUTOCONVERT = cst_i(ht_conf, "enable_autoconvert");
+    GLOBAL_CONFIG->autoconvert_enable = cst_i(ht_conf, "autoconvert_enable");
 
-    OPT_PRINT_TRO   = cst_i(ht_conf, "print_tro");
-    OPT_PRINT_YAML  = cst_i(ht_conf, "print_yaml");
-    OPT_PRINT_ORDER = cst_str(ht_conf, "print_order");
-    config_set_filter(cst_str(ht_conf, "print_filter"));
+    GLOBAL_CONFIG->print_tro   = cst_i(ht_conf, "print_tro");
+    GLOBAL_CONFIG->print_yaml  = cst_i(ht_conf, "print_yaml");
+    GLOBAL_CONFIG->print_order = cst_str(ht_conf, "print_order");
+    global_config_set_filter(cst_str(ht_conf, "print_filter"));
   
-    config_set_mods(cst_str(ht_conf, "mods"));
-    OPT_FLAT     = cst_i(ht_conf, "flat");
-    OPT_NO_BONUS = cst_i(ht_conf, "no_bonus");
+    GLOBAL_CONFIG->db_enable = cst_i(ht_conf, "db_enable");
+    GLOBAL_CONFIG->db_ip     = cst_str(ht_conf, "db_ip");
+    GLOBAL_CONFIG->db_login  = cst_str(ht_conf, "db_login");
+    GLOBAL_CONFIG->db_passwd = cst_str(ht_conf, "db_passwd");
 
-    OPT_DATABASE = cst_i(ht_conf, "database");
-    if(OPT_DATABASE)
-	ht_conf_db_init();
+    GLOBAL_CONFIG->odb_enable = cst_i(ht_conf, "osuxdb_enable");
+    GLOBAL_CONFIG->odb_path   = cst_str(ht_conf, "osuxdb_path");
+    GLOBAL_CONFIG->odb = NULL;
 
-    config_score();
-
-    OPT_ODB_PATH  = cst_str(ht_conf, "osuxdb_path");
-    OPT_ODB_STATE = cst_str(ht_conf, "osuxdb_state");
-    OPT_ODB_SGDIR = cst_str(ht_conf, "osuxdb_song_dir");
-    osux_set_song_path(OPT_ODB_SGDIR);
-    config_odb_apply_state(OPT_ODB_STATE[0]);
+    LOCAL_CONFIG->flat     = cst_i(ht_conf, "flat");
+    LOCAL_CONFIG->no_bonus = cst_i(ht_conf, "no_bonus");
+    local_config_set_mods(cst_str(ht_conf, "mods"));
+    local_config_score();
 }
 
 //-----------------------------------------------------
 
-void config_set_tr_main(int score)
+void local_config_set_tr_main(enum tr_main i)
 {
-    if (score)
-	CONF->tr_main = trs_main;
-    else
-	CONF->tr_main = trm_main;
-}
-
-void config_score(void)
-{
-    config_set_tr_main(cst_i(ht_conf, "score"));
-
-    CONF->quick = cst_i(ht_conf, "score_quick");
-    CONF->input = cst_i(ht_conf, "score_input");
-    CONF->good  = cst_i(ht_conf, "score_good");
-    CONF->miss  = cst_i(ht_conf, "score_miss");
-    CONF->acc   = cst_f(ht_conf, "score_acc") / COEFF_MAX_ACC;
-    enum score_method i = cst_i(ht_conf, "score_method");
     switch(i) {
-    case SCORE_INPUT_INFLUENCE:
-	CONF->trm_method_get_tro = trm_best_influence_tro;
+    case MAIN_SCORE:
+	LOCAL_CONFIG->tr_main = trs_main;
 	break;
     default:
-	CONF->trm_method_get_tro = trm_hardest_tro;
+	LOCAL_CONFIG->tr_main = trm_main;
 	break;
     }
 }
 
-//-----------------------------------------------------
-
-static void config_odb_exit(void)
+void local_config_set_score_method(enum score_method i)
 {
-    if (ODB != NULL)
-	osux_db_free(ODB);
-}
-
-static void config_odb_build(char * song_dir)
-{
-    osux_db_build(song_dir, &ODB);
-    osux_db_save(OPT_ODB_PATH, ODB);
-    atexit(config_odb_exit);
-}
-
-void config_odb_apply_state(char odb_state)
-{
-    switch (odb_state) {
-    case 'b':
-	config_odb_build(OPT_ODB_SGDIR);
-	break;
-    case 'l':
-	osux_db_load(OPT_ODB_PATH, &ODB);
+    switch(i) {
+    case SCORE_INPUT_INFLUENCE:
+	LOCAL_CONFIG->trm_method_get_tro = trm_best_influence_tro;
 	break;
     default:
+	LOCAL_CONFIG->trm_method_get_tro = trm_hardest_tro;
 	break;
-    }    
+    }
+}
+
+static void local_config_score(void)
+{
+    local_config_set_tr_main(cst_i(ht_conf, "score"));
+
+    LOCAL_CONFIG->quick = cst_i(ht_conf, "score_quick");
+    LOCAL_CONFIG->input = cst_i(ht_conf, "score_input");
+    LOCAL_CONFIG->good  = cst_i(ht_conf, "score_good");
+    LOCAL_CONFIG->miss  = cst_i(ht_conf, "score_miss");
+    LOCAL_CONFIG->acc   = cst_f(ht_conf, "score_acc") / COEFF_MAX_ACC;
+    local_config_set_score_method(cst_i(ht_conf, "score_method"));
 }
 
 //-----------------------------------------------------
 
 #define CASE_FILTER(C, FILTER)			\
     case C:					\
-    OPT_PRINT_FILTER |= FILTER;			\
+    GLOBAL_CONFIG->print_filter |= FILTER;	\
     break
 
-void config_set_filter(char * filter)
+void global_config_set_filter(const char * filter)
 {
-    OPT_PRINT_FILTER = 0;
+    GLOBAL_CONFIG->print_filter = 0;
     int i = 0;
-    while(filter[i] != 0) {
+    while (filter[i] != 0) {
 	switch(filter[i]) {
 	    CASE_FILTER('b', FILTER_BASIC);
 	    CASE_FILTER('B', FILTER_BASIC_PLUS);
@@ -198,13 +171,13 @@ void config_set_filter(char * filter)
 
 #define IF_MOD_SET(STR, MOD, i)				\
     if(strncmp(STR, &mods[i], MOD_STR_LENGTH) == 0) {	\
-	CONF->mods |= MOD;				\
+	LOCAL_CONFIG->mods |= MOD;			\
 	continue;					\
     }
 
-void config_set_mods(const char * mods)
+void local_config_set_mods(const char * mods)
 {
-    CONF->mods = MODS_NONE;
+    LOCAL_CONFIG->mods = MODS_NONE;
     for(int i = 0; mods[i]; i += MOD_STR_LENGTH) {
 	IF_MOD_SET("EZ", MODS_EZ, i);
 	IF_MOD_SET("HR", MODS_HR, i);
@@ -223,43 +196,44 @@ void config_set_mods(const char * mods)
     }
  break2:
     
-    if((CONF->mods & MODS_EZ) && (CONF->mods & MODS_HR))
+    if ((LOCAL_CONFIG->mods & MODS_EZ) && 
+	(LOCAL_CONFIG->mods & MODS_HR))
 	tr_error("Incompatible mods EZ and HR");
-    if((CONF->mods & MODS_HT) && (CONF->mods & MODS_DT))
+    if ((LOCAL_CONFIG->mods & MODS_HT) && 
+	(LOCAL_CONFIG->mods & MODS_DT))
 	tr_error("Incompatible mods HT and DT");
-    if((CONF->mods & MODS_HD) && (CONF->mods & MODS_HR))
+    if ((LOCAL_CONFIG->mods & MODS_HD) &&
+	(LOCAL_CONFIG->mods & MODS_HR))
 	tr_error("HDHR is unsupported for now.");
 }
 
 //-----------------------------------------------------
 
-void ht_conf_db_init(void)
+static void config_exit(void)
 {
-    TR_DB_IP     = cst_str(ht_conf, "db_ip");
-    TR_DB_LOGIN  = cst_str(ht_conf, "db_login");
-    TR_DB_PASSWD = cst_str(ht_conf, "db_passwd");
-}
-
-//-----------------------------------------------------
-
-
-static void ht_cst_exit_config(void)
-{
-	tr_print_yaml_exit();
-	tr_config_free(CONF);
-	yaml2_free(yw);
+    osux_db_free(GLOBAL_CONFIG->odb);
+    tr_print_yaml_exit();
+    tr_global_config_free(GLOBAL_CONFIG);
+    tr_local_config_free(LOCAL_CONFIG);
+    yaml2_free(yw);
 }
 
 INITIALIZER(ht_cst_init_config)
 {
     yw = cst_get_yw(CONFIG_FILE);
     ht_conf = yw_extract_ht(yw);
-    if(ht_conf == NULL) {
+    if (ht_conf == NULL) {
 	tr_error("Unable to run without config.");
 	exit(EXIT_FAILURE);
     }
-    global_init();
-    if (OPT_DATABASE)
+    config_init();
+    atexit(config_exit);
+}
+
+void init_enabled(void)
+{
+    if (GLOBAL_CONFIG->db_enable)
 	tr_db_init();
-    atexit(ht_cst_exit_config);
+    if (GLOBAL_CONFIG->odb_enable)
+	osux_db_load(GLOBAL_CONFIG->odb_path, &GLOBAL_CONFIG->odb);
 }

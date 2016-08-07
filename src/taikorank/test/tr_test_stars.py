@@ -59,7 +59,7 @@ class TR_Test_Stars(TR_Test_Str_List):
             return s
     #########################################################
     def compute_one_mod(self, mod):
-        res = TR_Exec.compute(self.cmd, {'mods': mod})
+        res = TR_Exec.compute(self.cmd, {'-mods': mod})
         return res['maps']
     #########################################################
     def compute(self):
