@@ -4,7 +4,7 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
-n *
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
@@ -23,7 +23,7 @@ n *
 #include "osux/uleb128.h"
 #include "osux/read.h"
 
-unsigned int string_split(const char *str, const char *delim, char ***buf_addr)
+unsigned int string_split(char const *str, char const *delim, char ***buf_addr)
 {
     if (NULL == str) {
         *buf_addr = NULL;
@@ -31,7 +31,7 @@ unsigned int string_split(const char *str, const char *delim, char ***buf_addr)
     }
 
     char *strw = strdup(str);
-    struct osux_list *li = osux_list_new(0);
+    osux_list *li = osux_list_new(0);
     char *saveptr;
     char *p =  strtok_r(strw, delim, &saveptr);
     while (p != NULL) {

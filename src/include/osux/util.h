@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <glib.h>
 
 #define HANDLE_ARRAY_SIZE(array, array_size, array_capacity)            \
     do {                                                                \
@@ -23,9 +24,10 @@
 
 #define ARRAY_SIZE(array) (sizeof (array) / sizeof((array)[0]))
 
-char *osux_getline(FILE *file);
+char *osux_getline(GIOChannel *chan);
 char *bytearray2hexstr(uint8_t const *bytearray, size_t size);
 char *osux_get_file_hashstr(char const *file_path);
 unsigned strsplit_size(char **split);
+GIOChannel *osux_open_text_file_reading(char const *file_path);
 
 #endif // OSUX_UTIL_H

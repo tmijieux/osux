@@ -1,3 +1,6 @@
+#ifndef TR_SPACING_COUNT_H
+#define TR_SPACING_COUNT_H
+
 /*
  *  Copyright (©) 2015-2016 Lucas Maugère, Thomas Mijieux
  *
@@ -13,10 +16,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-#ifndef SPACING_COUNT_H
-#define SPACING_COUNT_H
 
-struct list;
 struct spacing_count;
 
 struct spacing_count * spc_new(int (*eq)(int, int));
@@ -26,4 +26,4 @@ void spc_print(const struct spacing_count * spc);
 double spc_get_total(const struct spacing_count * spc);
 double spc_get_nb(const struct spacing_count * spc, int rest);
 
-#endif //SPACING_COUNT_H
+#endif // TR_SPACING_COUNT_H

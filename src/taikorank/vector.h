@@ -1,3 +1,6 @@
+#ifndef TR_VECTOR_H
+#define TR_VECTOR_H
+
 /*
  *  Copyright (©) 2015-2016 Lucas Maugère, Thomas Mijieux
  *
@@ -13,8 +16,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-#ifndef VECTOR_H
-#define VECTOR_H
 
 struct vector {
     int len;
@@ -30,4 +31,4 @@ struct vector * cst_vect(osux_hashtable * ht, const char * key);
 struct vector * cst_vect_from_decl(osux_hashtable * ht, const char * key);
 struct vector * cst_vect_from_list(osux_hashtable * ht, const char * key);
 
-#endif //VECTOR_H
+#endif // TR_VECTOR_H

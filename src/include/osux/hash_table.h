@@ -1,3 +1,6 @@
+#ifndef OSUX_HASH_TABLE_H
+#define OSUX_HASH_TABLE_H
+
 /*
  *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
  *
@@ -14,15 +17,14 @@
  *  limitations under the License.
  */
 
-#ifndef HASH_TABLE_H
-#define HASH_TABLE_H
-
 #include <stdlib.h>
 
-typedef struct osux_hashtable osux_hashtable;
+typedef struct osux_hashtable_ osux_hashtable;
 
-struct osux_hashtable* osux_hashtable_new(size_t size);
-struct osux_hashtable* osux_hashtable_new_full(size_t size, void(*free)(void*));
+#include "osux/list.h"
+
+osux_hashtable *osux_hashtable_new(size_t size);
+osux_hashtable *osux_hashtable_new_full(size_t size, void(*free)(void*));
 
 int osux_hashtable_insert(osux_hashtable* ht, const char *key, void *data);
 int osux_hashtable_remove(osux_hashtable *ht, const char *key);
@@ -30,9 +32,9 @@ int osux_hashtable_contains(osux_hashtable *ht, const char *key);
 int osux_hashtable_lookup(osux_hashtable *ht,
                           const char *lookup_key,
                           void *ret_value);
-int osux_hashtable_hashstr(osux_hashtable *ht, const char *key);
 void osux_hashtable_for_each(
     osux_hashtable* ht, void (*fun)(const char *, void*, void*), void *args);
 void osux_hashtable_delete(osux_hashtable *ht);
+osux_list* osux_hashtable_to_list(osux_hashtable *h);
 
-#endif //HASH_TABLE_H
+#endif // OSUX_HASH_TABLE_H

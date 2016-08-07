@@ -191,7 +191,7 @@ static void taiko_slider_converter_slider_to_circles_normal(
 }
 
 static void taiko_slider_converter_slider_to_circles_repeat(
-    const struct taiko_slider_converter *tc, struct osux_list *ho_list)
+    const struct taiko_slider_converter *tc, osux_list *ho_list)
 {
     // compute the length in ms for the slider without repetitions
     double unit = tc->length / tc->ho->slider.repeat;
@@ -212,7 +212,7 @@ static void taiko_slider_converter_slider_to_circles_repeat(
 //---------------------------------------------------------------
 
 static void taiko_slider_converter_convert(
-    const struct taiko_slider_converter *tc, struct osux_list *ho_list)
+    const struct taiko_slider_converter *tc, osux_list *ho_list)
 {
     if (tc->length >= 2*tc->mpb)
         // if slider length if big enough, keep the slider
@@ -231,7 +231,7 @@ static void taiko_slider_converter_convert(
 
 //---------------------------------------------------------------
 
-static struct osux_list * taiko_autoconvert_ho_list(const osux_beatmap *bm)
+static osux_list * taiko_autoconvert_ho_list(const osux_beatmap *bm)
 {
     uint32_t current_tp = 0;
     osux_list *new_ho_list = osux_list_new(LI_FREE, g_free);

@@ -201,9 +201,7 @@ int osux_replay_init(osux_replay *r, char const *filepath)
         return err;
     }
     g_free(data);
-
     osux_buffer_reader_free(&br);
-    
     return 0;
 }
 

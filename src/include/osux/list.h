@@ -17,7 +17,7 @@
  *  limitations under the License.
  */
 
-typedef struct osux_list osux_list;
+typedef struct osux_list_ osux_list;
 
 #include <stdlib.h>
 #include <assert.h>
@@ -42,25 +42,25 @@ typedef struct osux_list osux_list;
     ({ assert(sizeof typ < sizeof (void*)) ;				\
 	union { typ t; void *v}e; e.v = list_get((li), (i)); e.t;})
 
-struct osux_list *osux_list_new(int flags, ...);
-void osux_list_free(struct osux_list*);
-unsigned osux_list_size(const struct osux_list*); // element count
-void *osux_list_get(const struct osux_list*, unsigned int i); // returns data
-void osux_list_add(struct osux_list*, const void*);
-void osux_list_insert(struct osux_list*, unsigned int i, const void *data);
-void osux_list_remove(struct osux_list*, unsigned int i);
+osux_list *osux_list_new(int flags, ...);
+void osux_list_free(osux_list*);
+unsigned osux_list_size(osux_list const*); // element count
+void *osux_list_get(osux_list const*, unsigned int i); // returns data
+void osux_list_add(osux_list*, const void*);
+void osux_list_insert(osux_list*, unsigned int i, const void *data);
+void osux_list_remove(osux_list*, unsigned int i);
 
-void osux_list_append(struct osux_list *list, const void *element);
-void osux_list_append_list(struct osux_list *l1, const struct osux_list *l2);
-struct osux_list *osux_list_copy(const struct osux_list *l);
-void *osux_list_to_array(const struct osux_list *l);
+void osux_list_append(osux_list *list, const void *element);
+void osux_list_append_list(osux_list *l1, osux_list const *l2);
+osux_list *osux_list_copy(osux_list const *l);
+void *osux_list_to_array(osux_list const *l);
 osux_hashtable *osux_list_to_hashtable(
-    const struct osux_list *l, const char *(*element_keyname) (void *));
-void osux_list_each(const struct osux_list *l, void (*fun)(void*));
+    osux_list const *l, const char *(*element_keyname) (void *));
+void osux_list_each(osux_list const *l, void (*fun)(void*));
 void osux_list_each_r(
-    const struct osux_list *l, void (*fun)(void*, void*), void *args);
-struct osux_list *osux_list_map(const struct osux_list *l, void *(*fun)(void*));
-struct osux_list *osux_list_map_r(
-    const struct osux_list *l, void *(*fun)(void*, void*), void *args);
+    osux_list const *l, void (*fun)(void*, void*), void *args);
+osux_list *osux_list_map(osux_list const *l, void *(*fun)(void*));
+osux_list *osux_list_map_r(
+    osux_list const *l, void *(*fun)(void*, void*), void *args);
 
 #endif // OSUX_LIST_H

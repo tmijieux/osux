@@ -61,7 +61,6 @@ static int beatmap_insert(osux_beatmap_db *db, osux_beatmap *bm)
             ":online_offset, :already_played, :last_played, :ignore_hitsound,"
             ":ignore_skin, :disable_sb, :disable_video, :visual_override,"
             ":mania_scroll_speed)");
-
         if (ret < 0)
             return ret;
         db->insert_prepared = true;        
@@ -117,8 +116,14 @@ static int load_beatmap_from_disk(
     }
     if ((err = beatmap_insert(db, &beatmap) < 0))
         fprintf(stderr, "inserting beatmap '%s' failed\n", beatmap.file_path);
-    else
+    else {
         ++ db->parsed_beatmap_count;
+        if (beatmap.BeatmapID)
+            printf("%% %d %s [%s]\n",
+                   beatmap.BeatmapID, beatmap.Title, beatmap.Version);
+        else
+            printf("%% %s [%s]\n", beatmap.Title, beatmap.Version);
+    }
     osux_beatmap_free(&beatmap);
     return err;
 }

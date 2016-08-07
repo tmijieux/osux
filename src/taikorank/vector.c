@@ -59,12 +59,12 @@ void vect_free(struct vector * v)
 
 struct vector * cst_vect_from_list(osux_hashtable * ht, const char * key)
 {
-    struct osux_list * l = cst_list(ht, key);
+    osux_list * l = cst_list(ht, key);
     if (l == NULL)
 	return NULL;
     struct vector * v = vect_new(osux_list_size(l), CST_VECT_DIM);
     for (int i = 0; i < v->len; i++) {
-	struct osux_list * l2 = yw_extract_list(osux_list_get(l, i+1));
+	osux_list * l2 = yw_extract_list(osux_list_get(l, i+1));
 	if (l2 == NULL)
 	    return NULL;
 	for (int j = 0; j < CST_VECT_DIM; j++)

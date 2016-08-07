@@ -21,7 +21,7 @@
 #include "osux/list_node.h"
 #include "osux/hash_table.h"
 
-struct osux_list {
+struct osux_list_ {
     struct osux_list_node *front_sentinel;
     struct osux_list_node *last;
     void (*free_element)(void*);
@@ -32,7 +32,7 @@ struct osux_list {
 };
 
 static struct osux_list_node *
-osux_list_get_node(const struct osux_list *list, unsigned int n)
+osux_list_get_node(osux_list const *list, unsigned int n)
 {
     unsigned int k = n;
     struct osux_list_node *node = list->front_sentinel;
@@ -42,22 +42,21 @@ osux_list_get_node(const struct osux_list *list, unsigned int n)
     }
     for (unsigned int i = 0; i < k; i++)
 	node = node_get_next(node);
-    ((struct osux_list*)list)->cursor = node;
-    ((struct osux_list*)list)->curpos = n;
+    ((osux_list*)list)->cursor = node;
+    ((osux_list*)list)->curpos = n;
     return node;
 }
 
 unsigned
-osux_list_size(const struct osux_list *list)
+osux_list_size(osux_list const *list)
 {
     return list->size;
 }
 
-struct osux_list *
-osux_list_new(int flags, ...)
+osux_list *osux_list_new(int flags, ...)
 {
     struct osux_list_node *tmp;
-    struct osux_list *list = calloc(sizeof(*list), 1);
+    osux_list *list = calloc(sizeof(*list), 1);
     
     node_new(&list->front_sentinel, NULL, SENTINEL_NODE);
     node_new(&tmp, NULL, 1);
@@ -87,7 +86,7 @@ osux_list_new(int flags, ...)
 }
 
 void
-osux_list_free(struct osux_list *list)
+osux_list_free(osux_list *list)
 {
     struct osux_list_node *node = node_get_next(list->front_sentinel);
     struct osux_list_node *tmp = NULL;
@@ -104,13 +103,13 @@ osux_list_free(struct osux_list *list)
 }
 
 void *
-osux_list_get(const struct osux_list *list, unsigned n)
+osux_list_get(osux_list const *list, unsigned n)
 {
     return (void*) node_get_data(osux_list_get_node(list, n));
 }
 
 void
-osux_list_add(struct osux_list *list, const void *element)
+osux_list_add(osux_list *list, const void *element)
 {
     struct osux_list_node *tmp;
     node_new(&tmp, element, 0);
@@ -122,21 +121,21 @@ osux_list_add(struct osux_list *list, const void *element)
 }
 
 void
-osux_list_append(struct osux_list *list, const void *element)
+osux_list_append(osux_list *list, const void *element)
 {
     int n = osux_list_size(list) + 1;
     osux_list_insert(list, n, element);
 }
 
 void
-osux_list_append_list(struct osux_list *l1, const struct osux_list *l2)
+osux_list_append_list(osux_list *l1, osux_list const *l2)
 {
     for (unsigned int i = 1; i <= osux_list_size(l2); ++i)
 	osux_list_append(l1, osux_list_get(l2, i));
 }
 
 void
-osux_list_insert(struct osux_list *list, unsigned int n, const void *element)
+osux_list_insert(osux_list *list, unsigned int n, const void *element)
 {
     struct osux_list_node *previous = osux_list_get_node(list, n-1);
     struct osux_list_node *tmp;
@@ -147,7 +146,7 @@ osux_list_insert(struct osux_list *list, unsigned int n, const void *element)
 }
 
 void
-osux_list_remove(struct osux_list *list, unsigned int n)
+osux_list_remove(osux_list *list, unsigned int n)
 {
     struct osux_list_node *previous = osux_list_get_node(list, n-1);
     struct osux_list_node *tmp = node_get_next(previous);
@@ -158,15 +157,15 @@ osux_list_remove(struct osux_list *list, unsigned int n)
     list->size --;
 }
 
-struct osux_list *
-osux_list_copy(const struct osux_list *l)
+osux_list *
+osux_list_copy(osux_list const *l)
 {
-    struct osux_list *n = osux_list_new(0);
+    osux_list *n = osux_list_new(0);
     osux_list_append_list(n, l);
     return n;
 }
 
-void *osux_list_to_array(const struct osux_list *l)
+void *osux_list_to_array(osux_list const *l)
 {
     void **array = malloc(sizeof(*array) * l->size);
     for (unsigned i = 0; i < l->size; ++i)
@@ -176,7 +175,7 @@ void *osux_list_to_array(const struct osux_list *l)
 }
 
 osux_hashtable *
-osux_list_to_hashtable(const struct osux_list *l,
+osux_list_to_hashtable(osux_list const *l,
                        const char *(*element_keyname) (void *))
 {
     osux_hashtable *ht = osux_hashtable_new(2 * l->size);
@@ -194,31 +193,31 @@ uncurry(void *arg, void *fun)
     return ((void *(*)(void*)) fun)(arg);
 }
 
-struct osux_list *
-osux_list_map(const struct osux_list *l, void *(*fun)(void*))
+osux_list *
+osux_list_map(osux_list const *l, void *(*fun)(void*))
 {
     return osux_list_map_r(l, &uncurry, fun);
 }
 
 void
-osux_list_each(const struct osux_list *l, void (*fun)(void*))
+osux_list_each(osux_list const *l, void (*fun)(void*))
 {
     osux_list_each_r(l, (void (*)(void*,void*))&uncurry, fun);
 }
 
-struct osux_list *
-osux_list_map_r(const struct osux_list *l,
+osux_list *
+osux_list_map_r(osux_list const *l,
                 void *(*fun)(void*, void*), void *args)
 {
     int si = osux_list_size(l);
-    struct osux_list *ret= osux_list_new(0);
+    osux_list *ret= osux_list_new(0);
     for (int i = 1; i <= si; ++i)
 	osux_list_append(ret, fun(osux_list_get(l, i), args));
     return ret;
 }
 
 void
-osux_list_each_r(const struct osux_list *l, void (*fun)(void*, void*), void *args)
+osux_list_each_r(osux_list const *l, void (*fun)(void*, void*), void *args)
 {
     int si = osux_list_size(l);
     for (int i = 1; i <= si; ++i)

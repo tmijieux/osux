@@ -54,21 +54,14 @@ int osux_beatmap_free(osux_beatmap *beatmap)
     return 0;
 }
 
-static int parse_osu_version(osux_beatmap *beatmap, FILE *file)
+static int parse_osu_version(osux_beatmap *beatmap, GIOChannel *file)
 {
-    static uint8_t BOM[] = { 0xEF, 0xBB, 0xBF };
     static GRegex *regexp = NULL;
-
     int err = 0;
     char *line = osux_getline(file);
 
     if (line == NULL)
         return -OSUX_ERR_BAD_OSU_VERSION;
-
-    if (memcmp(line, BOM, sizeof BOM) == 0) {
-        beatmap->byte_order_mark = true;
-        line += sizeof BOM;
-    }
 
     if (regexp == NULL)
         regexp = g_regex_new("^osu file format v([0-9]+)$", 0, 0, NULL);
@@ -87,15 +80,12 @@ static int parse_osu_version(osux_beatmap *beatmap, FILE *file)
         err = -OSUX_ERR_BAD_OSU_VERSION;
 
 finally:
-    if (beatmap->byte_order_mark)
-        line -= sizeof BOM;
-
     g_free(line);
     g_match_info_free(info);
     return err;
 }
 
-static int compute_metadata(osux_beatmap *beatmap, FILE *file)
+static int compute_metadata(osux_beatmap *beatmap, GIOChannel *file)
 {
     int err;
     beatmap->md5_hash = osux_get_file_hashstr(beatmap->file_path);
@@ -114,7 +104,7 @@ static int compute_metadata(osux_beatmap *beatmap, FILE *file)
     return 0;
 }
 
-static bool line_is_empty_or_comment(char *line)
+static inline bool line_is_empty_or_comment(char *line)
 {
     return strcmp("", line) == 0 ||
         (strlen(line) >= 2 && strncmp("//", line, 2) == 0);
@@ -191,7 +181,7 @@ static int parse_option_entry(
         beatmap->bpm_avg /= (beatmap)->hitobject_count+1;       \
     } while(0)
 
-static int parse_objects(osux_beatmap *beatmap, FILE *file)
+static int parse_objects(osux_beatmap *beatmap, GIOChannel *file)
 {
     osux_timingpoint const *last_non_inherited = NULL;
     osux_hashtable *current_section = NULL;
@@ -286,6 +276,8 @@ static int parse_objects(osux_beatmap *beatmap, FILE *file)
 static int fetch_variables(osux_beatmap *beatmap)
 {
     DEFAULT_VALUES(FETCH);
+    // fetch bookmarks
+    // fetch colors?
     return 0;
 }
 
@@ -294,11 +286,9 @@ int osux_beatmap_init(osux_beatmap *beatmap, char const *file_path)
     int err = 0;
     memset(beatmap, 0, sizeof *beatmap);
 
-    FILE *file = g_fopen(file_path, "r");
-    if (file == NULL) {
-        osux_error("Cannot open file for reading: '%s'\n", file_path);
+    GIOChannel *file = osux_open_text_file_reading(file_path);
+    if (file == NULL)
         return -OSUX_ERR_FILE_ACCESS;
-    }
 
     beatmap->file_path = strdup(file_path);
     beatmap->osu_filename = g_path_get_basename(file_path);
@@ -312,12 +302,12 @@ int osux_beatmap_init(osux_beatmap *beatmap, char const *file_path)
         osux_beatmap_free(beatmap);
         return err;
     }
-    fclose(file);
+    g_io_channel_unref(file);
+    file = NULL;
 
     if ((err = fetch_variables(beatmap)) < 0) {
         osux_beatmap_free(beatmap);
         return err;
     }
-
     return 0;
 }

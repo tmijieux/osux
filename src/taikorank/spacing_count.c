@@ -19,7 +19,7 @@
 #include "osux.h"
 
 struct spacing_count {
-    struct osux_list * l;
+    osux_list * l;
     int (*eq)(int, int);
 };
 
