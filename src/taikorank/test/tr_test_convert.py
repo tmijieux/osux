@@ -23,7 +23,7 @@ class TR_Test_Autoconvert(TR_Test_Str_List):
     def __init__(self, ht):
         TR_Test_Str_List.__init__(self, ht)
         self.unit = ht['unit']
-        self.opt  = {'ptro': 1, 'autoconvert': 1}
+        self.opt  = {'+ptro': 1, '+autoconvert': 1}
     #########################################################
     def compute(self):
         res = TR_Exec.compute(self.cmd, self.opt)

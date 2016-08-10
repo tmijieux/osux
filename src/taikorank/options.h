@@ -16,8 +16,10 @@
 #ifndef OPTIONS_H
 #define OPTIONS_H
 
-#define OPTIONS_PREFIX '-'
+#define LOCAL_OPT_PREFIX  "-"
+#define GLOBAL_OPT_PREFIX "+"
 
-int options_set(int argc, const char ** argv);
+int local_opt_set(int argc, const char ** argv);
+int global_opt_set(int argc, const char ** argv);
 
 #endif //OPTIONS_H

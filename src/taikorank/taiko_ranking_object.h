@@ -54,6 +54,8 @@ struct tr_object
     // ---------------- density data ----------------
     double density_raw;
     double density_color;
+    double density_ddkk;
+    double density_kddk;
 
     // ---------------- reading data ----------------
     double obj_app;      // nb obj displayable on screen, without overlapping

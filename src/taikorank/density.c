@@ -61,6 +61,7 @@ static double DENSITY_LENGTH;
 // coeff for star
 static double DENSITY_STAR_COEFF_COLOR;
 static double DENSITY_STAR_COEFF_RAW;
+static double DENSITY_STAR_COEFF_DK;
 static struct linear_fun * DENSITY_SCALE_LF;
 
 //-----------------------------------------------------
@@ -80,6 +81,7 @@ static void density_global_init(osux_hashtable * ht_cst)
   
     DENSITY_STAR_COEFF_COLOR = cst_f(ht_cst, "star_color");
     DENSITY_STAR_COEFF_RAW   = cst_f(ht_cst, "star_raw");
+    DENSITY_STAR_COEFF_DK    = cst_f(ht_cst, "star_dk");
 }
 
 //-----------------------------------------------------
@@ -178,6 +180,8 @@ static inline int tro_are_same_density(const struct tr_object *o1,
 
 TRO_SET_DENSITY_TYPE(raw,   tro_true)
 TRO_SET_DENSITY_TYPE(color, tro_are_same_density)
+TRO_SET_DENSITY_TYPE(kddk,  tro_are_same_hand)
+TRO_SET_DENSITY_TYPE(ddkk,  tro_are_same_type)
 
 //-----------------------------------------------------
 //-----------------------------------------------------
@@ -185,10 +189,18 @@ TRO_SET_DENSITY_TYPE(color, tro_are_same_density)
 
 void tro_set_density_star(struct tr_object * obj)
 {
-    obj->density_star = lf_eval
-	(DENSITY_SCALE_LF,
-	 (DENSITY_STAR_COEFF_COLOR * obj->density_color +
-	  DENSITY_STAR_COEFF_RAW   * obj->density_raw));
+    /*
+      Using minimum between ddkk and kddk asuming the user is using
+      the easiest way
+     */
+    obj->density_star = lf_eval(
+        DENSITY_SCALE_LF, (
+            DENSITY_STAR_COEFF_COLOR * obj->density_color +
+	    DENSITY_STAR_COEFF_RAW   * obj->density_raw   +
+	    DENSITY_STAR_COEFF_DK    * min(obj->density_ddkk, 
+					   obj->density_kddk)
+        )
+    );
 }
 
 //-----------------------------------------------------
@@ -219,6 +231,8 @@ void trm_compute_density(struct tr_map * map)
      */
     trm_set_density_raw(map);
     trm_set_density_color(map);
+    trm_set_density_ddkk(map);
+    trm_set_density_kddk(map);
 
     trm_set_density_star(map);
 }

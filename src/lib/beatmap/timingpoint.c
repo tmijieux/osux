@@ -121,4 +121,5 @@ int osux_timingpoint_set_slider_velocity(
     tp->slider_velocity = slider_velocity;
     if (tp->inherited)
         tp->slider_velocity *= -100. / tp->slider_velocity_multiplier;
+    return 0;
 }

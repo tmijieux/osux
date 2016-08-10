@@ -205,10 +205,13 @@ static int osux_hits_compute_keypress(osux_hits *h)
     return 0;
 }
 
-static void print_key_press(osux_keypress *kp)
+void osux_hits_print_keypress(osux_hits *h)
 {
-    print_time_offset_human_readable(kp->offset);
-    printf(" | key=%u -- %s\n", kp->key, kp->release ? "RELEASE" : "PRESS");
+    for (unsigned i = 0; i < h->keypress_count; ++i) {
+        osux_keypress *kp = &h->keypress[i];
+        print_time_offset_human_readable(kp->offset);
+        printf(" | key=%u -- %s\n", kp->key, kp->release ? "RELEASE" : "PRESS");
+    }
 }
 
 // basic hit computation for standard mode:

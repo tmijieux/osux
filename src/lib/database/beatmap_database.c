@@ -105,7 +105,7 @@ static int beatmap_insert(osux_beatmap_db *db, osux_beatmap *bm)
 }
 
 static int load_beatmap_from_disk(
-    osux_beatmap_db *db, const char *filepath, size_t song_dir_length)
+    osux_beatmap_db *db, const char *filepath)
 {
     int err = 0;
     osux_beatmap beatmap;
@@ -151,7 +151,7 @@ static gboolean parse_beatmap_directory(osux_beatmap_db *db, char const *path)
                 g_free(file_entry); // ignore non-osu file
                 continue;
             }
-            load_beatmap_from_disk(db, file_entry, db->song_dir_length);
+            load_beatmap_from_disk(db, file_entry);
             g_free(file_entry);
         }
     } while ((entry_name = g_dir_read_name(dir)) != NULL);
@@ -162,7 +162,7 @@ static gboolean parse_beatmap_directory(osux_beatmap_db *db, char const *path)
 char *osux_beatmap_db_get_path_by_hash(
     osux_beatmap_db *db, char const *md5_hash)
 {
-    osux_list *query_result = osux_list_new(0);
+    osux_list *query_result = osux_list_new(LI_FREE, osux_hashtable_delete);
     db->insert_prepared = false;
     osux_database_prepare_query(&db->base, "SELECT file_path FROM beatmap "
                                 "WHERE md5_hash = :hash");
@@ -174,7 +174,8 @@ char *osux_beatmap_db_get_path_by_hash(
         osux_hashtable *dict = (osux_hashtable*) osux_list_get(query_result, 1);
         if (osux_hashtable_lookup(dict, "file_path", &res) < 0)
             res = NULL;
-        osux_hashtable_delete(dict);
+        else
+            res = g_strdup(res);
     }
     osux_list_free(query_result);
     return res;

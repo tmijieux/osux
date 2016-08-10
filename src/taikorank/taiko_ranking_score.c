@@ -50,7 +50,7 @@ void trs_main(const struct tr_map * map)
     // modifications
     trm_add_modifier(score->map);
 
-    if(map->conf->input == SCORE_INPUT_GGM)
+    if (map->conf->input == SCORE_INPUT_GGM)
 	trs_prepare_ggm(score, map->conf->good, map->conf->miss);
     else
 	trs_prepare_acc(score, map->conf->acc);
@@ -63,13 +63,13 @@ void trs_main(const struct tr_map * map)
 
 static void trs_prepare_ggm(struct tr_score * sc, int good, int miss)
 {
-    if(good < 0)
+    if (good < 0)
 	good = 0;
-    if(miss < 0)
+    if (miss < 0)
 	miss = 0;
 
-    while(good + miss > sc->origin->great) {
-	if(good > 0)
+    while (good + miss > sc->origin->great) {
+	if (good > 0)
 	    good--;
 	else
 	    miss--;
@@ -83,18 +83,18 @@ static void trs_prepare_ggm(struct tr_score * sc, int good, int miss)
 
 static void trs_prepare_acc(struct tr_score * sc, double acc)
 {
-    if(acc < 0)
+    if (acc < 0)
 	acc = 0;
-    else if(acc > MAX_ACC * COEFF_MAX_ACC)
+    else if (acc > MAX_ACC * COEFF_MAX_ACC)
 	acc = MAX_ACC * COEFF_MAX_ACC;
 
     sc->great = sc->origin->great;
     sc->good  = sc->origin->good;
     sc->miss  = sc->origin->miss;
     sc->acc   = compute_acc(sc->great, sc->good, sc->miss); 
-    while(sc->acc > acc) {
+    while (sc->acc > acc) {
 	double try = compute_acc(sc->great-1, sc->good+1, sc->miss);
-	if(try <= acc) {
+	if (try <= acc) {
 	    sc->great--;
 	    sc->good++;
 	    sc->acc = try;
@@ -119,7 +119,7 @@ static struct tr_score * trs_new(const struct tr_map * map)
 
 static void trs_free(struct tr_score * score)
 {
-    if(score == NULL)
+    if (score == NULL)
 	return;
     trm_free(score->map);
     free(score);
@@ -129,14 +129,14 @@ static void trs_free(struct tr_score * score)
 
 static void trs_print_and_db(struct tr_score * score)
 {
-    if(OPT_PRINT_TRO)
-	trm_print_out_tro(score->map, OPT_PRINT_FILTER);
-    if(OPT_PRINT_YAML)
+    if (GLOBAL_CONFIG->print_tro)
+	trm_print_out_tro(score->map, GLOBAL_CONFIG->print_filter);
+    if (GLOBAL_CONFIG->print_yaml)
 	trm_print_yaml(score->map);
     else
 	trs_print(score);
   
-    if(OPT_DATABASE)
+    if (GLOBAL_CONFIG->db_enable)
 	trm_db_insert(score->map);
 }
 
@@ -157,16 +157,16 @@ static void trs_compute(struct tr_score * score)
     trm_compute_stars(score->map);
     trs_print_and_db(score);
 
-    while(!trs_is_finished(score)) {
+    while (!trs_is_finished(score)) {
 	int i = score->map->conf->trm_method_get_tro(score->map);
-	if(score->miss != score->map->miss)
+	if (score->miss != score->map->miss)
 	    trm_set_tro_ps(score->map, i, MISS);
 	else
 	    trm_set_tro_ps(score->map, i, GOOD);
 	tro_set_influence(score->map->object, i, 
 			  score->map->nb_object);
 
-	if(score->map->conf->quick == 0 || trs_is_finished(score)) {
+	if (score->map->conf->quick == 0 || trs_is_finished(score)) {
 	    trm_compute_stars(score->map);
 	    trs_print_and_db(score);
 	}
@@ -194,7 +194,7 @@ static void trs_print(struct tr_score * score)
   #include <glib/gstdio.h>
 
   #define CONVERT_MOD(RP_MOD, TR_MOD, rp_mods, mods)	\
-  if((rp_mods & RP_MOD) != 0)				\
+  if ((rp_mods & RP_MOD) != 0)				\
   mods |= TR_MOD
 
   void trs_main_replay(char * replay_file_name, struct tr_map * map)
@@ -202,7 +202,7 @@ static void trs_print(struct tr_score * score)
   FILE * f = g_fopen(replay_file_name, "r");
   struct replay * replay = replay_parse(f);
 
-  if(replay->game_mode != MODE_TAIKO)
+  if (replay->game_mode != MODE_TAIKO)
   {
   tr_error("Not a taiko score.");
   replay_free(replay);

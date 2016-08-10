@@ -35,6 +35,24 @@ void tro_set_density_raw(struct tr_object * o, int i);
 void tro_set_density_color(struct tr_object * o, int i);
 
 /* Use:
+   - ps
+   - d/k/D/K/s/r/R
+   - hands
+   - offset
+   - length
+*/
+void tro_set_density_ddkk(struct tr_object * o, int i);
+
+/* Use:
+   - ps
+   - d/k/D/K/s/r/R
+   - hands
+   - offset
+   - length
+*/
+void tro_set_density_kddk(struct tr_object * o, int i);
+
+/* Use:
    - density_raw
    - density_color
 */

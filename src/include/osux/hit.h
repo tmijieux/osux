@@ -59,6 +59,7 @@ typedef struct osux_hits_ {
 
 int osux_hits_init(osux_hits *hits,
                    osux_beatmap const *beatmap, osux_replay const *replay);
+void osux_hits_print_keypress(osux_hits *hits);
 int osux_hits_free(osux_hits *hits);
 
 #endif // OSUX_HIT_H

@@ -62,3 +62,4 @@ density_length: 0.2
 # Multiplier in [0, 1]
 star_color: 0.6
 star_raw:   0.4
+star_dk:    0

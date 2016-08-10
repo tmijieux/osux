@@ -20,21 +20,34 @@ DEBUG = False
 
 class TR_Exec:
     EXE = "taiko_ranking"
-    OPT = {'db':          0,
-           'ptro':        0,
-           'autoconvert': 0,
-           'score':       0,
-           'pyaml':       1,
-           'quick':       1,
-           'mods':        '__'}
+    OPT = {
+        '+db':          0,
+        '+ptro':        0,
+        '+pyaml':       1,
+        '+autoconvert': 0,
+        '-score':       0,
+        '-quick':       1,
+        '-mods':        '__'
+    }
     #########################################################
     @staticmethod
     def options(opt = {}):
         copy = TR_Exec.OPT.copy()
         copy.update(opt)
         s = " "
+        #
+        global_opt = []
+        local_opt  = []
         for key, value in copy.items():
-            s = s + "-" + key + " " + str(value) + " "
+            if key[0] == '+':
+                global_opt.append((key, value))
+            else:
+                local_opt.append((key, value))
+        #
+        for key, value in global_opt:
+            s += key + " " + str(value) + " "
+        for key, value in local_opt:
+            s += key + " " + str(value) + " "
         return s
     #########################################################
     @staticmethod

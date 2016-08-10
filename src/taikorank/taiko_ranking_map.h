@@ -26,7 +26,7 @@ enum played_state;
 
 struct tr_map
 {
-    struct tr_config * conf;
+    struct tr_local_config * conf;
 
     // Name info
     char * title;
