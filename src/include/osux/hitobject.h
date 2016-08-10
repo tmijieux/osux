@@ -99,11 +99,11 @@ typedef struct osux_hitobject {
     int x;
     int y;
     uint32_t offset;
+    uint32_t end_offset;
     uint32_t type;
 
     osux_slider slider;
     osux_hitsound hitsound;
-    uint32_t end_offset;
 
     osux_timingpoint const *timingpoint;
     uint32_t _osu_version;

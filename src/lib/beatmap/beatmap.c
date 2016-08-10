@@ -301,6 +301,11 @@ static int prepare_objects(osux_beatmap *beatmap)
     return 0;
 }
 
+int osux_beatmap_update(osux_beatmap *beatmap)
+{
+    return prepare_objects(beatmap);
+}
+
 int osux_beatmap_init(osux_beatmap *beatmap, char const *file_path)
 {
     int err = 0;

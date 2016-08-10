@@ -1,3 +1,6 @@
+#ifndef TR_LINEAR_FUN_H
+#define TR_LINEAR_FUN_H
+
 /*
  *  Copyright (©) 2015-2016 Lucas Maugère, Thomas Mijieux
  *
@@ -13,8 +16,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-#ifndef LINEAR_FUN_H
-#define LINEAR_FUN_H
 
 struct vector;
 struct linear_fun;
@@ -30,4 +31,4 @@ double lf_eval(struct linear_fun * lf, double x);
 void lf_print(struct linear_fun * lf);
 void lf_dump(struct linear_fun * lf);
 
-#endif //LINEAR_FUN_H
+#endif // TR_LINEAR_FUN_H

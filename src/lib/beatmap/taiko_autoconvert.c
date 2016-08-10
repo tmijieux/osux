@@ -75,7 +75,6 @@ static double ho_slider_length(
 //---------------------------------------------------------------
 
 // return the newly created taiko circle!
-
 static osux_hitobject *ho_taiko_new(
     int offset,
     osux_hitobject const *old_slider,
@@ -87,30 +86,29 @@ static osux_hitobject *ho_taiko_new(
     osux_hitobject *ho = g_malloc0(sizeof*ho);
 
     ho->offset = offset;
-    ho->type   = HITOBJECT_CIRCLE;
+    ho->end_offset = offset;
+    ho->type = HITOBJECT_CIRCLE;
 
     // by default the hit_object inherit the slider global hitsound
     // when the slider has no additional hitsounds the global hitsound is kept
     ho->hitsound.sample = old_slider->hitsound.sample;
 
     if (old_slider->slider.edgehitsounds != NULL) {
-	// if the slider has additional hitsounds the new circle inherit of one
-	// of them.
-	// Taiko use additional hitsounds located one the slider edges:
-	// one at the start, one on each "repeat" and one at the end
-	// Sometimes, the additional hitsound used may not be correspond the the
-	// circle offset. Mostly with simple sliders and high tick rate.
+        // if the slider has edge hitsounds the new circle inherit one of them.
+        // Sometimes, the edge hitsound used may not be correspond the the0
+        // circle offset. This happens, mostly,
+        // with simple sliders and high tick rate.
 
-	// Example:
-	// with 1/4 (each character represent 1/4 beat) and tick rate = 4
-	// Simple slider (does not repeat):
-	// s----
-	// Slider hitsound: (there are hitsound only at the start and the end)
-	// d---k
-	// Circle in taiko:
-	// dkdkd
-	// As you can see, the end circle is a don while the slider end
-	// hitsound is a kat.
+        // Example:
+        // with 1/4 (each character represent 1/4 beat) and tick rate = 4
+        // Simple slider (does not repeat):
+        // s----
+        // Slider hitsound: (there are hitsound only at the start and the end)
+        // d---k
+        // Circle in taiko:
+        // dkdkd
+        // As you can see, the end circle is a don while the slider end
+        // hitsound is a kat.
 
         ho->hitsound.sample =
             old_slider->slider.edgehitsounds[edge_hs_index].sample;
@@ -146,7 +144,7 @@ void taiko_slider_converter_print(struct taiko_slider_converter const *tc)
 
 //---------------------------------------------------------------
 
-static void taiko_slider_converter_slider_to_circles_normal(
+static void slider_to_circles_normal(
     const struct taiko_slider_converter *tc, osux_list *ho_list)
 {
     if (tc->length <= tc->mpt) {
@@ -190,7 +188,7 @@ static void taiko_slider_converter_slider_to_circles_normal(
     }
 }
 
-static void taiko_slider_converter_slider_to_circles_repeat(
+static void slider_to_circles_repeat(
     const struct taiko_slider_converter *tc, osux_list *ho_list)
 {
     // compute the length in ms for the slider without repetitions
@@ -221,10 +219,9 @@ static void taiko_slider_converter_convert(
         // when the slider is too short, convert it to circles:
         // (two rules according to the slider being repeated or not)
 	if (tc->ho->slider.repeat != 1)
-	    taiko_slider_converter_slider_to_circles_repeat(tc, ho_list);
+	    slider_to_circles_repeat(tc, ho_list);
 	else
-	    taiko_slider_converter_slider_to_circles_normal(tc, ho_list);
-
+	    slider_to_circles_normal(tc, ho_list);
 	osux_hitobject_free(tc->ho);
     }
 }
@@ -299,6 +296,7 @@ int osux_beatmap_taiko_autoconvert(osux_beatmap *bm)
     bm->hitobject_count = hitobject_count;
     bm->hitobject_bufsize = hitobject_count;
     bm->hitobjects      = array;
+    osux_beatmap_update(bm);
 
     return 0;
 }

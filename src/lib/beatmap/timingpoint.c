@@ -88,7 +88,7 @@ int osux_timingpoint_init(osux_timingpoint *tp,
         g_assert(last_non_inherited != NULL);
         *last_non_inherited = tp;
         tp->last_non_inherited = tp;
-        tp->slider_velocity_multiplier = 0.;
+        tp->slider_velocity_multiplier = -100.;
     }
     g_strfreev(split);
     return 0;
