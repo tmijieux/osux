@@ -122,20 +122,6 @@ int osux_database_bind_string(osux_database *db, char const *name, char const *s
     return 0;
 }
 
-int osux_database_init(osux_database *db, char const *file_path)
-{
-    memset(db, 0, sizeof *db);
-    db->in_memory = false;
-
-    int ret = sqlite3_open(file_path, &db->file_handle);
-    if (ret) {
-        osux_debug("%s\n", sqlite3_errmsg(db->file_handle));
-        sqlite3_close(db->file_handle);
-        return -OSUX_ERR_DATABASE;
-    }
-    return 0;
-}
-
 static int load_or_save_memory(osux_database *db, bool is_save)
 {
     sqlite3_backup *pBackup;  /* Backup object used to copy data */
@@ -175,6 +161,22 @@ static int load_to_memory(osux_database *db)
         load_or_save_memory(db, false);
         db->in_memory = true;
     }
+    return 0;
+}
+
+int osux_database_init(osux_database *db, char const *file_path)
+{
+    memset(db, 0, sizeof *db);
+    db->in_memory = false;
+
+    int ret = sqlite3_open(file_path, &db->file_handle);
+    if (ret) {
+        osux_debug("%s\n", sqlite3_errmsg(db->file_handle));
+        sqlite3_close(db->file_handle);
+        return -OSUX_ERR_DATABASE;
+    }
+    if ((ret = load_to_memory(db)) < 0)
+        return ret;
     return 0;
 }
 

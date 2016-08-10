@@ -22,6 +22,10 @@ enum hitsound_sample {
     SAMPLE_WHISTLE = 0x02,
     SAMPLE_FINISH  = 0x04,
     SAMPLE_CLAP    = 0x08,
+
+    SAMPLE_TAIKO_DON = SAMPLE_NORMAL, // TODO check
+    SAMPLE_TAIKO_KAT = SAMPLE_CLAP | SAMPLE_WHISTLE,
+    SAMPLE_TAIKO_BIG = SAMPLE_FINISH,
 };
 
 enum hitsound_sample_type {

@@ -281,6 +281,26 @@ static int fetch_variables(osux_beatmap *beatmap)
     return 0;
 }
 
+static int prepare_objects(osux_beatmap *beatmap)
+{
+    for (uint32_t i = 0; i < beatmap->timingpoint_count; ++i)
+        osux_timingpoint_set_slider_velocity(
+            &beatmap->timingpoints[i], beatmap->SliderMultiplier);
+
+    uint32_t current_tp = 0;
+    for (uint32_t i = 0; i < beatmap->hitobject_count; ++i) {
+	osux_hitobject *ho = &beatmap->hitobjects[i];
+
+        // for each hit object
+        // compute timing point applying on this hit object
+	while (current_tp < (beatmap->timingpoint_count-1) &&
+	       beatmap->timingpoints[current_tp + 1].offset <= ho->offset)
+	    current_tp++;
+	osux_hitobject_set_timing_point(ho, &beatmap->timingpoints[current_tp]);
+    }
+    return 0;
+}
+
 int osux_beatmap_init(osux_beatmap *beatmap, char const *file_path)
 {
     int err = 0;
@@ -309,5 +329,11 @@ int osux_beatmap_init(osux_beatmap *beatmap, char const *file_path)
         osux_beatmap_free(beatmap);
         return err;
     }
+
+    if ((err = prepare_objects(beatmap)) < 0) {
+        osux_beatmap_free(beatmap);
+        return err;
+    }
+
     return 0;
 }

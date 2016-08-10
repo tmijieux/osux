@@ -22,7 +22,15 @@
 #include <stdbool.h>
 #include <time.h>
 
-struct replay_data {
+typedef struct osux_replay_data_ osux_replay_data;
+typedef struct osux_replay_ osux_replay;
+
+#include "osux/beatmap.h"
+#include "osux/hit.h"
+
+struct osux_replay_data_ {
+    uint64_t time_offset;
+
     int64_t previous_time;
     double x;
     double y;
@@ -34,14 +42,13 @@ struct replay_life {
     double life_amount;
 };
 
-typedef struct osux_replay_ {
-    
+struct osux_replay_ {
     uint8_t game_mode;
     uint32_t game_version;
     char *beatmap_hash;
     char *player_name;
     char *replay_hash;
-    
+
     uint16_t _300; // [ taiko: 100%, great, 300pts], mania: 300(not MAX)
     uint16_t _100;  // [taiko: 50%, good, 150pts] , mania: 200
     uint16_t _50;   // ctb: small fruits
@@ -51,14 +58,14 @@ typedef struct osux_replay_ {
 
     uint32_t score;
     uint16_t max_combo; // max combo of score, not map
-    
+
     uint8_t fc;
     uint32_t mods;  // this is a bitfield, see general/mods.h
 
     /* list of time|life separated by commas,  where time is in milliseconds
        and life is a percentage this represent the graph of life
        during the play  */
-    
+
     uint32_t life_count;
     struct replay_life *life;
 
@@ -67,13 +74,15 @@ typedef struct osux_replay_ {
 
     /* number of bytes in the compressed lzma stream */
     uint32_t replay_length;
-    
+
     uint64_t data_count;
-    struct replay_data *data;
-} osux_replay;
+    osux_replay_data *data;
+};
 
 int osux_replay_init(osux_replay *r, char const *file_path);
 void osux_replay_print(osux_replay const *r, FILE *f);
 void osux_replay_free(osux_replay *r);
+
+int osux_replay_compute_hit(osux_replay *r, osux_beatmap *b, osux_hit **hits);
 
 #endif // OSU_REPLAY_H

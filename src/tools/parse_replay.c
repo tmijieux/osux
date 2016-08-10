@@ -21,6 +21,7 @@
 
 int main(int argc, char *argv[])
 {
+    char *path = NULL;
     if (argc != 2)  {
         fprintf(stderr, "Usage: %s /path/to/replay.osr\n", argv[0]);
         exit(EXIT_FAILURE);
@@ -35,13 +36,29 @@ int main(int argc, char *argv[])
 
     osux_beatmap_db db;
     if (osux_beatmap_db_init(&db, "./osux.sqlite", ".", false) == 0) {
-        char *path = osux_beatmap_db_get_path_by_hash(&db, r.beatmap_hash);
+        path = osux_beatmap_db_get_path_by_hash(&db, r.beatmap_hash);
         if (path != NULL)
             printf("Replay map: %s\n", path);
         else
             printf("Replay map: Not found.\n");
         osux_beatmap_db_free(&db);
     }
+
+
+    osux_beatmap bm;
+    if (path != NULL) {
+        if (osux_beatmap_init(&bm, path) < 0) {
+            fprintf(stderr, "Cannot parse beatmap %s\n", path);
+            exit(EXIT_FAILURE);
+        }
+
+        osux_hits hits;
+        osux_hits_init(&hits, &bm, &r);
+        osux_hits_free(&hits);
+
+        osux_beatmap_free(&bm);
+    }
+
     osux_replay_free(&r);
     return EXIT_SUCCESS;
 }

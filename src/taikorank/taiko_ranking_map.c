@@ -39,8 +39,6 @@
 static int get_tro_type_from_osux_ho(osux_hitobject * ho);
 static double get_bpm_app_from_osux_tp(osux_timingpoint * tp,
 				       double sv);
-static int get_tro_end_offset_from_osux_ho(osux_hitobject * ho,
-					   int type, double bpm_app);
 static void trm_add_to_ps(struct tr_map * map,
 			  enum played_state ps, int i);
 
@@ -216,23 +214,6 @@ static double get_bpm_app_from_osux_tp(osux_timingpoint * tp, double sv)
 }
 
 //---------------------------------------------------------------
-
-static int get_tro_end_offset_from_osux_ho(
-	osux_hitobject * ho, int type, double bpm_app)
-{
-    if (type & TRO_S) {
-	return ho->spinner.end_offset;
-    }
-    if (type & TRO_R) {
-	return ho->offset + ((ho->slider.length * ho->slider.repeat) *
-			     (MSEC_IN_MINUTE / (100. * BASIC_SV)) /
-			     bpm_app);
-    }
-    // else circle
-    return ho->offset;
-}
-
-//---------------------------------------------------------------
 //---------------------------------------------------------------
 //---------------------------------------------------------------
 
@@ -301,7 +282,7 @@ static struct tr_map * trm_from_osux_map(osux_beatmap *map)
 	o->offset  = (int) ho->offset;
 	o->bf      = get_tro_type_from_osux_ho(ho);
 	o->bpm_app = get_bpm_app_from_osux_tp(tp, map->SliderMultiplier);
-	o->end_offset = get_tro_end_offset_from_osux_ho(ho, o->bf, o->bpm_app);
+	o->end_offset = ho->end_offset;
 
 	if (tro_is_bonus(o)) {
 	    o->ps = BONUS;

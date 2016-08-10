@@ -28,7 +28,7 @@ int obr_read_uleb128(osux_buffer_reader *br, uint64_t *value)
 
 int obr_read_string(osux_buffer_reader *br, char **p_str)
 {
-    int err;
+    int err = 0;
     if (p_str == NULL)
         return -OSUX_ERR_INVAL;
 
@@ -41,7 +41,7 @@ int obr_read_string(osux_buffer_reader *br, char **p_str)
         CHECK_ERROR(obr_read(br, *p_str, uleb_size), );
         (*p_str)[uleb_size] = 0;
     }
-    return 0;
+    return err;
 }
 
 int obr_read_lzma(osux_buffer_reader *br, char **value, size_t size)
@@ -64,4 +64,5 @@ int osux_buffer_reader_init(osux_buffer_reader *br, void *data, size_t size)
 int osux_buffer_reader_free(osux_buffer_reader *br)
 {
     (void) br;
+    return 0;
 }

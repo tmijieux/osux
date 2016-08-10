@@ -20,15 +20,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "osux/timingpoint.h"
+
 enum hitobject_type {
+
     HITOBJECT_CIRCLE   = 0x01,
-    HITOBJECT_SLIDER   = 0x02, // roll (yellow) in taiko
+    HITOBJECT_SLIDER   = 0x02, // drum roll (yellow) in taiko
     HITOBJECT_NEWCOMBO = 0x04,
-    HITOBJECT_SPINNER  = 0x08, // bananas in ctb
+    HITOBJECT_SPINNER  = 0x08, // shaker in taiko, bananas in ctb
 
     HITOBJECT_UNK1     = 0x10, // these unknown flags appear in a few map
     HITOBJECT_UNK2     = 0x20, // example: Nekomata Master - scar in the earth
     HITOBJECT_UNK3     = 0x40, // (Reisen Udongein) [Bunny Style].osu
+
     HITOBJECT_HOLD     = 0x80, // mania hold
 
     HITOBJECT_TYPE_MASK         = (HITOBJECT_CIRCLE | HITOBJECT_SLIDER |
@@ -57,7 +61,6 @@ enum slider_type {
 #define HIT_OBJECT_IS_SPINNER(x) (HIT_OBJECT_TYPE(x) == HITOBJECT_SPINNER)
 #define HIT_OBJECT_IS_HOLD(x) (HIT_OBJECT_TYPE(x) == HITOBJECT_HOLD)
 
-
 typedef struct osux_point {
     int x;
     int y;
@@ -72,7 +75,6 @@ typedef struct osux_hitsound {
     int volume;
     char *sfx_filename;
 } osux_hitsound;
-
 
 typedef struct osux_edgehitsound {
     // hitsound on slider extremities ('edge')
@@ -91,9 +93,6 @@ typedef struct osux_slider {
     osux_edgehitsound *edgehitsounds; // bufsize = 0 or 'repeat'
 } osux_slider;
 
-typedef struct osux_spinner {
-    unsigned end_offset;
-} osux_spinner;
 typedef struct osux_spinner osux_hold;
 
 typedef struct osux_hitobject {
@@ -103,14 +102,15 @@ typedef struct osux_hitobject {
     uint32_t type;
 
     osux_slider slider;
-    osux_spinner spinner;
-    osux_hold hold;
     osux_hitsound hitsound;
+    uint32_t end_offset;
 
+    osux_timingpoint const *timingpoint;
     uint32_t _osu_version;
 } osux_hitobject;
 
 int osux_hitobject_init(osux_hitobject *ho, char *line, uint32_t osu_version);
+int osux_hitobject_set_timing_point(osux_hitobject *ho, osux_timingpoint const *tp);
 void osux_hitobject_print(osux_hitobject *ho, int version, FILE *f);
 void osux_hitobject_free(osux_hitobject *ho);
 

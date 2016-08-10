@@ -99,6 +99,26 @@ static int parse_slider_sample(osux_hitobject *ho, char *samplestr)
     return 0;
 }
 
+static inline int compute_slider_end_offset(
+    osux_hitobject *ho, osux_timingpoint const *tp)
+{
+    if (!HIT_OBJECT_IS_SLIDER(ho))
+        return -OSUX_ERR_INVALID_HITOBJECT_TYPE;
+
+    double length = ho->slider.length * ho->slider.repeat;
+    length *= tp->millisecond_per_beat / (100. * tp->slider_velocity);
+    ho->end_offset = ho->offset + length;
+    return 0;
+}
+
+int osux_hitobject_set_timing_point(osux_hitobject *ho, osux_timingpoint const *tp)
+{
+    if (HIT_OBJECT_IS_SLIDER(ho))
+        compute_slider_end_offset(ho, tp);
+    ho->timingpoint = tp;
+    return 0;
+}
+
 static int parse_slider(osux_hitobject *ho, char **split, unsigned size)
 {
     int err = 0;
@@ -113,6 +133,7 @@ static int parse_slider(osux_hitobject *ho, char **split, unsigned size)
 
     ho->slider.repeat = atoi(split[6]);
     ho->slider.length = strtod(split[7], NULL);
+    ho->end_offset = 0; // set later
 
     for (unsigned i = 8; i < size; ++i) {
         if (string_contains(split[i], '|') && string_contains(split[i], ':')) {
@@ -135,7 +156,7 @@ static int parse_spinner(osux_hitobject *ho, char **split, unsigned size)
     if (size < 6)
         return -OSUX_ERR_INVALID_HITOBJECT_SPINNER;
 
-    ho->spinner.end_offset = strtoull(split[5], NULL, 10);
+    ho->end_offset = strtoull(split[5], NULL, 10);
     return 0;
 }
 
@@ -144,7 +165,7 @@ static int parse_hold(osux_hitobject *ho, char **split, unsigned size)
     if (size < 6)
         return -OSUX_ERR_INVALID_HITOBJECT_HOLD;
 
-    ho->hold.end_offset = strtoull(split[5], NULL, 10);
+    ho->end_offset = strtoull(split[5], NULL, 10);
     return 0;
 }
 
@@ -242,7 +263,7 @@ int osux_hitobject_init(osux_hitobject *ho, char *line, uint32_t osu_version)
     int type = value & HITOBJECT_TYPE_MASK;
 
     switch (type) {
-    case HITOBJECT_CIRCLE: err = 0; break;
+    case HITOBJECT_CIRCLE: err = 0; ho->end_offset = ho->offset; break;
     case HITOBJECT_SLIDER: err = parse_slider(ho, split, size); break;
     case HITOBJECT_SPINNER: err = parse_spinner(ho, split, size); break;
     case HITOBJECT_HOLD: err = parse_hold(ho, split, size); break;
@@ -278,10 +299,10 @@ void osux_hitobject_print(osux_hitobject *ho, int version, FILE *f)
 	}
 	break;
     case HITOBJECT_SPINNER:
-	fprintf(f, ",%d", ho->spinner.end_offset);
+	fprintf(f, ",%d", ho->end_offset);
 	break;
     case HITOBJECT_HOLD:
-        fprintf(f, ",%d", ho->hold.end_offset);
+        fprintf(f, ",%d", ho->end_offset);
         break;
     default:
         break;

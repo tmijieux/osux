@@ -15,14 +15,19 @@
         }                                                               \
     } while (0)                                                         \
 
-#define ALLOC_ARRAY(array_var, size_var, size_literal)                  \
+#define ALLOC_ARRAY(array_var, size_var, size)                          \
     do {                                                                \
-        array_var = g_malloc((size_literal) * sizeof(*(array_var)));    \
-        size_var = (size_literal);                                      \
+        array_var = g_malloc((size) * sizeof(*(array_var)));            \
+        size_var = (size);                                              \
     } while (0)
 
+#define COPY_ARRAY(array_dst_var, array_src_var, size)      \
+    memcpy((array_dst_var), (array_src_var), (size) * sizeof(*(array_dst_var)))
 
 #define ARRAY_SIZE(array) (sizeof (array) / sizeof((array)[0]))
+
+#define min(x, y) ((x) < (y) ? (x) : (y))
+#define max(x, y) ((x) < (y) ? (y) : (x))
 
 char *osux_getline(GIOChannel *chan);
 char *bytearray2hexstr(uint8_t const *bytearray, size_t size);

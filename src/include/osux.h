@@ -3,6 +3,7 @@
 
 #include "./osux/timingpoint.h"
 #include "./osux/keys.h"
+#include "./osux/hit.h"
 #include "./osux/replay.h"
 #include "./osux/mods.h"
 #include "./osux/beatmap.h"

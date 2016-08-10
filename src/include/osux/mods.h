@@ -17,8 +17,11 @@
  *  limitations under the License.
  */
 
+#include <stdio.h>
+#include <stdint.h>
+
 void mod_print(FILE *f, uint32_t mod_bitfield);
-    
+
 enum mods {
     MOD_NOFAIL 		= 	(1 << 0),
     MOD_EASY  		=	(1 << 1),

@@ -21,14 +21,15 @@
 
 typedef struct osux_timingpoint {
     double offset;
-    double millisecond_per_beat; 
+    double millisecond_per_beat;
     double slider_velocity_multiplier;// percentage < 0
+    double slider_velocity;
 
     int time_signature;
     int sample_type;
     int sample_set_index;
     int volume;
-    
+
     bool inherited;
     bool kiai;
 
@@ -43,9 +44,12 @@ int osux_timingpoint_init(osux_timingpoint *tp,
                           osux_timingpoint const **last_non_inherited,
                           char *line, uint32_t osu_version);
 
+int osux_timingpoint_set_slider_velocity(
+    osux_timingpoint *tp, double slider_velocity);
+
 void osux_timingpoint_print(osux_timingpoint *tp, FILE *f);
 
 // free timing point's internal resources (super HARD)
-void osux_timingpoint_free(osux_timingpoint *tp); 
+void osux_timingpoint_free(osux_timingpoint *tp);
 
 #endif // OSUX_TIMINGPOINT_H

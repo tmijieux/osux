@@ -29,10 +29,11 @@
 #include "osux/mods.h"
 #include "osux/replay.h"
 #include "osux/buffer_reader.h"
+#include "osux/keys.h"
 
 #define read_string(buf_ptr_, file_) read_string_ULEB128(buf_ptr_, file_)
 
-static int replay_data_init(struct replay_data *d, char *datastr)
+static int replay_data_init(osux_replay_data *d, char *datastr)
 {
     gchar **split = g_strsplit(datastr, "|", 0);
     unsigned size = strsplit_size(split);
@@ -41,12 +42,13 @@ static int replay_data_init(struct replay_data *d, char *datastr)
         g_strfreev(split);
         return -OSUX_ERR_REPLAY_DATA;
     }
-    
+
     d->previous_time = g_ascii_strtoull(split[0], NULL, 10);
     d->x = g_ascii_strtod(split[1], NULL);
     d->y = g_ascii_strtod(split[2], NULL);
     d->keys = atoi(split[3]);
-    
+    d->time_offset = 0;
+
     g_strfreev(split);
     return 0;
 }
@@ -69,6 +71,9 @@ static int parse_replay_data(osux_replay *r, char const *data)
         }
         if ((err = replay_data_init(&r->data[i], data_split[i])) < 0)
             break;
+        osux_replay_data *d = &r->data[i];
+        if (i > 0)
+            d->time_offset = (d-1)->time_offset + d->previous_time;
     }
     g_strfreev(data_split);
     return err;
@@ -191,7 +196,7 @@ int osux_replay_init(osux_replay *r, char const *filepath)
     uint64_t ticks;
     READ_V(br, ticks);
     r->timestamp = from_win_timestamp(ticks);
-    
+
     READ_V(br, r->replay_length);
     char *data = NULL;
     obr_read_lzma(&br, &data, r->replay_length);
@@ -239,7 +244,7 @@ void osux_replay_print(osux_replay const *r, FILE *f)
     fprintf(f, "Data:\n");
 
     for (unsigned i = 0; i < r->data_count; ++i) {
-    	struct replay_data *d = &r->data[i];
+        osux_replay_data *d = &r->data[i];
     	g_fprintf(f, "%"G_GINT64_FORMAT"|%g|%g|%u\n",
                   d->previous_time, d->x, d->y, d->keys);
     }
@@ -253,3 +258,4 @@ void osux_replay_free(osux_replay *r)
     g_free(r->life);
     g_free(r->data);
 }
+

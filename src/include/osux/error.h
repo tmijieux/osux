@@ -11,8 +11,8 @@
 
 #define OSUX_ERROR_LIST(ERROR)                                  \
     ERROR(OSUX_SUCCESS)                                         \
-    ERROR(OSUX_ERR_INVAL)                                       \
     ERROR(OSUX_ERR_UNKNOWN_ERROR)                               \
+    ERROR(OSUX_ERR_INVAL)                                       \
     ERROR(OSUX_ERR_FILE_ERROR)                                  \
     ERROR(OSUX_ERR_FILE_ACCESS)                                 \
     ERROR(OSUX_ERR_BAD_OSU_VERSION)                             \
@@ -32,6 +32,9 @@
     ERROR(OSUX_ERR_REPLAY_LIFE_BAR)                             \
     ERROR(OSUX_ERR_REPLAY_DATA)                                 \
     ERROR(OSUX_ERR_BUFFER_READER_RANGE)                         \
+    ERROR(OSUX_ERR_AUTOCONVERT_NOT_SUPPORTED)                   \
+    ERROR(OSUX_ERR_INVALID_GAME_MODE)                           \
+    ERROR(OSUX_ERR_GAME_MODE_NOT_SUPPORTED)                     \
 
 
 #define CHECK_ERROR(expr, finally)              \

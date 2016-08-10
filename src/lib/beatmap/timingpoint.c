@@ -114,3 +114,11 @@ void osux_timingpoint_free(osux_timingpoint *tp)
 {
     (void) tp; // nathing !
 }
+
+int osux_timingpoint_set_slider_velocity(
+    osux_timingpoint *tp, double slider_velocity)
+{
+    tp->slider_velocity = slider_velocity;
+    if (tp->inherited)
+        tp->slider_velocity *= -100. / tp->slider_velocity_multiplier;
+}

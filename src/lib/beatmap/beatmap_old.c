@@ -135,7 +135,7 @@ int osux_beatmap_print(osux_beatmap const *m, FILE *f)
 	fputs("\r\n", f);
     }
 
-    PRINT_SECTION( hitobjects );
+    PRINT_SECTION( HitObjects );
     for (unsigned int i = 0; i < m->hitobject_count; ++i)
 	osux_hitobject_print(&m->hitobjects[i], m->osu_version, f);
     return 0;
@@ -185,13 +185,8 @@ char *osux_beatmap_default_filename(const osux_beatmap *bm)
     unsigned len_spec = strlen(sp_chr);
 
     for (unsigned i = 0; i < len_name; i++)
-    {
 	for (unsigned j = 0; j < len_spec; j++)
-        {
 	    if (name[i] == sp_chr[j])
 		name[i] = replace_chr[j];
-        }
-    }
-
     return name;
 }

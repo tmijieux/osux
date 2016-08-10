@@ -1,3 +1,6 @@
+#ifndef TRM_H
+#define TRM_H
+
 /*
  *  Copyright (©) 2015-2016 Lucas Maugère, Thomas Mijieux
  *
@@ -13,8 +16,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-#ifndef TRM_H
-#define TRM_H
 
 struct tr_object;
 enum played_state;
@@ -22,15 +23,6 @@ enum played_state;
 #define MAX_ACC 1.
 #define COEFF_MAX_ACC 100.
 
-#ifdef min
-  #undef min
-#endif
-#define min(x, y) (x) < (y) ? (x) : (y)
-
-#ifdef max
-  #undef max
-#endif
-#define max(x, y) (x) > (y) ? (x) : (y)
 
 struct tr_map
 {

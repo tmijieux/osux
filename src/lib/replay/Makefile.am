@@ -3,6 +3,7 @@ noinst_LTLIBRARIES = libosux_replay.la
 libosux_replay_la_SOURCES = \
 	replay.c \
 	xz_decomp.c \
+	hit.c \
 	osux_buffer_reader.c
 
 libosux_replay_la_CFLAGS = $(AM_CFLAGS) $(LZMA_CFLAGS)
