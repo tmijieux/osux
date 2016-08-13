@@ -93,7 +93,7 @@ static void reading_global_init(osux_hashtable * ht_cst)
     INTEREST_VECT = cst_vect(ht_cst, "vect_interest");
     INTEREST_LF = cst_lf(ht_cst, "vect_interest");
     SEEN_LF  = cst_lf(ht_cst, "vect_seen");
-    READING_SCALE_LF = cst_lf(ht_cst, "vect_scale");
+    READING_SCALE_LF = cst_lf(ht_cst, "vect_reading_scale");
 
     READING_STAR_COEFF_SEEN = cst_f(ht_cst, "star_seen");
 }

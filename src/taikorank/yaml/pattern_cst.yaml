@@ -4,11 +4,13 @@
 ## Variable:
 # x is the sum of all parameters for pattern stars
 # y is the pattern star rating
-vect_scale_length: 2
-vect_scale_x1: 0.
-vect_scale_y1: 4.
-vect_scale_x2: 1.01
-vect_scale_y2: 1.
+vect_pattern_scale_length: 3
+vect_pattern_scale_x1: 0.
+vect_pattern_scale_y1: 4.
+vect_pattern_scale_x2: 0.6
+vect_pattern_scale_y2: 1.
+vect_pattern_scale_x3: 1.01
+vect_pattern_scale_y3: 1.
 
 ### Pattern influence
 ## Brief:
@@ -61,7 +63,7 @@ vect_singletap_x1: 0.
 vect_singletap_y1: 0.
 vect_singletap_x2: 100.
 vect_singletap_y2: 0.
-vect_singletap_x3: 160.
+vect_singletap_x3: 140.
 vect_singletap_y3: 0.8
 vect_singletap_x4: 250.
 vect_singletap_y4: 1.

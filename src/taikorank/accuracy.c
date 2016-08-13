@@ -78,7 +78,7 @@ static void accuracy_global_init(osux_hashtable * ht_cst)
     HIT_WINDOW_LF = cst_lf(ht_cst, "vect_hit_window");
     SPC_FREQ_LF   = cst_lf(ht_cst, "vect_spacing_frequency");
     SPC_INFLU_LF  = cst_lf(ht_cst, "vect_spacing_influence");
-    ACCURACY_SCALE_LF = cst_lf(ht_cst, "vect_scale");
+    ACCURACY_SCALE_LF = cst_lf(ht_cst, "vect_accuracy_scale");
 
     ACCURACY_STAR_SLOW_POW       = cst_f(ht_cst, "star_slow");
     ACCURACY_STAR_SPACING_POW    = cst_f(ht_cst, "star_spacing");

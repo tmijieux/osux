@@ -91,7 +91,7 @@ static void pattern_global_init(osux_hashtable * ht_cst)
     PATTERN_FREQ_LF = cst_lf(ht_cst, "vect_pattern_freq");
     PATTERN_INFLU_LF = cst_lf(ht_cst, "vect_influence");
     SINGLETAP_LF = cst_lf(ht_cst, "vect_singletap");
-    PATTERN_SCALE_LF = cst_lf(ht_cst, "vect_scale");
+    PATTERN_SCALE_LF = cst_lf(ht_cst, "vect_pattern_scale");
 
     PROBA_START = (double)cst_i(ht_cst, "proba_start") / PROBA_SCALE;
     PROBA_END   = (double)cst_i(ht_cst, "proba_end")   / PROBA_SCALE;
@@ -268,21 +268,19 @@ static struct counter * tro_pattern_new_counter(const struct tr_object * o, int 
 
 //-----------------------------------------------------
 
-static inherit_fun pattern_nb = (inherit_fun) pattern_1_common_begining;
+static inherit_fun pattern_nb = (inherit_fun) pattern_eq;
 static inherit_fun pattern_total = (inherit_fun) pattern_are_same_length;
 
 static double tro_pattern_freq(const struct tr_object * o,
 			       const struct counter * c)
 {
-    //double total = cnt_get_total_inherit(c, pattern_total);
-    double total = cnt_get_total(c);
-    if (total == 0)
-	return 0;
     double nb = 0;
     for (int k = 0; k < table_len(o->patterns); k++) {
 	const struct pattern * p = table_get(o->patterns, k);
-	double d = cnt_get_nb_inherit(c, p->s, pattern_nb);
-	double p_freq = d / total;
+	double d     = cnt_get_nb_inherit(c, p->s, pattern_nb);
+	double total = cnt_get_nb_inherit(c, p->s, pattern_total);
+	double p_freq = (total == 0) ? 0 : d / total;
+	p_freq = min(1, p_freq * p->len);
 	nb += p_freq * (p->proba_end - p->proba_start);
     }
     return nb;

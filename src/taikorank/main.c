@@ -25,9 +25,12 @@
 
 static int apply_global_options(int argc, const char ** argv)
 {
-    int i = 1;
-    while (argv[i] && argv[i][0] == GLOBAL_OPT_PREFIX[0])
+    int i;
+    for (i = 1; i < argc; i++) {
+	if (argv[i][0] != GLOBAL_OPT_PREFIX[0])
+	    break;
 	i += global_opt_set(argc - i, &argv[i]);
+    }
     init_enabled();
     return i;
 }

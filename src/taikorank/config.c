@@ -52,6 +52,24 @@ void tr_global_config_free(struct tr_global_config *conf)
     free(conf);
 }
 
+void tr_global_config_print(const struct tr_global_config *conf)
+{
+    fprintf(OUTPUT_INFO, "autoconvert: %d\n", conf->autoconvert_enable);
+
+    fprintf(OUTPUT_INFO, "db_enable: %d\n", conf->db_enable);
+    fprintf(OUTPUT_INFO, "db_ip:     %s\n", conf->db_ip);
+    fprintf(OUTPUT_INFO, "db_login:  %s\n", conf->db_login);
+    fprintf(OUTPUT_INFO, "db_passwd: %s\n", conf->db_passwd);
+    
+    fprintf(OUTPUT_INFO, "print_tro:    %d\n", conf->print_tro);
+    fprintf(OUTPUT_INFO, "print_yaml:   %d\n", conf->print_yaml);
+    fprintf(OUTPUT_INFO, "print_filter: %d\n", conf->print_filter); // not readable...
+    fprintf(OUTPUT_INFO, "print_order:  %s\n", conf->print_order);
+
+    fprintf(OUTPUT_INFO, "bdb_enable: %d\n", conf->beatmap_db_enable);
+    fprintf(OUTPUT_INFO, "bdb_path:   %s\n", conf->beatmap_db_path);
+}
+
 //-----------------------------------------------------
 
 static struct tr_local_config * tr_local_config_new(void)

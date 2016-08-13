@@ -20,11 +20,11 @@ vect_influence_y3: 1.
 ## Variable:
 # x is the product of all enabled stars
 # y is the final star rating
-vect_scale_length: 2
-vect_scale_x1: 0.
-vect_scale_y1: 0.
-vect_scale_x2: 4096. # 8^4
-vect_scale_y2: 888.
+vect_final_scale_length: 2
+vect_final_scale_x1: 0.
+vect_final_scale_y1: 0.
+vect_final_scale_x2: 4096. # 8^4
+vect_final_scale_y2: 888.
 
 ### Pow
 ## Brief:

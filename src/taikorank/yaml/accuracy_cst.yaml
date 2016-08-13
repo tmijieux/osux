@@ -4,11 +4,11 @@
 ## Variable:
 # x is the product of all parameters for accuracy stars
 # y is the accuracy star rating
-vect_scale_length: 2
-vect_scale_x1: 1.
-vect_scale_y1: 1.
-vect_scale_x2: 12.
-vect_scale_y2: 12.
+vect_accuracy_scale_length: 2
+vect_accuracy_scale_x1: 1.
+vect_accuracy_scale_y1: 1.
+vect_accuracy_scale_x2: 12.
+vect_accuracy_scale_y2: 12.
 
 ### Slow
 ## Brief:

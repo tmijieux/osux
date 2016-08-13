@@ -71,7 +71,7 @@ static struct linear_fun * DENSITY_SCALE_LF;
 static void density_global_init(osux_hashtable * ht_cst)
 {
     DENSITY_LF       = cst_lf(ht_cst, "vect_density");
-    DENSITY_SCALE_LF = cst_lf(ht_cst, "vect_scale");
+    DENSITY_SCALE_LF = cst_lf(ht_cst, "vect_density_scale");
 
     DENSITY_NORMAL = cst_f(ht_cst, "density_normal");
     DENSITY_BIG    = cst_f(ht_cst, "density_big");

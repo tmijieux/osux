@@ -4,13 +4,13 @@
 ## Variable:
 # x is the sum of all parameters for density stars
 # y is the density star rating
-vect_scale_length: 3
-vect_scale_x1: 0.
-vect_scale_y1: 1.
-vect_scale_x2: 400.
-vect_scale_y2: 4.5
-vect_scale_x3: 1e4
-vect_scale_y3: 5
+vect_density_scale_length: 3
+vect_density_scale_x1: 0.
+vect_density_scale_y1: 1.
+vect_density_scale_x2: 400.
+vect_density_scale_y2: 4.5
+vect_density_scale_x3: 1e4
+vect_density_scale_y3: 5
 
 ### Density
 ## Brief:

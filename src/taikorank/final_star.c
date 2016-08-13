@@ -62,7 +62,7 @@ static void final_global_init(osux_hashtable * ht_cst)
 {
     FINAL_INFLU_LF = cst_lf(ht_cst, "vect_influence");
     WEIGHT_LF = cst_lf(ht_cst, "vect_weight");
-    FINAL_SCALE_LF = cst_lf(ht_cst, "vect_scale");
+    FINAL_SCALE_LF = cst_lf(ht_cst, "vect_final_scale");
 
     DST_POW = cst_f(ht_cst, "density_pow");
     RDG_POW = cst_f(ht_cst, "reading_pow");

@@ -6,21 +6,11 @@
 ## Variable:
 # x is the sum of all parameters for reading stars
 # y is the reading star rating
-vect_scale_length: 6
-vect_scale_x1: 0.    # don't give much more
-vect_scale_y1: 2.6
-vect_scale_x2: 21    # 600bpma
-vect_scale_y2: 2.5
-vect_scale_x3: 47    # 400bpma
-vect_scale_y3: 2.
-vect_scale_x4: 184   # 200bpma
-vect_scale_y4: 1.5
-vect_scale_x4: 317   # 140bpma
-vect_scale_y4: 1.1
-vect_scale_x5: 400   # 100bpma
-vect_scale_y5: 1.
-vect_scale_x6: 1e5  # make sure high enough
-vect_scale_y6: 1.
+vect_reading_scale_length: 2
+vect_reading_scale_x1: 0.
+vect_reading_scale_y1: 0.
+vect_reading_scale_x2: 4.
+vect_reading_scale_y2: 4.
 
 ### Interest
 ## Brief:
@@ -51,14 +41,21 @@ vect_interest_y5: 0.
 # x is in ms * px^2 * interset, the "volume" representing how well it 
 #   is seen.
 # y the seen value
-## Note:
-# As there is only one parameter the function is transfered to the 
-# scaling.
-vect_seen_length: 2
-vect_seen_x1: 0.
-vect_seen_y1: 0.
-vect_seen_x2: 1e10
-vect_seen_y2: 1e10
+vect_seen_length: 6
+vect_seen_x1: 0.    # don't give much more
+vect_seen_y1: 2.1
+vect_seen_x2: 21    # 600bpma
+vect_seen_y2: 2.
+vect_seen_x3: 47    # 400bpma
+vect_seen_y3: 1.8
+vect_seen_x4: 184   # 200bpma
+vect_seen_y4: 1.5
+vect_seen_x4: 317   # 140bpma
+vect_seen_y4: 1.1
+vect_seen_x5: 400   # 100bpma
+vect_seen_y5: 1.
+vect_seen_x6: 1e5  # make sure high enough
+vect_seen_y6: 1.
 
 ### Parameters coeff
 ## Brief:

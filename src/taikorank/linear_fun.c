@@ -36,6 +36,8 @@ struct linear_fun {
     double * x; // len
     double * a; // len - 1
     double * b; // len - 1
+
+    int has_error;
 };
 /*
   x = [x0, x1, x2, ...]
@@ -49,6 +51,7 @@ struct linear_fun {
 struct linear_fun * lf_new(struct vector * v)
 {
     struct linear_fun * lf = malloc(sizeof(*lf));
+    lf->has_error = 0;
     lf->len = v->len;
     lf->x = malloc(sizeof(double) * lf->len);
     for(int i = 0; i < lf->len; i++) {
@@ -112,9 +115,12 @@ double lf_eval(struct linear_fun * lf, double x)
     int i = find_interval_linear(lf->x, lf->len, x);
     //int i = find_interval_binary(lf->x, 0, lf->len-1, x);
     if (i < 0) {
-	tr_error("Out of bounds value (%g) for linear_fun (%s) eval",
-		 x, lf->name);
-	lf_print(lf);
+	if (!lf->has_error) {
+	    tr_error("Out of bounds value (%g) for linear_fun (%s)",
+		     x, lf->name);
+	    lf_print(lf);
+	    lf->has_error = 1;
+	}
 	return ERROR_VAL;
     }
     return lf_eval_interval(lf, x, i);
