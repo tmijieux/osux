@@ -73,14 +73,13 @@
     <property name="page_increment">1</property>
   </object>
   <object class="GtkAdjustment" id="sv_adjustment">
-    <property name="lower">1</property>
     <property name="upper">100</property>
     <property name="value">1</property>
-    <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
+    <property name="step_increment">0.10000000000000001</property>
+    <property name="page_increment">1</property>
   </object>
   <object class="GtkAdjustment" id="tickrate_adjustment">
-    <property name="upper">100</property>
+    <property name="upper">20</property>
     <property name="value">1</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
@@ -898,9 +897,11 @@
                               <object class="GtkBox">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
+                                <property name="margin_top">5</property>
+                                <property name="margin_bottom">5</property>
                                 <property name="orientation">vertical</property>
                                 <property name="spacing">5</property>
-                                <property name="homogeneous">True</property>
+                                <property name="baseline_position">top</property>
                                 <child>
                                   <object class="GtkBox">
                                     <property name="visible">True</property>
@@ -1248,6 +1249,9 @@
                           </object>
                         </child>
                       </object>
+                      <packing>
+                        <property name="tab_fill">False</property>
+                      </packing>
                     </child>
                     <child type="tab">
                       <object class="GtkLabel">
@@ -1274,9 +1278,11 @@
                               <object class="GtkBox">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
+                                <property name="margin_top">5</property>
+                                <property name="margin_bottom">5</property>
                                 <property name="orientation">vertical</property>
                                 <property name="spacing">5</property>
-                                <property name="homogeneous">True</property>
+                                <property name="baseline_position">top</property>
                                 <child>
                                   <object class="GtkBox">
                                     <property name="visible">True</property>
@@ -1643,6 +1649,7 @@
                       </object>
                       <packing>
                         <property name="position">1</property>
+                        <property name="tab_fill">False</property>
                       </packing>
                     </child>
                     <child type="tab">
@@ -1671,9 +1678,11 @@
                               <object class="GtkBox">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
+                                <property name="margin_top">5</property>
+                                <property name="margin_bottom">5</property>
                                 <property name="orientation">vertical</property>
                                 <property name="spacing">5</property>
-                                <property name="homogeneous">True</property>
+                                <property name="baseline_position">top</property>
                                 <child>
                                   <object class="GtkBox">
                                     <property name="visible">True</property>
@@ -1700,7 +1709,6 @@
                                         <property name="text" translatable="yes">0,7</property>
                                         <property name="adjustment">distance_spacing</property>
                                         <property name="digits">1</property>
-                                        <property name="value">0.69999999999999996</property>
                                       </object>
                                       <packing>
                                         <property name="expand">True</property>
@@ -1741,7 +1749,6 @@
                                         <property name="text" translatable="yes">0,7</property>
                                         <property name="adjustment">beat_divisor</property>
                                         <property name="digits">1</property>
-                                        <property name="value">0.69999999999999996</property>
                                       </object>
                                       <packing>
                                         <property name="expand">True</property>
@@ -1782,7 +1789,6 @@
                                         <property name="text" translatable="yes">0,7</property>
                                         <property name="adjustment">grid_size</property>
                                         <property name="digits">1</property>
-                                        <property name="value">0.69999999999999996</property>
                                       </object>
                                       <packing>
                                         <property name="expand">True</property>
@@ -1823,7 +1829,6 @@
                                         <property name="text" translatable="yes">0,7</property>
                                         <property name="adjustment">timeline_zoom</property>
                                         <property name="digits">1</property>
-                                        <property name="value">0.69999999999999996</property>
                                       </object>
                                       <packing>
                                         <property name="expand">True</property>
@@ -1844,6 +1849,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
+                                    <property name="halign">center</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -1858,6 +1864,7 @@
                       </object>
                       <packing>
                         <property name="position">2</property>
+                        <property name="tab_fill">False</property>
                       </packing>
                     </child>
                     <child type="tab">
@@ -1886,6 +1893,8 @@
                               <object class="GtkBox">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
+                                <property name="margin_top">5</property>
+                                <property name="margin_bottom">5</property>
                                 <property name="orientation">vertical</property>
                                 <property name="homogeneous">True</property>
                                 <child>
@@ -2065,6 +2074,7 @@
                                         <property name="valign">center</property>
                                         <property name="text" translatable="yes">1</property>
                                         <property name="adjustment">sv_adjustment</property>
+                                        <property name="digits">1</property>
                                         <property name="value">1</property>
                                       </object>
                                       <packing>
@@ -2126,6 +2136,7 @@
                       </object>
                       <packing>
                         <property name="position">3</property>
+                        <property name="tab_fill">False</property>
                       </packing>
                     </child>
                     <child type="tab">
