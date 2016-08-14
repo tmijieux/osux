@@ -12,17 +12,17 @@ osux_editor_SOURCES = \
 GLIB_BUILD_RESOURCE = glib-compile-resources
 
 resources.h: 
-	$(GLIB_BUILD_RESOURCE) editor.gresources.xml \
+	$(GLIB_BUILD_RESOURCE) $(srcdir)/editor.gresources.xml \
 	--sourcedir=$(srcdir) \
 	--target=$@ \
 	--generate-header
 
 resources.c: resources.h
-	$(GLIB_BUILD_RESOURCE) editor.gresources.xml \
+	$(GLIB_BUILD_RESOURCE) $(srcdir)/editor.gresources.xml \
 	--sourcedir=$(srcdir) \
 	--target=$@ \
 	--generate-source
 
 
 osux_editor_CFLAGS = $(GTK3_CFLAGS) $(AM_CFLAGS)
-osux_editor_LDFLAGS = $(GTK3_LIBS) $(AM_LDFLAGS)
+osux_editor_LDFLAGS = $(GTK3_LIBS) -export-dynamic $(AM_LDFLAGS)
