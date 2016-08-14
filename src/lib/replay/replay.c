@@ -94,12 +94,13 @@ static void print_date(FILE *f, time_t t)
     static gboolean locale_is_set = FALSE;
 
     if (!locale_is_set) {
-        setlocale(LC_TIME, ""); // TODO: move this
+        setlocale(LC_ALL, ""); // TODO: move this
         locale_is_set = TRUE;
     }
 
     GDateTime *dateTime = g_date_time_new_from_unix_local(t);
     g_assert(dateTime != NULL);
+
     gchar *dateStr = g_date_time_format(dateTime, "%c");
     fprintf(f, "date: %s\n", dateStr);
     g_free(dateStr);

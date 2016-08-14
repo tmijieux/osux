@@ -5,7 +5,7 @@ enum taiko_keys {
     LEFT_DON    =   1,
     LEFT_KAT    =   2,
     RIGHT_DON   =   4,
-    RIGHT_KAT   =   8
+    RIGHT_KAT   =   8,
 };
 
 enum std_keys {
@@ -27,7 +27,7 @@ enum ctb_keys {
 enum mania_keys {
     // This is encoded in the x field; NOT IN the key field
     // keys left to right
-    
+
     MANIA_1   =  1,
     MANIA_2   =  2,
     MANIA_3   =  4,
