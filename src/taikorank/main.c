@@ -61,8 +61,10 @@ int main(int argc, char *argv[])
 	}
     }
 
-    if (nb_map == 0)
+    if (nb_map == 0) {
 	tr_error("No osu file D:");
+	print_help();
+    }
 
     return EXIT_SUCCESS;
 }

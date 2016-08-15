@@ -22,4 +22,6 @@
 int local_opt_set(int argc, const char ** argv);
 int global_opt_set(int argc, const char ** argv);
 
+void print_help(void);
+
 #endif //OPTIONS_H

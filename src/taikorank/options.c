@@ -181,6 +181,33 @@ static void opt_bdb_path(const char ** argv)
 }
 
 //-----------------------------------------------------
+
+static void tr_option_print(UNUSED(const char * key),
+			    struct tr_option * opt)
+{
+    fprintf(OUTPUT_INFO, "\t%s\t%s\n", opt->long_key, opt->help);
+}
+
+static void opt_help(UNUSED(const char ** argv))
+{
+    fprintf(OUTPUT_INFO, "Usage:\n");
+    fprintf(OUTPUT_INFO, "taiko_ranking [GLOBAL_OPTION] ... "
+	    "[LOCAL_OPTIONS] [FILE|HASH] ...\n");
+    fprintf(OUTPUT_INFO, "Global options:\n");
+    osux_hashtable_each(ht_global_opt, (void (*)(const char*, void*))
+			tr_option_print);
+    fprintf(OUTPUT_INFO, "Local options:\n");
+    osux_hashtable_each(ht_local_opt, (void (*)(const char*, void*))
+			tr_option_print);
+    exit(EXIT_SUCCESS);
+}
+
+void print_help(void)
+{
+    opt_help(NULL);
+}
+
+//-----------------------------------------------------
 //-----------------------------------------------------
 //-----------------------------------------------------
 
@@ -205,7 +232,7 @@ void add_opt(osux_hashtable * ht_opt, struct tr_option * opt)
 #define new_tr_global_opt(LG_KEY, NB_ARG, FUNC, HELP)		\
     static struct tr_option tr_opt_##FUNC = {			\
 	NULL,							\
-	LOCAL_OPT_PREFIX LG_KEY,				\
+	GLOBAL_OPT_PREFIX LG_KEY,				\
 	NB_ARG, global_opt, FUNC, HELP				\
     };								\
     add_opt(ht_global_opt, &tr_opt_##FUNC)
@@ -224,6 +251,9 @@ INITIALIZER(options_init)
     // global options
     ht_global_opt = osux_hashtable_new(0);
 
+    new_tr_global_opt("help", 0, opt_help,
+		      "Show this message");
+
     new_tr_global_opt("autoconvert", 1, opt_autoconvert,
 		      "Enable or disable autoconvertion");
     new_tr_global_opt("db", 1, opt_db,
@@ -232,6 +262,7 @@ INITIALIZER(options_init)
 		      "Enable or disable beatmap database lookup");
     new_tr_global_opt("bdb_path", 1, opt_bdb_path,
 		      "Set the path to the beatmap database");
+
     new_tr_global_opt("ptro", 1, opt_print_tro,
 		      "Enable or disable object printing");
     new_tr_global_opt("pyaml", 1, opt_print_yaml,
