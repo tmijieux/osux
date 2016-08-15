@@ -22,43 +22,53 @@
 #include "options.h"
 #include "osux.h"
 
-#define ARG_OPT_AUTOCONVERT  "autoconvert"
+typedef void (*tr_option_fun)(const char **);
 
-#define ARG_OPT_DB           "db"
+enum tr_option_type
+{
+    local_opt,
+    global_opt,
+};
 
-#define ARG_OPT_PRINT_TRO    "ptro"
-#define ARG_OPT_PRINT_YAML   "pyaml"
-#define ARG_OPT_PRINT_FILTER "pfilter"
-#define ARG_OPT_PRINT_ORDER  "porder"
-
-#define ARG_OPT_ODB          "odb"
-#define ARG_OPT_ODB_PATH     "odb_path"
-
-#define ARG_OPT_SCORE        "score"
-#define ARG_OPT_SCORE_QUICK  "quick"
-#define ARG_OPT_SCORE_INPUT  "input"
-#define ARG_OPT_SCORE_GGM    "ggm"
-#define ARG_OPT_SCORE_ACC    "acc"
-
-#define ARG_OPT_MODS         "mods"
-#define ARG_OPT_NO_BONUS     "no_bonus"
-#define ARG_OPT_FLAT         "flat"
+struct tr_option
+{
+    const char * short_key;
+    const char * long_key;
+    int nb_arg;
+    enum tr_option_type type;
+    tr_option_fun fun;
+    const char * help;
+};
 
 static osux_hashtable * ht_local_opt;
 static osux_hashtable * ht_global_opt;
 
 //-----------------------------------------------------
 
-static int opt_set(int argc, const char ** argv, 
-		       osux_hashtable * ht_opt)
+static int tr_option_apply(const struct tr_option * opt,
+			   int argc, const char ** argv)
 {
-    int (* opt)(int, const char **) = NULL;
-    osux_hashtable_lookup(ht_opt, argv[0], &opt);
-    if (opt == NULL) {
-	tr_error("Unknown option: '%s'.", argv[0]);
+    if (argc < opt->nb_arg) {
+	tr_error("Option '%s' need %d arguments.",
+		 opt->long_key, opt->nb_arg);
 	return 0;
     }
-    return opt(argc-1, (const char **) &argv[1]);
+    opt->fun(argv);
+    return opt->nb_arg;
+}
+
+//-----------------------------------------------------
+
+static int opt_set(int argc, const char ** argv,
+		   osux_hashtable * ht_opt)
+{
+    struct tr_option * opt = NULL;
+    osux_hashtable_lookup(ht_opt, argv[0], &opt);
+    if (opt == NULL) {
+	tr_error("Unknown option: '%s'", argv[0]);
+	return 0;
+    }
+    return tr_option_apply(opt, argc-1, (const char **) &argv[1]);
 }
 
 int local_opt_set(int argc, const char ** argv)
@@ -73,139 +83,101 @@ int global_opt_set(int argc, const char ** argv)
 
 //-----------------------------------------------------
 
-#define OPT_ARGC_ERR(argc, n, opt)				\
-    if (argc < n) {						\
-	tr_error("Option '%s' need %d arguments.", opt, n);	\
-	return 0; 						\
-    }
-
-static int opt_db(int argc, const char ** argv)
+static void opt_db(const char ** argv)
 {
-    OPT_ARGC_ERR(argc, 1, ARG_OPT_DB);
     GLOBAL_CONFIG->db_enable = atoi(argv[0]);
-    return 1;
 }
 
 //-----------------------------------------------------
 
-static int opt_autoconvert(int argc, const char ** argv)
+static void opt_autoconvert(const char ** argv)
 {
-    OPT_ARGC_ERR(argc, 1, ARG_OPT_AUTOCONVERT);
     GLOBAL_CONFIG->autoconvert_enable = atoi(argv[0]);
-    return 1;
 }
 
 //-----------------------------------------------------
 
-static int opt_score(int argc, const char ** argv)
+static void opt_score(const char ** argv)
 {
-    OPT_ARGC_ERR(argc, 1, ARG_OPT_SCORE);
     local_config_set_tr_main(atoi(argv[0]));
-    return 1;
 }
 
-static int opt_score_quick(int argc, const char ** argv)
+static void opt_score_quick(const char ** argv)
 {
-    OPT_ARGC_ERR(argc, 1, ARG_OPT_SCORE_QUICK);
     local_config_set_tr_main(MAIN_SCORE);
     LOCAL_CONFIG->quick = atoi(argv[0]);
-    return 1;
 }
 
-static int opt_score_input(int argc, const char ** argv)
+static void opt_score_input(const char ** argv)
 {
-    OPT_ARGC_ERR(argc, 1, ARG_OPT_SCORE_INPUT);
     local_config_set_tr_main(MAIN_SCORE);
     LOCAL_CONFIG->input = atoi(argv[0]);
-    return 1;  
 }
 
-static int opt_score_acc(int argc, const char ** argv)
+static void opt_score_acc(const char ** argv)
 {
-    OPT_ARGC_ERR(argc, 1, ARG_OPT_SCORE_ACC);
     local_config_set_tr_main(MAIN_SCORE);
     LOCAL_CONFIG->acc   = atof(argv[0]) / COEFF_MAX_ACC;
     LOCAL_CONFIG->input = SCORE_INPUT_ACC;
-    return 1;
 }
 
-static int opt_score_ggm(int argc, const char ** argv)
+static void opt_score_ggm(const char ** argv)
 {
-    OPT_ARGC_ERR(argc, 2, ARG_OPT_SCORE_GGM);
     local_config_set_tr_main(MAIN_SCORE);
     LOCAL_CONFIG->good  = atoi(argv[0]);
     LOCAL_CONFIG->miss  = atoi(argv[1]);
     LOCAL_CONFIG->input = SCORE_INPUT_GGM;
-    return 2;
 }
 
 //-----------------------------------------------------
 
-static int opt_print_tro(int argc, const char ** argv)
+static void opt_print_tro(const char ** argv)
 {
-    OPT_ARGC_ERR(argc, 1, ARG_OPT_PRINT_TRO);
     GLOBAL_CONFIG->print_tro = atoi(argv[0]);
-    return 1;
 }
 
-static int opt_print_yaml(int argc, const char ** argv)
+static void opt_print_yaml(const char ** argv)
 {
-    OPT_ARGC_ERR(argc, 1, ARG_OPT_PRINT_YAML);
     GLOBAL_CONFIG->print_yaml = atoi(argv[0]);
-    return 1;
 }
 
-static int opt_print_filter(int argc, const char ** argv)
+static void opt_print_filter(const char ** argv)
 {
-    OPT_ARGC_ERR(argc, 1, ARG_OPT_PRINT_FILTER);
     global_config_set_filter(argv[0]);
-    return 1;
 }
 
-static int opt_print_order(int argc, const char ** argv)
+static void opt_print_order(const char ** argv)
 {
-    OPT_ARGC_ERR(argc, 1, ARG_OPT_PRINT_ORDER);
     GLOBAL_CONFIG->print_order = (char *) argv[0];
-    return 1;
 }
 
 //-----------------------------------------------------
 
-static int opt_mods(int argc, const char ** argv)
+static void opt_mods(const char ** argv)
 {
-    OPT_ARGC_ERR(argc, 1, ARG_OPT_MODS);
     local_config_set_mods(argv[0]);
-    return 1;
 }
 
-static int opt_no_bonus(int argc, const char ** argv)
+static void opt_no_bonus(const char ** argv)
 {
-    OPT_ARGC_ERR(argc, 1, ARG_OPT_NO_BONUS);
     LOCAL_CONFIG->no_bonus = atoi(argv[0]);
-    return 1;
 }
 
-static int opt_flat(int argc, const char ** argv)
+static void opt_flat(const char ** argv)
 {
-    OPT_ARGC_ERR(argc, 1, ARG_OPT_FLAT);
     LOCAL_CONFIG->flat = atoi(argv[0]);
-    return 1;
 }
 
 //-----------------------------------------------------
 
-static int opt_odb(int argc, const char ** argv)
+static void opt_bdb(const char ** argv)
 {
-    OPT_ARGC_ERR(argc, 1, ARG_OPT_ODB);
     GLOBAL_CONFIG->beatmap_db_enable = atoi(argv[0]);
-    return 1;    
 }
 
-static int opt_odb_path(int argc, const char ** argv)
+static void opt_bdb_path(const char ** argv)
 {
-    OPT_ARGC_ERR(argc, 1, ARG_OPT_ODB_PATH);
     GLOBAL_CONFIG->beatmap_db_path = (char*) argv[0];
-    return 1;
 }
 
 //-----------------------------------------------------
@@ -214,17 +186,30 @@ static int opt_odb_path(int argc, const char ** argv)
 
 typedef int (*opt_fun)(int, const char**);
 
-static inline 
-void add_opt(osux_hashtable * ht_opt, char * key, opt_fun f)
+static inline
+void add_opt(osux_hashtable * ht_opt, struct tr_option * opt)
 {
-    osux_hashtable_insert(ht_opt, key, f);
+    osux_hashtable_insert(ht_opt, opt->long_key, opt);
+    if (opt->short_key != NULL)
+	osux_hashtable_insert(ht_opt, opt->short_key, opt);
 }
 
-#define add_local_opt(KEY, FUNC)			\
-    add_opt(ht_local_opt, LOCAL_OPT_PREFIX KEY, FUNC)
+#define new_tr_local_opt(LG_KEY, NB_ARG, FUNC, HELP)		\
+    static struct tr_option tr_opt_##FUNC = {			\
+	NULL,							\
+	LOCAL_OPT_PREFIX LG_KEY,				\
+	NB_ARG, local_opt, FUNC, HELP				\
+    };								\
+    add_opt(ht_local_opt, &tr_opt_##FUNC)
 
-#define add_global_opt(KEY, FUNC)			\
-    add_opt(ht_global_opt, GLOBAL_OPT_PREFIX KEY, FUNC)
+#define new_tr_global_opt(LG_KEY, NB_ARG, FUNC, HELP)		\
+    static struct tr_option tr_opt_##FUNC = {			\
+	NULL,							\
+	LOCAL_OPT_PREFIX LG_KEY,				\
+	NB_ARG, global_opt, FUNC, HELP				\
+    };								\
+    add_opt(ht_global_opt, &tr_opt_##FUNC)
+
 
 //-----------------------------------------------------
 
@@ -239,28 +224,43 @@ INITIALIZER(options_init)
     // global options
     ht_global_opt = osux_hashtable_new(0);
 
-    add_global_opt(ARG_OPT_AUTOCONVERT,  opt_autoconvert);
-    add_global_opt(ARG_OPT_DB,           opt_db);
-    add_global_opt(ARG_OPT_ODB,          opt_odb);
-    add_global_opt(ARG_OPT_ODB_PATH,     opt_odb_path);
-
-    add_global_opt(ARG_OPT_PRINT_TRO,    opt_print_tro);
-    add_global_opt(ARG_OPT_PRINT_YAML,   opt_print_yaml);
-    add_global_opt(ARG_OPT_PRINT_ORDER,  opt_print_order);
-    add_global_opt(ARG_OPT_PRINT_FILTER, opt_print_filter);
+    new_tr_global_opt("autoconvert", 1, opt_autoconvert,
+		      "Enable or disable autoconvertion");
+    new_tr_global_opt("db", 1, opt_db,
+		      "Enable or disable database storing");
+    new_tr_global_opt("bdb", 1, opt_bdb,
+		      "Enable or disable beatmap database lookup");
+    new_tr_global_opt("bdb_path", 1, opt_bdb_path,
+		      "Set the path to the beatmap database");
+    new_tr_global_opt("ptro", 1, opt_print_tro,
+		      "Enable or disable object printing");
+    new_tr_global_opt("pyaml", 1, opt_print_yaml,
+		      "Enable or disable yaml output");
+    new_tr_global_opt("porder", 1, opt_print_order,
+		      "Set star order");
+    new_tr_global_opt("pfilter", 1, opt_print_filter,
+		      "Set printed data filter");
 
     // local options
     ht_local_opt  = osux_hashtable_new(0);
 
-    add_local_opt(ARG_OPT_MODS,         opt_mods);
-    add_local_opt(ARG_OPT_NO_BONUS,     opt_no_bonus);
-    add_local_opt(ARG_OPT_FLAT,         opt_flat);
+    new_tr_local_opt("mods", 1, opt_mods,
+		     "Set mods");
+    new_tr_local_opt("no_bonus", 1, opt_no_bonus,
+		     "Enable or disable bonus objects removing");
+    new_tr_local_opt("flat", 1, opt_flat,
+		     "Enable or disable objects flatening");
 
-    add_local_opt(ARG_OPT_SCORE,        opt_score);
-    add_local_opt(ARG_OPT_SCORE_QUICK,  opt_score_quick);
-    add_local_opt(ARG_OPT_SCORE_INPUT,  opt_score_input);
-    add_local_opt(ARG_OPT_SCORE_ACC,    opt_score_acc);
-    add_local_opt(ARG_OPT_SCORE_GGM,    opt_score_ggm);
+    new_tr_local_opt("score", 1, opt_score,
+		     "Enable or disable score computation");
+    new_tr_local_opt("quick", 1, opt_score_quick,
+		     "Enable or disable quick score computation");
+    new_tr_local_opt("input", 1, opt_score_input,
+		     "Set score input method");
+    new_tr_local_opt("acc", 1, opt_score_acc,
+		     "Set score accuracy");
+    new_tr_local_opt("ggm", 2, opt_score_ggm,
+		     "Set score number of good and miss");
+
     atexit(options_exit);
 }
-
