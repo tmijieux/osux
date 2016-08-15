@@ -9,6 +9,7 @@
 #define _(x) dgettext("osux", (x))
 
 #include "app.h"
+#include "beatmap.h"
 
 void init_locale_settings(void)
 {

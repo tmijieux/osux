@@ -30,7 +30,7 @@ class Handler:
 
 if __name__ == "__main__":
     builder = Gtk.Builder()
-    builder.add_from_file("fen1.ui")
+    builder.add_from_file("ui/OsuxEditorWindow.ui")
     
     window = builder.get_object("main_window")
     window.connect("delete-event", Gtk.main_quit)

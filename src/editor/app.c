@@ -7,13 +7,14 @@
 struct _OsuxEditorApp
 {
     GtkApplication parent;
-    OsuxEditorAppWindow *window;
+    OsuxEditorWindow *window;
 };
 
 G_DEFINE_TYPE(OsuxEditorApp, osux_editor_app, GTK_TYPE_APPLICATION);
 
 static void osux_editor_app_init(OsuxEditorApp *app)
 {
+    (void) app;
 }
 
 static void
@@ -21,6 +22,8 @@ quit_action(GSimpleAction *action,
             GVariant      *parameter,
             gpointer       app)
 {
+    (void) action;
+    (void) parameter;
     g_application_quit(G_APPLICATION (app));
 }
 
@@ -29,6 +32,9 @@ open_action(GSimpleAction *action,
             GVariant      *parameter,
             gpointer       app)
 {
+    (void) action;
+    (void) parameter;
+
     GtkWidget *dialog;
     GtkFileChooserAction fc_action = GTK_FILE_CHOOSER_ACTION_OPEN;
     gint res;
@@ -46,7 +52,7 @@ open_action(GSimpleAction *action,
         filename = gtk_file_chooser_get_filename(chooser);
 
         GFile *file = g_file_new_for_path(filename);
-        osux_editor_app_window_open(OSUX_EDITOR_APP_WINDOW(win), file);
+        osux_editor_window_open(OSUX_EDITOR_WINDOW(win), file);
         g_object_unref(file);
         g_free (filename);
     }
@@ -59,6 +65,9 @@ save_action(GSimpleAction *action,
             GVariant      *parameter,
             gpointer       app)
 {
+    (void) action;
+    (void) parameter;
+
     GtkWidget *dialog;
     GtkFileChooserAction fc_action = GTK_FILE_CHOOSER_ACTION_SAVE;
     gint res;
@@ -76,7 +85,7 @@ save_action(GSimpleAction *action,
         filename = gtk_file_chooser_get_filename(chooser);
 
         GFile *file = g_file_new_for_path(filename);
-        osux_editor_app_window_open(OSUX_EDITOR_APP_WINDOW(win), file);
+        osux_editor_window_open(OSUX_EDITOR_WINDOW(win), file);
         g_object_unref(file);
         g_free (filename);
     }
@@ -85,11 +94,11 @@ save_action(GSimpleAction *action,
 }
 
 static GActionEntry app_entries[] = {
-    { "quit", &quit_action, NULL, NULL, NULL },
-    { "open", &open_action, NULL, NULL, NULL },
-    { "new", &open_action, NULL, NULL, NULL },
-    { "save", &save_action, NULL, NULL, NULL },
-    { "save_as", &save_action, NULL, NULL, NULL },
+    { "quit", &quit_action, NULL, NULL, NULL, {0} },
+    { "open", &open_action, NULL, NULL, NULL, {0}},
+    { "new", &open_action, NULL, NULL, NULL, {0} },
+    { "save", &save_action, NULL, NULL, NULL, {0} },
+    { "save_as", &save_action, NULL, NULL, NULL, {0}},
 };
 
 static void
@@ -103,9 +112,12 @@ osux_editor_app_startup(GApplication *app)
 static void
 osux_editor_app_activate(GApplication *app)
 {
-    OsuxEditorAppWindow *win;
-    win = osux_editor_app_window_new(OSUX_EDITOR_APP(app));
-    OSUX_EDITOR_APP(app)->window = win;
+    OsuxEditorWindow *win;
+    if ( OSUX_EDITOR_APP(app)->window == NULL ) {
+        win = osux_editor_window_new(OSUX_EDITOR_APP(app));
+        OSUX_EDITOR_APP(app)->window = win;
+    } else
+        win = OSUX_EDITOR_APP(app)->window;
     gtk_window_present(GTK_WINDOW(win));
 }
 
@@ -115,13 +127,17 @@ osux_editor_app_open(GApplication  *app,
                      gint           n_files,
                      const gchar   *hint)
 {
-    OsuxEditorAppWindow *win = OSUX_EDITOR_APP(app)->window;
+    (void) hint;
+    OsuxEditorWindow *win = OSUX_EDITOR_APP(app)->window;
+    if (win == NULL) {
+        win = osux_editor_window_new(OSUX_EDITOR_APP(app));
+        OSUX_EDITOR_APP(app)->window = win;
+    }
     int i;
 
     for (i = 0; i < n_files; i++)
-        osux_editor_app_window_open (win, files[i]);
-
-    gtk_window_present (GTK_WINDOW (win));
+        osux_editor_window_open(win, files[i]);
+    gtk_window_present(GTK_WINDOW(win));
 }
 
 static void

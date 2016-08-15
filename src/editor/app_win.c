@@ -1,50 +1,65 @@
 #include <gtk/gtk.h>
+#include <stdint.h>
 
 #include "app.h"
 #include "app_win.h"
-#include "popover_search_bar.h"
+#include "beatmap.h"
+#include "popsearch.h"
 
-struct _OsuxEditorAppWindow
+struct _OsuxEditorWindow
 {
     GtkApplicationWindow parent;
 
     GtkWidget *popover;
     GtkWidget *new_circle_button;
+
+    OsuxEditorBeatmap **beatmaps;
+    uint32_t beatmap_count;
 };
 
-G_DEFINE_TYPE(OsuxEditorAppWindow,
-              osux_editor_app_window,
+G_DEFINE_TYPE(OsuxEditorWindow,
+              osux_editor_window,
               GTK_TYPE_APPLICATION_WINDOW);
 
 static void
-osux_editor_app_window_init(OsuxEditorAppWindow *win)
+osux_editor_window_init(OsuxEditorWindow *win)
 {
     gtk_widget_init_template(GTK_WIDGET(win));
     win->popover = GTK_WIDGET(
-        osux_editor_popover_searchbar_new(win->new_circle_button) );
+        osux_editor_popsearch_new(win->new_circle_button) );
+
+    win->beatmaps = NULL;
+    win->beatmap_count = 0;
 }
 
 static void
-osux_editor_app_window_class_init(OsuxEditorAppWindowClass *klass)
+osux_editor_window_class_init(OsuxEditorWindowClass *klass)
 {
     GtkWidgetClass *wklass = GTK_WIDGET_CLASS(klass);
     gtk_widget_class_set_template_from_resource(
         wklass, "/org/osux/editor/ui/OsuxEditorWindow.ui");
     gtk_widget_class_bind_template_child(
-        wklass, OsuxEditorAppWindow, new_circle_button);
+        wklass, OsuxEditorWindow, new_circle_button);
 }
 
-OsuxEditorAppWindow *
-osux_editor_app_window_new(OsuxEditorApp *app)
+OsuxEditorWindow *
+osux_editor_window_new(OsuxEditorApp *app)
 {
-    return g_object_new(OSUX_EDITOR_APP_WINDOW_TYPE, "application", app, NULL);
+    return g_object_new(OSUX_TYPE_EDITOR_WINDOW, "application", app, NULL);
 }
 
-void osux_editor_app_window_open(OsuxEditorAppWindow *win, GFile *file)
+void osux_editor_window_open(OsuxEditorWindow *win, GFile *file)
 {
     gchar *path = g_file_get_path(file);
     if (path != NULL) {
-        
+        OsuxEditorBeatmap *beatmap;
+        beatmap = osux_editor_beatmap_new(path);
+        if (beatmap != NULL) {
+            /* TODO check that beatmap is not already present */
+            (void) win;
+
+            g_object_unref(beatmap);
+        }
         g_free(path);
     }
 }
@@ -52,7 +67,9 @@ void osux_editor_app_window_open(OsuxEditorAppWindow *win, GFile *file)
 gboolean on_main_window_key_press(
     GtkWidget *widget, GdkEventKey *event, gpointer user_data)
 {
-    GtkWidget *popover = OSUX_EDITOR_APP_WINDOW(widget)->popover;
+    (void) user_data;
+
+    GtkWidget *popover = OSUX_EDITOR_WINDOW(widget)->popover;
     switch (event->keyval) {
     case GDK_KEY_space:
         if (gtk_widget_is_visible(popover))
