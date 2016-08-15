@@ -42,7 +42,7 @@ struct inheriter {
 };
 
 static struct counter_entry * cnte_new(const void * d, double nb);
-static void cnte_free(const char *key, struct counter_entry *e,  void *args);
+static void cnte_free(const char *key, struct counter_entry *e);
 static void cnte_print(const char *key, struct counter_entry *e, struct inheriter *h);
 static void cnte_inherit(const char *key, struct counter_entry *e, struct inheriter *h);
 static void cnte_add_nb_inherit(const char *key, struct counter_entry *e, struct inheriter *h);
@@ -57,9 +57,7 @@ static struct counter_entry * cnte_new(const void * d, double nb)
     return e;
 }
 
-static void cnte_free(const char UNUSED(*key),
-                      struct counter_entry *e,
-                      void UNUSED(*args))
+static void cnte_free(const char UNUSED(*key), struct counter_entry *e)
 {
     if (e == NULL)
 	return;
@@ -119,7 +117,8 @@ void cnt_free(struct counter * c)
 {
     if (c == NULL)
 	return;
-    osux_hashtable_for_each(c->ht, (ht_fun) cnte_free, NULL);
+    osux_hashtable_each(c->ht, 
+			(void (*)(const char*, void*)) cnte_free);
     osux_hashtable_delete(c->ht);
     free(c);
 }
@@ -150,7 +149,7 @@ double cnt_get_nb_inherit(const struct counter * c,
     if (e == NULL)
 	return 0;
     struct inheriter total = {NULL, e, {inherit}, 0};
-    osux_hashtable_for_each(c->ht, (ht_fun) cnte_inherit, &total);
+    osux_hashtable_each_r(c->ht, (ht_fun) cnte_inherit, &total);
     return total.nb;
 }
 
@@ -166,7 +165,7 @@ double cnt_get_nb(const struct counter * c, const char * key)
 double cnt_get_nb_where(const struct counter * c, where_fun where)
 {
     struct inheriter h = {c, NULL, {.where = where}, 0};
-    osux_hashtable_for_each(c->ht, (ht_fun) cnte_where, &h);
+    osux_hashtable_each_r(c->ht, (ht_fun) cnte_where, &h);
     return h.nb;
 }
 
@@ -178,7 +177,7 @@ double cnt_get_total(const struct counter * c)
 double cnt_get_total_inherit(const struct counter * c, inherit_fun inherit)
 {
     struct inheriter h = {c, NULL, {inherit}, 0};
-    osux_hashtable_for_each(c->ht, (ht_fun) cnte_add_nb_inherit, &h);
+    osux_hashtable_each_r(c->ht, (ht_fun) cnte_add_nb_inherit, &h);
     return h.nb;
 }
 
@@ -188,7 +187,7 @@ void cnt_print(const struct counter * c)
 {
     printf("Counter: (%g)\n", c->total);
     printf("Entry:\tkey\tval\tfreq\n");
-    osux_hashtable_for_each(c->ht, (ht_fun) cnte_print, NULL);
+    osux_hashtable_each_r(c->ht, (ht_fun) cnte_print, NULL);
 }
 
 void cnt_print_inherit(const struct counter * c, inherit_fun inherit)
@@ -196,5 +195,5 @@ void cnt_print_inherit(const struct counter * c, inherit_fun inherit)
     printf("Counter: (%g)\n", c->total);
     printf("Entry:\tkey\tval\tcompr\tfreq\tfreq cp\n");
     struct inheriter h = {c, NULL, {inherit}, INFINITY};
-    osux_hashtable_for_each(c->ht, (ht_fun) cnte_print, &h);
+    osux_hashtable_each_r(c->ht, (ht_fun) cnte_print, &h);
 }

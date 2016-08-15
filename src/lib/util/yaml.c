@@ -30,7 +30,7 @@ void yaml2_dump(FILE *out, const struct yaml_wrap *yw)
 
     case YAML_MAPPING:
 	fprintf(out, "yaml mapping start:\n");
-	osux_hashtable_for_each(yw->content.mapping, mapping_dump, out);
+	osux_hashtable_each_r(yw->content.mapping, mapping_dump, out);
 	fprintf(out, "yaml mapping end\n");
 	break;
 
@@ -174,7 +174,7 @@ void yaml2_free(struct yaml_wrap *yw)
         return;
     switch (yw->type) {
     case YAML_MAPPING:
-        osux_hashtable_for_each(yw->content.mapping, &mapping_free, NULL);
+        osux_hashtable_each_r(yw->content.mapping, &mapping_free, NULL);
         osux_hashtable_delete(yw->content.mapping);
         break;
 

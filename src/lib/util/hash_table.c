@@ -124,13 +124,23 @@ void osux_hashtable_delete(osux_hashtable *h)
     free(h);
 }
 
-void osux_hashtable_for_each(osux_hashtable *h,
+void osux_hashtable_each_r(osux_hashtable *h,
 		 void (*fun)(const char *, void*, void*), void *args)
 {
     struct osux_hashtable_entry *entry, *tmp;
 
     HASH_ITER(hh, h->h, entry, tmp) {
         fun(entry->key, entry->data, args);
+    }
+}
+
+void osux_hashtable_each(osux_hashtable *h,
+		 void (*fun)(const char *, void*))
+{
+    struct osux_hashtable_entry *entry, *tmp;
+
+    HASH_ITER(hh, h->h, entry, tmp) {
+        fun(entry->key, entry->data);
     }
 }
 

@@ -32,7 +32,9 @@ int osux_hashtable_contains(osux_hashtable *ht, const char *key);
 int osux_hashtable_lookup(osux_hashtable *ht,
                           const char *lookup_key,
                           void *ret_value);
-void osux_hashtable_for_each(
+void osux_hashtable_each(
+    osux_hashtable* ht, void (*fun)(const char *, void*));
+void osux_hashtable_each_r(
     osux_hashtable* ht, void (*fun)(const char *, void*, void*), void *args);
 void osux_hashtable_delete(osux_hashtable *ht);
 osux_list* osux_hashtable_to_list(osux_hashtable *h);
