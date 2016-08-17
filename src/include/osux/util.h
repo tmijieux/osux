@@ -9,7 +9,7 @@
 #define HANDLE_ARRAY_SIZE(array, array_size, array_capacity)            \
     do {                                                                \
         if (array_size+1 > array_capacity) {                            \
-            array_capacity *= 2;                                        \
+            array_capacity = 2*(array_capacity)+1;                      \
             g_assert(array_capacity > array_size);                      \
             array = g_realloc(array, sizeof(*(array)) * array_capacity); \
         }                                                               \

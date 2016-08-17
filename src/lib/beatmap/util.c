@@ -65,13 +65,14 @@ GIOChannel *osux_open_text_file_reading(char const *file_path)
         return NULL;
     }
 
-    char data[4]; gsize length;
+    char data[4]; gsize length; // BOMs are up to 4 bytes long
     status = g_io_channel_read_chars(chan, data, 4, &length, &error);
     if (status == G_IO_STATUS_ERROR) {
         fprintf(stderr, "read bom error: %s\n", error->message);
         g_error_free(error);
         return NULL;
     }
+    // this macros return on successful encoding match
     CHECK_ENCODING(utf32be, data, "UTF-32BE", chan); // order is important
     CHECK_ENCODING(utf32le, data, "UTF-32LE", chan);
     CHECK_ENCODING(utf16le, data, "UTF-16LE", chan);

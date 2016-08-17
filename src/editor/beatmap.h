@@ -2,6 +2,8 @@
 #define OSUX_EDITOR_BEATMAP_H
 
 #include <gtk/gtk.h>
+#include "osux/beatmap.h"
+#include "adjustment.h"
 
 G_BEGIN_DECLS
 
@@ -9,8 +11,43 @@ G_BEGIN_DECLS
 
 G_DECLARE_FINAL_TYPE(OsuxEditorBeatmap, osux_editor_beatmap,
                      OSUX, EDITOR_BEATMAP, GObject);
+struct _OsuxEditorBeatmap
+{
+    GObject parent;
+    int error_code;
+    char *filepath;
+    char *filename;
+    char *audio_filepath;
 
-OsuxEditorBeatmap *osux_editor_beatmap_new(char const *filename);
+    osux_beatmap beatmap;
+    GtkWidget *main_view;
+
+    //Properties
+    OsuxAdjustment *AudioLeadIn;
+    OsuxAdjustment *BeatDivisor;
+    OsuxAdjustment *PreviewTime;
+    OsuxAdjustment *StackLeniency;
+    OsuxAdjustment *SliderMultiplier;
+    OsuxAdjustment *SliderTickRate;
+    OsuxAdjustment *TimelineZoom;
+    OsuxAdjustment *GridSize;
+    OsuxAdjustment *DistanceSpacing;
+
+    OsuxAdjustment *Time; // Position Of The Editor In The Song;
+
+    OsuxAdjustment *ApproachRate;
+    OsuxAdjustment *CircleSize;
+    OsuxAdjustment *OverallDifficulty;
+    OsuxAdjustment *HPDrainRate;
+
+    GtkListStore *Objects;
+
+    OsuxAdjustment *BeatmapID;
+    OsuxAdjustment *BeatmapSetID;
+};
+
+OsuxEditorBeatmap *osux_editor_beatmap_new(char const *filepath);
+void osux_editor_beatmap_save(OsuxEditorBeatmap *beatmap);
 
 G_END_DECLS
 

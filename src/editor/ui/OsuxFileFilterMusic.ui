@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.20.0 -->
+<interface>
+  <requires lib="gtk+" version="3.20"/>
+  <object class="GtkFileFilter" id="Audio files">
+    <mime-types>
+      <mime-type>audio/mpeg</mime-type>
+      <mime-type>audio/x-ms-wma</mime-type>
+      <mime-type>audio/x-wav</mime-type>
+      <mime-type>audio/wav</mime-type>
+      <mime-type>audio/ogg</mime-type>
+    </mime-types>
+    <patterns>
+      <pattern>*.mp3</pattern>
+      <pattern>*.wma</pattern>
+      <pattern>*.wav</pattern>
+      <pattern>*.ogg</pattern>
+    </patterns>
+  </object>
+  <object class="GtkFileFilter" id="*.mp3">
+    <mime-types>
+      <mime-type>audio/mpeg</mime-type>
+    </mime-types>
+    <patterns>
+      <pattern>*.mp3</pattern>
+    </patterns>
+  </object>
+  <object class="GtkFileFilter" id="*.wma">
+    <mime-types>
+      <mime-type>audio/x-ms-wma</mime-type>
+    </mime-types>
+    <patterns>
+      <pattern>*.wma</pattern>
+    </patterns>
+  </object>
+  <object class="GtkFileFilter" id="*.wav">
+    <mime-types>
+      <mime-type>audio/x-wav</mime-type>
+      <mime-type>audio/wav</mime-type>
+    </mime-types>
+    <patterns>
+      <pattern>*.wav</pattern>
+    </patterns>
+  </object>
+  <object class="GtkFileFilter" id="*.ogg">
+    <mime-types>
+      <mime-type>audio/ogg</mime-type>
+    </mime-types>
+    <patterns>
+      <pattern>*.ogg</pattern>
+    </patterns>
+  </object>
+  <object class="GtkFileFilter" id="All files">
+    <mime-types>
+    </mime-types>
+    <patterns>
+      <pattern>*</pattern>
+    </patterns>
+  </object>
+</interface>

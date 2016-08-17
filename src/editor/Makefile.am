@@ -6,6 +6,8 @@ osux_editor_SOURCES = \
 	app.c \
 	app_win.c \
 	popsearch.c \
+	closelabel.c \
+	adjustment.c \
 	beatmap.c
 
 nodist_osux_editor_SOURCES = \
@@ -19,7 +21,12 @@ CLEANFILES = \
 	resources.h
 
 GLIB_BUILD_RESOURCE = glib-compile-resources
-RESOURCES_DEP=$(srcdir)/ui/OsuxEditorWindow.ui
+RESOURCES_DEP= \
+	$(srcdir)/ui/OsuxEditorWindow.ui \
+	$(srcdir)/ui/OsuxEditorPopover.ui \
+	$(srcdir)/ui/OsuxBeatmapAdjustments.ui \
+	$(srcdir)/ui/OsuxCloseLabel.ui \
+	$(srcdir)/ui/OsuxFileFilterMusic.ui
 
 $(srcdir)/editor.gresources.xml: $(RESOURCES_DEP)
 # technically nothing can be 'rebuilt' here so just update modification time

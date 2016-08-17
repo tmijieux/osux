@@ -74,7 +74,6 @@ struct osux_beatmap {
 
     // .osu  SECTION :
     uint32_t osu_version;
-    bool byte_order_mark; // byte order mark; utf-8 stuff
 
     // general info
     char *AudioFilename;

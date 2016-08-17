@@ -45,8 +45,6 @@ osux_beatmap DEFAULT_BEATMAP = { 0 };
 
 int osux_beatmap_print(osux_beatmap const *m, FILE *f)
 {
-    if (m->byte_order_mark)
-	fprintf(f, "%c%c%c", 0xef, 0xbb, 0xbf);
     fprintf(f, "osu file format v%d\r\n", m->osu_version);
 
     PRINT_SECTION( General );

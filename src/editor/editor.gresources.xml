@@ -3,5 +3,8 @@
   <gresource prefix="/org/osux/editor">
     <file preprocess="xml-stripblanks">ui/OsuxEditorWindow.ui</file>
     <file preprocess="xml-stripblanks">ui/OsuxEditorPopover.ui</file>
+    <file preprocess="xml-stripblanks">ui/OsuxCloseLabel.ui</file>
+    <file preprocess="xml-stripblanks">ui/OsuxBeatmapAdjustments.ui</file>
+    <file preprocess="xml-stripblanks">ui/OsuxFileFilterMusic.ui</file>
   </gresource>
 </gresources>

@@ -3,8 +3,6 @@
 file(GLOB_RECURSE ui_src  "*.ui")
 file(GLOB editor_src "*.c" "*.h")
 
-
-
 add_custom_command(
   OUTPUT resources.c
   COMMAND glib-compile-resources ${CMAKE_CURRENT_SOURCE_DIR}/editor.gresources.xml --target=resources.c --sourcedir=${CMAKE_CURRENT_SOURCE_DIR} --generate-source

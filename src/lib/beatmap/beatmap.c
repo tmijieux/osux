@@ -139,7 +139,7 @@ static int parse_option_entry(
     if (sep == NULL)
         return -OSUX_ERR_MALFORMED_OSU_FILE;
     char **split = g_strsplit(line, ":", 2);
-    osux_hashtable_insert(section, split[0], g_strdup(split[1]));
+    osux_hashtable_insert(section, split[0], g_strstrip(g_strdup(split[1])));
     g_strfreev(split);
     return 0;
 }
@@ -249,7 +249,6 @@ static int parse_objects(osux_beatmap *beatmap, GIOChannel *file)
             ++ beatmap->event_count;
             continue;
         }
-
         parse_option_entry(line, current_section);
     }
     g_free(section_name);
