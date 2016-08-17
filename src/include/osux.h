@@ -1,6 +1,7 @@
 #ifndef OSUX_H
 #define OSUX_H
 
+#include "./osux/gettext.h"
 #include "./osux/timingpoint.h"
 #include "./osux/keys.h"
 #include "./osux/hit.h"

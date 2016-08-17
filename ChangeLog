@@ -1,0 +1,5 @@
+2016-08-17  gettextize  <bug-gnu-gettext@gnu.org>
+
+	* Makefile.am (ACLOCAL_AMFLAGS): New variable.
+	* configure.ac (AM_GNU_GETTEXT_VERSION): Bump to 0.19.8.
+

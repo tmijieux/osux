@@ -1,0 +1,318 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Thomas Mijieux, Lucas Maugère
+# This file is distributed under the same license as the osux package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: osux 0.1\n"
+"Report-Msgid-Bugs-To: lmaugere@ipb.fr, tmijieux@ipb.fr\n"
+"POT-Creation-Date: 2016-08-17 18:53+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/editor/app.c:102
+msgid "Open File"
+msgstr ""
+
+#: src/editor/app.c:102 src/editor/app.c:137
+msgid "_Cancel"
+msgstr ""
+
+#: src/editor/app.c:103
+msgid "_Open"
+msgstr ""
+
+#: src/editor/app.c:137
+msgid "Save beatmap"
+msgstr ""
+
+#: src/editor/app.c:138
+msgid "_Save"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:14
+msgid "osux Editor"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:54
+msgid "_File"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:135
+msgid "E_dit"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:185
+msgid "_View"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:193
+msgid "_Help"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:401
+msgid "HitObjects"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:406
+msgid "Circle"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:414
+msgid "Spinner"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:425
+msgid "Slider"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:436
+msgid "Hold"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:452
+msgid "Transformation"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:458
+msgid "Symmetry"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:466
+msgid "Scale"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:477
+msgid "Rotation"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:493
+msgid "Sample"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:499
+#: src/editor/ui/OsuxEditorWindow.glade:559
+#: src/editor/ui/OsuxEditorWindow.glade:799
+msgid "Normal"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:507
+msgid "Whistle"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:518
+msgid "Finish"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:529
+msgid "Clap"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:545
+msgid "SampleType"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:551
+msgid "Default"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:570
+#: src/editor/ui/OsuxEditorWindow.glade:800
+msgid "Soft"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:581
+#: src/editor/ui/OsuxEditorWindow.glade:801
+msgid "Drum"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:702
+msgid "Audio File"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:717
+msgid "Open Audio File"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:741
+msgid "Game Mode"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:756
+msgid "Standard"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:757
+msgid "Taiko"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:758
+msgid "Catch The beat"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:759
+msgid "Mania"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:784
+msgid "SampleSet"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:826
+msgid "Stack Leniency"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:840
+#: src/editor/ui/OsuxEditorWindow.glade:1518
+#: src/editor/ui/OsuxEditorWindow.glade:1557
+#: src/editor/ui/OsuxEditorWindow.glade:1596
+#: src/editor/ui/OsuxEditorWindow.glade:1635
+msgid "0,7"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:866
+msgid "Preview Time"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:880
+#: src/editor/ui/OsuxEditorWindow.glade:918
+#: src/editor/ui/OsuxEditorWindow.glade:1396
+#: src/editor/ui/OsuxEditorWindow.glade:1434
+#: src/editor/ui/OsuxEditorWindow.glade:1922
+msgid "0"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:904
+msgid "Audio LeadIn"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:942
+msgid "CountDown"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:978
+msgid "Letter Box in breaks"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:1014
+msgid "WideScreen"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:1057
+msgid "General"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:1094
+msgid "Title"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:1130
+msgid "Romanized Title"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:1166
+msgid "Artist"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:1202
+msgid "Romanized Artist"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:1238
+msgid "Creator"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:1274
+msgid "Difficulty Name"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:1310
+msgid "Source"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:1346
+msgid "Tags"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:1382
+msgid "Beatmap ID"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:1420
+msgid "Beatmap Set ID"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:1466
+msgid "Metadata"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:1504
+msgid "DistanceSpacing"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:1543
+msgid "BeatDivisor"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:1582
+msgid "Grid Size"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:1621
+msgid "Timeline Zoom"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:1653
+msgid "Add Bookmark at current time"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:1682
+msgid "Editor"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:1720
+msgid "HP Drain Rate"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:1757
+msgid "Circle Size"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:1794
+msgid "Overall Difficulty"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:1831
+msgid "Approach Rate"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:1868
+msgid "Slider Multiplier"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:1882
+msgid "1"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:1908
+msgid "Slider Tick Rate"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.glade:1953
+msgid "Difficulty"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorPopover.glade:21
+msgid "start typing..."
+msgstr ""
+
+#: src/editor/ui/OsuxEditorPopover.glade:33
+msgid "Hi !"
+msgstr ""

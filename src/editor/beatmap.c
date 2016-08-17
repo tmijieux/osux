@@ -40,7 +40,7 @@ static void load_and_bind_adjustments(OsuxEditorBeatmap *beatmap)
 {
     GtkBuilder *builder;
     builder = gtk_builder_new_from_resource(
-        "/org/osux/editor/ui/OsuxBeatmapAdjustments.ui");
+        "/org/osux/editor/ui/OsuxBeatmapAdjustments.glade");
     
     //general
     IMPORT_ADJUSTMENT_I(builder, beatmap, BeatmapID);

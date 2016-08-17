@@ -1,6 +1,7 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 #include <stdint.h>
+#include <glib/gi18n.h>
 
 #include "osux.h"
 #include "app.h"

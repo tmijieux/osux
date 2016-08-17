@@ -2,12 +2,7 @@
 #define OSUX_EDITOR_APP_H
 
 #include <gtk/gtk.h>
-#include <locale.h>
-#include <libintl.h>
 #include "beatmap.h"
-
-#define _(x) dgettext("osux", (x))
-
 
 G_BEGIN_DECLS
 

@@ -26,7 +26,7 @@ static void add_music_filters(OsuxEditorWindow *win)
 {
     GtkBuilder *builder;
     builder = gtk_builder_new_from_resource(
-        "/org/osux/editor/ui/OsuxFileFilterMusic.ui");
+        "/org/osux/editor/ui/OsuxFileFilterMusic.glade");
     GtkFileChooser *chooser = GTK_FILE_CHOOSER(win->AudioFile);
 
     ADD_FILTER(chooser, builder, "Audio files");
@@ -55,7 +55,7 @@ osux_editor_window_class_init(OsuxEditorWindowClass *klass)
 {
     GtkWidgetClass *wklass = GTK_WIDGET_CLASS(klass);
     gtk_widget_class_set_template_from_resource(
-        wklass, "/org/osux/editor/ui/OsuxEditorWindow.ui");
+        wklass, "/org/osux/editor/ui/OsuxEditorWindow.glade");
     gtk_widget_class_bind_template_child(wklass, OsuxEditorWindow, new_circle_button);
     gtk_widget_class_bind_template_child(wklass, OsuxEditorWindow, main_tab);
     gtk_widget_class_bind_template_child(wklass, OsuxEditorWindow, AudioFile);

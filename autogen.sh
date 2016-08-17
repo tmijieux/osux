@@ -1,3 +1,4 @@
 #!/bin/bash
 
-autoreconf --install
+echo "Regenerating autotools files"
+autoreconf --force --install || exit 1

@@ -17,7 +17,7 @@ static void
 osux_editor_popsearch_class_init(OsuxEditorPopsearchClass *class)
 {
     gtk_widget_class_set_template_from_resource(
-        GTK_WIDGET_CLASS(class), "/org/osux/editor/ui/OsuxEditorPopover.ui");
+        GTK_WIDGET_CLASS(class), "/org/osux/editor/ui/OsuxEditorPopover.glade");
 }
 
 OsuxEditorPopsearch *

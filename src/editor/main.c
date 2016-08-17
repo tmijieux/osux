@@ -2,25 +2,21 @@
 #include <stdlib.h>
 
 #include <gtk/gtk.h>
-
-#include <locale.h>
-#include <libintl.h>
-
-#define _(x) dgettext("osux", (x))
+#include <glib/gi18n.h>
 
 #include "app.h"
 #include "beatmap.h"
 
 void init_locale_settings(void)
 {
-    bindtextdomain("osux", "./locale/");
-    textdomain("osux");
+    setlocale(LC_ALL, "");
+    bindtextdomain(PACKAGE, LOCALEDIR);
+    textdomain(PACKAGE);
 }
 
 int main(int argc, char *argv[])
 {
     init_locale_settings();
-    int r = g_application_run(
+    return g_application_run(
         G_APPLICATION(osux_editor_app_new()), argc, argv);
-    return r;
 }
