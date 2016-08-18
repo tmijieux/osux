@@ -6,27 +6,27 @@
 
 typedef struct osux_event_ osux_event;
 
-#define EVENT_OBJECTS(OBJECT)                           \
-    OBJECT(0, BackgroundImage, BACKGROUND_IMAGE)        \
-    OBJECT(1, Video, VIDEO)                             \
-    OBJECT(2, BreakPeriod, BREAK)                       \
-    OBJECT(3, BackgroundColour, BACKGROUND_COLOUR)      \
-    OBJECT(4, Sprite, SPRITE)                           \
-    OBJECT(5, Sample, SAMPLE)                           \
-    OBJECT(6, Animation, ANIMATION)                     \
+#define EVENT_OBJECTS(OBJECT)                                   \
+    OBJECT(0, N_("BackgroundImage"), BACKGROUND_IMAGE)          \
+    OBJECT(1, N_("Video"), VIDEO)                               \
+    OBJECT(2, N_("BreakPeriod"), BREAK)                         \
+    OBJECT(3, N_("BackgroundColour"), BACKGROUND_COLOUR)        \
+    OBJECT(4, N_("Sprite"), SPRITE)                             \
+    OBJECT(5, N_("Sample"), SAMPLE)                             \
+    OBJECT(6, N_("Animation"), ANIMATION)                       \
 
 #define EVENT_COMMANDS(COMMAND)                 \
-    COMMAND(FADE, Fade, F)                      \
-    COMMAND(MOVE, Move, M)                      \
-    COMMAND(MOVE_X, MoveX, MX)                  \
-    COMMAND(MOVE_Y, MoveY, MY)                  \
-    COMMAND(SCALE, Scale, S)                    \
-    COMMAND(VECTOR_SCALE, VectorScale, V)       \
-    COMMAND(ROTATE, Rotate, R)                  \
-    COMMAND(COLOR, Color, C)                    \
-    COMMAND(PARAMETER, Parameter, P)            \
-    COMMAND(LOOP, Loop, L)                      \
-    COMMAND(TRIGGER, Trigger, T)                \
+    COMMAND(FADE, N_("Fade"), F)                \
+    COMMAND(MOVE, N_("Move"), M)                \
+    COMMAND(MOVE_X, N_("MoveX"), MX)            \
+    COMMAND(MOVE_Y, N_("MoveY"), MY)            \
+    COMMAND(SCALE, N_("Scale"), S)              \
+    COMMAND(VECTOR_SCALE, N_("VectorScale"), V) \
+    COMMAND(ROTATE, N_("Rotate"), R)            \
+    COMMAND(COLOR, N_("Color"), C)              \
+    COMMAND(PARAMETER, N_("Parameter"), P)      \
+    COMMAND(LOOP, N_("Loop"), L)                \
+    COMMAND(TRIGGER, N_("Trigger"), T)          \
 
 #define EVENT_LAYERS(LAYER)                     \
     LAYER(0,  Background, BACKGROUND)           \
@@ -60,7 +60,6 @@ struct osux_event_ {
     uint32_t child_count;
     uint32_t child_bufsize;
     osux_event **childs;
-
 
     uint8_t _reserved[30];
 };

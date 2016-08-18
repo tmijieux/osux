@@ -47,7 +47,7 @@ int osux_color_init(osux_color *c, char *line, uint32_t osu_version)
     char *id, *data;
     
     if (regexp == NULL)
-        regexp = g_regex_new("^Color([0-9]+) ?: (.*)$", 0, 0, NULL);
+        regexp = g_regex_new("^Combo([0-9]+) ?: (.*)$", 0, 0, NULL);
 
     (void) osu_version;
     GMatchInfo *info = NULL;

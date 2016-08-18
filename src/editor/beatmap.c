@@ -43,7 +43,7 @@ static void load_and_bind_adjustments(OsuxEditorBeatmap *beatmap)
     GtkBuilder *builder;
     builder = gtk_builder_new_from_resource(
         "/org/osux/editor/ui/OsuxBeatmapAdjustments.ui");
-    
+
     //general
     IMPORT_ADJUSTMENT_I(builder, beatmap, BeatmapID);
     IMPORT_ADJUSTMENT_I(builder, beatmap, BeatmapSetID);
@@ -58,9 +58,9 @@ static void load_and_bind_adjustments(OsuxEditorBeatmap *beatmap)
     IMPORT_ADJUSTMENT(builder, beatmap, HPDrainRate);
     IMPORT_ADJUSTMENT(builder, beatmap, SliderMultiplier);
     IMPORT_ADJUSTMENT(builder, beatmap, SliderTickRate);
-    
+
     //editor:
-    IMPORT_ADJUSTMENT_I(builder, beatmap, BeatDivisor);    
+    IMPORT_ADJUSTMENT_I(builder, beatmap, BeatDivisor);
     IMPORT_ADJUSTMENT_I(builder, beatmap, GridSize);
     IMPORT_ADJUSTMENT(builder, beatmap, TimelineZoom);
     IMPORT_ADJUSTMENT(builder, beatmap, DistanceSpacing);
@@ -79,7 +79,7 @@ load_hit_objects(osux_beatmap *beatmap, GtkTreeStore *tree_store,
         osux_hitobject *ho = &beatmap->hitobjects[i];
         char *type;
         char hitsound[20];
-        
+
         switch (HIT_OBJECT_TYPE(ho)) {
         case HITOBJECT_CIRCLE: type = _("Circle");  break;
         case HITOBJECT_SLIDER: type = _("Slider");  break;
@@ -88,13 +88,13 @@ load_hit_objects(osux_beatmap *beatmap, GtkTreeStore *tree_store,
         default: type = _("Invalid type"); break;
         }
         sprintf(hitsound, "%d", ho->hitsound.sample);
-        
+
         GtkTreeIter iter;
         gtk_tree_store_append(tree_store, &iter, hitobjects);
         gtk_tree_store_set(tree_store, &iter,
                            COL_OFFSET, ho->offset,
                            COL_TYPE, type,
-                           COL_HITSOUND, hitsound, -1); 
+                           COL_HITSOUND, hitsound, -1);
     }
 }
 
@@ -123,11 +123,19 @@ load_timing_points(osux_beatmap *beatmap, GtkTreeStore *tree_store,
 static void
 load_colors(osux_beatmap *beatmap, GtkTreeStore *tree_store, GtkTreeIter *colors)
 {
-    (void) beatmap;
-    (void) tree_store;
-    (void) colors;
+    for (unsigned i = 0; i < beatmap->color_count; ++i)
+    {
+        osux_color *c = &beatmap->colors[i];
+        GtkTreeIter iter;
+        char color[50];
+        sprintf(color, "%d,%d,%d", c->r, c->g, c->b);
+        gtk_tree_store_append(tree_store, &iter, colors);
+        gtk_tree_store_set(tree_store, &iter,
+                           COL_OFFSET, c->id,
+                           COL_TYPE, _("Color"),
+                           COL_HITSOUND, color, -1);
+    }
 }
-
 
 static void load_event(GtkTreeStore *tree_store, osux_event *event,
                        GtkTreeIter *parent_object)
@@ -163,7 +171,7 @@ load_bookmarks(osux_beatmap *beatmap, GtkTreeStore *tree_store,
         gtk_tree_store_append(tree_store, &iter, bookmarks);
         gtk_tree_store_set(tree_store, &iter,
                            COL_OFFSET, b,
-                           COL_TYPE, "",
+                           COL_TYPE, _("Bookmark"),
                            COL_HITSOUND, "", -1);
     }
 }
@@ -172,26 +180,31 @@ static void load_objects(OsuxEditorBeatmap *beatmap)
 {
     GtkTreeStore *ts;
     ts = gtk_tree_store_new(COL_NUM, G_TYPE_INT, G_TYPE_STRING, G_TYPE_STRING);
-    
+
     beatmap->Objects = ts;
     gtk_tree_store_append(ts, &beatmap->TimingPoints, NULL);
-    gtk_tree_store_set(ts, &beatmap->TimingPoints, COL_TYPE, "TimingPoints", -1);
+    gtk_tree_store_set(ts, &beatmap->TimingPoints, COL_TYPE, _("TimingPoints"),
+                       COL_OFFSET, beatmap->beatmap.timingpoint_count, -1);
     load_timing_points(&beatmap->beatmap, ts, &beatmap->TimingPoints);
-    
+
     gtk_tree_store_append(ts, &beatmap->HitObjects, NULL);
-    gtk_tree_store_set(ts, &beatmap->HitObjects, COL_TYPE, "HitObjects", -1);
+    gtk_tree_store_set(ts, &beatmap->HitObjects, COL_TYPE, _("HitObjects"),
+                       COL_OFFSET, beatmap->beatmap.hitobject_count, -1);
     load_hit_objects(&beatmap->beatmap, ts, &beatmap->HitObjects);
 
     gtk_tree_store_append(ts, &beatmap->Bookmarks, NULL);
-    gtk_tree_store_set(ts, &beatmap->Bookmarks, COL_TYPE, "Bookmarks", -1);
+    gtk_tree_store_set(ts, &beatmap->Bookmarks, COL_TYPE, _("Bookmarks"),
+                       COL_OFFSET, beatmap->beatmap.bookmark_count, -1);
     load_bookmarks(&beatmap->beatmap, ts, &beatmap->Bookmarks);
-    
+
     gtk_tree_store_append(ts, &beatmap->Events, NULL);
-    gtk_tree_store_set(ts, &beatmap->Events, COL_TYPE, "Events", -1);
+    gtk_tree_store_set(ts, &beatmap->Events, COL_TYPE, _("Events"),
+                       COL_OFFSET, beatmap->beatmap.event_count, -1);
     load_events(&beatmap->beatmap, ts, &beatmap->Events);
-    
+
     gtk_tree_store_append(ts, &beatmap->Colors, NULL);
-    gtk_tree_store_set(ts, &beatmap->Colors, COL_TYPE, "Colors", -1);
+    gtk_tree_store_set(ts, &beatmap->Colors, COL_TYPE, _("Colors"),
+                       COL_OFFSET, beatmap->beatmap.color_count, -1);
     load_colors(&beatmap->beatmap, ts, &beatmap->Colors);
 }
 
@@ -249,14 +262,14 @@ osux_editor_beatmap_dispose(GObject *obj)
     g_clear_object(&beatmap->StackLeniency);
     g_clear_object(&beatmap->BeatmapID);
     g_clear_object(&beatmap->BeatmapSetID);
-    
+
     g_clear_object(&beatmap->ApproachRate); //difficulty
     g_clear_object(&beatmap->CircleSize);
     g_clear_object(&beatmap->OverallDifficulty);
     g_clear_object(&beatmap->HPDrainRate);
     g_clear_object(&beatmap->SliderMultiplier);
     g_clear_object(&beatmap->SliderTickRate);
-    
+
     g_clear_object(&beatmap->BeatDivisor); // editor
     g_clear_object(&beatmap->GridSize);
     g_clear_object(&beatmap->TimelineZoom);
@@ -309,10 +322,10 @@ osux_editor_beatmap_new(char const *filepath)
     object = g_object_new(OSUX_TYPE_EDITOR_BEATMAP, "filepath", filepath, NULL);
     beatmap = OSUX_EDITOR_BEATMAP( object );
     if (beatmap->error_code < 0) {
-        printf("invalid beatmap: %s\n", filepath);
+        printf(_("invalid beatmap: %s\n"), filepath);
         g_object_unref(object);
         return NULL;
     }
-    printf("valid beatmap: %s\n", filepath);
+    printf(_("valid beatmap: %s\n"), filepath);
     return beatmap;
 }

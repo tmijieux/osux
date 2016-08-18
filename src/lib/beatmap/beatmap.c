@@ -250,7 +250,7 @@ static int parse_objects(osux_beatmap *beatmap, GIOChannel *file)
             ++ beatmap->event_count;
             continue;
         }
-        if (!strcmp(section_name, "Colors")) {
+        if (!strcmp(section_name, "Colours")) {
             HANDLE_ARRAY_SIZE(beatmap->colors,
                               beatmap->color_count,
                               beatmap->color_bufsize);

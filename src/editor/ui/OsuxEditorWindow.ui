@@ -660,7 +660,7 @@
                             </child>
                             <child>
                               <object class="GtkTreeViewColumn" id="Offset-column">
-                                <property name="title">Offset</property>
+                                <property name="title" translatable="yes">Offset</property>
                                 <child>
                                   <object class="GtkCellRendererText" id="Offset-renderer"/>
                                   <attributes>
@@ -671,7 +671,7 @@
                             </child>
                             <child>
                               <object class="GtkTreeViewColumn" id="Type-column">
-                                <property name="title">Type</property>
+                                <property name="title" translatable="yes">Type</property>
                                 <child>
                                   <object class="GtkCellRendererText" id="Type-renderer"/>
                                   <attributes>
@@ -682,7 +682,7 @@
                             </child>
                             <child>
                               <object class="GtkTreeViewColumn" id="Hitsound-column">
-                                <property name="title">Hitsound</property>
+                                <property name="title" translatable="yes">Hitsound</property>
                                 <child>
                                   <object class="GtkCellRendererText" id="Hitsound-renderer"/>
                                   <attributes>

@@ -1,4 +1,5 @@
 #include <glib.h>
+#include <glib/gi18n.h>
 #include <string.h>
 
 #include "osux/event.h"
@@ -6,9 +7,9 @@
 #include "osux/util.h"
 
 #define OBJECT_TO_STRING(id_, pretty_, capital_)        \
-    [id_] = #pretty_,
+    [id_] = pretty_,
 #define COMMAND_TO_STRING(capital_, pretty_, str_id_)        \
-    [EVENT_COMMAND_##capital_] = #pretty_,
+    [EVENT_COMMAND_##capital_] = pretty_,
 
 static char const *event_str[MAX_EVENT_TYPE] = {
     EVENT_OBJECTS(OBJECT_TO_STRING)
@@ -19,7 +20,7 @@ char const *osux_event_type_get_name(int event_type)
 {
     if (event_type < 0 || event_type >= MAX_EVENT_TYPE)
         return NULL;
-    return event_str[event_type];
+    return gettext(event_str[event_type]);
 }
 
 static int add_child(osux_event *parent, osux_event *child)
@@ -38,7 +39,7 @@ static int add_child(osux_event *parent, osux_event *child)
 // private macro; parse_top_level_event only;
 #define MATCH_OBJECT__(id, pretty_, capital_)                   \
     do {                                                        \
-        if (!strcmp(type, #pretty_) || !strcmp(type, #id)) {    \
+        if (!strcmp(type, pretty_) || !strcmp(type, #id)) {    \
             event->type = EVENT_OBJECT_##capital_;              \
             return 0;                                           \
         }                                                       \
