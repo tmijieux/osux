@@ -128,12 +128,28 @@ load_colors(osux_beatmap *beatmap, GtkTreeStore *tree_store, GtkTreeIter *colors
     (void) colors;
 }
 
+
+static void load_event(GtkTreeStore *tree_store, osux_event *event,
+                       GtkTreeIter *parent_object)
+{
+    GtkTreeIter iter;
+    gtk_tree_store_append(tree_store, &iter, parent_object);
+    gtk_tree_store_set(tree_store, &iter,
+                       COL_OFFSET, event->offset,
+                       COL_TYPE, osux_event_type_get_name(event->type),
+                       COL_HITSOUND, "", -1);
+    for (unsigned i = 0; i < event->child_count; ++i)
+        load_event(tree_store, event->childs[i], &iter);
+}
+
 static void
 load_events(osux_beatmap *beatmap, GtkTreeStore *tree_store, GtkTreeIter *events)
 {
-    (void) beatmap;
-    (void) tree_store;
-    (void) events;
+    for (unsigned i = 0; i < beatmap->event_count; ++i) {
+        if (!osux_event_is_object(&beatmap->events[i]))
+            continue;
+        load_event(tree_store, &beatmap->events[i], events);
+    }
 }
 
 static void

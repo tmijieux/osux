@@ -144,11 +144,11 @@ static int parse_option_entry(
     return 0;
 }
 
-#define CHECK_OBJECT(r, s)                                              \
-    if ((r) < 0) {                                                      \
-        osux_error("failed to parse "s" line %d: %s\n",                 \
-                   line_count, osux_errmsg((r)));                       \
-        return r;                                                       \
+#define CHECK_OBJECT(r, s)                              \
+    if ((r) < 0) {                                      \
+        osux_error("failed to parse "s" line %d: %s\n", \
+                   line_count, osux_errmsg((r)));       \
+        return r;                                       \
     }
 
 #define CHECK_TIMING_POINT(r, x) CHECK_OBJECT(r, "timing point")
@@ -184,7 +184,6 @@ static int parse_option_entry(
 
 static int parse_objects(osux_beatmap *beatmap, GIOChannel *file)
 {
-    osux_timingpoint const *last_non_inherited = NULL;
     osux_hashtable *current_section = NULL;
     char *section_name = NULL;
 
@@ -218,7 +217,7 @@ static int parse_objects(osux_beatmap *beatmap, GIOChannel *file)
                               beatmap->timingpoint_bufsize);
             int r = osux_timingpoint_init(
                 &beatmap->timingpoints[beatmap->timingpoint_count],
-                &last_non_inherited, line, beatmap->osu_version);
+                line, beatmap->osu_version);
             CHECK_TIMING_POINT(r, &beatmap->timingpoints[beatmap->timingpoint_count]);
             UPDATE_STAT_BPM(
                 beatmap, &beatmap->timingpoints[beatmap->timingpoint_count]);
@@ -298,10 +297,10 @@ static void fetch_bookmarks(osux_beatmap *beatmap)
         if (section != NULL)
             osux_hashtable_lookup(section, "EditorBookmarks", &bookmarks);
     }
-    
+
     if (bookmarks == NULL)
         return;
-    
+
     char **split = g_strsplit(bookmarks, ",", 0);
     unsigned size = strsplit_size(split);
     ALLOC_ARRAY(beatmap->bookmarks, beatmap->bookmark_bufsize, size);
@@ -338,12 +337,17 @@ static int fetch_variables(osux_beatmap *beatmap)
 
 static int prepare_objects(osux_beatmap *beatmap)
 {
-    for (uint32_t i = 0; i < beatmap->timingpoint_count; ++i)
-        osux_timingpoint_set_slider_velocity(
-            &beatmap->timingpoints[i], beatmap->SliderMultiplier);
+    int err = 0;
+    osux_timingpoint const *last_non_inherited = NULL;
+
+    for (uint32_t i = 0; !err && i < beatmap->timingpoint_count; ++i) {
+        err = osux_timingpoint_set_slider_velocity(&beatmap->timingpoints[i],
+                                                   &last_non_inherited,
+                                                   beatmap->SliderMultiplier);
+    }
 
     uint32_t current_tp = 0;
-    for (uint32_t i = 0; i < beatmap->hitobject_count; ++i) {
+    for (uint32_t i = 0; !err && i < beatmap->hitobject_count; ++i) {
 	osux_hitobject *ho = &beatmap->hitobjects[i];
 
         // for each hit object
@@ -353,7 +357,13 @@ static int prepare_objects(osux_beatmap *beatmap)
 	    current_tp++;
 	osux_hitobject_set_timing_point(ho, &beatmap->timingpoints[current_tp]);
     }
-    return 0;
+
+    // build the event tree
+    for (uint32_t i = 0; !err && i < beatmap->event_count; ++i) {
+	osux_event *ev = &beatmap->events[i];
+        err = osux_event_build_tree(ev);
+    }
+    return err;
 }
 
 int osux_beatmap_update(osux_beatmap *beatmap)
@@ -384,16 +394,13 @@ int osux_beatmap_init(osux_beatmap *beatmap, char const *file_path)
     }
     g_io_channel_unref(file);
     file = NULL;
-
     if ((err = fetch_variables(beatmap)) < 0) {
         osux_beatmap_free(beatmap);
         return err;
     }
-
     if ((err = prepare_objects(beatmap)) < 0) {
         osux_beatmap_free(beatmap);
         return err;
     }
-
     return 0;
 }

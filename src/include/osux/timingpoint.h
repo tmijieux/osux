@@ -41,11 +41,12 @@ typedef struct osux_timingpoint {
     (60.  * 1000. / (hitobject)->millisecond_per_beat)
 
 int osux_timingpoint_init(osux_timingpoint *tp,
-                          osux_timingpoint const **last_non_inherited,
                           char *line, uint32_t osu_version);
 
 int osux_timingpoint_set_slider_velocity(
-    osux_timingpoint *tp, double slider_velocity);
+    osux_timingpoint *tp,
+    osux_timingpoint const **last_non_inherited,
+    double slider_velocity);
 
 void osux_timingpoint_print(osux_timingpoint *tp, FILE *f);
 

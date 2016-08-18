@@ -30,6 +30,10 @@
     ERROR(OSUX_ERR_INVALID_HITOBJECT_EDGE_SAMPLE_TYPE)          \
     ERROR(OSUX_ERR_INVALID_HITOBJECT_SLIDER_TYPE)               \
     ERROR(OSUX_ERR_INVALID_HITOBJECT_SLIDER_POINTS)             \
+    ERROR(OSUX_ERR_INVALID_EVENT)                               \
+    ERROR(OSUX_ERR_INVALID_EVENT_OBJECT)                        \
+    ERROR(OSUX_ERR_INVALID_EVENT_COMMAND)                       \
+    ERROR(OSUX_ERR_MEMORY_TOO_MUCH_NESTED_EVENT)                \
     ERROR(OSUX_ERR_REPLAY_LIFE_BAR)                             \
     ERROR(OSUX_ERR_REPLAY_DATA)                                 \
     ERROR(OSUX_ERR_BUFFER_READER_RANGE)                         \
@@ -78,16 +82,12 @@ const char *osux_errmsg(int errcode);
 
 
 #ifdef DEBUG
-
 #define osux_debug(format, ...)                                 \
     fprintf(stderr, "\e[31;1mDEBUG: %s\e[32m:\e[31;1m"          \
             "%d\e[32m|\e[31;1m%s:\e[0m " format, __FILENAME__ , \
             __LINE__, __PRETTY_FUNCTION__, ##__VA_ARGS__);
-#else
-
-#define osux_debug(format, ...)
-
-#endif
-
+#else // DEBUG
+# define osux_debug(format, ...) ((void) (format))
+#endif // DEBUG
 
 #endif // OSUX_ERROR_H
