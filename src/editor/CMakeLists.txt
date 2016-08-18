@@ -33,6 +33,7 @@ set(editor_src
 
 add_executable(osux_editor ${editor_src})
 target_link_libraries(osux_editor
+  osux
   ${GLIB_GIO_LIBRARIES}
   ${GLIB_GMODULE_LIBRARIES}
   ${GLIB_GOBJECT_LIBRARIES}
