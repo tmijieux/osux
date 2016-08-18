@@ -1,5 +1,7 @@
+#include <glib/gi18n.h>
 #include <string.h>
 #include "beatmap.h"
+#include "osux/hitobject.h"
 
 G_DEFINE_TYPE(OsuxEditorBeatmap, osux_editor_beatmap, G_TYPE_OBJECT);
 
@@ -40,7 +42,7 @@ static void load_and_bind_adjustments(OsuxEditorBeatmap *beatmap)
 {
     GtkBuilder *builder;
     builder = gtk_builder_new_from_resource(
-        "/org/osux/editor/ui/OsuxBeatmapAdjustments.glade");
+        "/org/osux/editor/ui/OsuxBeatmapAdjustments.ui");
     
     //general
     IMPORT_ADJUSTMENT_I(builder, beatmap, BeatmapID);
@@ -64,6 +66,61 @@ static void load_and_bind_adjustments(OsuxEditorBeatmap *beatmap)
     IMPORT_ADJUSTMENT(builder, beatmap, DistanceSpacing);
 
     g_object_unref(G_OBJECT( builder ));
+}
+
+enum { COL_OFFSET = 0, COL_TYPE, COL_HITSOUND, COL_NUM, };
+
+static void
+load_hit_objects(osux_beatmap *beatmap, GtkTreeStore *tree_store,
+                 GtkTreeIter *hitobjects)
+{
+    for (unsigned i = 0; i < beatmap->hitobject_count; ++i)
+    {
+        osux_hitobject *ho = &beatmap->hitobjects[i];
+        char *type;
+        char hitsound[20];
+        
+        switch (HIT_OBJECT_TYPE(ho)) {
+        case HITOBJECT_CIRCLE: type = _("Circle");  break;
+        case HITOBJECT_SLIDER: type = _("Slider");  break;
+        case HITOBJECT_SPINNER:type = _("Spinner");  break;
+        case HITOBJECT_HOLD:   type = _("Hold");  break;
+        default: type = _("Invalid type"); break;
+        }
+        sprintf(hitsound, "%d", ho->hitsound.sample);
+        
+        GtkTreeIter iter;
+        gtk_tree_store_append(tree_store, &iter, hitobjects);
+        gtk_tree_store_set(tree_store, &iter,
+                           COL_OFFSET, ho->offset,
+                           COL_TYPE, type,
+                           COL_HITSOUND, hitsound, -1); 
+    }
+}
+
+static void load_objects(OsuxEditorBeatmap *beatmap)
+{
+    GtkTreeStore *ts;
+
+    
+    ts = gtk_tree_store_new(COL_NUM, G_TYPE_INT, G_TYPE_STRING, G_TYPE_STRING);
+    
+    beatmap->Objects = ts;
+    gtk_tree_store_append(ts, &beatmap->TimingPoints, NULL);
+    gtk_tree_store_set(ts, &beatmap->TimingPoints, COL_TYPE, "TimingPoints", -1);
+    
+    gtk_tree_store_append(ts, &beatmap->HitObjects, NULL);
+    gtk_tree_store_set(ts, &beatmap->HitObjects, COL_TYPE, "HitObjects", -1);
+    load_hit_objects(&beatmap->beatmap, ts, &beatmap->HitObjects);
+
+    gtk_tree_store_append(ts, &beatmap->Bookmarks, NULL);
+    gtk_tree_store_set(ts, &beatmap->Bookmarks, COL_TYPE, "Bookmarks", -1);
+    
+    gtk_tree_store_append(ts, &beatmap->Events, NULL);
+    gtk_tree_store_set(ts, &beatmap->Events, COL_TYPE, "Events", -1);
+    
+    gtk_tree_store_append(ts, &beatmap->Colors, NULL);
+    gtk_tree_store_set(ts, &beatmap->Colors, COL_TYPE, "Colors", -1);
 }
 
 static void
@@ -103,6 +160,7 @@ osux_editor_beatmap_constructed(GObject *obj)
 
     if (!err)
         load_and_bind_adjustments(beatmap);
+    load_objects(beatmap);
 
     G_OBJECT_CLASS (osux_editor_beatmap_parent_class)->constructed (obj);
 }

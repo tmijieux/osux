@@ -37,7 +37,7 @@ osux_adjustment_set_target(OsuxAdjustment *adj, double *double_value_ptr)
 }
 
 void
-osux_adjustment_set_target_i(OsuxAdjustment *adj, uint32_t *int_value_ptr)
+osux_adjustment_set_target_i(OsuxAdjustment *adj, int64_t *int_value_ptr)
 {
     g_assert(int_value_ptr != NULL);
     adj->target_value_i = int_value_ptr;

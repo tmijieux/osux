@@ -20,7 +20,7 @@ osux_close_label_class_init(OsuxCloseLabelClass *klass)
 {
     GtkWidgetClass *wklass = GTK_WIDGET_CLASS(klass);
     gtk_widget_class_set_template_from_resource(
-        wklass, "/org/osux/editor/ui/OsuxCloseLabel.glade");
+        wklass, "/org/osux/editor/ui/OsuxCloseLabel.ui");
     gtk_widget_class_bind_template_child(wklass, OsuxCloseLabel, label_value);
 }
 

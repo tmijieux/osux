@@ -15,17 +15,15 @@ struct _OsuxAdjustment
 {
     GtkAdjustment parent;
     double *target_value;
-    uint32_t *target_value_i;
+    int64_t *target_value_i;
 };
 
 void osux_adjustment_set_target(OsuxAdjustment *adj, double *double_value_ptr);
-void osux_adjustment_set_target_i(OsuxAdjustment *adj, uint32_t *int_value_ptr);
+void osux_adjustment_set_target_i(OsuxAdjustment *adj, int64_t *int_value_ptr);
 
 GtkWidget *osux_adjustment_new(void);
 GtkWidget *osux_adjustment_new_with_target(double *target_value);
 
 G_END_DECLS
-
-
 
 #endif // OSUX_EDITOR_ADJUSTMENT_H

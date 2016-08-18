@@ -52,8 +52,8 @@ struct osux_beatmap {
     uint16_t sliders;
     uint16_t spinners;
 
-    uint32_t drain_time;
-    uint32_t total_time;
+    int64_t drain_time;
+    int64_t total_time;
     double bpm_avg;
     double bpm_max;
     double bpm_min;
@@ -77,32 +77,32 @@ struct osux_beatmap {
 
     // general info
     char *AudioFilename;
-    uint32_t AudioLeadIn;
-    uint32_t PreviewTime;
-    uint32_t Countdown;
+    int64_t AudioLeadIn;
+    int64_t PreviewTime;
+    int64_t Countdown;
 
     char *SampleSet;  // sample type !
-    uint32_t sample_type;
+    int64_t sample_type;
 
     double StackLeniency;
 
     union {
-        uint32_t Mode; // game mode
-        uint32_t game_mode;
+        int64_t Mode; // game mode
+        int64_t game_mode;
     };
 
-    uint32_t LetterboxInBreaks;
-    uint32_t WidescreenStoryboard;
+    int64_t LetterboxInBreaks;
+    int64_t WidescreenStoryboard;
 
     // Editor settings
     double DistanceSpacing;
-    uint32_t BeatDivisor;
-    uint32_t GridSize;
     double TimelineZoom;
+    int64_t GridSize;
+    int64_t BeatDivisor;
 
     uint32_t bookmark_count;
     uint32_t bookmark_bufsize;
-    uint32_t *bookmarks;
+    int64_t *bookmarks;
 
     // Metadata
     char *Title;
@@ -122,8 +122,8 @@ struct osux_beatmap {
     uint32_t tag_bufsize;
     char **tags;
 
-    uint32_t BeatmapID;
-    uint32_t BeatmapSetID;
+    int64_t BeatmapID;
+    int64_t BeatmapSetID;
 
     // Difficulty
     double HPDrainRate;

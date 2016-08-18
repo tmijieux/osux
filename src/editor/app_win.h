@@ -23,6 +23,7 @@ struct _OsuxEditorWindow
     
     // main
     GtkNotebook *main_tab;
+    GtkTreeView *inspector;
 
     // properties
     // general

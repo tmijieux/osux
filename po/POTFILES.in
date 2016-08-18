@@ -145,8 +145,8 @@ src/include/osux/table.h
 scripts/parser_py/python_internal.c
 scripts/parser_py/pyfetch.c
 scripts/parser_py/python_internal.h
-src/editor/ui/OsuxFileFilterMusic.glade
-src/editor/ui/OsuxEditorWindow.glade
-src/editor/ui/OsuxCloseLabel.glade
-src/editor/ui/OsuxBeatmapAdjustments.glade
-src/editor/ui/OsuxEditorPopover.glade
+src/editor/ui/OsuxFileFilterMusic.ui
+src/editor/ui/OsuxEditorWindow.ui
+src/editor/ui/OsuxCloseLabel.ui
+src/editor/ui/OsuxBeatmapAdjustments.ui
+src/editor/ui/OsuxEditorPopover.ui

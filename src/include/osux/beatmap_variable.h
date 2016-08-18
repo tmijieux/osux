@@ -21,18 +21,18 @@ static inline bool osux_tobool(char *str) { return !!atoi(str); }
 
 #define DEFAULT_VALUES(VALUE)                                           \
     VALUE( General, AudioFilename, char*, g_strdup(""), g_strdup)       \
-    VALUE( General, AudioLeadIn, int, 0, atoi )                         \
-    VALUE( General, PreviewTime, int, -1, atoi)                         \
-    VALUE( General, Countdown, int, 0, atoi )                           \
+    VALUE( General, AudioLeadIn, int64_t, 0, atoi )                         \
+    VALUE( General, PreviewTime, int64_t, -1, atoi)                     \
+    VALUE( General, Countdown, int64_t, 0, atoi )                           \
     VALUE( General, SampleSet, char*, g_strdup("Normal"), g_strdup)     \
     VALUE( General, StackLeniency, double,  0.7, osux_strtod)           \
-    VALUE( General, Mode, int, 0, atoi)                                 \
+    VALUE( General, Mode, int64_t, 0, atoi)                                 \
     VALUE( General, LetterboxInBreaks, bool, true,  osux_tobool)        \
     VALUE( General, WidescreenStoryboard, bool, true, osux_tobool)      \
                                                                         \
     VALUE( Editor, DistanceSpacing, double, 1, osux_strtod)             \
-    VALUE( Editor, BeatDivisor, int, 1, osux_strtod)                    \
-    VALUE( Editor, GridSize, int, 1, atoi )                             \
+    VALUE( Editor, BeatDivisor, int64_t, 1, osux_strtod)                    \
+    VALUE( Editor, GridSize, int64_t, 1, atoi )                             \
     VALUE( Editor, TimelineZoom, double, 1, osux_strtod)                \
                                                                         \
     VALUE( Metadata, Title,char*, g_strdup(""), g_strdup)               \
@@ -42,8 +42,8 @@ static inline bool osux_tobool(char *str) { return !!atoi(str); }
     VALUE( Metadata, Creator, char* ,g_strdup(""), g_strdup )           \
     VALUE( Metadata, Version, char*, g_strdup(""), g_strdup )           \
     VALUE( Metadata, Source, char*, g_strdup(""), g_strdup)             \
-    VALUE( Metadata, BeatmapID, int, 0, atoi)                           \
-    VALUE( Metadata, BeatmapSetID, int, -1, atoi)                       \
+    VALUE( Metadata, BeatmapID, int64_t, 0, atoi)                           \
+    VALUE( Metadata, BeatmapSetID, int64_t, -1, atoi)                       \
                                                                         \
     VALUE( Difficulty, HPDrainRate, double, 5., osux_strtod)            \
     VALUE( Difficulty, CircleSize, double, 5., osux_strtod)             \

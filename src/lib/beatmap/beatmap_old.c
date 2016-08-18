@@ -41,7 +41,7 @@ osux_beatmap DEFAULT_BEATMAP = { 0 };
     fprintf(f, #Field ": %.15g\r\n", m->Field)	\
 
 #define PRINT_INT(map, file, Field)		\
-    fprintf(f, #Field ": %d\r\n", m->Field)	\
+    fprintf(f, #Field ": %ld\r\n", m->Field)	\
 
 int osux_beatmap_print(osux_beatmap const *m, FILE *f)
 {
@@ -66,7 +66,7 @@ int osux_beatmap_print(osux_beatmap const *m, FILE *f)
 	for (unsigned int i = 0; i < m->bookmark_count; ++i) {
 	    if (i>=1)
 		fprintf(f, ",");
-	    fprintf(f, "%d", m->bookmarks[i]);
+	    fprintf(f, "%ld", m->bookmarks[i]);
 	}
 	fputs("\r\n", f);
     }
@@ -87,7 +87,7 @@ int osux_beatmap_print(osux_beatmap const *m, FILE *f)
         fprintf(f, #Field ":%.15g\r\n", m->Field)	\
 
     #define PRINT_INT(map, file, Field)		\
-        fprintf(f, #Field ":%d\r\n", m->Field)	\
+        fprintf(f, #Field ":%ld\r\n", m->Field)	\
 
     PRINT_SECTION( Metadata );
     PRINT_STRING(m, f, Title);

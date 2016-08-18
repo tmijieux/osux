@@ -119,7 +119,7 @@ static int load_beatmap_from_disk(
     else {
         ++ db->parsed_beatmap_count;
         if (beatmap.BeatmapID)
-            printf("%% %d %s [%s]\n",
+            printf("%% %ld %s [%s]\n",
                    beatmap.BeatmapID, beatmap.Title, beatmap.Version);
         else
             printf("%% %s [%s]\n", beatmap.Title, beatmap.Version);

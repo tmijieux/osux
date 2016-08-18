@@ -40,10 +40,16 @@ struct _OsuxEditorBeatmap
     OsuxAdjustment *OverallDifficulty;
     OsuxAdjustment *HPDrainRate;
 
-    GtkListStore *Objects;
-
     OsuxAdjustment *BeatmapID;
     OsuxAdjustment *BeatmapSetID;
+
+    GtkTreeStore *Objects;
+
+    GtkTreeIter TimingPoints;
+    GtkTreeIter HitObjects;
+    GtkTreeIter Bookmarks;
+    GtkTreeIter Events;
+    GtkTreeIter Colors;
 };
 
 OsuxEditorBeatmap *osux_editor_beatmap_new(char const *filepath);
