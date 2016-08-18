@@ -20,12 +20,15 @@
 #include <stdint.h>
 
 typedef struct osux_color {
-    uint8_t r;
-    uint8_t g;
-    uint8_t b;
-    uint8_t a;
+    uint32_t id;
+    int32_t r;
+    int32_t g;
+    int32_t b;
+    int32_t a;
 } osux_color;
 
-void osux_color_print(FILE *f, osux_color *c, int id);
+int osux_color_init(osux_color *c, char *line, uint32_t osu_version);
+void osux_color_free(osux_color *c);
+void osux_color_print(FILE *f, osux_color *c);
 
 #endif // OSUX_COLOR_H

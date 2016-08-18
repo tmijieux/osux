@@ -98,16 +98,69 @@ load_hit_objects(osux_beatmap *beatmap, GtkTreeStore *tree_store,
     }
 }
 
+static void
+load_timing_points(osux_beatmap *beatmap, GtkTreeStore *tree_store,
+                   GtkTreeIter *timingpoints)
+{
+    for (unsigned i = 0; i < beatmap->timingpoint_count; ++i)
+    {
+        osux_timingpoint *tp = &beatmap->timingpoints[i];
+        char *type;
+        if (tp->inherited)
+            type = _("Inherited");
+        else
+            type = _("Absolute");
+
+        GtkTreeIter iter;
+        gtk_tree_store_append(tree_store, &iter, timingpoints);
+        gtk_tree_store_set(tree_store, &iter,
+                           COL_OFFSET, (int) tp->offset,
+                           COL_TYPE, type,
+                           COL_HITSOUND, "", -1);
+    }
+}
+
+static void
+load_colors(osux_beatmap *beatmap, GtkTreeStore *tree_store, GtkTreeIter *colors)
+{
+    (void) beatmap;
+    (void) tree_store;
+    (void) colors;
+}
+
+static void
+load_events(osux_beatmap *beatmap, GtkTreeStore *tree_store, GtkTreeIter *events)
+{
+    (void) beatmap;
+    (void) tree_store;
+    (void) events;
+}
+
+static void
+load_bookmarks(osux_beatmap *beatmap, GtkTreeStore *tree_store,
+               GtkTreeIter *bookmarks)
+{
+    for (unsigned i = 0; i < beatmap->bookmark_count; ++i)
+    {
+        int64_t b = beatmap->bookmarks[i];
+        GtkTreeIter iter;
+        gtk_tree_store_append(tree_store, &iter, bookmarks);
+        gtk_tree_store_set(tree_store, &iter,
+                           COL_OFFSET, b,
+                           COL_TYPE, "",
+                           COL_HITSOUND, "", -1);
+    }
+}
+
 static void load_objects(OsuxEditorBeatmap *beatmap)
 {
     GtkTreeStore *ts;
-
-    
     ts = gtk_tree_store_new(COL_NUM, G_TYPE_INT, G_TYPE_STRING, G_TYPE_STRING);
     
     beatmap->Objects = ts;
     gtk_tree_store_append(ts, &beatmap->TimingPoints, NULL);
     gtk_tree_store_set(ts, &beatmap->TimingPoints, COL_TYPE, "TimingPoints", -1);
+    load_timing_points(&beatmap->beatmap, ts, &beatmap->TimingPoints);
     
     gtk_tree_store_append(ts, &beatmap->HitObjects, NULL);
     gtk_tree_store_set(ts, &beatmap->HitObjects, COL_TYPE, "HitObjects", -1);
@@ -115,12 +168,15 @@ static void load_objects(OsuxEditorBeatmap *beatmap)
 
     gtk_tree_store_append(ts, &beatmap->Bookmarks, NULL);
     gtk_tree_store_set(ts, &beatmap->Bookmarks, COL_TYPE, "Bookmarks", -1);
+    load_bookmarks(&beatmap->beatmap, ts, &beatmap->Bookmarks);
     
     gtk_tree_store_append(ts, &beatmap->Events, NULL);
     gtk_tree_store_set(ts, &beatmap->Events, COL_TYPE, "Events", -1);
+    load_events(&beatmap->beatmap, ts, &beatmap->Events);
     
     gtk_tree_store_append(ts, &beatmap->Colors, NULL);
     gtk_tree_store_set(ts, &beatmap->Colors, COL_TYPE, "Colors", -1);
+    load_colors(&beatmap->beatmap, ts, &beatmap->Colors);
 }
 
 static void

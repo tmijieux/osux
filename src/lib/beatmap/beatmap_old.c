@@ -129,7 +129,7 @@ int osux_beatmap_print(osux_beatmap const *m, FILE *f)
     if (m->color_count) {
 	PRINT_SECTION( Colours );
 	for (unsigned int i = 0; i < m->color_count; ++i)
-	    osux_color_print(f, &m->colors[i], i+1);
+	    osux_color_print(f, &m->colors[i]);
 	fputs("\r\n", f);
     }
 

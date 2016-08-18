@@ -183,7 +183,13 @@ osux_editor_window_switch_tab_metadata(OsuxEditorWindow *win,
     
     gtk_entry_set_text(win->Source, beatmap->beatmap.Source);
     gtk_widget_set_sensitive(GTK_WIDGET(win->Source), TRUE);
-    
+
+    gtk_entry_set_text(win->Source, beatmap->beatmap.Source);
+    gtk_widget_set_sensitive(GTK_WIDGET(win->Source), TRUE);
+
+    gtk_entry_set_text(win->Tags, beatmap->beatmap.tags_orig);
+    gtk_widget_set_sensitive(GTK_WIDGET(win->Tags), TRUE);
+
     gtk_spin_button_set_adjustment(win->BeatmapID,
                                    GTK_ADJUSTMENT(beatmap->BeatmapID));
     gtk_spin_button_set_adjustment(win->BeatmapSetID,
@@ -242,7 +248,7 @@ static gboolean osux_editor_window_handle_switch_page(
     // bind current beatmap handles to Widget:
     gtk_window_set_title(GTK_WINDOW(win), beatmap->filename);
     gtk_tree_view_set_model(win->inspector, GTK_TREE_MODEL(beatmap->Objects));
-    gtk_widget_show_all(GTK_WIDGET(win->inspector));
+    gtk_widget_show(GTK_WIDGET(win->inspector));
     
     osux_editor_window_switch_tab_general(win, beatmap);
     osux_editor_window_switch_tab_metadata(win, beatmap);

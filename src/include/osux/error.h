@@ -18,6 +18,7 @@
     ERROR(OSUX_ERR_BAD_OSU_VERSION)                             \
     ERROR(OSUX_ERR_MALFORMED_OSU_FILE)                          \
     ERROR(OSUX_ERR_DATABASE)                                    \
+    ERROR(OSUX_ERR_INVALID_COLOR)                               \
     ERROR(OSUX_ERR_INVALID_TIMINGPOINT)                         \
     ERROR(OSUX_ERR_INVALID_INHERITED_TIMINGPOINT)               \
     ERROR(OSUX_ERR_INVALID_HITOBJECT)                           \

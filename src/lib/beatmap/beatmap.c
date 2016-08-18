@@ -154,6 +154,7 @@ static int parse_option_entry(
 #define CHECK_TIMING_POINT(r, x) CHECK_OBJECT(r, "timing point")
 #define CHECK_HIT_OBJECT(r, x) CHECK_OBJECT(r, "hit object")
 #define CHECK_EVENT(r, x) CHECK_OBJECT(r, "event")
+#define CHECK_COLOR(r, x) CHECK_OBJECT(r, "color")
 
 #define UPDATE_STAT_HO_COUNT(beatmap, hitobject)        \
     do {                                                \
@@ -194,6 +195,7 @@ static int parse_objects(osux_beatmap *beatmap, GIOChannel *file)
     ALLOC_ARRAY(beatmap->hitobjects, beatmap->hitobject_bufsize, 500);
     ALLOC_ARRAY(beatmap->timingpoints, beatmap->timingpoint_bufsize, 500);
     ALLOC_ARRAY(beatmap->events, beatmap->event_bufsize, 500);
+    ALLOC_ARRAY(beatmap->colors, beatmap->color_bufsize, 20);
 
     char *line;
     int line_count = 0;
@@ -249,6 +251,17 @@ static int parse_objects(osux_beatmap *beatmap, GIOChannel *file)
             ++ beatmap->event_count;
             continue;
         }
+        if (!strcmp(section_name, "Colors")) {
+            HANDLE_ARRAY_SIZE(beatmap->colors,
+                              beatmap->color_count,
+                              beatmap->color_bufsize);
+            int r = osux_color_init(
+                &beatmap->colors[beatmap->color_count], line,
+                beatmap->osu_version);
+            CHECK_COLOR(r, &beatmap->color[beatmap->color_count]);
+            ++ beatmap->color_count;
+            continue;
+        }
         parse_option_entry(line, current_section);
     }
     g_free(section_name);
@@ -272,11 +285,54 @@ static int parse_objects(osux_beatmap *beatmap, GIOChannel *file)
         }                                                               \
     } while (0);
 
+
+static void fetch_bookmarks(osux_beatmap *beatmap)
+{
+    osux_hashtable *section = NULL;
+    char *bookmarks = NULL;
+    osux_hashtable_lookup(beatmap->sections, "Editor", &section);
+    if (section != NULL) {
+        osux_hashtable_lookup(section, "Bookmarks", &bookmarks);
+    } else {
+        osux_hashtable_lookup(beatmap->sections, "General", &section);
+        if (section != NULL)
+            osux_hashtable_lookup(section, "EditorBookmarks", &bookmarks);
+    }
+    
+    if (bookmarks == NULL)
+        return;
+    
+    char **split = g_strsplit(bookmarks, ",", 0);
+    unsigned size = strsplit_size(split);
+    ALLOC_ARRAY(beatmap->bookmarks, beatmap->bookmark_bufsize, size);
+    beatmap->bookmark_count = size;
+    for (unsigned i = 0; i < size; ++i)
+        beatmap->bookmarks[i] = atoi(split[i]);
+    g_strfreev(split);
+}
+
+static void fetch_tags(osux_beatmap *beatmap)
+{
+    osux_hashtable *section = NULL;
+    char *tags = NULL;
+    osux_hashtable_lookup(beatmap->sections, "Metadata", &section);
+    if (section != NULL) {
+        osux_hashtable_lookup(section, "Tags", &tags);
+        beatmap->tags_orig = g_strdup("");
+        if (tags != NULL) {
+            g_free(beatmap->tags_orig);
+            beatmap->tags_orig = tags;
+            beatmap->tags = g_strsplit(tags, " ", 0);
+            beatmap->tag_count = strsplit_size(beatmap->tags);
+        }
+    }
+}
+
 static int fetch_variables(osux_beatmap *beatmap)
 {
     DEFAULT_VALUES(FETCH);
-    // fetch bookmarks
-    // fetch colors?
+    fetch_bookmarks(beatmap);
+    fetch_tags(beatmap);
     return 0;
 }
 

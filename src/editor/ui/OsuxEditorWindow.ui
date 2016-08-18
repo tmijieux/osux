@@ -381,7 +381,7 @@
                 <property name="position_set">True</property>
                 <property name="wide_handle">True</property>
                 <child>
-                  <object class="GtkScrolledWindow" id="toolpalette_scrolled_window">
+                  <object class="GtkScrolledWindow" id="toolpalette_scroll">
                     <property name="width_request">25</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -644,56 +644,50 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkScrolledWindow">
+                      <object class="GtkScrolledWindow" id="inspector_scroll">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="shadow_type">in</property>
                         <child>
-                          <object class="GtkViewport">
+                          <object class="GtkTreeView" id="inspector">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
+                            <property name="can_focus">True</property>
+                            <property name="level_indentation">1</property>
+                            <property name="enable_grid_lines">both</property>
+                            <property name="enable_tree_lines">True</property>
+                            <child internal-child="selection">
+                              <object class="GtkTreeSelection"/>
+                            </child>
                             <child>
-                              <object class="GtkTreeView" id="inspector">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="level_indentation">1</property>
-                                <property name="enable_grid_lines">both</property>
-                                <property name="enable_tree_lines">True</property>
-                                <child internal-child="selection">
-                                  <object class="GtkTreeSelection"/>
-                                </child>
+                              <object class="GtkTreeViewColumn" id="Offset-column">
+                                <property name="title">Offset</property>
                                 <child>
-                                  <object class="GtkTreeViewColumn" id="Offset-column">
-                                    <property name="title">Offset</property>
-                                    <child>
-                                      <object class="GtkCellRendererText" id="Offset-renderer"/>
-                                      <attributes>
-                                        <attribute name="text">0</attribute>
-                                      </attributes>
-                                    </child>
-                                  </object>
+                                  <object class="GtkCellRendererText" id="Offset-renderer"/>
+                                  <attributes>
+                                    <attribute name="text">0</attribute>
+                                  </attributes>
                                 </child>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkTreeViewColumn" id="Type-column">
+                                <property name="title">Type</property>
                                 <child>
-                                  <object class="GtkTreeViewColumn" id="Type-column">
-                                    <property name="title">Type</property>
-                                    <child>
-                                      <object class="GtkCellRendererText" id="Type-renderer"/>
-                                      <attributes>
-                                        <attribute name="text">1</attribute>
-                                      </attributes>
-                                    </child>
-                                  </object>
+                                  <object class="GtkCellRendererText" id="Type-renderer"/>
+                                  <attributes>
+                                    <attribute name="text">1</attribute>
+                                  </attributes>
                                 </child>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkTreeViewColumn" id="Hitsound-column">
+                                <property name="title">Hitsound</property>
                                 <child>
-                                  <object class="GtkTreeViewColumn" id="Hitsound-column">
-                                    <property name="title">Hitsound</property>
-                                    <child>
-                                      <object class="GtkCellRendererText" id="Hitsound-renderer"/>
-                                      <attributes>
-                                        <attribute name="text">2</attribute>
-                                      </attributes>
-                                    </child>
-                                  </object>
+                                  <object class="GtkCellRendererText" id="Hitsound-renderer"/>
+                                  <attributes>
+                                    <attribute name="text">2</attribute>
+                                  </attributes>
                                 </child>
                               </object>
                             </child>
