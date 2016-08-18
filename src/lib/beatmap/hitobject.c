@@ -147,7 +147,6 @@ static int parse_slider(osux_hitobject *ho, char **split, unsigned size)
                 return err;
         }
     }
-
     return 0;
 }
 
