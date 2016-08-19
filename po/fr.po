@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osux 0.1\n"
 "Report-Msgid-Bugs-To: tmijieux@hotmail.fr, lmaugere@ipb.fr\n"
-"POT-Creation-Date: 2016-08-19 16:34+0200\n"
-"PO-Revision-Date: 2016-08-19 16:34+0200\n"
+"POT-Creation-Date: 2016-08-19 22:10+0200\n"
+"PO-Revision-Date: 2016-08-19 22:12+0200\n"
 "Last-Translator: tmijieux@ipb.fr\n"
 "Language-Team: French\n"
 "Language: fr\n"
@@ -65,10 +65,6 @@ msgstr "Hérité"
 #: src/editor/beatmap.c:112
 msgid "Absolute"
 msgstr "Absolu"
-
-#: src/editor/beatmap.c:135 src/include/osux/event.h:26
-msgid "Color"
-msgstr "Couleur"
 
 #: src/editor/beatmap.c:174
 msgid "Bookmark"
@@ -160,6 +156,10 @@ msgstr "Échelle vectorielle"
 msgid "Rotate"
 msgstr "Rotation"
 
+#: src/include/osux/event.h:26
+msgid "Color"
+msgstr "Couleur"
+
 #: src/include/osux/event.h:27
 msgid "Parameter"
 msgstr "Paramètre"
@@ -171,6 +171,26 @@ msgstr "Boucle"
 #: src/include/osux/event.h:29
 msgid "Trigger"
 msgstr "Condition"
+
+#: src/include/osux/color.h:23
+msgid "Combo"
+msgstr "Combo"
+
+#: src/include/osux/color.h:24
+msgid "SliderBorder"
+msgstr "Bord des glisseurs"
+
+#: src/include/osux/color.h:25
+msgid "SliderTrackOverride"
+msgstr ""
+
+#: src/include/osux/color.h:26
+msgid "SpinnerApproachCircle"
+msgstr "Cercle d'approches des vrilles."
+
+#: src/include/osux/color.h:27
+msgid "StarBreakAdditive"
+msgstr ""
 
 #: src/editor/ui/OsuxEditorWindow.ui:14
 msgid "osux Editor"
