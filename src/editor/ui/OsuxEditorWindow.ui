@@ -681,10 +681,10 @@
                               </object>
                             </child>
                             <child>
-                              <object class="GtkTreeViewColumn" id="Hitsound-column">
-                                <property name="title" translatable="yes">Hitsound</property>
+                              <object class="GtkTreeViewColumn" id="Details-column">
+                                <property name="title" translatable="yes">Details</property>
                                 <child>
-                                  <object class="GtkCellRendererText" id="Hitsound-renderer"/>
+                                  <object class="GtkCellRendererText" id="Details-renderer"/>
                                   <attributes>
                                     <attribute name="text">2</attribute>
                                   </attributes>

@@ -2,4 +2,4 @@
 
 shopt -s nullglob
 
-xgettext -k_ *.{c,h} --from-code='utf-8' -o translateme.po
+xgettext -k_ *.{c,h} --from-code='utf-8' -o osux.pot

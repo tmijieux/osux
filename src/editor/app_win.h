@@ -20,7 +20,7 @@ struct _OsuxEditorWindow
     GtkWidget *new_circle_button;
 
     OsuxEditorBeatmap *current_beatmap;
-    
+
     // main
     GtkNotebook *main_tab;
     GtkTreeView *inspector;
@@ -30,7 +30,7 @@ struct _OsuxEditorWindow
     GtkFileChooserButton *AudioFile;
     GtkComboBoxText *GameMode;
     GtkComboBoxText *SampleSet;
-    
+
     GtkSpinButton *StackLeniency;
     GtkSpinButton *PreviewTime;
     GtkSpinButton *AudioLeadIn;

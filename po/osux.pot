@@ -7,8 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: osux 0.1\n"
-"Report-Msgid-Bugs-To: lmaugere@ipb.fr, tmijieux@ipb.fr\n"
-"POT-Creation-Date: 2016-08-18 21:44+0200\n"
+"Report-Msgid-Bugs-To: tmijieux@hotmail.fr, lmaugere@ipb.fr\n"
+"POT-Creation-Date: 2016-08-19 16:34+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,23 +17,23 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/editor/app.c:102
+#: src/editor/app.c:122
 msgid "Open File"
 msgstr ""
 
-#: src/editor/app.c:102 src/editor/app.c:137
+#: src/editor/app.c:122 src/editor/app.c:160
 msgid "_Cancel"
 msgstr ""
 
-#: src/editor/app.c:103
+#: src/editor/app.c:123
 msgid "_Open"
 msgstr ""
 
-#: src/editor/app.c:137
+#: src/editor/app.c:160
 msgid "Save beatmap"
 msgstr ""
 
-#: src/editor/app.c:138
+#: src/editor/app.c:161
 msgid "_Save"
 msgstr ""
 
@@ -77,28 +77,28 @@ msgstr ""
 msgid "TimingPoints"
 msgstr ""
 
-#: src/editor/beatmap.c:190 src/editor/ui/OsuxEditorWindow.ui:401
+#: src/editor/beatmap.c:191 src/editor/ui/OsuxEditorWindow.ui:401
 msgid "HitObjects"
 msgstr ""
 
-#: src/editor/beatmap.c:194
+#: src/editor/beatmap.c:196
 msgid "Bookmarks"
 msgstr ""
 
-#: src/editor/beatmap.c:198
+#: src/editor/beatmap.c:201
 msgid "Events"
 msgstr ""
 
-#: src/editor/beatmap.c:202
+#: src/editor/beatmap.c:206
 msgid "Colors"
 msgstr ""
 
-#: src/editor/beatmap.c:320
+#: src/editor/beatmap.c:325
 #, c-format
 msgid "invalid beatmap: %s\n"
 msgstr ""
 
-#: src/editor/beatmap.c:324
+#: src/editor/beatmap.c:329
 #, c-format
 msgid "valid beatmap: %s\n"
 msgstr ""
@@ -245,7 +245,7 @@ msgid "Type"
 msgstr ""
 
 #: src/editor/ui/OsuxEditorWindow.ui:685
-msgid "Hitsound"
+msgid "Details"
 msgstr ""
 
 #: src/editor/ui/OsuxEditorWindow.ui:745

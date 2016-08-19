@@ -171,12 +171,10 @@ static int parse_option_entry(
     do {                                                        \
         if ((timingpoint)->inherited) break;                    \
         double bpm = TP_GET_BPM(timingpoint);                   \
-        if (bpm > (beatmap)->bpm_max) {                         \
+        if (bpm > (beatmap)->bpm_max)                           \
             (beatmap)->bpm_max = bpm;                           \
-        }                                                       \
-        if (bpm < (beatmap)->bpm_min) {                         \
+        if (bpm < (beatmap)->bpm_min)                           \
             (beatmap)->bpm_min = bpm;                           \
-        }                                                       \
         beatmap->bpm_avg *= (beatmap)->hitobject_count;         \
         beatmap->bpm_avg += bpm;                                \
         beatmap->bpm_avg /= (beatmap)->hitobject_count+1;       \

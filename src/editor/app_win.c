@@ -20,7 +20,7 @@ static gboolean osux_editor_window_handle_switch_page(
             chooser, GTK_FILE_FILTER(                           \
                 gtk_builder_get_object(builder, filter_name))); \
     } while(0)
-        
+
 
 static void add_music_filters(OsuxEditorWindow *win)
 {
@@ -132,7 +132,7 @@ osux_editor_window_switch_tab_general(OsuxEditorWindow *win,
 
     // TODO set sample set
     gtk_widget_set_sensitive(GTK_WIDGET(win->SampleSet), TRUE);
-    
+
     gtk_spin_button_set_adjustment(win->StackLeniency,
                                    GTK_ADJUSTMENT(beatmap->StackLeniency));
     gtk_spin_button_set_adjustment(win->PreviewTime,
@@ -166,21 +166,21 @@ osux_editor_window_switch_tab_metadata(OsuxEditorWindow *win,
 {
     gtk_entry_set_text(win->TitleUnicode, beatmap->beatmap.TitleUnicode);
     gtk_widget_set_sensitive(GTK_WIDGET(win->TitleUnicode), TRUE);
-    
+
     gtk_entry_set_text(win->Title, beatmap->beatmap.Title);
     gtk_widget_set_sensitive(GTK_WIDGET(win->Title), TRUE);
-    
+
     gtk_entry_set_text(win->ArtistUnicode, beatmap->beatmap.ArtistUnicode);
     gtk_widget_set_sensitive(GTK_WIDGET(win->ArtistUnicode), TRUE);
-    
+
     gtk_entry_set_text(win->Artist, beatmap->beatmap.Artist);
     gtk_widget_set_sensitive(GTK_WIDGET(win->Artist), TRUE);
-    
+
     gtk_entry_set_text(win->Creator, beatmap->beatmap.Creator);
-    
+
     gtk_entry_set_text(win->Version, beatmap->beatmap.Version);
     gtk_widget_set_sensitive(GTK_WIDGET(win->Version), TRUE);
-    
+
     gtk_entry_set_text(win->Source, beatmap->beatmap.Source);
     gtk_widget_set_sensitive(GTK_WIDGET(win->Source), TRUE);
 
@@ -216,7 +216,6 @@ osux_editor_window_switch_tab_difficulty(OsuxEditorWindow *win,
                                    GTK_ADJUSTMENT(beatmap->SliderTickRate));
 }
 
-
 static void
 osux_editor_window_switch_tab_editor(OsuxEditorWindow *win,
                                      OsuxEditorBeatmap *beatmap)
@@ -241,7 +240,7 @@ static gboolean osux_editor_window_handle_switch_page(
     OsuxEditorApp *app;
     g_object_get(G_OBJECT( win), "application", &app, NULL);
     OsuxEditorBeatmap *beatmap = osux_editor_app_get_beatmap_by_page(app, page);
-    
+
     if (beatmap == NULL)
         return TRUE;
 
@@ -249,7 +248,7 @@ static gboolean osux_editor_window_handle_switch_page(
     gtk_window_set_title(GTK_WINDOW(win), beatmap->filename);
     gtk_tree_view_set_model(win->inspector, GTK_TREE_MODEL(beatmap->Objects));
     gtk_widget_show(GTK_WIDGET(win->inspector));
-    
+
     osux_editor_window_switch_tab_general(win, beatmap);
     osux_editor_window_switch_tab_metadata(win, beatmap);
     osux_editor_window_switch_tab_editor(win, beatmap);
