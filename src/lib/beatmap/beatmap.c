@@ -54,17 +54,27 @@ int osux_beatmap_free(osux_beatmap *beatmap)
     return 0;
 }
 
+static inline bool line_is_empty_or_comment(char *line)
+{
+    return strcmp("", line) == 0 ||
+        (strlen(line) >= 2 && strncmp("//", line, 2) == 0);
+}
+
 static int parse_osu_version(osux_beatmap *beatmap, GIOChannel *file)
 {
-    static GRegex *regexp = NULL;
     int err = 0;
-    char *line = osux_getline(file);
+    static GRegex *regexp = NULL;
+    char *line =  NULL;
+    do {
+        g_free(line);
+        err = osux_getline(file, &line);
+    } while (!err && line_is_empty_or_comment(line));
 
-    if (line == NULL)
-        return -OSUX_ERR_BAD_OSU_VERSION;
+    if (err)
+        return err;
 
     if (regexp == NULL)
-        regexp = g_regex_new("^osu file format v([0-9]+)$", 0, 0, NULL);
+        regexp = g_regex_new("format v([0-9]+)$", 0, 0, NULL);
 
     GMatchInfo *info = NULL;
     if (!g_regex_match(regexp, line, 0, &info)) {
@@ -76,10 +86,12 @@ static int parse_osu_version(osux_beatmap *beatmap, GIOChannel *file)
         gchar *version = g_match_info_fetch(info, 1);
         beatmap->osu_version = atoi(version);
         g_free(version);
-    } else
+    } else {
+        printf("debug2\n");
         err = -OSUX_ERR_BAD_OSU_VERSION;
+    }
 
-finally:
+ finally:
     g_free(line);
     g_match_info_free(info);
     return err;
@@ -102,12 +114,6 @@ static int compute_metadata(osux_beatmap *beatmap, GIOChannel *file)
     if ((err = parse_osu_version(beatmap, file)) < 0)
         return err;
     return 0;
-}
-
-static inline bool line_is_empty_or_comment(char *line)
-{
-    return strcmp("", line) == 0 ||
-        (strlen(line) >= 2 && strncmp("//", line, 2) == 0);
 }
 
 static bool get_new_section(char const *line, char **section_name)
@@ -139,22 +145,29 @@ static int parse_option_entry(
     if (sep == NULL)
         return -OSUX_ERR_MALFORMED_OSU_FILE;
     char **split = g_strsplit(line, ":", 2);
-    osux_hashtable_insert(section, split[0], g_strstrip(g_strdup(split[1])));
+    osux_hashtable_insert( section,
+                           g_strstrip(split[0]),
+                           g_strchug(g_strdup(split[1]))  );
     g_strfreev(split);
     return 0;
 }
 
 #define CHECK_OBJECT(r, s)                              \
     if ((r) < 0) {                                      \
-        osux_error("failed to parse "s" line %d: %s\n", \
-                   line_count, osux_errmsg((r)));       \
+        osux_error("%s line %d\n", s, line_count);      \
         return r;                                       \
+    }
+
+#define CHECK_COLOR(r, x)                                               \
+    if ((r) < 0) {                                                      \
+        osux_warning("invalid color line %d ignored: %s %s\n",          \
+                     line_count, osux_errmsg((r)), beatmap->osu_filename); \
+        --beatmap->color_count;                                         \
     }
 
 #define CHECK_TIMING_POINT(r, x) CHECK_OBJECT(r, "timing point")
 #define CHECK_HIT_OBJECT(r, x) CHECK_OBJECT(r, "hit object")
 #define CHECK_EVENT(r, x) CHECK_OBJECT(r, "event")
-#define CHECK_COLOR(r, x) CHECK_OBJECT(r, "color")
 
 #define UPDATE_STAT_HO_COUNT(beatmap, hitobject)        \
     do {                                                \
@@ -182,6 +195,7 @@ static int parse_option_entry(
 
 static int parse_objects(osux_beatmap *beatmap, GIOChannel *file)
 {
+    int err = 0;
     osux_hashtable *current_section = NULL;
     char *section_name = NULL;
 
@@ -194,9 +208,9 @@ static int parse_objects(osux_beatmap *beatmap, GIOChannel *file)
     ALLOC_ARRAY(beatmap->events, beatmap->event_bufsize, 500);
     ALLOC_ARRAY(beatmap->colors, beatmap->color_bufsize, 20);
 
-    char *line;
+    char *line = NULL;
     int line_count = 0;
-    for (line = NULL; (line = osux_getline(file)) != NULL; g_free(line)) {
+    for (line = NULL; (err = osux_getline(file, &line))==0; g_free(line)) {
         ++ line_count;
         if (line_is_empty_or_comment(line))
             continue;
@@ -262,7 +276,8 @@ static int parse_objects(osux_beatmap *beatmap, GIOChannel *file)
         parse_option_entry(line, current_section);
     }
     g_free(section_name);
-    return 0;
+    if (err == 1) err = 0;
+    return err;
 }
 
 #define FETCH( section, field, type, default_value, method )            \
@@ -276,7 +291,7 @@ static int parse_objects(osux_beatmap *beatmap, GIOChannel *file)
                                                                         \
         char *str_ = NULL;                                              \
         if (osux_hashtable_lookup(section_, #field, &str_) < 0) {       \
-            beatmap->field = (default_value);                           \
+        beatmap->field = (default_value);                               \
         } else {                                                        \
             beatmap->field = method(str_);                              \
         }                                                               \

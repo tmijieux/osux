@@ -19,7 +19,23 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#define COLOR_TYPES(COLOR)                                      \
+    COLOR(COMBO,                   N_("Combo"))                 \
+    COLOR(SLIDER_BORDER,           N_("SliderBorder"))          \
+    COLOR(SLIDER_TRACK_OVERRIDE,   N_("SliderTrackOverride"))   \
+    COLOR(SPINNER_APPROACH_CIRCLE, N_("SpinnerApproachCircle")) \
+    COLOR(STAR_BREAK_ADDITIVE,     N_("StarBreakAdditive")) \
+
+#define COLOR_TYPE_TO_ENUM(capital_, pretty_)   \
+    COLOR_##capital_,
+
+enum color_type {
+    COLOR_TYPES(COLOR_TYPE_TO_ENUM)
+    MAX_COLOR_TYPE,
+};
+
 typedef struct osux_color {
+    int type;
     uint32_t id;
     int32_t r;
     int32_t g;
@@ -28,6 +44,7 @@ typedef struct osux_color {
 } osux_color;
 
 int osux_color_init(osux_color *c, char *line, uint32_t osu_version);
+char const *osux_color_type_get_name(int type);
 void osux_color_free(osux_color *c);
 void osux_color_print(FILE *f, osux_color *c);
 

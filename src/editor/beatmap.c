@@ -132,7 +132,7 @@ load_colors(osux_beatmap *beatmap, GtkTreeStore *tree_store, GtkTreeIter *colors
         gtk_tree_store_append(tree_store, &iter, colors);
         gtk_tree_store_set(tree_store, &iter,
                            COL_OFFSET, c->id,
-                           COL_TYPE, _("Color"),
+                           COL_TYPE, osux_color_type_get_name(c->type),
                            COL_HITSOUND, color, -1);
     }
 }
