@@ -12,6 +12,7 @@ void init_locale_settings(void)
 {
     setlocale(LC_ALL, "");
     bindtextdomain(PACKAGE, LOCALEDIR);
+    bind_textdomain_codeset(PACKAGE, "utf-8");
     textdomain(PACKAGE);
 }
 
