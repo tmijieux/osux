@@ -78,7 +78,6 @@ load_hit_objects(osux_beatmap *beatmap, GtkTreeStore *tree_store,
     {
         osux_hitobject *ho = &beatmap->hitobjects[i];
         char *type;
-        char hitsound[20];
 
         switch (HIT_OBJECT_TYPE(ho)) {
         case HITOBJECT_CIRCLE: type = _("Circle");  break;
@@ -87,14 +86,13 @@ load_hit_objects(osux_beatmap *beatmap, GtkTreeStore *tree_store,
         case HITOBJECT_HOLD:   type = _("Hold");  break;
         default: type = _("Invalid type"); break;
         }
-        sprintf(hitsound, "%d", ho->hitsound.sample);
 
         GtkTreeIter iter;
         gtk_tree_store_append(tree_store, &iter, hitobjects);
         gtk_tree_store_set(tree_store, &iter,
                            COL_OFFSET, ho->offset,
                            COL_TYPE, type,
-                           COL_HITSOUND, hitsound, -1);
+                           COL_HITSOUND, ho->details, -1);
     }
 }
 
@@ -116,7 +114,7 @@ load_timing_points(osux_beatmap *beatmap, GtkTreeStore *tree_store,
         gtk_tree_store_set(tree_store, &iter,
                            COL_OFFSET, (int) tp->offset,
                            COL_TYPE, type,
-                           COL_HITSOUND, "", -1);
+                           COL_HITSOUND, tp->details, -1);
     }
 }
 
