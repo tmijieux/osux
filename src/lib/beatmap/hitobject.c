@@ -344,10 +344,3 @@ void osux_hitobject_free(osux_hitobject *ho)
     g_free(ho->errmsg);
     memset(ho, 0, sizeof*ho);
 }
-
-osux_hitobject *osux_hitobject_copy(osux_hitobject *ho)
-{
-    osux_hitobject *copy = g_malloc(sizeof*ho);
-    *copy = *ho;
-    return copy;
-}

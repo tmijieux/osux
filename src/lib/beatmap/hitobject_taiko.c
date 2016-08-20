@@ -14,35 +14,31 @@
  *  limitations under the License.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <glib.h>
 
-#include "osux/hitobject_taiko.h"
 #include "osux/hitsound.h"
+#include "osux/hitobject.h"
+#include "osux/hitobject_taiko.h"
 
-osux_hitobject *osux_ho_taiko_circle_new(int offset, int sample)
+int osux_ho_taiko_circle_init(osux_hitobject *ho, int offset, int sample)
 {
-    osux_hitobject *ho = g_malloc0(sizeof*ho);
-
-    ho->offset = offset;
-    ho->end_offset = offset;
-    ho->type = HITOBJECT_CIRCLE;
-    ho->hitsound.sample = sample;
-
-    return ho;
+    int err = 0;
+    char *rep = NULL;
+    rep = g_strdup_printf(
+        "0,0,%d,%d,%d,0:0:0:0:", offset, HITOBJECT_CIRCLE, sample);
+    err = osux_hitobject_init(ho, rep, 12);
+    g_free(rep);
+    return err;
 }
 
-osux_hitobject *osux_ho_taiko_spinner_new(int offset, int end_offset)
+int osux_ho_taiko_spinner_init(osux_hitobject *ho, int offset, int end_offset)
 {
-    osux_hitobject *ho = g_malloc0(sizeof*ho);
-
-    ho->offset = offset;
-    ho->end_offset = end_offset;
-    ho->type = HITOBJECT_SPINNER | HITOBJECT_NEWCOMBO;
-    ho->hitsound.sample = SAMPLE_NORMAL;
-
-    return ho;
+    int err = 0;
+    char *rep = NULL;
+    rep = g_strdup_printf(
+        "0,0,%d,%d,%d,%d,0:0:0:0:", offset,
+        HITOBJECT_SPINNER | HITOBJECT_NEWCOMBO,  SAMPLE_NORMAL, end_offset);
+    err = osux_hitobject_init(ho, rep, 12);
+    g_free(rep);
+    return err;
 }
-

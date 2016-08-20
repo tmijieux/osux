@@ -1,3 +1,6 @@
+#ifndef OSUX_HITOBJECT_TAIKO_H
+#define OSUX_HITOBJECT_TAIKO_H
+
 /*
  *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
  *
@@ -13,15 +16,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-#ifndef HITOBJECT_TAIKO_H
-#define HITOBJECT_TAIKO_H
 
 #include "osux/hitobject.h"
 
 // create a simple circle for taiko mode
-osux_hitobject *osux_ho_taiko_circle_new(int offset, int sample);
+int osux_ho_taiko_circle_init(osux_hitobject*, int offset, int sample);
 
 // create a simple spinner for taiko mode
-osux_hitobject *osux_ho_taiko_spinner_new(int offset, int end_offset);
+int osux_ho_taiko_spinner_init(osux_hitobject*, int offset, int end_offset);
 
-#endif //HITOBJECT_TAIKO_H
+#endif // OSUX_HITOBJECT_TAIKO_H

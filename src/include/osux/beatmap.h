@@ -155,9 +155,12 @@ struct osux_beatmap {
 int osux_beatmap_init(osux_beatmap *beatmap, char const *filename);
 int osux_beatmap_free(osux_beatmap *beatmap);
 char *osux_beatmap_default_filename(const osux_beatmap *bm);
-int osux_beatmap_update(osux_beatmap *beatmap);
+int osux_beatmap_prepare(osux_beatmap *beatmap);
 int osux_beatmap_print(osux_beatmap const *m, FILE *f);
-int osux_beatmap_save(osux_beatmap const *beatmap,
-                      char const *filename, bool use_default_filename);
+int osux_beatmap_save(osux_beatmap const *beatmap, char const *path);
+int osux_beatmap_save_full(osux_beatmap const *beatmap,
+                           char const *dirpath, char const *filename,
+                           bool use_default_filename);
+
 
 #endif // OSUX_BEATMAP_H

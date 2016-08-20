@@ -17,6 +17,7 @@
  *  limitations under the License.
  */
 
+#include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -116,6 +117,5 @@ int osux_hitobject_init(osux_hitobject *ho, char *line, uint32_t osu_version);
 int osux_hitobject_prepare(osux_hitobject *ho, osux_timingpoint const *tp);
 void osux_hitobject_print(osux_hitobject *ho, int version, FILE *f);
 void osux_hitobject_free(osux_hitobject *ho);
-osux_hitobject *osux_hitobject_copy(osux_hitobject *ho);
 
 #endif //OSUX_HIT_OBJECT_H

@@ -139,26 +139,36 @@ int osux_beatmap_print(osux_beatmap const *m, FILE *f)
     return 0;
 }
 
-int osux_beatmap_save(
-    osux_beatmap const *beatmap, char const *filename, bool use_default_filename)
+int osux_beatmap_save_full(
+    osux_beatmap const *beatmap,
+    char const *dirpath, char const *filename,
+    bool use_default_filename)
 {
+    int err = 0;
     if (use_default_filename)
 	filename = osux_beatmap_default_filename(beatmap);
-
     g_assert(filename != NULL);
-
-    FILE *file = g_fopen(filename, "w+");
-    if (file == NULL) {
-        osux_error("%s: %s\n", filename, strerror(errno));
-        return -1;
-    }
-    osux_beatmap_print(beatmap, file);
-    fclose(file);
-
+    gchar *path = g_build_filename(dirpath, filename, NULL);
+    err = osux_beatmap_save(beatmap, path);
     if (use_default_filename)
-        free((char*) filename);
+        g_free((gchar*) filename);
+    g_free(path);
+    return err;
+}
 
-    return 0;
+int osux_beatmap_save(osux_beatmap const *beatmap, char const *path)
+{
+    int err = 0;
+    FILE *file = g_fopen(path, "wb+");
+
+    if (file == NULL) {
+        osux_error("%s: %s\n", path, strerror(errno));
+        err = -OSUX_ERR_FILE_ERROR;
+    } else {
+        osux_beatmap_print(beatmap, file);
+        fclose(file);
+    }
+    return err;
 }
 
 #define BEATMAP_HITOBJECT_UPDATE_STAT(beatmap, hitobject)       \
@@ -174,9 +184,9 @@ int osux_beatmap_save(
 static char const sp_chr[] = "/";
 static char const replace_chr[] = "_";
 
-char *osux_beatmap_default_filename(const osux_beatmap *bm)
+gchar *osux_beatmap_default_filename(const osux_beatmap *bm)
 {
-    char *name = xasprintf(
+    gchar *name = g_strdup_printf(
         "%s - %s (%s) [%s].osu", bm->Artist, bm->Title, bm->Creator, bm->Version);
 
     unsigned len_name = strlen(name);

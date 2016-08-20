@@ -18,7 +18,8 @@
  */
 
 enum hitsound_sample {
-    SAMPLE_NORMAL  = 0x00, // check if 0x01 is something
+    SAMPLE_NORMAL  = 0x00,
+    SAMPLE_UNK1    = 0x01,
     SAMPLE_WHISTLE = 0x02,
     SAMPLE_FINISH  = 0x04,
     SAMPLE_CLAP    = 0x08,

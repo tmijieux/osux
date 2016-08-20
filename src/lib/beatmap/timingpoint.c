@@ -85,7 +85,7 @@ int osux_timingpoint_init(osux_timingpoint *tp, char *line, uint32_t osu_version
 
 void osux_timingpoint_print(osux_timingpoint *tp, FILE *f)
 {
-    fprintf(f, "%.15g,%.15g,%d,%d,%d,%d,%d,%d\n",
+    fprintf(f, "%.15g,%.15g,%d,%d,%d,%d,%d,%d\r\n",
             tp->offset,
             (  tp->inherited ?
                tp->slider_velocity_multiplier :

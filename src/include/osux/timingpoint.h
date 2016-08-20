@@ -19,6 +19,18 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+/*
+  timingpint format:
+
+  - absolute timingpoint:
+  offset,millisecond_per_beat,time_signature,sample_type,sample_set_index,
+  volume,is_absolute=1,kiai
+
+  -inherited:
+  offset,slider_velocity_multiplier,time_signature,sample_type,
+  sample_set_index,volume,is_absolute=0,kiai
+
+*/
 
 typedef struct osux_timingpoint {
     double offset;

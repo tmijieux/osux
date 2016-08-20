@@ -228,7 +228,7 @@ osux_editor_beatmap_set_property(GObject *object, guint property_id,
 void
 osux_editor_beatmap_save(OsuxEditorBeatmap *beatmap)
 {
-    osux_beatmap_save(&beatmap->beatmap, NULL, true);
+    osux_beatmap_save(&beatmap->beatmap, beatmap->filepath);
 }
 
 static void

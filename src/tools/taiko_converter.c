@@ -55,7 +55,7 @@ int main(int argc, char * argv[])
 	free(bm.Version);
         bm.Version = new_diff_name;
 	
-	if (osux_beatmap_save(&bm, NULL, true) < 0) {
+	if (osux_beatmap_save_full(&bm, ".", NULL, true) < 0) {
 	    fprintf(stderr, "Failed to save beatmap '%s'\n", argv[i]);
 	    goto end;
 	}

@@ -1,39 +1,6 @@
 #ifndef COMPILER_H
 #define COMPILER_H
 
-
-// ---------- INITIALIZER:
-
-// Initializer/finalizer sample for MSVC and GCC/Clang.
-// 2010-2016 Joe Lowe. Released into the public domain.
-
-#ifdef __cplusplus
-#    define INITIALIZER(f)                                              \
-    static void f(void);                                                \
-    struct f##_t_ { f##_t_(void) { f(); } }; static f##_t_ f##_;        \
-    static void f(void)
-#elif defined(_MSC_VER)
-#    pragma section(".CRT$XCU",read)
-#    define INITIALIZER2_(f,p)                                   \
-    static void f(void);                                         \
-    __declspec(allocate(".CRT$XCU")) void (*f##_)(void) = f;     \
-    __pragma(comment(linker,"/include:" p #f "_"))               \
-    static void f(void)
-        
-#    ifdef _WIN64
-#        define INITIALIZER(f) INITIALIZER2_(f,"")
-#    else
-#        define INITIALIZER(f) INITIALIZER2_(f,"_")
-#    endif
-#else
-#    define INITIALIZER(f) \
-        static void f(void) __attribute__((constructor)); \
-        static void f(void)
-#endif
-
-// INITIALIZER -----------------<
-
-
 /*
  *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
  *
@@ -51,10 +18,15 @@
  */
 
 #ifdef __GNUC__
-#  define UNUSED(x) x __attribute__((unused))
-#else
-#  define UNUSED(x) x
-#endif // __GNUC__
 
+#define __unused __attribute__((unused))
+#define __must_check __attribute__((warn_unused_result))
+
+#else
+
+#define __unused
+#define __must_check
+
+#endif // __GNUC__
 
 #endif //COMPILER_H

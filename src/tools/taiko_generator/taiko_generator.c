@@ -154,28 +154,24 @@ static void beatmap_set_tp(osux_beatmap *bm,
 			   struct gengetopt_args_info *info)
 {
     osux_timingpoint *tp = g_malloc0(sizeof*tp);
-    tp->offset = 0;
-    tp->time_signature = 4;
-    tp->sample_type = 1;
-    tp->volume = 100;
-    tp->slider_velocity_multiplier = 1;
-    tp->last_non_inherited = tp;
-    tp->slider_velocity = bm->SliderMultiplier;
-    tp->millisecond_per_beat = 60000. / info->bpm_arg;
-
+    char *rep;
+    rep = g_strdup_printf(
+        "0,%g,4,%d,0,100,1,0", 60000. / info->bpm_arg, SAMPLE_TYPE_NORMAL);
+    osux_timingpoint_init(tp, rep, 14);
+    g_free(rep);
     bm->timingpoint_count   = 1;
     bm->timingpoint_bufsize = 1;
     bm->timingpoints = tp;
+
 }
 
-static osux_beatmap *beatmap_new(struct gengetopt_args_info *info)
+static void beatmap_init(osux_beatmap *bm, struct gengetopt_args_info *info)
 {
-    osux_beatmap *bm = g_malloc0(sizeof*bm);
+    memset(bm, 0, sizeof*bm);
     beatmap_set_general(bm);
     beatmap_set_metadata(bm, info);
     beatmap_set_difficulty(bm, info);
     beatmap_set_tp(bm, info);
-    return bm;
 }
 
 static void tg_set_ho(struct taiko_generator *tg, osux_hitobject *ho)
@@ -183,11 +179,7 @@ static void tg_set_ho(struct taiko_generator *tg, osux_hitobject *ho)
     while(!tg_is_sample(tg)) {
 	tg_next(tg);
     }
-    struct osux_hitobject *tmp = 
-	osux_ho_taiko_circle_new(tg->offset, tg_get_sample(tg));
-    *ho = *tmp;
-    osux_hitobject_free(tmp);
-    g_free(tmp);
+    osux_ho_taiko_circle_init(ho, tg->offset, tg_get_sample(tg));
     tg_next(tg);
 }
 
@@ -207,28 +199,33 @@ static osux_beatmap *beatmap_add_ho(osux_beatmap *bm,
 
 int main(int argc, char *argv[])
 {
+    int err = 0;
     struct gengetopt_args_info info;
-
     if (cmdline_parser(argc, argv, &info) != 0) {
         fprintf(stderr, "error parsing command line arguments\n");
         exit(EXIT_FAILURE);
     }
 
-    osux_beatmap *bm = beatmap_new(&info);
-    beatmap_add_ho(bm, &info);
+    osux_beatmap bm;
+    beatmap_init(&bm, &info);
+    beatmap_add_ho(&bm, &info);
+    osux_beatmap_prepare(&bm);
 
-    char * file = osux_beatmap_default_filename(bm);
-    char * path = xasprintf("%s%s", info.output_dir_arg, file);
-    int res = osux_beatmap_save(bm, path, false);
-    if (res < 0)
-	exit(EXIT_FAILURE);
+    gchar *filename = osux_beatmap_default_filename(&bm);
+    gchar *path = g_build_filename(info.output_dir_arg, filename, NULL);
+
+    err = osux_beatmap_save(&bm, path);
+    if (err) {
+        fprintf(stderr, "Saving '%s' failed: %s\n", path, osux_errmsg(err));
+        exit(EXIT_FAILURE);
+    }
+
     if (!info.quiet_given)
-	printf("Output file: '%s'\n", path);
+        printf("Output file: '%s'\n", path);
 
-    free(file);
-    free(path);
-    osux_beatmap_free(bm);
-    g_free(bm);
+    g_free(filename);
+    g_free(path);
+    osux_beatmap_free(&bm);
     cmdline_parser_free(&info);
     return EXIT_SUCCESS;
 }

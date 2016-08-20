@@ -91,7 +91,7 @@ static int parse_osu_version(osux_beatmap *beatmap, GIOChannel *file)
         err = -OSUX_ERR_BAD_OSU_VERSION;
     }
 
- finally:
+finally:
     g_free(line);
     g_match_info_free(info);
     return err;
@@ -291,7 +291,7 @@ static int parse_objects(osux_beatmap *beatmap, GIOChannel *file)
                                                                         \
         char *str_ = NULL;                                              \
         if (osux_hashtable_lookup(section_, #field, &str_) < 0) {       \
-        beatmap->field = (default_value);                               \
+            beatmap->field = (default_value);                           \
         } else {                                                        \
             beatmap->field = method(str_);                              \
         }                                                               \
@@ -379,7 +379,7 @@ static int prepare_objects(osux_beatmap *beatmap)
     return err;
 }
 
-int osux_beatmap_update(osux_beatmap *beatmap)
+int osux_beatmap_prepare(osux_beatmap *beatmap)
 {
     return prepare_objects(beatmap);
 }
@@ -411,7 +411,7 @@ int osux_beatmap_init(osux_beatmap *beatmap, char const *file_path)
         osux_beatmap_free(beatmap);
         return err;
     }
-    if ((err = prepare_objects(beatmap)) < 0) {
+    if ((err = osux_beatmap_prepare(beatmap)) < 0) {
         osux_beatmap_free(beatmap);
         return err;
     }

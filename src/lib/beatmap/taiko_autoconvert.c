@@ -66,6 +66,14 @@ static double ho_slider_length(
         / (100 * slider_velocity);
 }
 
+static osux_hitobject *hitobject_move(osux_hitobject *ho)
+{
+    osux_hitobject *copy = g_malloc(sizeof*ho);
+    *copy = *ho;
+    memset(ho, 0, sizeof *ho);
+    return copy;
+}
+
 //---------------------------------------------------------------
 
 // return the newly created taiko circle!
@@ -76,7 +84,6 @@ static osux_hitobject *ho_taiko_new(
 )
 {
     g_assert( HIT_OBJECT_IS_SLIDER(old_slider) );
-
     osux_hitobject *ho = g_malloc0(sizeof*ho);
 
     ho->offset = offset;
@@ -114,11 +121,11 @@ static osux_hitobject *ho_taiko_new(
 //---------------------------------------------------------------
 
 static void
-taiko_slider_converter_init(struct taiko_slider_converter *tc,
-                            osux_hitobject *ho,
-                            osux_timingpoint const *tp,
-			    double slider_velocity,
-                            double tick_rate)
+slider_converter_init(struct taiko_slider_converter *tc,
+                      osux_hitobject *ho,
+                      osux_timingpoint const *tp,
+                      double slider_velocity,
+                      double tick_rate)
 {
     memset(tc, 0, sizeof *tc);
 
@@ -207,17 +214,17 @@ static void slider_to_circles_repeat(
 static void taiko_slider_converter_convert(
     const struct taiko_slider_converter *tc, osux_list *ho_list)
 {
-    if (tc->length >= 2*tc->mpb)
+    if (tc->length >= 2*tc->mpb) {
         // if slider length if big enough, keep the slider
-	osux_list_append(ho_list, osux_hitobject_copy(tc->ho));
-    else {
+	osux_list_append(ho_list, hitobject_move(tc->ho));
+    } else {
         // when the slider is too short, convert it to circles:
         // (two rules according to the slider being repeated or not)
 	if (tc->ho->slider.repeat != 1)
 	    slider_to_circles_repeat(tc, ho_list);
 	else
 	    slider_to_circles_normal(tc, ho_list);
-	osux_hitobject_free(tc->ho);
+        osux_hitobject_free(tc->ho);
     }
 }
 
@@ -241,11 +248,11 @@ static osux_list * taiko_autoconvert_ho_list(const osux_beatmap *bm)
 
 	if (HIT_OBJECT_IS_SPINNER(ho) || HIT_OBJECT_IS_CIRCLE(ho)) {
 	    // keep spinner and circle
-	    osux_list_append(new_ho_list, osux_hitobject_copy(ho));
+	    osux_list_append(new_ho_list, hitobject_move(ho));
 	} else if (HIT_OBJECT_IS_SLIDER(ho)) {
 	    // build convert helper
 	    struct taiko_slider_converter tc;
-	    taiko_slider_converter_init(
+	    slider_converter_init(
 		&tc, ho, tp,
 		bm->SliderMultiplier, bm->SliderTickRate);
 
@@ -291,7 +298,7 @@ int osux_beatmap_taiko_autoconvert(osux_beatmap *bm)
     bm->hitobject_count = hitobject_count;
     bm->hitobject_bufsize = hitobject_count;
     bm->hitobjects      = array;
-    osux_beatmap_update(bm);
+    osux_beatmap_prepare(bm);
 
     return 0;
 }

@@ -161,9 +161,9 @@ int yaml2_parse_file(struct yaml_wrap **yamlw, const char *file_name)
     return 0;
 }
 
-static void mapping_free(const char UNUSED(*key),
+static void mapping_free(const char *key __unused,
                          void *value,
-                         void UNUSED(*args))
+                         void *args __unused)
 {
     yaml2_free(value);
 }
