@@ -21,7 +21,6 @@
 #include "osux/util.h"
 #include "osux/error.h"
 
-
 static int min_size_version[] = {
     [0]  = 99999,
     [1]  = 99999,
@@ -46,9 +45,7 @@ static int min_size_version[] = {
     [20] = 8,
 };
 
-int osux_timingpoint_init(osux_timingpoint *tp,
-                          osux_timingpoint const **last_non_inherited,
-                          char *line, uint32_t osu_version)
+int osux_timingpoint_init(osux_timingpoint *tp, char *line, uint32_t osu_version)
 {
     char **split = g_strsplit(line, ",", 0);
     int size = strsplit_size(split);
@@ -78,18 +75,10 @@ int osux_timingpoint_init(osux_timingpoint *tp,
     tp->kiai = size >= 8 ? (atoi(split[7]) != 0) : false;
 
     if (tp->inherited) {
-        g_assert(last_non_inherited != NULL);
-        if (*last_non_inherited == NULL)
-            return -OSUX_ERR_INVALID_INHERITED_TIMINGPOINT;
-        tp->last_non_inherited = *last_non_inherited;
         tp->slider_velocity_multiplier = tp->millisecond_per_beat;
-        tp->millisecond_per_beat = tp->last_non_inherited->millisecond_per_beat;
-    } else {
-        g_assert(last_non_inherited != NULL);
-        *last_non_inherited = tp;
-        tp->last_non_inherited = tp;
-        tp->slider_velocity_multiplier = -100.;
-    }
+        tp->millisecond_per_beat = 0.; // set later
+    } else
+        tp->slider_velocity_multiplier = -100.; // default value
     g_strfreev(split);
     return 0;
 }
@@ -116,8 +105,21 @@ void osux_timingpoint_free(osux_timingpoint *tp)
 }
 
 int osux_timingpoint_set_slider_velocity(
-    osux_timingpoint *tp, double slider_velocity)
+    osux_timingpoint *tp,
+    osux_timingpoint const **last_non_inherited,
+    double slider_velocity)
 {
+    g_assert(last_non_inherited != NULL);
+    if (tp->inherited) {
+        if (*last_non_inherited == NULL)
+            return -OSUX_ERR_INVALID_INHERITED_TIMINGPOINT;
+        tp->last_non_inherited = *last_non_inherited;
+        tp->millisecond_per_beat = tp->last_non_inherited->millisecond_per_beat;
+    } else {
+        tp->last_non_inherited = tp;
+        *last_non_inherited = tp;
+    }
+
     tp->slider_velocity = slider_velocity;
     if (tp->inherited)
         tp->slider_velocity *= -100. / tp->slider_velocity_multiplier;

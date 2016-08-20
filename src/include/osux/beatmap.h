@@ -119,7 +119,7 @@ struct osux_beatmap {
     char *Source;
 
     uint32_t tag_count;
-    uint32_t tag_bufsize;
+    char *tags_orig;
     char **tags;
 
     int64_t BeatmapID;

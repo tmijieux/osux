@@ -82,6 +82,7 @@ static osux_hitobject *ho_taiko_new(
     ho->offset = offset;
     ho->end_offset = offset;
     ho->type = HITOBJECT_CIRCLE;
+    ho->timingpoint = old_slider->timingpoint;
 
     // by default the hit_object inherit the slider global hitsound
     // when the slider has no additional hitsounds the global hitsound is kept

@@ -7,8 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: osux 0.1\n"
-"Report-Msgid-Bugs-To: lmaugere@ipb.fr, tmijieux@ipb.fr\n"
-"POT-Creation-Date: 2016-08-18 04:58+0200\n"
+"Report-Msgid-Bugs-To: tmijieux@hotmail.fr, lmaugere@ipb.fr\n"
+"POT-Creation-Date: 2016-08-19 22:10+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,23 +17,23 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/editor/app.c:102
+#: src/editor/app.c:122
 msgid "Open File"
 msgstr ""
 
-#: src/editor/app.c:102 src/editor/app.c:137
+#: src/editor/app.c:122 src/editor/app.c:160
 msgid "_Cancel"
 msgstr ""
 
-#: src/editor/app.c:103
+#: src/editor/app.c:123
 msgid "_Open"
 msgstr ""
 
-#: src/editor/app.c:137
+#: src/editor/app.c:160
 msgid "Save beatmap"
 msgstr ""
 
-#: src/editor/app.c:138
+#: src/editor/app.c:161
 msgid "_Save"
 msgstr ""
 
@@ -57,6 +57,140 @@ msgstr ""
 msgid "Invalid type"
 msgstr ""
 
+#: src/editor/beatmap.c:110
+msgid "Inherited"
+msgstr ""
+
+#: src/editor/beatmap.c:112
+msgid "Absolute"
+msgstr ""
+
+#: src/editor/beatmap.c:174
+msgid "Bookmark"
+msgstr ""
+
+#: src/editor/beatmap.c:186
+msgid "TimingPoints"
+msgstr ""
+
+#: src/editor/beatmap.c:191 src/editor/ui/OsuxEditorWindow.ui:401
+msgid "HitObjects"
+msgstr ""
+
+#: src/editor/beatmap.c:196
+msgid "Bookmarks"
+msgstr ""
+
+#: src/editor/beatmap.c:201
+msgid "Events"
+msgstr ""
+
+#: src/editor/beatmap.c:206
+msgid "Colors"
+msgstr ""
+
+#: src/editor/beatmap.c:325
+#, c-format
+msgid "invalid beatmap: %s\n"
+msgstr ""
+
+#: src/editor/beatmap.c:329
+#, c-format
+msgid "valid beatmap: %s\n"
+msgstr ""
+
+#: src/include/osux/event.h:10
+msgid "BackgroundImage"
+msgstr ""
+
+#: src/include/osux/event.h:11
+msgid "Video"
+msgstr ""
+
+#: src/include/osux/event.h:12
+msgid "BreakPeriod"
+msgstr ""
+
+#: src/include/osux/event.h:13
+msgid "BackgroundColour"
+msgstr ""
+
+#: src/include/osux/event.h:14
+msgid "Sprite"
+msgstr ""
+
+#: src/include/osux/event.h:15 src/editor/ui/OsuxEditorWindow.ui:493
+msgid "Sample"
+msgstr ""
+
+#: src/include/osux/event.h:16
+msgid "Animation"
+msgstr ""
+
+#: src/include/osux/event.h:19
+msgid "Fade"
+msgstr ""
+
+#: src/include/osux/event.h:20
+msgid "Move"
+msgstr ""
+
+#: src/include/osux/event.h:21
+msgid "MoveX"
+msgstr ""
+
+#: src/include/osux/event.h:22
+msgid "MoveY"
+msgstr ""
+
+#: src/include/osux/event.h:23 src/editor/ui/OsuxEditorWindow.ui:466
+msgid "Scale"
+msgstr ""
+
+#: src/include/osux/event.h:24
+msgid "VectorScale"
+msgstr ""
+
+#: src/include/osux/event.h:25
+msgid "Rotate"
+msgstr ""
+
+#: src/include/osux/event.h:26
+msgid "Color"
+msgstr ""
+
+#: src/include/osux/event.h:27
+msgid "Parameter"
+msgstr ""
+
+#: src/include/osux/event.h:28
+msgid "Loop"
+msgstr ""
+
+#: src/include/osux/event.h:29
+msgid "Trigger"
+msgstr ""
+
+#: src/include/osux/color.h:23
+msgid "Combo"
+msgstr ""
+
+#: src/include/osux/color.h:24
+msgid "SliderBorder"
+msgstr ""
+
+#: src/include/osux/color.h:25
+msgid "SliderTrackOverride"
+msgstr ""
+
+#: src/include/osux/color.h:26
+msgid "SpinnerApproachCircle"
+msgstr ""
+
+#: src/include/osux/color.h:27
+msgid "StarBreakAdditive"
+msgstr ""
+
 #: src/editor/ui/OsuxEditorWindow.ui:14
 msgid "osux Editor"
 msgstr ""
@@ -77,10 +211,6 @@ msgstr ""
 msgid "_Help"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:401
-msgid "HitObjects"
-msgstr ""
-
 #: src/editor/ui/OsuxEditorWindow.ui:452
 msgid "Transformation"
 msgstr ""
@@ -89,20 +219,12 @@ msgstr ""
 msgid "Symmetry"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:466
-msgid "Scale"
-msgstr ""
-
 #: src/editor/ui/OsuxEditorWindow.ui:477
 msgid "Rotation"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:493
-msgid "Sample"
-msgstr ""
-
 #: src/editor/ui/OsuxEditorWindow.ui:499 src/editor/ui/OsuxEditorWindow.ui:559
-#: src/editor/ui/OsuxEditorWindow.ui:848
+#: src/editor/ui/OsuxEditorWindow.ui:842
 msgid "Normal"
 msgstr ""
 
@@ -126,182 +248,194 @@ msgstr ""
 msgid "Default"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:570 src/editor/ui/OsuxEditorWindow.ui:849
+#: src/editor/ui/OsuxEditorWindow.ui:570 src/editor/ui/OsuxEditorWindow.ui:843
 msgid "Soft"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:581 src/editor/ui/OsuxEditorWindow.ui:850
+#: src/editor/ui/OsuxEditorWindow.ui:581 src/editor/ui/OsuxEditorWindow.ui:844
 msgid "Drum"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:751
+#: src/editor/ui/OsuxEditorWindow.ui:663
+msgid "Offset"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.ui:674
+msgid "Type"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.ui:685
+msgid "Details"
+msgstr ""
+
+#: src/editor/ui/OsuxEditorWindow.ui:745
 msgid "Audio File"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:766
+#: src/editor/ui/OsuxEditorWindow.ui:760
 msgid "Open Audio File"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:790
+#: src/editor/ui/OsuxEditorWindow.ui:784
 msgid "Game Mode"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:805
+#: src/editor/ui/OsuxEditorWindow.ui:799
 msgid "Standard"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:806
+#: src/editor/ui/OsuxEditorWindow.ui:800
 msgid "Taiko"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:807
+#: src/editor/ui/OsuxEditorWindow.ui:801
 msgid "Catch The beat"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:808
+#: src/editor/ui/OsuxEditorWindow.ui:802
 msgid "Mania"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:833
+#: src/editor/ui/OsuxEditorWindow.ui:827
 msgid "SampleSet"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:875
+#: src/editor/ui/OsuxEditorWindow.ui:869
 msgid "Stack Leniency"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:889 src/editor/ui/OsuxEditorWindow.ui:928
-#: src/editor/ui/OsuxEditorWindow.ui:966 src/editor/ui/OsuxEditorWindow.ui:1444
-#: src/editor/ui/OsuxEditorWindow.ui:1482
-#: src/editor/ui/OsuxEditorWindow.ui:1566
-#: src/editor/ui/OsuxEditorWindow.ui:1605
-#: src/editor/ui/OsuxEditorWindow.ui:1644
-#: src/editor/ui/OsuxEditorWindow.ui:1683
-#: src/editor/ui/OsuxEditorWindow.ui:1970
+#: src/editor/ui/OsuxEditorWindow.ui:883 src/editor/ui/OsuxEditorWindow.ui:922
+#: src/editor/ui/OsuxEditorWindow.ui:960 src/editor/ui/OsuxEditorWindow.ui:1438
+#: src/editor/ui/OsuxEditorWindow.ui:1476
+#: src/editor/ui/OsuxEditorWindow.ui:1560
+#: src/editor/ui/OsuxEditorWindow.ui:1599
+#: src/editor/ui/OsuxEditorWindow.ui:1638
+#: src/editor/ui/OsuxEditorWindow.ui:1677
+#: src/editor/ui/OsuxEditorWindow.ui:1964
 msgid "0"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:914
+#: src/editor/ui/OsuxEditorWindow.ui:908
 msgid "Preview Time"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:952
+#: src/editor/ui/OsuxEditorWindow.ui:946
 msgid "Audio LeadIn"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:990
+#: src/editor/ui/OsuxEditorWindow.ui:984
 msgid "CountDown"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:1026
+#: src/editor/ui/OsuxEditorWindow.ui:1020
 msgid "Letter Box in breaks"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:1062
+#: src/editor/ui/OsuxEditorWindow.ui:1056
 msgid "WideScreen"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:1105
+#: src/editor/ui/OsuxEditorWindow.ui:1099
 msgid "General"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:1142
+#: src/editor/ui/OsuxEditorWindow.ui:1136
 msgid "Title"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:1178
+#: src/editor/ui/OsuxEditorWindow.ui:1172
 msgid "Romanized Title"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:1214
+#: src/editor/ui/OsuxEditorWindow.ui:1208
 msgid "Artist"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:1250
+#: src/editor/ui/OsuxEditorWindow.ui:1244
 msgid "Romanized Artist"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:1286
+#: src/editor/ui/OsuxEditorWindow.ui:1280
 msgid "Creator"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:1322
+#: src/editor/ui/OsuxEditorWindow.ui:1316
 msgid "Difficulty Name"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:1358
+#: src/editor/ui/OsuxEditorWindow.ui:1352
 msgid "Source"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:1394
+#: src/editor/ui/OsuxEditorWindow.ui:1388
 msgid "Tags"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:1430
+#: src/editor/ui/OsuxEditorWindow.ui:1424
 msgid "Beatmap ID"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:1468
+#: src/editor/ui/OsuxEditorWindow.ui:1462
 msgid "Beatmap Set ID"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:1514
+#: src/editor/ui/OsuxEditorWindow.ui:1508
 msgid "Metadata"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:1552
+#: src/editor/ui/OsuxEditorWindow.ui:1546
 msgid "DistanceSpacing"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:1591
+#: src/editor/ui/OsuxEditorWindow.ui:1585
 msgid "BeatDivisor"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:1630
+#: src/editor/ui/OsuxEditorWindow.ui:1624
 msgid "Grid Size"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:1669
+#: src/editor/ui/OsuxEditorWindow.ui:1663
 msgid "Timeline Zoom"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:1701
+#: src/editor/ui/OsuxEditorWindow.ui:1695
 msgid "Add Bookmark at current time"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:1730
+#: src/editor/ui/OsuxEditorWindow.ui:1724
 msgid "Editor"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:1768
+#: src/editor/ui/OsuxEditorWindow.ui:1762
 msgid "HP Drain Rate"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:1805
+#: src/editor/ui/OsuxEditorWindow.ui:1799
 msgid "Circle Size"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:1842
+#: src/editor/ui/OsuxEditorWindow.ui:1836
 msgid "Overall Difficulty"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:1879
+#: src/editor/ui/OsuxEditorWindow.ui:1873
 msgid "Approach Rate"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:1916
+#: src/editor/ui/OsuxEditorWindow.ui:1910
 msgid "Slider Multiplier"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:1930
+#: src/editor/ui/OsuxEditorWindow.ui:1924
 msgid "1"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:1956
+#: src/editor/ui/OsuxEditorWindow.ui:1950
 msgid "Slider Tick Rate"
 msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:2001
+#: src/editor/ui/OsuxEditorWindow.ui:1995
 msgid "Difficulty"
 msgstr ""
 

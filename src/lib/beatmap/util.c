@@ -2,42 +2,66 @@
 #include <string.h>
 
 #include "osux/util.h"
+#include "osux/error.h"
 #include "osux/md5.h"
 
 #define DEFAULT_LINE_CAPACITY 512
 
-char *osux_getline(GIOChannel *chan)
+int osux_getline(GIOChannel *chan, char **return_value)
 {
+    int err = 0;
     char *str = NULL;
     size_t length, end;
-    GIOStatus status = g_io_channel_read_line(chan, &str, &length, &end, NULL);
-    if (status != G_IO_STATUS_NORMAL)
-        return NULL;
+    GError *error = NULL;
+    *return_value = NULL;
+    GIOStatus status = g_io_channel_read_line(chan, &str, &length, &end, &error);
+    if (status == G_IO_STATUS_EOF)
+        return 1;
+    else if (status != G_IO_STATUS_NORMAL) {
+        printf ("getline: %s\n", error?error->message:"no error");
+        g_free(str);
+        g_clear_error(&error);
+        return -OSUX_ERR_FILE_BAD_ENCODING;
+    }
     str[end] = 0;
-    return str;
+    g_strchomp(str);
+    *return_value = str;
+    return err;
 }
 
-#define CHECK_ENCODING(bom, data, enc, chan)                            \
+#define SET_ENCODING(chan, error, status, encoding)                     \
     do {                                                                \
-        GIOStatus status;                                               \
-        GError *error = NULL;                                           \
-        if (!memcmp((bom), data, sizeof((bom)))) {                      \
-            status = g_io_channel_seek_position(                        \
-                chan, sizeof((bom)), G_SEEK_SET, NULL);                 \
-            if (status == G_IO_STATUS_ERROR) {                          \
-                fprintf(stderr, "seek error: %s\n", error->message);    \
-                g_error_free(error);                                    \
-                return NULL;                                            \
-            }                                                           \
-            status = g_io_channel_set_encoding(chan, enc, NULL);        \
-            if (status == G_IO_STATUS_ERROR) {                          \
-                fprintf(stderr, "set encoding error: %s\n", error->message); \
-                g_error_free(error);                                    \
-                return NULL;                                            \
-            }                                                           \
-            return chan;                                                \
+        status = g_io_channel_set_encoding(chan, encoding, &error);     \
+        if (status == G_IO_STATUS_ERROR) {                              \
+            fprintf(stderr, "set encoding error (%s): %s\n",            \
+                    encoding?encoding:"BINARY", error->message);        \
+            g_error_free(error);                                        \
+            return NULL;                                                \
         }                                                               \
+    } while (0)
+
+#define SEEK_POS(chan, error, status, pos)                              \
+    do {                                                                \
+        status = g_io_channel_seek_position(chan, pos, G_SEEK_SET, &error); \
+        if (status == G_IO_STATUS_ERROR) {                              \
+            fprintf(stderr, "seek error: %s\n", error->message);        \
+            g_clear_error(&error);                                      \
+            return NULL;                                                \
+        }                                                               \
+    } while (0)
+
+#define SET_ENCODING_FROM_BOM(bom, data, enc, chan)             \
+    do {                                                        \
+        GIOStatus status;                                       \
+        GError *error = NULL;                                   \
+        if (!memcmp((bom), data, sizeof((bom)))) {              \
+            SEEK_POS(chan, error, status, sizeof(bom));         \
+            SET_ENCODING(chan, error, status, enc);             \
+            /*printf("%s BOM detected\n", enc);*/               \
+            return chan;                                        \
+        }                                                       \
     } while(0)
+
 
 GIOChannel *osux_open_text_file_reading(char const *file_path)
 {
@@ -58,40 +82,33 @@ GIOChannel *osux_open_text_file_reading(char const *file_path)
     }
 
     // set file to binary mode (no encoding):
-    status = g_io_channel_set_encoding(chan, NULL, &error);
-    if (status == G_IO_STATUS_ERROR) {
-        fprintf(stderr, "set binary error: %s\n", error->message);
-        g_error_free(error);
-        return NULL;
-    }
+    SET_ENCODING(chan, error, status, NULL);
 
     char data[4]; gsize length; // BOMs are up to 4 bytes long
     status = g_io_channel_read_chars(chan, data, 4, &length, &error);
     if (status == G_IO_STATUS_ERROR) {
-        fprintf(stderr, "read bom error: %s\n", error->message);
+        fprintf(stderr, "%s: %s\n", file_path, error->message);
         g_error_free(error);
         return NULL;
     }
-    // this macros return on successful encoding match
-    CHECK_ENCODING(utf32be, data, "UTF-32BE", chan); // order is important
-    CHECK_ENCODING(utf32le, data, "UTF-32LE", chan);
-    CHECK_ENCODING(utf16le, data, "UTF-16LE", chan);
-    CHECK_ENCODING(utf16be, data, "UTF-16BE", chan);
-    CHECK_ENCODING(utf8, data, "UTF-8", chan);
+    // these macros return on successful encoding match
+    SET_ENCODING_FROM_BOM(utf32be, data, "UTF-32BE", chan); // order is important
+    SET_ENCODING_FROM_BOM(utf32le, data, "UTF-32LE", chan);
+    SET_ENCODING_FROM_BOM(utf16le, data, "UTF-16LE", chan);
+    SET_ENCODING_FROM_BOM(utf16be, data, "UTF-16BE", chan);
+    SET_ENCODING_FROM_BOM(utf8, data, "UTF-8", chan);
 
     //set file to utf8 if no bom was found
-    status = g_io_channel_seek_position(chan, 0, G_SEEK_SET, NULL);
+    SEEK_POS(chan, error, status, 0);
+    SET_ENCODING(chan, error, status, "UTF-8");
+
+    char *str;
+    status = g_io_channel_read_line(chan, &str, NULL, NULL, NULL);
     if (status == G_IO_STATUS_ERROR) {
-        fprintf(stderr, "seek error: %s\n", error->message);
-        g_error_free(error);
-        return NULL;
+        SEEK_POS(chan, error, status, 0);
+        SET_ENCODING(chan, error, status, "ISO-8859-1");
     }
-    status = g_io_channel_set_encoding(chan, "UTF-8", NULL);
-    if (status == G_IO_STATUS_ERROR) {
-        fprintf(stderr, "set encoding error (UTF-8): %s\n", error->message);
-        g_error_free(error);
-        return NULL;
-    }
+    SEEK_POS(chan, error, status, 0);
     return chan;
 }
 

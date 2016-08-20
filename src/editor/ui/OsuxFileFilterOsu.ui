@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.20.0 -->
+<interface>
+  <requires lib="gtk+" version="3.20"/>
+  <object class="GtkFileFilter" id="Beatmaps">
+    <patterns>
+      <pattern>*.osu</pattern>
+    </patterns>
+  </object>
+  <object class="GtkFileFilter" id="Storyboards">
+    <patterns>
+      <pattern>*.osb</pattern>
+    </patterns>
+  </object>
+  <object class="GtkFileFilter" id="All files">
+    <mime-types>
+    </mime-types>
+    <patterns>
+      <pattern>*</pattern>
+    </patterns>
+  </object>
+</interface>

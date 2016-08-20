@@ -26,7 +26,8 @@ RESOURCES_DEP= \
 	$(srcdir)/ui/OsuxEditorPopover.ui \
 	$(srcdir)/ui/OsuxBeatmapAdjustments.ui \
 	$(srcdir)/ui/OsuxCloseLabel.ui \
-	$(srcdir)/ui/OsuxFileFilterMusic.ui
+	$(srcdir)/ui/OsuxFileFilterMusic.ui \
+	$(srcdir)/ui/OsuxFileFilterOsu.ui
 
 $(srcdir)/editor.gresources.xml: $(RESOURCES_DEP)
 # technically nothing can be 'rebuilt' here so just update modification time

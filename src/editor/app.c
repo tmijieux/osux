@@ -12,13 +12,16 @@ struct _OsuxEditorApp
 {
     GtkApplication parent;
     OsuxEditorWindow *window;
-
     gboolean activated;
+
     OsuxEditorBeatmap **beatmaps;
     uint32_t beatmap_count;
     uint32_t beatmap_buf_size;
-
     uint32_t current_beatmap;
+
+    GtkFileFilter *osu_file_filter;
+    GtkFileFilter *osb_file_filter;
+    GtkFileFilter *all_file_filter;
 };
 
 G_DEFINE_TYPE(OsuxEditorApp, osux_editor_app, GTK_TYPE_APPLICATION);
@@ -26,6 +29,20 @@ G_DEFINE_TYPE(OsuxEditorApp, osux_editor_app, GTK_TYPE_APPLICATION);
 static void osux_editor_app_init(OsuxEditorApp *app)
 {
     ALLOC_ARRAY(app->beatmaps, app->beatmap_buf_size, 10);
+    GtkBuilder *builder = gtk_builder_new_from_resource(
+        "/org/osux/editor/ui/OsuxFileFilterOsu.ui");
+    app->osu_file_filter = GTK_FILE_FILTER(
+        gtk_builder_get_object(builder, "Beatmaps"));
+    app->osb_file_filter = GTK_FILE_FILTER(
+        gtk_builder_get_object(builder, "Storyboards"));
+    app->all_file_filter = GTK_FILE_FILTER(
+        gtk_builder_get_object(builder, "All files"));
+
+    g_object_ref(app->osu_file_filter);
+    g_object_ref(app->osb_file_filter);
+    g_object_ref(app->all_file_filter);
+
+    g_object_unref(G_OBJECT(builder));
 }
 
 static void osux_editor_app_dispose(GObject *obj)
@@ -34,6 +51,9 @@ static void osux_editor_app_dispose(GObject *obj)
 
     for (unsigned i = 0; i < app->beatmap_count; ++i)
         g_clear_object(&app->beatmaps[i]);
+    g_clear_object(&app->osu_file_filter);
+    g_clear_object(&app->osb_file_filter);
+    g_clear_object(&app->all_file_filter);
 
     G_OBJECT_CLASS(osux_editor_app_parent_class)->dispose(obj);
 }
@@ -101,6 +121,9 @@ open_action(GSimpleAction *action,
     dialog = gtk_file_chooser_dialog_new (
         _("Open File"), GTK_WINDOW(win), fc_action, _("_Cancel"),
         GTK_RESPONSE_CANCEL, _("_Open"), GTK_RESPONSE_ACCEPT, NULL);
+    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), app->osu_file_filter);
+    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), app->osb_file_filter);
+    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), app->all_file_filter);
 
     res = gtk_dialog_run (GTK_DIALOG (dialog));
     if (res == GTK_RESPONSE_ACCEPT)
@@ -171,7 +194,7 @@ osux_editor_app_activate(GApplication *gapp)
 {
     OsuxEditorApp *app = OSUX_EDITOR_APP( gapp );
     OsuxEditorWindow *win = app->window;
-    
+
     if (!app->activated) {
         win = osux_editor_window_new(app);
         app->window = win;
@@ -191,7 +214,7 @@ osux_editor_app_open(GApplication *gapp,
     (void) hint;
     int i;
     OsuxEditorApp *app = OSUX_EDITOR_APP( gapp );
-    
+
     for (i = 0; i < n_files; i++)
         osux_editor_app_open_one(app, files[i]);
 

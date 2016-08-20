@@ -111,7 +111,8 @@ static int load_beatmap_from_disk(
     osux_beatmap beatmap;
 
     if ((err = osux_beatmap_init(&beatmap, filepath)) < 0) {
-        osux_error("Cannot load beatmap %s\n", filepath);
+        osux_error("Cannot load beatmap\nfilename:%s\nerror type: %s\n\n",
+                   filepath, osux_errmsg(err));
         return err;
     }
     if ((err = beatmap_insert(db, &beatmap) < 0))
