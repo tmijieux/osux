@@ -1,6 +1,3 @@
-#ifndef OSUX_HITSOUND_H
-#define OSUX_HITSOUND_H
-
 /*
  *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
  *
@@ -16,23 +13,15 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+#ifndef HITOBJECT_TAIKO_H
+#define HITOBJECT_TAIKO_H
 
-enum hitsound_sample {
-    SAMPLE_NORMAL  = 0x00, // check if 0x01 is something
-    SAMPLE_WHISTLE = 0x02,
-    SAMPLE_FINISH  = 0x04,
-    SAMPLE_CLAP    = 0x08,
+#include "osux/hitobject.h"
 
-    SAMPLE_TAIKO_DON = SAMPLE_NORMAL,
-    SAMPLE_TAIKO_KAT = SAMPLE_CLAP | SAMPLE_WHISTLE,
-    SAMPLE_TAIKO_BIG = SAMPLE_FINISH,
-};
+// create a simple circle for taiko mode
+osux_hitobject *osux_ho_taiko_circle_new(int offset, int sample);
 
-enum hitsound_sample_type {
-    SAMPLE_TYPE_DEFAULT   = 0,  // defaults to timing section sample type.
-    SAMPLE_TYPE_NORMAL    = 1,
-    SAMPLE_TYPE_SOFT      = 2,
-    SAMPLE_TYPE_DRUM      = 3,
-};
+// create a simple spinner for taiko mode
+osux_hitobject *osux_ho_taiko_spinner_new(int offset, int end_offset);
 
-#endif // OSUX_HITSOUND_H
+#endif //HITOBJECT_TAIKO_H

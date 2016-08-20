@@ -24,7 +24,6 @@
 #include "osux/error.h"
 #include "osux/string2.h"
 
-
 static int check_slider_type(char type)
 {
     if (!(type == 'C' || type == 'L' || type == 'P' || type == 'B'))
@@ -331,3 +330,9 @@ void osux_hitobject_free(osux_hitobject *ho)
     g_free(ho->hitsound.sfx_filename);
 }
 
+osux_hitobject *osux_hitobject_copy(osux_hitobject *ho)
+{
+    osux_hitobject *copy = g_malloc(sizeof*ho);
+    *copy = *ho;
+    return copy;
+}

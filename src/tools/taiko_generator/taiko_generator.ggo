@@ -1,0 +1,12 @@
+version "0.1"
+package "taiko_generator"
+purpose "generate a taiko beatmap"
+
+option "pattern" p "Set the pattern repeated along the beatmap" string
+option "nb-ho" n "Set the number of hitobject in the beatmap" int optional default="128"
+option "bpm" b "Set the bpm for the beatmap" double optional default="160."
+option "svm" s "Set the slider velocity multiplier" double optional default="1."
+option "od" o "Set the overall difficulty" double optional default="5."
+option "artist" a "Set the beatmap artist" string optional default="Test"
+option "output-dir" d "Set output directory" string optional default="./"
+option "quiet" q "Don't print a message at the end" optional

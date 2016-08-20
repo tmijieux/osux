@@ -1,6 +1,6 @@
 include $(top_srcdir)/common.mk
 
-SUBDIRS = dbctl
+SUBDIRS = dbctl taiko_generator
 
 bin_PROGRAMS = parse_replay taiko_converter parse_beatmap
 

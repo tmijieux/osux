@@ -21,6 +21,7 @@
 
 #include "osux/beatmap.h"
 #include "osux/hitobject.h"
+#include "osux/hitobject_taiko.h"
 #include "osux/timingpoint.h"
 #include "osux/taiko_autoconvert.h"
 #include "osux/list.h"
@@ -44,13 +45,6 @@ static inline int offset_eq(double o1, double o2)
 static inline int offset_le(double o1, double o2)
 {
     return (o1 <= o2) || offset_eq(o1, o2);
-}
-
-static inline osux_hitobject *hitobject_copy(osux_hitobject *ho)
-{
-    osux_hitobject *copy = g_malloc(sizeof*ho);
-    *copy = *ho;
-    return copy;
 }
 
 //---------------------------------------------------------------
@@ -214,7 +208,7 @@ static void taiko_slider_converter_convert(
 {
     if (tc->length >= 2*tc->mpb)
         // if slider length if big enough, keep the slider
-	osux_list_append(ho_list, hitobject_copy(tc->ho));
+	osux_list_append(ho_list, osux_hitobject_copy(tc->ho));
     else {
         // when the slider is too short, convert it to circles:
         // (two rules according to the slider being repeated or not)
@@ -246,7 +240,7 @@ static osux_list * taiko_autoconvert_ho_list(const osux_beatmap *bm)
 
 	if (HIT_OBJECT_IS_SPINNER(ho) || HIT_OBJECT_IS_CIRCLE(ho)) {
 	    // keep spinner and circle
-	    osux_list_append(new_ho_list, hitobject_copy(ho));
+	    osux_list_append(new_ho_list, osux_hitobject_copy(ho));
 	} else if (HIT_OBJECT_IS_SLIDER(ho)) {
 	    // build convert helper
 	    struct taiko_slider_converter tc;

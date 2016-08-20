@@ -34,6 +34,7 @@
 #include "./osux/hitsound.h"
 #include "./osux/color.h"
 #include "./osux/hitobject.h"
+#include "./osux/hitobject_taiko.h"
 #include "./osux/parser.h"
 #include "./osux/game_mode.h"
 #include "./osux/table.h"

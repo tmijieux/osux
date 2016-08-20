@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
 
     if (info.list_given) {
         list_database(key_file);
-        return 0;
+        return EXIT_SUCCESS;
     }
 
     char const *database = info.database_arg;

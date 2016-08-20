@@ -65,6 +65,7 @@ AC_CONFIG_FILES([
 		  src/lib/replay/Makefile
                   src/tools/Makefile
                   src/tools/dbctl/Makefile
+                  src/tools/taiko_generator/Makefile
 		  src/taikorank/Makefile
 		  src/taikorank/yaml/Makefile
 		  src/editor/Makefile
