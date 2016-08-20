@@ -17,6 +17,7 @@
 #ifndef READING_H
 #define READING_H
 
+void tr_reading_initialize(void);
 /* Use:
    - bpm_app
    - d/k/D/K/s/r/R

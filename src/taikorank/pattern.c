@@ -113,7 +113,7 @@ static void ht_cst_exit_pattern(void)
     lf_free(PATTERN_INFLU_LF);
 }
 
-INITIALIZER(ht_cst_init_pattern)
+void tr_pattern_initialize(void)
 {
     yw_ptr = cst_get_yw(PATTERN_FILE);
     ht_cst_ptr = yw_extract_ht(yw_ptr);
@@ -300,7 +300,7 @@ static void pattern_free(struct pattern *p)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-void tro_set_pattern_proba(struct tr_object * o, int UNUSED(i))
+void tro_set_pattern_proba(struct tr_object * o, int i __unused)
 {
     o->proba = lf_eval(SINGLETAP_LF, o->rest);
 /*

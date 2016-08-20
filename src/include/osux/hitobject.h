@@ -21,6 +21,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "osux/compiler.h"
 #include "osux/timingpoint.h"
 
 enum hitobject_type {
@@ -113,8 +114,10 @@ typedef struct osux_hitobject {
     char *errmsg;
 } osux_hitobject;
 
-int osux_hitobject_init(osux_hitobject *ho, char *line, uint32_t osu_version);
-int osux_hitobject_prepare(osux_hitobject *ho, osux_timingpoint const *tp);
+int __must_check osux_hitobject_init(
+    osux_hitobject *ho, char *line, uint32_t osu_version);
+void osux_hitobject_prepare(osux_hitobject *ho, osux_timingpoint const *tp);
+
 void osux_hitobject_print(osux_hitobject *ho, int version, FILE *f);
 void osux_hitobject_free(osux_hitobject *ho);
 

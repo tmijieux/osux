@@ -20,8 +20,15 @@
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_score.h"
 #include "print.h"
-#include "config.h"
+
 #include "options.h"
+#include "config.h"
+#include "reading.h"
+#include "pattern.h"
+#include "accuracy.h"
+#include "density.h"
+#include "final_star.h"
+
 
 static int apply_global_options(int argc, const char ** argv)
 {
@@ -35,8 +42,22 @@ static int apply_global_options(int argc, const char ** argv)
     return i;
 }
 
+static void tr_initialize(void)
+{
+    tr_options_initialize();
+    tr_config_initialize();
+
+    tr_reading_initialize();
+    tr_pattern_initialize();
+    tr_accuracy_initialize();
+    tr_density_initialize();
+    tr_final_star_initialize();
+}
+
 int main(int argc, char *argv[])
 {
+    tr_initialize();
+
     int nb_map = 0;
     int start = apply_global_options(argc, (const char **) argv);
 

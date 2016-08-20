@@ -49,7 +49,7 @@ struct edge_rect {
 struct edge_2_rect {
     struct edge_rect * old;
     struct edge_rect * new;
-    
+
     GtsEdge * e_front_bot;
     GtsEdge * e_front_top;
     GtsEdge * e_back_bot;
@@ -109,7 +109,7 @@ static void ht_cst_exit_reading(void)
     lf_free(READING_SCALE_LF);
 }
 
-INITIALIZER(ht_cst_init_reading)
+void tr_reading_initialize(void)
 {
     yw_rdg = cst_get_yw(READING_FILE);
     ht_cst_rdg = yw_extract_ht(yw_rdg);
@@ -143,7 +143,7 @@ static inline void tro_set_done(struct tr_object * o, enum done_offset d)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static inline GtsVertex * 
+static inline GtsVertex *
 tr_gts_vertex_top_new(int offset, double objs, struct tr_object * o)
 {
     int diff = o->end_offset_dis_2 - offset;
@@ -153,7 +153,7 @@ tr_gts_vertex_top_new(int offset, double objs, struct tr_object * o)
 
 //-----------------------------------------------------
 
-static inline GtsVertex * 
+static inline GtsVertex *
 tr_gts_vertex_bot_new(int offset, double objs)
 {
     return tr_gts_vertex_new(offset, objs, 0);
@@ -220,14 +220,14 @@ e2r_rect_link_vertex(struct edge_rect * old, GtsVertex * v_new)
     r->new->e_back  = NULL;
     r->new->e_top   = NULL;
     r->new->e_bot   = NULL;
-    
+
     r->new->v_front_bot = v_new;
     r->new->v_back_bot  = v_new;
     r->new->v_front_top = v_new;
     r->new->v_back_top  = v_new;
-    
+
     e2r_link(r);
-    return r;    
+    return r;
 }
 
 //-----------------------------------------------------
@@ -243,14 +243,14 @@ e2r_vertex_link_rect(GtsVertex * v_old, struct edge_rect * new)
     r->old->e_back  = NULL;
     r->old->e_top   = NULL;
     r->old->e_bot   = NULL;
-    
+
     r->old->v_front_bot = v_old;
     r->old->v_back_bot  = v_old;
     r->old->v_front_top = v_old;
     r->old->v_back_top  = v_old;
-    
+
     e2r_link(r);
-    return r;    
+    return r;
 }
 
 //-----------------------------------------------------
@@ -266,12 +266,12 @@ e2r_rect_link_edge(struct edge_rect * old, GtsEdge * e_new)
     r->new->e_back  = e_new;
     r->new->e_top   = NULL;
     r->new->e_bot   = NULL;
-    
+
     r->new->v_front_bot = e_new->segment.v1;
     r->new->v_back_bot  = e_new->segment.v1;
     r->new->v_front_top = e_new->segment.v2;
     r->new->v_back_top  = e_new->segment.v2;
-    
+
     e2r_link(r);
     return r;
 }
@@ -289,25 +289,25 @@ e2r_edge_link_rect(GtsEdge * e_old, struct edge_rect * new)
     r->old->e_back  = e_old;
     r->old->e_top   = NULL;
     r->old->e_bot   = NULL;
-    
+
     r->old->v_front_bot = e_old->segment.v1;
     r->old->v_back_bot  = e_old->segment.v1;
     r->old->v_front_top = e_old->segment.v2;
     r->old->v_back_top  = e_old->segment.v2;
-    
+
     e2r_link(r);
     return r;
 }
 
 //-----------------------------------------------------
 
-static struct edge_2_rect * 
+static struct edge_2_rect *
 e2r_rect_link_rect(struct edge_rect * old, struct edge_rect * new)
 {
     struct edge_2_rect * r = malloc(sizeof(*r));
     r->old = old;
     r->new = new;
-    
+
     e2r_link(r);
     return r;
 }
@@ -338,7 +338,7 @@ static int tro_mesh_has_volume(const struct tr_object * o)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static void tro_mark_mesh_offset(struct tr_object * o, 
+static void tro_mark_mesh_offset(struct tr_object * o,
 				     int offset, int max)
 {
     if (max == offset)
@@ -363,13 +363,13 @@ static int tro_get_next_mesh_offset(struct tr_object * o)
 	tro_set_done(o, OFFSET_APP);
 	return 0;
     }
-    
+
     // next offset where the interest value change of slope.
     int offset = o->end_offset_dis_2 - INTEREST_VECT->t[o->count][0];
 
-    
+
     int max;
-    if (!tro_is_done(o, END_OFFSET_DIS) && 
+    if (!tro_is_done(o, END_OFFSET_DIS) &&
 	o->end_offset_dis != o->end_offset_dis_2) { // when starting HD
 	max = o->end_offset_dis;
 	while (offset > max) {
@@ -424,7 +424,7 @@ static void tro_add_face_front(struct tr_object * o,
     GtsEdge * e_diag = tr_gts_edge_new(r->old->v_front_top,
 				       r->new->v_front_bot);
 
-    GtsFace * f1 = tr_gts_face_new(r->old->e_front, 
+    GtsFace * f1 = tr_gts_face_new(r->old->e_front,
 				   e_diag,
 				   r->e_front_bot);
     GtsFace * f2 = tr_gts_face_new(e_diag,
@@ -492,7 +492,7 @@ static void tro_add_face_bot(struct tr_object * o,
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static struct edge_2_rect * 
+static struct edge_2_rect *
 tro_open_front_back_mesh(struct tr_object * o, int offset)
 {
     GtsVertex * v_top = tr_gts_vertex_top_new(o->end_offset_dis, o->obj_dis, o);
@@ -562,11 +562,11 @@ tro_close_front_back_mesh(struct tr_object * o, struct edge_rect * r_old)
 
 //-----------------------------------------------------
 
-static void tro_close_mesh(struct tr_object * o, 
+static void tro_close_mesh(struct tr_object * o,
 			   struct edge_rect * r_old)
 {
     struct edge_2_rect * r = tro_close_front_back_mesh(o, r_old);
-    
+
     GtsFace * f_top = tr_gts_face_new(r->old->e_top, r->e_back_top,  r->e_front_top);
     GtsFace * f_bot = tr_gts_face_new(r->old->e_bot, r->e_front_bot, r->e_back_bot);
     gts_surface_add_face(o->mesh, f_top);
@@ -581,7 +581,7 @@ static void tro_close_mesh(struct tr_object * o,
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static struct edge_rect * 
+static struct edge_rect *
 tro_adv_mesh_step(struct tr_object * o,int offset, struct edge_rect * r_old)
 {
     struct edge_rect * r_new = tro_get_rect(o, offset);
@@ -591,7 +591,7 @@ tro_adv_mesh_step(struct tr_object * o,int offset, struct edge_rect * r_old)
     tro_add_face_back(o, r);
     tro_add_face_top(o, r);
     tro_add_face_bot(o, r);
-    
+
     free(r_old);
     free(r);
     return r_new;
@@ -605,7 +605,7 @@ static struct edge_rect * tro_adv_mesh(struct tr_object * o,
     struct edge_rect * r_old = rect;
 
     /*
-      Get it offset where the mesh 
+      Get it offset where the mesh
      */
     while (1) {
 	int offset = tro_get_next_mesh_offset(o);
@@ -663,7 +663,7 @@ static double tro_seen(const struct tr_object *o)
 
 //-----------------------------------------------------
 
-static struct table * 
+static struct table *
 tro_get_obj_hiding(const struct tr_object * o, int i)
 {
     // list object that hide the i-th
@@ -685,7 +685,7 @@ tro_get_obj_hiding(const struct tr_object * o, int i)
 
 void tro_set_line_coeff(struct tr_object * o)
 {
-    o->line_a = ((o->obj_app    - o->obj_dis) / 
+    o->line_a = ((o->obj_app    - o->obj_dis) /
 		 (o->offset_app - o->offset_dis));
     o->line_b     = o->obj_app - o->line_a * o->offset_app;
     o->line_b_end = o->obj_app - o->line_a * o->end_offset_app;
@@ -722,7 +722,7 @@ void tro_set_app_dis_offset(struct tr_object * o)
 		     (o->obj_app + radius) * space_unit);
     o->offset_dis = (o->end_offset -
 		     (o->obj_dis + radius) * space_unit);
-    
+
     o->end_offset_app = (o->offset -
 			 (o->obj_app - radius) * space_unit);
     o->end_offset_dis = (o->end_offset -
@@ -775,8 +775,8 @@ void tro_set_mesh(struct tr_object * o)
       1/4 stream, "|" are the border of the screen
       |ddddkkkkddddkkkk|
        ^ object to play
-      The first kat as 4 objects positionable without superposition 
-      on its left border and 5 objects positionable without 
+      The first kat as 4 objects positionable without superposition
+      on its left border and 5 objects positionable without
       superposition on its right border.
      */
 
@@ -919,7 +919,7 @@ void trm_compute_reading(struct tr_map * map)
 	tr_error("Unable to compute reading stars.");
 	return;
     }
-    
+
     /*
       Computation rely on how long and which portion of the object
       is seen.
@@ -933,17 +933,17 @@ void trm_compute_reading(struct tr_map * map)
 
       Object width:
       The hit object width, this value is not constant as objects may
-      be superposed. For example with a regular slider velocity 
+      be superposed. For example with a regular slider velocity
       objects in 1/6 are superposed and therefore less visible.
 
       Object height:
-      The hit object height. As this value is constant it is not 
+      The hit object height. As this value is constant it is not
       included in the mesh and is added at the end.
       See tro_seen().
 
       Time:
-      The object visibility depends obviously depends on time. 
-      Starting when the object is on the right of the screen and 
+      The object visibility depends obviously depends on time.
+      Starting when the object is on the right of the screen and
       ending when it is on the left.
 
       Interest:

@@ -79,7 +79,7 @@ static void ht_cst_exit_final(void)
     lf_free(FINAL_INFLU_LF);
 }
 
-INITIALIZER(ht_cst_init_final)
+void tr_final_star_initialize(void)
 {
     yw_fin = cst_get_yw(FINAL_FILE);
     ht_cst_fin = yw_extract_ht(yw_fin);
@@ -191,7 +191,7 @@ static void trm_set_global_stars(struct tr_map * map)
     map->accuracy_star =
 	trm_weight_sum_accuracy_star(map, weight_final_star);
     map->final_star =
-	trm_weight_sum_final_star(map, weight_final_star);    
+	trm_weight_sum_final_star(map, weight_final_star);
 }
 
 //-----------------------------------------------------
@@ -202,7 +202,7 @@ void trm_compute_final_star(struct tr_map * map)
 	tr_error("Unable to compute final stars.");
 	return;
     }
-    
+
     trm_set_influence(map);
     trm_set_final_star(map);
     trm_set_global_stars(map);

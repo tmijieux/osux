@@ -39,7 +39,7 @@ static int equal_i(int x, int y);
 static double tro_slow(const struct tr_object * o);
 static double tro_spacing_influence(const struct tr_object * o1,
 				    const struct tr_object * o2);
-static struct spacing_count * 
+static struct spacing_count *
 tro_spacing_init(const struct tr_object * objs, int i);
 static double tro_spacing(const struct tr_object * o,
 			  const struct spacing_count * spc);
@@ -96,7 +96,7 @@ static void ht_cst_exit_accuracy(void)
     lf_free(ACCURACY_SCALE_LF);
 }
 
-INITIALIZER(ht_cst_init_accuracy)
+void tr_accuracy_initialize(void)
 {
     yw_acc = cst_get_yw(ACCURACY_FILE);
     ht_cst_acc = yw_extract_ht(yw_acc);
@@ -151,7 +151,7 @@ static double tro_spacing_influence(const struct tr_object * o1,
 
 //-----------------------------------------------------
 
-static struct spacing_count * 
+static struct spacing_count *
 tro_spacing_init(const struct tr_object * objs, int i)
 {
     struct spacing_count * spc = spc_new(equal_i);

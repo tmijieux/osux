@@ -30,9 +30,9 @@
 static struct yaml_wrap * yw_dst;
 static osux_hashtable * ht_cst_dst;
 
-static inline int tro_true(const struct tr_object UNUSED(*o1), 
-			   const struct tr_object UNUSED(*o2));
-static inline int tro_are_same_density(const struct tr_object *o1, 
+static inline int tro_true(const struct tr_object *o1 __unused,
+			   const struct tr_object *o2 __unused);
+static inline int tro_are_same_density(const struct tr_object *o1,
 				       const struct tr_object *o2);
 
 static double tro_get_coeff_density(const struct tr_object * obj);
@@ -78,7 +78,7 @@ static void density_global_init(osux_hashtable * ht_cst)
     DENSITY_BONUS  = cst_f(ht_cst, "density_bonus");
 
     DENSITY_LENGTH = cst_f(ht_cst, "density_length");
-  
+
     DENSITY_STAR_COEFF_COLOR = cst_f(ht_cst, "star_color");
     DENSITY_STAR_COEFF_RAW   = cst_f(ht_cst, "star_raw");
     DENSITY_STAR_COEFF_DK    = cst_f(ht_cst, "star_dk");
@@ -93,7 +93,7 @@ static void ht_cst_exit_density(void)
     lf_free(DENSITY_SCALE_LF);
 }
 
-INITIALIZER(ht_cst_init_density)
+void tr_density_initialize(void)
 {
     yw_dst = cst_get_yw(DENSITY_FILE);
     ht_cst_dst = yw_extract_ht(yw_dst);
@@ -118,11 +118,11 @@ static double tro_get_coeff_density(const struct tr_object * o)
 
 //-----------------------------------------------------
 
-static double tro_density(const struct tr_object * obj1, 
+static double tro_density(const struct tr_object * obj1,
 			  const struct tr_object * obj2)
 {
-    double value  = lf_eval(DENSITY_LF, 
-			    ((double) obj2->end_offset - obj1->offset) + 
+    double value  = lf_eval(DENSITY_LF,
+			    ((double) obj2->end_offset - obj1->offset) +
 			    DENSITY_LENGTH * obj1->length);
     return tro_get_coeff_density(obj1) * value;
 }
@@ -163,14 +163,14 @@ static double tro_density(const struct tr_object * obj1,
 	    tro_set_density_##TYPE (&map->object[i], i);	\
     }
 
-static inline int tro_true(const struct tr_object UNUSED(*o1), 
-			   const struct tr_object UNUSED(*o2))
+static inline int tro_true(const struct tr_object *o1 __unused,
+			   const struct tr_object *o2 __unused)
 {
     // for hands density, all objects give a density value
     return 1;
 }
 
-static inline int tro_are_same_density(const struct tr_object *o1, 
+static inline int tro_are_same_density(const struct tr_object *o1,
 				       const struct tr_object *o2)
 {
     // for finger density, only objects played with the same finger
@@ -197,7 +197,7 @@ void tro_set_density_star(struct tr_object * obj)
         DENSITY_SCALE_LF, (
             DENSITY_STAR_COEFF_COLOR * obj->density_color +
 	    DENSITY_STAR_COEFF_RAW   * obj->density_raw   +
-	    DENSITY_STAR_COEFF_DK    * min(obj->density_ddkk, 
+	    DENSITY_STAR_COEFF_DK    * min(obj->density_ddkk,
 					   obj->density_kddk)
         )
     );
@@ -224,9 +224,9 @@ void trm_compute_density(struct tr_map * map)
 
     /*
       Computation is in two parts:
-      - raw, can be interpreted as hand strain. Every object give 
-        strain. 
-      - color, can be interpreted as finger strain. Only object 
+      - raw, can be interpreted as hand strain. Every object give
+        strain.
+      - color, can be interpreted as finger strain. Only object
         played on the same key give strain.
      */
     trm_set_density_raw(map);

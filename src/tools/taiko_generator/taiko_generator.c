@@ -157,8 +157,13 @@ static void beatmap_set_tp(osux_beatmap *bm,
     char *rep;
     rep = g_strdup_printf(
         "0,%g,4,%d,0,100,1,0", 60000. / info->bpm_arg, SAMPLE_TYPE_NORMAL);
-    osux_timingpoint_init(tp, rep, 14);
+    int err = osux_timingpoint_init(tp, rep, 14);
     g_free(rep);
+    if (err) {
+        osux_error("PROGRAMMING ERROR\n");
+        abort();
+    }
+
     bm->timingpoint_count   = 1;
     bm->timingpoint_bufsize = 1;
     bm->timingpoints = tp;
@@ -209,7 +214,11 @@ int main(int argc, char *argv[])
     osux_beatmap bm;
     beatmap_init(&bm, &info);
     beatmap_add_ho(&bm, &info);
-    osux_beatmap_prepare(&bm);
+    err = osux_beatmap_prepare(&bm);
+    if (err) {
+        fprintf(stderr, "Prepare beatmap has failed: %s\n",  osux_errmsg(err));
+        exit(EXIT_FAILURE);
+    }
 
     gchar *filename = osux_beatmap_default_filename(&bm);
     gchar *path = g_build_filename(info.output_dir_arg, filename, NULL);

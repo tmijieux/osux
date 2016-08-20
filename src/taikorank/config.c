@@ -60,7 +60,7 @@ void tr_global_config_print(const struct tr_global_config *conf)
     fprintf(OUTPUT_INFO, "db_ip:     %s\n", conf->db_ip);
     fprintf(OUTPUT_INFO, "db_login:  %s\n", conf->db_login);
     fprintf(OUTPUT_INFO, "db_passwd: %s\n", conf->db_passwd);
-    
+
     fprintf(OUTPUT_INFO, "print_tro:    %d\n", conf->print_tro);
     fprintf(OUTPUT_INFO, "print_yaml:   %d\n", conf->print_yaml);
     fprintf(OUTPUT_INFO, "print_filter: %d\n", conf->print_filter); // not readable...
@@ -102,7 +102,7 @@ static void config_init(void)
     GLOBAL_CONFIG->print_yaml  = cst_i(ht_conf, "print_yaml");
     GLOBAL_CONFIG->print_order = cst_str(ht_conf, "print_order");
     global_config_set_filter(cst_str(ht_conf, "print_filter"));
-  
+
     GLOBAL_CONFIG->db_enable = cst_i(ht_conf, "db_enable");
     GLOBAL_CONFIG->db_ip     = cst_str(ht_conf, "db_ip");
     GLOBAL_CONFIG->db_login  = cst_str(ht_conf, "db_login");
@@ -177,7 +177,7 @@ void global_config_set_filter(const char * filter)
 	    CASE_FILTER('p', FILTER_PATTERN);
 	    CASE_FILTER('a', FILTER_ACCURACY);
 	    CASE_FILTER('*', FILTER_STAR);
-	default: 
+	default:
 	    break;
 	}
 	i++;
@@ -212,11 +212,11 @@ void local_config_set_mods(const char * mods)
 	tr_error("Unknown mod used.");
     }
  break2:
-    
-    if ((LOCAL_CONFIG->mods & MODS_EZ) && 
+
+    if ((LOCAL_CONFIG->mods & MODS_EZ) &&
 	(LOCAL_CONFIG->mods & MODS_HR))
 	tr_error("Incompatible mods EZ and HR");
-    if ((LOCAL_CONFIG->mods & MODS_HT) && 
+    if ((LOCAL_CONFIG->mods & MODS_HT) &&
 	(LOCAL_CONFIG->mods & MODS_DT))
 	tr_error("Incompatible mods HT and DT");
     if ((LOCAL_CONFIG->mods & MODS_HD) &&
@@ -235,7 +235,7 @@ static void config_exit(void)
     yaml2_free(yw);
 }
 
-INITIALIZER(ht_cst_init_config)
+void tr_config_initialize(void)
 {
     yw = cst_get_yw(CONFIG_FILE);
     ht_conf = yw_extract_ht(yw);

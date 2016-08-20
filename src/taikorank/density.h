@@ -17,6 +17,7 @@
 #ifndef DENSITY_H
 #define DENSITY_H
 
+void tr_density_initialize(void);
 /* Use:
    - ps
    - d/k/D/K/s/r/R

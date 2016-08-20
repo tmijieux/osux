@@ -119,7 +119,7 @@ static void tp_build_details_string(osux_timingpoint *tp)
 }
 
 
-int osux_timingpoint_prepare(
+int __must_check osux_timingpoint_prepare(
     osux_timingpoint *tp,
     osux_timingpoint const **last_non_inherited,
     double slider_velocity)
@@ -140,6 +140,5 @@ int osux_timingpoint_prepare(
         tp->slider_velocity *= -100. / tp->slider_velocity_multiplier;
 
     tp_build_details_string(tp);
-
     return 0;
 }

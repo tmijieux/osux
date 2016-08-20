@@ -182,13 +182,13 @@ static void opt_bdb_path(const char ** argv)
 
 //-----------------------------------------------------
 
-static void tr_option_print(UNUSED(const char * key),
+static void tr_option_print(const char * key __unused,
 			    struct tr_option * opt)
 {
     fprintf(OUTPUT_INFO, "\t%s\t%s\n", opt->long_key, opt->help);
 }
 
-static void opt_help(UNUSED(const char ** argv))
+static void opt_help(const char ** argv __unused)
 {
     fprintf(OUTPUT_INFO, "Usage:\n");
     fprintf(OUTPUT_INFO, "taiko_ranking [GLOBAL_OPTION] ... "
@@ -246,7 +246,7 @@ static void options_exit(void)
     osux_hashtable_delete(ht_global_opt);
 }
 
-INITIALIZER(options_init)
+void tr_options_initialize(void)
 {
     // global options
     ht_global_opt = osux_hashtable_new(0);

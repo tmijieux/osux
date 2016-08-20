@@ -17,6 +17,8 @@
 #ifndef FINAL_STAR_H
 #define FINAL_STAR_H
 
+void tr_final_star_initialize(void);
+
 /* First arg is all objects
    Use:
    - ps

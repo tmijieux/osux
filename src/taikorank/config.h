@@ -70,6 +70,8 @@ struct tr_local_config {
 extern struct tr_local_config * LOCAL_CONFIG;
 extern struct tr_global_config * GLOBAL_CONFIG;
 
+
+void tr_config_initialize(void);
 void tr_global_config_print(const struct tr_global_config *conf);
 
 void tr_global_config_free(struct tr_global_config *conf);

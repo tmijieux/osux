@@ -19,6 +19,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "osux/compiler.h"
 /*
   timingpint format:
 
@@ -56,11 +57,11 @@ typedef struct osux_timingpoint {
 #define TP_GET_BPM(timingpoint)                                 \
     (60.  * 1000. / (timingpoint)->millisecond_per_beat)
 
-int osux_timingpoint_init(osux_timingpoint *tp,
-                          char *line, uint32_t osu_version);
+int __must_check osux_timingpoint_init(osux_timingpoint *tp,
+                                       char *line, uint32_t osu_version);
 
 // this set both slider velocity and last_non_inherited timingpoint
-int osux_timingpoint_prepare(
+int __must_check osux_timingpoint_prepare(
     osux_timingpoint *tp,
     osux_timingpoint const **last_non_inherited,
     double slider_velocity);

@@ -23,6 +23,7 @@
 #include <stdbool.h>
 #include <openssl/md5.h>
 
+#include "osux/compiler.h"
 #include "osux/hitobject.h"
 #include "osux/game_mode.h"
 #include "osux/hash_table.h"
@@ -152,10 +153,10 @@ struct osux_beatmap {
     osux_hashtable *sections;
 };
 
-int osux_beatmap_init(osux_beatmap *beatmap, char const *filename);
+int __must_check osux_beatmap_init(osux_beatmap *beatmap, char const *filename);
 int osux_beatmap_free(osux_beatmap *beatmap);
 char *osux_beatmap_default_filename(const osux_beatmap *bm);
-int osux_beatmap_prepare(osux_beatmap *beatmap);
+int __must_check osux_beatmap_prepare(osux_beatmap *beatmap);
 int osux_beatmap_print(osux_beatmap const *m, FILE *f);
 int osux_beatmap_save(osux_beatmap const *beatmap, char const *path);
 int osux_beatmap_save_full(osux_beatmap const *beatmap,

@@ -17,6 +17,8 @@
 #ifndef PATTERN_H
 #define PATTERN_H
 
+void tr_pattern_initialize(void);
+
 /* Use:
    - d/k/D/K/s/r/R
    - offset

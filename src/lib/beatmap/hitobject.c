@@ -100,30 +100,25 @@ static int parse_slider_sample(osux_hitobject *ho, char *samplestr)
     return 0;
 }
 
-static inline int compute_slider_end_offset(
+static inline void compute_slider_end_offset(
     osux_hitobject *ho, osux_timingpoint const *tp)
 {
-    if (!HIT_OBJECT_IS_SLIDER(ho))
-        return -OSUX_ERR_INVALID_HITOBJECT_TYPE;
-
     double length = ho->slider.length * ho->slider.repeat;
     length *= tp->millisecond_per_beat / (100. * tp->slider_velocity);
     ho->end_offset = ho->offset + length;
-    return 0;
 }
 
-int osux_hitobject_prepare(osux_hitobject *ho, osux_timingpoint const *tp)
+void osux_hitobject_prepare(osux_hitobject *ho, osux_timingpoint const *tp)
 {
     if (HIT_OBJECT_IS_SLIDER(ho))
         compute_slider_end_offset(ho, tp);
+    
     ho->timingpoint = tp;
     ho->details = g_strdup_printf(
         "%s%s%s",
         ho->hitsound.sample & SAMPLE_WHISTLE?_("Whistle "):"",
         ho->hitsound.sample & SAMPLE_FINISH?_("Finish "):"",
         ho->hitsound.sample & SAMPLE_CLAP ?_("Clap "):"");
-
-    return 0;
 }
 
 static int parse_slider(osux_hitobject *ho, char **split, unsigned size)
