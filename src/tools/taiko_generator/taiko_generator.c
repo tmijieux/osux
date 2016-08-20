@@ -211,6 +211,11 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
+    if (info.bpm_arg < 5.) {
+        fprintf(stderr, "BPM can't be this low (min=5.)\n");
+        exit(EXIT_FAILURE);
+    }
+
     osux_beatmap bm;
     beatmap_init(&bm, &info);
     beatmap_add_ho(&bm, &info);
