@@ -61,6 +61,8 @@ struct osux_event_ {
     uint32_t child_bufsize;
     osux_event **childs;
 
+
+    char *filename;
     uint8_t _reserved[30];
 };
 

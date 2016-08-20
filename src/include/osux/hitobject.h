@@ -51,7 +51,7 @@ enum slider_type {
   Basically they all use the bezier interpolation
   but the formulas for the L and P types are simpler than
   the general case.
- */
+*/
 
 // get rid of the 'new_combo' flag to get the hit object's type more easily
 #define HIT_OBJECT_TYPE(ho_ptr)    ((ho_ptr)->type & HITOBJECT_TYPE_MASK)
@@ -107,10 +107,13 @@ typedef struct osux_hitobject {
 
     osux_timingpoint const *timingpoint;
     uint32_t _osu_version;
+
+    char *details;
+    char *errmsg;
 } osux_hitobject;
 
 int osux_hitobject_init(osux_hitobject *ho, char *line, uint32_t osu_version);
-int osux_hitobject_set_timing_point(osux_hitobject *ho, osux_timingpoint const *tp);
+int osux_hitobject_prepare(osux_hitobject *ho, osux_timingpoint const *tp);
 void osux_hitobject_print(osux_hitobject *ho, int version, FILE *f);
 void osux_hitobject_free(osux_hitobject *ho);
 osux_hitobject *osux_hitobject_copy(osux_hitobject *ho);

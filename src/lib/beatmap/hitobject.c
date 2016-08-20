@@ -18,8 +18,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <glib.h>
+#include <glib/gi18n.h>
 
 #include "osux/hitobject.h"
+#include "osux/hitsound.h"
 #include "osux/util.h"
 #include "osux/error.h"
 #include "osux/string2.h"
@@ -110,11 +112,17 @@ static inline int compute_slider_end_offset(
     return 0;
 }
 
-int osux_hitobject_set_timing_point(osux_hitobject *ho, osux_timingpoint const *tp)
+int osux_hitobject_prepare(osux_hitobject *ho, osux_timingpoint const *tp)
 {
     if (HIT_OBJECT_IS_SLIDER(ho))
         compute_slider_end_offset(ho, tp);
     ho->timingpoint = tp;
+    ho->details = g_strdup_printf(
+        "%s%s%s",
+        ho->hitsound.sample & SAMPLE_WHISTLE?_("Whistle "):"",
+        ho->hitsound.sample & SAMPLE_FINISH?_("Finish "):"",
+        ho->hitsound.sample & SAMPLE_CLAP ?_("Clap "):"");
+
     return 0;
 }
 
@@ -178,7 +186,7 @@ static int parse_addon_hitsound(osux_hitobject *ho, char *addonstr)
     }
 
     if (size < 2 || (ho->_osu_version > 10 && size < 3)
-                 || (ho->_osu_version > 11 && size < 4)) {
+        || (ho->_osu_version > 11 && size < 4)) {
         g_strfreev(split);
         return -OSUX_ERR_INVALID_HITOBJECT_ADDON_HITSOUND;
     }
@@ -253,7 +261,7 @@ int osux_hitobject_init(osux_hitobject *ho, char *line, uint32_t osu_version)
     int value = atoi(split[3]);
     /*
       if (value & HITOBJECT_UNKNOWN_FLAG_MASK) {
-      osux_debug("warning: hitobject use extra flag: %d\n",
+      osux_warning("hitobject use extra flag with unknown purposes: %d\n",
       value & HITOBJECT_UNKNOWN_FLAG_MASK);
       }
     */
@@ -271,37 +279,42 @@ int osux_hitobject_init(osux_hitobject *ho, char *line, uint32_t osu_version)
     return err;
 }
 
+static void osux_slider_print(osux_hitobject *ho, int version, FILE *f)
+{
+    (void) version;
+    fprintf(f, ",%c", ho->slider.type);
+    for (unsigned i = 0; i < ho->slider.point_count; ++i)
+        fprintf(f, "|%d:%d", ho->slider.points[i].x, ho->slider.points[i].y);
+    fprintf(f, ",%d,%.15g", ho->slider.repeat, ho->slider.length);
+    if (ho->slider.edgehitsounds != NULL) {
+        fprintf(f, ",");
+        // print edge hit sounds sample:
+        for (unsigned i = 0; i < ho->slider.repeat+1; ++i) {
+            if (i >= 1) fprintf(f, "|");
+            fprintf(f, "%d", ho->slider.edgehitsounds[i].sample);
+        }
+        fprintf(f, ",");
+        // print edge hit sounds sample types (normal|addon):
+        for (unsigned i = 0; i < ho->slider.repeat+1; ++i) {
+            if (i >= 1) fprintf(f, "|");
+            fprintf(f, "%d:%d", ho->slider.edgehitsounds[i].sample_type,
+                    ho->slider.edgehitsounds[i].addon_sample_type);
+        }
+    }
+}
+
 void osux_hitobject_print(osux_hitobject *ho, int version, FILE *f)
 {
     fprintf(f, "%d,%d,%d,%d,%d",
 	    ho->x, ho->y, ho->offset, ho->type, ho->hitsound.sample);
-
     switch ( HIT_OBJECT_TYPE(ho) ) {
     case HITOBJECT_SLIDER:
-	fprintf(f, ",%c", ho->slider.type);
-	for (unsigned i = 0; i < ho->slider.point_count; ++i)
-	    fprintf(f, "|%d:%d", ho->slider.points[i].x, ho->slider.points[i].y);
-	fprintf(f, ",%d,%.15g", ho->slider.repeat, ho->slider.length);
-	if (ho->slider.edgehitsounds != NULL) {
-	    fprintf(f, ",");
-	    for (unsigned i = 0; i < ho->slider.repeat+1; ++i) {
-		if (i >= 1) fprintf(f, "|");
-		fprintf(f, "%d", ho->slider.edgehitsounds[i].sample);
-	    }
-	    fprintf(f, ",");
-	    for (unsigned i = 0; i < ho->slider.repeat+1; ++i) {
-		if (i >= 1) fprintf(f, "|");
-		fprintf(f, "%d:%d", ho->slider.edgehitsounds[i].sample_type,
-                        ho->slider.edgehitsounds[i].addon_sample_type);
-	    }
-	}
+        osux_slider_print(ho, version, f);
 	break;
     case HITOBJECT_SPINNER:
+    case HITOBJECT_HOLD:
 	fprintf(f, ",%d", ho->end_offset);
 	break;
-    case HITOBJECT_HOLD:
-        fprintf(f, ",%d", ho->end_offset);
-        break;
     default:
         break;
     }
@@ -327,6 +340,9 @@ void osux_hitobject_free(osux_hitobject *ho)
         g_free(ho->slider.edgehitsounds);
     }
     g_free(ho->hitsound.sfx_filename);
+    g_free(ho->details);
+    g_free(ho->errmsg);
+    memset(ho, 0, sizeof*ho);
 }
 
 osux_hitobject *osux_hitobject_copy(osux_hitobject *ho)

@@ -101,10 +101,25 @@ void osux_timingpoint_print(osux_timingpoint *tp, FILE *f)
 
 void osux_timingpoint_free(osux_timingpoint *tp)
 {
-    (void) tp; // nathing !
+    g_free(tp->details);
+    g_free(tp->errmsg);
 }
 
-int osux_timingpoint_set_slider_velocity(
+
+static void tp_build_details_string(osux_timingpoint *tp)
+{
+    if (!tp->inherited)
+        tp->details = g_strdup_printf(
+            "BPM: %g, SV: %g, V=%d%%%s", TP_GET_BPM(tp),
+            tp->slider_velocity, tp->volume, tp->kiai ? ", kiai* " : "");
+    else
+        tp->details = g_strdup_printf(
+            "SV: %g%%, V=%d%%%s", -10000. / tp->slider_velocity_multiplier,
+            tp->volume, tp->kiai ? ", kiai* " : "");
+}
+
+
+int osux_timingpoint_prepare(
     osux_timingpoint *tp,
     osux_timingpoint const **last_non_inherited,
     double slider_velocity)
@@ -123,5 +138,8 @@ int osux_timingpoint_set_slider_velocity(
     tp->slider_velocity = slider_velocity;
     if (tp->inherited)
         tp->slider_velocity *= -100. / tp->slider_velocity_multiplier;
+
+    tp_build_details_string(tp);
+
     return 0;
 }

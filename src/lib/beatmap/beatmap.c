@@ -354,9 +354,9 @@ static int prepare_objects(osux_beatmap *beatmap)
     osux_timingpoint const *last_non_inherited = NULL;
 
     for (uint32_t i = 0; !err && i < beatmap->timingpoint_count; ++i) {
-        err = osux_timingpoint_set_slider_velocity(&beatmap->timingpoints[i],
-                                                   &last_non_inherited,
-                                                   beatmap->SliderMultiplier);
+        err = osux_timingpoint_prepare(&beatmap->timingpoints[i],
+                                       &last_non_inherited,
+                                       beatmap->SliderMultiplier);
     }
 
     uint32_t current_tp = 0;
@@ -368,7 +368,7 @@ static int prepare_objects(osux_beatmap *beatmap)
 	while (current_tp < (beatmap->timingpoint_count-1) &&
 	       beatmap->timingpoints[current_tp + 1].offset <= ho->offset)
 	    current_tp++;
-	osux_hitobject_set_timing_point(ho, &beatmap->timingpoints[current_tp]);
+	osux_hitobject_prepare(ho, &beatmap->timingpoints[current_tp]);
     }
 
     // build the event tree

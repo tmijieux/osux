@@ -112,5 +112,8 @@ void osux_color_free(osux_color *c)
 
 void osux_color_print(FILE *f, osux_color *c)
 {
-    fprintf(f, "Combo%d : %d,%d,%d\r\n", c->id, c->r, c->g, c->b);
+    if (c->type == COLOR_COMBO)
+        fprintf(f, "Combo%d : %d,%d,%d\r\n", c->id, c->r, c->g, c->b);
+    else
+        fprintf(f, "%s: %d,%d,%d\r\n", color_type_str[c->type], c->r, c->g, c->b);
 }

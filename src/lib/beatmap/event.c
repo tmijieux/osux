@@ -99,7 +99,7 @@ int osux_event_init(osux_event *event, char *line, uint32_t osu_version)
 
 int osux_event_free(osux_event *event)
 {
-    (void) event;
+    g_free(event->childs);
     return 0;
 }
 
@@ -129,3 +129,54 @@ int osux_event_build_tree(osux_event *event)
     return 0;
 }
 
+
+
+static int parse_background_image_object(
+    osux_event *ev, char **split, unsigned size)
+{
+
+    return 0;
+}
+
+static int parse_video_object(
+    osux_event *ev, char **split, unsigned size)
+{
+
+    return 0;
+}
+
+
+static int parse_break_period_object(
+    osux_event *ev, char **split, unsigned size)
+{
+
+    return 0;
+}
+
+static int parse_background_colour_object(
+    osux_event *ev, char **split, unsigned size)
+{
+
+    return 0;
+}
+
+static int parse_sprite_object(
+    osux_event *ev, char **split, unsigned size)
+{
+
+    return 0;
+}
+
+static int parse_sample_object(
+    osux_event *ev, char **split, unsigned size)
+{
+
+    return 0;
+}
+
+static int parse_animation_object(
+    osux_event *ev, char **split, unsigned size)
+{
+
+    return 0;
+}

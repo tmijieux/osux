@@ -19,6 +19,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+
 typedef struct osux_timingpoint {
     double offset;
     double millisecond_per_beat;
@@ -35,22 +36,26 @@ typedef struct osux_timingpoint {
 
     struct osux_timingpoint const *last_non_inherited;
     int _osu_version;
+
+    char *details;
+    char *errmsg;
 } osux_timingpoint;
 
-#define TP_GET_BPM(hitobject)                           \
-    (60.  * 1000. / (hitobject)->millisecond_per_beat)
+#define TP_GET_BPM(timingpoint)                                 \
+    (60.  * 1000. / (timingpoint)->millisecond_per_beat)
 
 int osux_timingpoint_init(osux_timingpoint *tp,
                           char *line, uint32_t osu_version);
 
-int osux_timingpoint_set_slider_velocity(
+// this set both slider velocity and last_non_inherited timingpoint
+int osux_timingpoint_prepare(
     osux_timingpoint *tp,
     osux_timingpoint const **last_non_inherited,
     double slider_velocity);
 
 void osux_timingpoint_print(osux_timingpoint *tp, FILE *f);
 
-// free timing point's internal resources (super HARD)
+// free timing point's internal resources
 void osux_timingpoint_free(osux_timingpoint *tp);
 
 #endif // OSUX_TIMINGPOINT_H
