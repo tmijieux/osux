@@ -73,7 +73,6 @@ struct osux_beatmap {
     bool visual_override;
     uint8_t mania_scroll_speed;
 
-    // .osu  SECTION :
     uint32_t osu_version;
 
     // general info
@@ -153,6 +152,11 @@ struct osux_beatmap {
     osux_hashtable *sections;
 };
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int __must_check osux_beatmap_init(osux_beatmap *beatmap, char const *filename);
 int osux_beatmap_free(osux_beatmap *beatmap);
 char *osux_beatmap_default_filename(const osux_beatmap *bm);
@@ -162,6 +166,10 @@ int osux_beatmap_save(osux_beatmap const *beatmap, char const *path);
 int osux_beatmap_save_full(osux_beatmap const *beatmap,
                            char const *dirpath, char const *filename,
                            bool use_default_filename);
+
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif // OSUX_BEATMAP_H

@@ -210,6 +210,7 @@ int osux_beatmap_db_free(osux_beatmap_db *db)
 {
     g_free(db->song_dir);
     osux_database_free(&db->base);
+    memset(db, 0, sizeof*db);
     return 0;
 }
     

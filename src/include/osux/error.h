@@ -33,6 +33,9 @@
     ERROR(OSUX_ERR_INVALID_EVENT)                       \
     ERROR(OSUX_ERR_INVALID_EVENT_OBJECT)                \
     ERROR(OSUX_ERR_INVALID_EVENT_COMMAND)               \
+    ERROR(OSUX_ERR_INVALID_EVENT_LOOP_COMMAND)          \
+    ERROR(OSUX_ERR_INVALID_EVENT_PARAMETER_COMMAND)     \
+    ERROR(OSUX_ERR_INVALID_EVENT_TRIGGER_COMMAND)       \
     ERROR(OSUX_ERR_MEMORY_TOO_MUCH_NESTED_EVENT)        \
     ERROR(OSUX_ERR_REPLAY_LIFE_BAR)                     \
     ERROR(OSUX_ERR_REPLAY_DATA)                         \
@@ -68,11 +71,18 @@ const char *osux_errmsg(int errcode);
                       strrchr(__FILE__, '/') + 1 : __FILE__)
 
 #define osux_error(format, ...)                                 \
-    fprintf(stderr, "ERROR: %s: %d|%s: " format, __FILENAME__ , \
-            __LINE__, __PRETTY_FUNCTION__, ##__VA_ARGS__)
-#define osux_warning(format, ...)                                 \
-    fprintf(stderr, "WARNING: %s: %d|%s: " format, __FILENAME__ , \
-            __LINE__, __PRETTY_FUNCTION__, ##__VA_ARGS__)
+    do {                                                        \
+        fprintf(stderr, "ERROR: %s: %d|%s: ",  __FILENAME__ ,   \
+                __LINE__, __PRETTY_FUNCTION__);                 \
+        fprintf(stderr, format, ##__VA_ARGS__);                 \
+    } while(0)
+
+#define osux_warning(format, ...)                               \
+    do {                                                        \
+        fprintf(stderr, "WARNING: %s: %d|%s: ",  __FILENAME__ , \
+                __LINE__, __PRETTY_FUNCTION__);                 \
+        fprintf(stderr, format, ##__VA_ARGS__);                 \
+    } while(0)
 
 
 #define osux_malloc(size__) malloc(size__)
@@ -87,4 +97,4 @@ const char *osux_errmsg(int errcode);
 # define osux_debug(format, ...) ((void) (format))
 #endif // DEBUG
 
-    #endif // OSUX_ERROR_H
+#endif // OSUX_ERROR_H

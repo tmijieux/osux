@@ -44,12 +44,12 @@ static void local_config_score(void);
 
 static struct tr_global_config * tr_global_config_new(void)
 {
-    return malloc(sizeof(struct tr_global_config));
+    return g_malloc0(sizeof(struct tr_global_config));
 }
 
 void tr_global_config_free(struct tr_global_config *conf)
 {
-    free(conf);
+    g_free(conf);
 }
 
 void tr_global_config_print(const struct tr_global_config *conf)
@@ -74,12 +74,12 @@ void tr_global_config_print(const struct tr_global_config *conf)
 
 static struct tr_local_config * tr_local_config_new(void)
 {
-    return malloc(sizeof(struct tr_local_config));
+    return g_malloc0(sizeof(struct tr_local_config));
 }
 
 void tr_local_config_free(struct tr_local_config *conf)
 {
-    free(conf);
+    g_free(conf);
 }
 
 struct tr_local_config * tr_local_config_copy(void)

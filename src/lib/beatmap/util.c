@@ -102,12 +102,13 @@ GIOChannel *osux_open_text_file_reading(char const *file_path)
     SEEK_POS(chan, error, status, 0);
     SET_ENCODING(chan, error, status, "UTF-8");
 
-    char *str;
+    char *str = NULL;
     status = g_io_channel_read_line(chan, &str, NULL, NULL, NULL);
     if (status == G_IO_STATUS_ERROR) {
         SEEK_POS(chan, error, status, 0);
         SET_ENCODING(chan, error, status, "ISO-8859-1");
     }
+    g_free(str);
     SEEK_POS(chan, error, status, 0);
     return chan;
 }

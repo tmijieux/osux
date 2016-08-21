@@ -68,7 +68,7 @@ static void load_and_bind_adjustments(OsuxEditorBeatmap *beatmap)
     g_object_unref(G_OBJECT( builder ));
 }
 
-enum { COL_OFFSET = 0, COL_TYPE, COL_HITSOUND, COL_NUM, };
+enum { COL_OFFSET = 0, COL_TYPE, COL_DETAILS, COL_NUM, };
 
 static void
 load_hit_objects(osux_beatmap *beatmap, GtkTreeStore *tree_store,
@@ -92,7 +92,7 @@ load_hit_objects(osux_beatmap *beatmap, GtkTreeStore *tree_store,
         gtk_tree_store_set(tree_store, &iter,
                            COL_OFFSET, ho->offset,
                            COL_TYPE, type,
-                           COL_HITSOUND, ho->details, -1);
+                           COL_DETAILS, ho->details, -1);
     }
 }
 
@@ -114,7 +114,7 @@ load_timing_points(osux_beatmap *beatmap, GtkTreeStore *tree_store,
         gtk_tree_store_set(tree_store, &iter,
                            COL_OFFSET, (int) tp->offset,
                            COL_TYPE, type,
-                           COL_HITSOUND, tp->details, -1);
+                           COL_DETAILS, tp->details, -1);
     }
 }
 
@@ -131,7 +131,7 @@ load_colors(osux_beatmap *beatmap, GtkTreeStore *tree_store, GtkTreeIter *colors
         gtk_tree_store_set(tree_store, &iter,
                            COL_OFFSET, c->id,
                            COL_TYPE, osux_color_type_get_name(c->type),
-                           COL_HITSOUND, color, -1);
+                           COL_DETAILS, color, -1);
     }
 }
 
@@ -139,11 +139,13 @@ static void load_event(GtkTreeStore *tree_store, osux_event *event,
                        GtkTreeIter *parent_object)
 {
     GtkTreeIter iter;
+    char const *detail = osux_event_detail_string(event);
+
     gtk_tree_store_append(tree_store, &iter, parent_object);
     gtk_tree_store_set(tree_store, &iter,
                        COL_OFFSET, event->offset,
                        COL_TYPE, osux_event_type_get_name(event->type),
-                       COL_HITSOUND, "", -1);
+                       COL_DETAILS, detail, -1);
     for (unsigned i = 0; i < event->child_count; ++i)
         load_event(tree_store, event->childs[i], &iter);
 }
@@ -170,7 +172,7 @@ load_bookmarks(osux_beatmap *beatmap, GtkTreeStore *tree_store,
         gtk_tree_store_set(tree_store, &iter,
                            COL_OFFSET, b,
                            COL_TYPE, _("Bookmark"),
-                           COL_HITSOUND, "", -1);
+                           COL_DETAILS, "", -1);
     }
 }
 

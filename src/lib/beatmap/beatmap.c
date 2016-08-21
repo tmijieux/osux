@@ -376,6 +376,10 @@ static int prepare_objects(osux_beatmap *beatmap)
 	osux_event *ev = &beatmap->events[i];
         err = osux_event_build_tree(ev);
     }
+    for (uint32_t i = 0; !err && i < beatmap->event_count; ++i) {
+	osux_event *ev = &beatmap->events[i];
+        err = osux_event_prepare(ev);
+    }
     return err;
 }
 

@@ -25,6 +25,7 @@
     memcpy((array_dst_var), (array_src_var), (size) * sizeof(*(array_dst_var)))
 
 #define ARRAY_SIZE(array) (sizeof (array) / sizeof((array)[0]))
+#define OFFSET_OF(type, field) ((int)(uintptr_t)(&((type*)0)->field))
 
 #define min(x, y) ((x) < (y) ? (x) : (y))
 #define max(x, y) ((x) < (y) ? (y) : (x))

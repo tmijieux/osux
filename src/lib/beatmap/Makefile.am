@@ -7,6 +7,7 @@ libosux_beatmap_la_SOURCES = \
 	beatmap_old.c \
 	beatmap_variable.c \
 	event.c \
+	event_string.c \
 	util.c \
 	color.c \
 	hitobject.c \
@@ -14,3 +15,4 @@ libosux_beatmap_la_SOURCES = \
 	hitsound.h \
 	timingpoint.c \
 	taiko_autoconvert.c
+

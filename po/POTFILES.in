@@ -38,6 +38,7 @@ src/lib/beatmap/taiko_autoconvert.c
 src/lib/beatmap/color.c
 src/lib/beatmap/hitobject.c
 src/lib/beatmap/event.c
+src/lib/beatmap/event_string.c
 src/lib/beatmap/beatmap.c
 src/lib/beatmap/timingpoint.c
 src/lib/beatmap/beatmap_old.c

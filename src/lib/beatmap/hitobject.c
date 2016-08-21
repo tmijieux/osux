@@ -46,6 +46,8 @@ static int parse_slider_points(osux_hitobject *ho, char *pointstr)
         osux_point *pt = &ho->slider.points[i-1];
         if (sscanf(spl_points[i], "%d:%d", &pt->x, &pt->y) != 2) {
             err = -OSUX_ERR_INVALID_HITOBJECT_SLIDER_POINTS;
+            g_free(ho->slider.points);
+            ho->slider.points = NULL;
             break;
         }
     }
@@ -60,6 +62,8 @@ static int parse_slider_sample_type(osux_hitobject *ho, char *ststr)
     unsigned size = strsplit_size(split);
     if (size != ho->slider.repeat+1) {
         g_strfreev(split);
+        g_free(ho->slider.edgehitsounds);
+        ho->slider.edgehitsounds = NULL;
         return -OSUX_ERR_INVALID_HITOBJECT_EDGE_SAMPLE_TYPE;
     }
 
@@ -85,6 +89,8 @@ static int parse_slider_sample(osux_hitobject *ho, char *samplestr)
     unsigned size = strsplit_size(split);
     if (size != ho->slider.repeat+1) {
         g_strfreev(split);
+        g_free(ho->slider.edgehitsounds);
+        ho->slider.edgehitsounds = NULL;
         return -OSUX_ERR_INVALID_HITOBJECT_EDGE_SAMPLE;
     }
 
@@ -112,7 +118,7 @@ void osux_hitobject_prepare(osux_hitobject *ho, osux_timingpoint const *tp)
 {
     if (HIT_OBJECT_IS_SLIDER(ho))
         compute_slider_end_offset(ho, tp);
-    
+
     ho->timingpoint = tp;
     ho->details = g_strdup_printf(
         "%s%s%s",
