@@ -12,6 +12,7 @@ find_package(Sanitizers)
 add_definitions(-DDEBUG=1)
 add_definitions(-DPACKAGE="osux")
 add_definitions(-DLOCALEDIR="${LOCALEDIR}")
+add_definitions(-DENABLE_NLS)
 
 add_subdirectory(src)
 add_subdirectory(po)

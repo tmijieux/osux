@@ -480,6 +480,20 @@ static int parse_parameter_cmd(osux_event_command *cmd, char **split, unsigned s
     return 0;
 }
 
+
+/*
+ COMPOUND (compound command does not have the default arguments
+ (easing,offset,end_offset) like the other commands!!!
+*/
+
+/*
+  loop end offset is either loop->offset + max(end_offset(childs) if LOOP_ONCE
+  or parent->end_offset if LOOP_FOREVER
+
+  !! warning:
+  when LOOP_ONCE, parent end_offset is computed from loop end_offset; BUT...
+  when LOOP_FOREVER loop end_offset is computed from parent end_offset;
+ */
 static int parse_loop_cmd(osux_event_command *cmd, char **split, unsigned size)
 {
     if (size != 3)
@@ -529,11 +543,13 @@ char const *osux_event_detail_string(osux_event *ev)
 
 int osux_event_prepare(osux_event *ev)
 {
-    if (EVENT_IS_COMMAND(ev)) {
+    if (EVENT_IS_COMMAND(ev) && ev->level == 1) {
         UPDATE(ev->parent->offset, ev->offset, >);
-        if (!EVENT_TYPE_IS_COMPOUND(ev->type))
+        if (!EVENT_TYPE_IS_COMPOUND(ev->type)) {
+            // loop end offset is not computed at this point
+            // TODO check for trigger
             UPDATE(ev->parent->end_offset, ev->end_offset, <);
+        }
     }
-
     return 0;
 }

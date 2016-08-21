@@ -1,11 +1,6 @@
 #!/bin/bash
 
-cd $(basename $0)
-mkdir -p ../build/debug
-cd ../build/debug
-if [ ! -f Makefile ]; then
-    rm -rf *
-    cmake -DCMAKE_BUILD_TYPE=Debug -H../.. -B. \
-          -DSANITIZE_ADDRESS=True -DSANITIZE_UNDEFINED=True
-fi
-make && make -s install 
+PREFIX=${PREFIX:-$HOME/prefix}
+mkdir -p $PREFIX
+rootdir=$(dirname $0)/../
+$rootdir/configure --prefix=$PREFIX CFLAGS='-ggdb -DDEBUG -O0 -fsanitize=address -fsanitize=undefined' LDFLAGS='-fsanitize=address -fsanitize=undefined'
