@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
-  <gresource prefix="/org/osux/editor">
-    <file preprocess="xml-stripblanks">ui/OsuxEditorWindow.ui</file>
-    <file preprocess="xml-stripblanks">ui/OsuxEditorPopover.ui</file>
-    <file preprocess="xml-stripblanks">ui/OsuxCloseLabel.ui</file>
-    <file preprocess="xml-stripblanks">ui/OsuxBeatmapAdjustments.ui</file>
-    <file preprocess="xml-stripblanks">ui/OsuxFileFilterMusic.ui</file>
-    <file preprocess="xml-stripblanks">ui/OsuxFileFilterOsu.ui</file>
+  <gresource prefix="/org/osux/edosu">
+    <file preprocess="xml-stripblanks">ui/EdosuWindow.glade</file>
+    <file preprocess="xml-stripblanks">ui/EdosuView.glade</file>
+    <file preprocess="xml-stripblanks">ui/EdosuInspector.glade</file>
+    <file preprocess="xml-stripblanks">ui/EdosuPalette.glade</file>
+    <file preprocess="xml-stripblanks">ui/EdosuProperties.glade</file>
+
+    <file preprocess="xml-stripblanks">ui/EdosuCloseLabel.glade</file>
+    <file preprocess="xml-stripblanks">ui/EdosuBeatmapAdjustments.glade</file>
+    <file preprocess="xml-stripblanks">ui/EdosuFileFilterMusic.glade</file>
+    <file preprocess="xml-stripblanks">ui/EdosuFileFilterOsu.glade</file>
   </gresource>
 </gresources>

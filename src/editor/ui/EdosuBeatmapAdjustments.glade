@@ -2,27 +2,27 @@
 <!-- Generated with glade 3.20.0 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
-  <object class="OsuxAdjustment" id="ApproachRate">
+  <object class="EdosuAdjust" id="ApproachRate">
     <property name="upper">10</property>
     <property name="value">5</property>
     <property name="step_increment">0.10000000000000001</property>
     <property name="page_increment">1</property>
     <property name="page_size">1</property>
   </object>
-  <object class="OsuxAdjustment" id="AudioLeadIn">
+  <object class="EdosuAdjust" id="AudioLeadIn">
     <property name="lower">-700000000</property>
     <property name="upper">700000000</property>
     <property name="step_increment">1</property>
     <property name="page_increment">1000</property>
     <property name="page_size">1000</property>
   </object>
-  <object class="OsuxAdjustment" id="BeatmapID">
+  <object class="EdosuAdjust" id="BeatmapID">
     <property name="upper">700000000</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
     <property name="page_size">10</property>
   </object>
-  <object class="OsuxAdjustment" id="BeatmapSetID">
+  <object class="EdosuAdjust" id="BeatmapSetID">
     <property name="lower">-1</property>
     <property name="upper">700000000</property>
     <property name="value">-1</property>
@@ -30,54 +30,54 @@
     <property name="page_increment">10</property>
     <property name="page_size">10</property>
   </object>
-  <object class="OsuxAdjustment" id="CircleSize">
+  <object class="EdosuAdjust" id="CircleSize">
     <property name="upper">10</property>
     <property name="value">5</property>
     <property name="step_increment">0.10000000000000001</property>
     <property name="page_increment">1</property>
     <property name="page_size">1</property>
   </object>
-  <object class="OsuxAdjustment" id="HPDrainRate">
+  <object class="EdosuAdjust" id="HPDrainRate">
     <property name="upper">10</property>
     <property name="value">5</property>
     <property name="step_increment">0.10000000000000001</property>
     <property name="page_increment">1</property>
     <property name="page_size">1</property>
   </object>
-  <object class="OsuxAdjustment" id="OverallDifficulty">
+  <object class="EdosuAdjust" id="OverallDifficulty">
     <property name="upper">10</property>
     <property name="value">5</property>
     <property name="step_increment">0.10000000000000001</property>
     <property name="page_increment">1</property>
     <property name="page_size">1</property>
   </object>
-  <object class="OsuxAdjustment" id="PreviewTime">
+  <object class="EdosuAdjust" id="PreviewTime">
     <property name="upper">700000000</property>
     <property name="step_increment">1</property>
     <property name="page_increment">1000</property>
     <property name="page_size">1000</property>
   </object>
-  <object class="OsuxAdjustment" id="SliderMultiplier">
+  <object class="EdosuAdjust" id="SliderMultiplier">
     <property name="lower">1</property>
     <property name="upper">20</property>
     <property name="step_increment">0.10000000000000001</property>
     <property name="page_increment">1</property>
     <property name="page_size">1</property>
   </object>
-  <object class="OsuxAdjustment" id="StackLeniency">
+  <object class="EdosuAdjust" id="StackLeniency">
     <property name="upper">1</property>
     <property name="step_increment">0.10000000000000001</property>
     <property name="page_increment">0.20000000000000001</property>
     <property name="page_size">0.20000000000000001</property>
   </object>
-  <object class="OsuxAdjustment" id="SliderTickRate">
+  <object class="EdosuAdjust" id="SliderTickRate">
     <property name="upper">100</property>
     <property name="value">1</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
     <property name="page_size">10</property>
   </object>
-  <object class="OsuxAdjustment" id="TimelineZoom">
+  <object class="EdosuAdjust" id="TimelineZoom">
     <property name="lower">1</property>
     <property name="upper">50</property>
     <property name="value">1</property>
@@ -85,7 +85,7 @@
     <property name="page_increment">0.5</property>
     <property name="page_size">0.5</property>
   </object>
-  <object class="OsuxAdjustment" id="BeatDivisor">
+  <object class="EdosuAdjust" id="BeatDivisor">
     <property name="lower">1</property>
     <property name="upper">32</property>
     <property name="value">1</property>
@@ -93,7 +93,7 @@
     <property name="page_increment">1</property>
     <property name="page_size">1</property>
   </object>
-  <object class="OsuxAdjustment" id="GridSize">
+  <object class="EdosuAdjust" id="GridSize">
     <property name="lower">1</property>
     <property name="upper">32</property>
     <property name="value">1</property>
@@ -101,7 +101,7 @@
     <property name="page_increment">1</property>
     <property name="page_size">1</property>
   </object>
-  <object class="OsuxAdjustment" id="DistanceSpacing">
+  <object class="EdosuAdjust" id="DistanceSpacing">
     <property name="lower">1</property>
     <property name="upper">32</property>
     <property name="value">1</property>
