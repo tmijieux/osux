@@ -36,4 +36,11 @@ enum hitsound_sample_type {
     SAMPLE_TYPE_DRUM      = 3,
 };
 
+#define SAMPLE_SETS(SET)                        \
+    SET(DEFAULT, N_("Default"))                 \
+    SET(NORMAL, N_("Normal"))                   \
+    SET(SOFT, N_("Soft"))                       \
+    SET(DRUM, N_("Drum"))                       \
+
+
 #endif // OSUX_HITSOUND_H

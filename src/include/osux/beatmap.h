@@ -80,9 +80,7 @@ struct osux_beatmap {
     int64_t AudioLeadIn;
     int64_t PreviewTime;
     int64_t Countdown;
-
-    char *SampleSet;  // sample type !
-    int64_t sample_type;
+    int64_t SampleSet;
 
     double StackLeniency;
 
@@ -119,7 +117,10 @@ struct osux_beatmap {
     char *Source;
 
     uint32_t tag_count;
-    char *tags_orig;
+    union {
+        char *tags_orig;
+        char *Tags;
+    };
     char **tags;
 
     int64_t BeatmapID;

@@ -2,6 +2,86 @@
 <!-- Generated with glade 3.20.0 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
+  <object class="GtkAdjustment" id="ApproachRate">
+    <property name="upper">10</property>
+    <property name="value">5</property>
+    <property name="step_increment">0.10000000000000001</property>
+    <property name="page_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="AudioLeadIn">
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="BeatDivisor">
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="BeatmapID">
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="BeatmapSetID">
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="CircleSize">
+    <property name="lower">3</property>
+    <property name="upper">7</property>
+    <property name="value">5</property>
+    <property name="step_increment">0.10000000000000001</property>
+    <property name="page_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="DistanceSpacing">
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="GridSize">
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="HPDrainRate">
+    <property name="upper">10</property>
+    <property name="value">5</property>
+    <property name="step_increment">0.10000000000000001</property>
+    <property name="page_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="OverallDifficulty">
+    <property name="upper">10</property>
+    <property name="value">5</property>
+    <property name="step_increment">0.10000000000000001</property>
+    <property name="page_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="PreviewTime">
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="SliderMultiplier">
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="SliderTickRate">
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="StackLeniency">
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="TimelineZoom">
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
   <template class="EdosuProperties" parent="GtkNotebook">
     <property name="visible">True</property>
     <property name="can_focus">True</property>
@@ -44,9 +124,8 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkFileChooserButton" id="AudioFile">
+                      <object class="GtkFileChooserButton" id="audio_file_chooser">
                         <property name="visible">True</property>
-                        <property name="sensitive">False</property>
                         <property name="can_focus">False</property>
                         <property name="create_folders">False</property>
                         <property name="do_overwrite_confirmation">True</property>
@@ -83,9 +162,8 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkComboBoxText" id="GameMode">
+                      <object class="GtkComboBoxText" id="Mode">
                         <property name="visible">True</property>
-                        <property name="sensitive">False</property>
                         <property name="can_focus">False</property>
                         <property name="active">0</property>
                         <items>
@@ -128,7 +206,6 @@
                     <child>
                       <object class="GtkComboBoxText" id="SampleSet">
                         <property name="visible">True</property>
-                        <property name="sensitive">False</property>
                         <property name="can_focus">False</property>
                         <property name="active">0</property>
                         <items>
@@ -168,12 +245,13 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkSpinButton" id="StackLeniency">
+                      <object class="GtkSpinButton" id="StackLeniency_spinbutton">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="halign">center</property>
                         <property name="valign">center</property>
                         <property name="text" translatable="yes">0,0</property>
+                        <property name="adjustment">StackLeniency</property>
                         <property name="digits">1</property>
                       </object>
                       <packing>
@@ -207,12 +285,13 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkSpinButton" id="PreviewTime">
+                      <object class="GtkSpinButton" id="PreviewTime_spinbutton">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="halign">center</property>
                         <property name="valign">center</property>
                         <property name="text" translatable="yes">0</property>
+                        <property name="adjustment">PreviewTime</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -245,12 +324,13 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkSpinButton" id="AudioLeadIn">
+                      <object class="GtkSpinButton" id="AudioLeadIn_spinbutton">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="halign">center</property>
                         <property name="valign">center</property>
                         <property name="text" translatable="yes">0</property>
+                        <property name="adjustment">AudioLeadIn</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -283,9 +363,8 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkSwitch" id="CountDown">
+                      <object class="GtkSwitch" id="Countdown">
                         <property name="visible">True</property>
-                        <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
                       </object>
                       <packing>
@@ -321,7 +400,6 @@
                     <child>
                       <object class="GtkSwitch" id="LetterboxInBreaks">
                         <property name="visible">True</property>
-                        <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
                       </object>
                       <packing>
@@ -355,9 +433,8 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkSwitch" id="Widescreen">
+                      <object class="GtkSwitch" id="WidescreenStoryboard">
                         <property name="visible">True</property>
-                        <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
                         <property name="active">True</property>
                       </object>
@@ -435,7 +512,6 @@
                     <child>
                       <object class="GtkEntry" id="TitleUnicode">
                         <property name="visible">True</property>
-                        <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
                       </object>
                       <packing>
@@ -471,7 +547,6 @@
                     <child>
                       <object class="GtkEntry" id="Title">
                         <property name="visible">True</property>
-                        <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
                       </object>
                       <packing>
@@ -507,7 +582,6 @@
                     <child>
                       <object class="GtkEntry" id="ArtistUnicode">
                         <property name="visible">True</property>
-                        <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
                       </object>
                       <packing>
@@ -543,7 +617,6 @@
                     <child>
                       <object class="GtkEntry" id="Artist">
                         <property name="visible">True</property>
-                        <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
                       </object>
                       <packing>
@@ -579,7 +652,6 @@
                     <child>
                       <object class="GtkEntry" id="Creator">
                         <property name="visible">True</property>
-                        <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
                       </object>
                       <packing>
@@ -615,7 +687,6 @@
                     <child>
                       <object class="GtkEntry" id="Version">
                         <property name="visible">True</property>
-                        <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
                       </object>
                       <packing>
@@ -651,7 +722,6 @@
                     <child>
                       <object class="GtkEntry" id="Source">
                         <property name="visible">True</property>
-                        <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
                       </object>
                       <packing>
@@ -687,7 +757,6 @@
                     <child>
                       <object class="GtkEntry" id="Tags">
                         <property name="visible">True</property>
-                        <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
                       </object>
                       <packing>
@@ -721,12 +790,13 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkSpinButton" id="BeatmapID">
+                      <object class="GtkSpinButton" id="BeatmapID_spinbutton">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="halign">center</property>
                         <property name="valign">center</property>
                         <property name="text" translatable="yes">0</property>
+                        <property name="adjustment">BeatmapID</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -759,12 +829,13 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkSpinButton" id="BeatmapSetID">
+                      <object class="GtkSpinButton" id="BeatmapSetID_spinbutton">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="halign">center</property>
                         <property name="valign">center</property>
                         <property name="text" translatable="yes">0</property>
+                        <property name="adjustment">BeatmapSetID</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -840,12 +911,13 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkSpinButton" id="DistanceSpacing">
+                      <object class="GtkSpinButton" id="DistanceSpacing_spinbutton">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="halign">center</property>
                         <property name="valign">center</property>
                         <property name="text" translatable="yes">0,0</property>
+                        <property name="adjustment">DistanceSpacing</property>
                         <property name="digits">1</property>
                       </object>
                       <packing>
@@ -879,12 +951,13 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkSpinButton" id="BeatDivisor">
+                      <object class="GtkSpinButton" id="BeatDivisor_spinbutton">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="halign">center</property>
                         <property name="valign">center</property>
                         <property name="text" translatable="yes">0,0</property>
+                        <property name="adjustment">BeatDivisor</property>
                         <property name="digits">1</property>
                       </object>
                       <packing>
@@ -918,12 +991,13 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkSpinButton" id="GridSize">
+                      <object class="GtkSpinButton" id="GridSize_spinbutton">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="halign">center</property>
                         <property name="valign">center</property>
                         <property name="text" translatable="yes">0,0</property>
+                        <property name="adjustment">GridSize</property>
                         <property name="digits">1</property>
                       </object>
                       <packing>
@@ -957,12 +1031,13 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkSpinButton" id="TimelineZoom">
+                      <object class="GtkSpinButton" id="TimelineZoom_spinbutton">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="halign">center</property>
                         <property name="valign">center</property>
                         <property name="text" translatable="yes">0,0</property>
+                        <property name="adjustment">TimelineZoom</property>
                         <property name="digits">1</property>
                       </object>
                       <packing>
@@ -982,7 +1057,6 @@
                   <object class="GtkButton">
                     <property name="label" translatable="yes">Add Bookmark at current time</property>
                     <property name="visible">True</property>
-                    <property name="sensitive">False</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="halign">center</property>
@@ -1054,9 +1128,10 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkScale" id="HPDrainRate">
+                      <object class="GtkScale" id="HPDrainRate_scale">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
+                        <property name="adjustment">HPDrainRate</property>
                         <property name="fill_level">10</property>
                         <property name="round_digits">1</property>
                       </object>
@@ -1091,9 +1166,10 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkScale" id="CircleSize">
+                      <object class="GtkScale" id="CircleSize_scale">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
+                        <property name="adjustment">CircleSize</property>
                         <property name="fill_level">7</property>
                         <property name="round_digits">1</property>
                       </object>
@@ -1128,9 +1204,10 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkScale" id="OverallDifficulty">
+                      <object class="GtkScale" id="OverallDifficulty_scale">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
+                        <property name="adjustment">OverallDifficulty</property>
                         <property name="fill_level">10</property>
                         <property name="round_digits">1</property>
                       </object>
@@ -1165,9 +1242,10 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkScale" id="ApproachRate">
+                      <object class="GtkScale" id="ApproachRate_scale">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
+                        <property name="adjustment">ApproachRate</property>
                         <property name="fill_level">10</property>
                         <property name="round_digits">1</property>
                       </object>
@@ -1202,12 +1280,13 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkSpinButton" id="SliderMultiplier">
+                      <object class="GtkSpinButton" id="SliderMultiplier_spinbutton">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="halign">center</property>
                         <property name="valign">center</property>
                         <property name="text" translatable="yes">0,0</property>
+                        <property name="adjustment">SliderMultiplier</property>
                         <property name="digits">1</property>
                       </object>
                       <packing>
@@ -1241,12 +1320,13 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkSpinButton" id="SliderTickRate">
+                      <object class="GtkSpinButton" id="SliderTickRate_spinbutton">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="halign">center</property>
                         <property name="valign">center</property>
                         <property name="text" translatable="yes">0</property>
+                        <property name="adjustment">SliderTickRate</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>

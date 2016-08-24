@@ -24,7 +24,7 @@ static inline bool osux_tobool(char *str) { return !!atoi(str); }
     VALUE( General, AudioLeadIn, int64_t, 0, atoi )                         \
     VALUE( General, PreviewTime, int64_t, -1, atoi)                     \
     VALUE( General, Countdown, int64_t, 0, atoi )                           \
-    VALUE( General, SampleSet, char*, g_strdup("Normal"), g_strdup)     \
+    VALUE( General, SampleSet, char*, 1, g_strdup)     \
     VALUE( General, StackLeniency, double,  0.7, osux_strtod)           \
     VALUE( General, Mode, int64_t, 0, atoi)                                 \
     VALUE( General, LetterboxInBreaks, bool, true,  osux_tobool)        \

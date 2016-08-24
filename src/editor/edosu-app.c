@@ -88,7 +88,7 @@ static gboolean open_beatmap(EdosuApplication *app, gchar *path)
 
     if (!edosu_beatmap_load_from_file(beatmap, path))
         return FALSE;
-    add_beatmap(app, beatmap);    
+    add_beatmap(app, beatmap);
     return TRUE;
 }
 
@@ -132,7 +132,7 @@ close_action(GSimpleAction *action, GVariant *parameter, gpointer app_ptr)
 {
     (void) action;
     (void) parameter;
-    
+
     EdosuApplication *app = EDOSU_APPLICATION(app_ptr);
     edosu_application_close_beatmap(app, app->current_beatmap);
 }
@@ -181,9 +181,20 @@ open_action(GSimpleAction *action, GVariant *parameter, gpointer app_ptr)
 }
 
 static void
+new_action(GSimpleAction *action, GVariant *parameter, gpointer app_ptr)
+{
+    (void) action;
+    (void) parameter;
+    EdosuApplication *app = EDOSU_APPLICATION(app_ptr);
+    EdosuBeatmap *beatmap = edosu_beatmap_new();
+    add_beatmap(app, beatmap);
+}
+
+static void
 save_action(GSimpleAction *action, GVariant *parameter, gpointer papp)
 {
     (void) action;
+    (void) parameter;
     EdosuApplication *app = EDOSU_APPLICATION(papp);
     if (app->current_beatmap == NULL)
         return;
@@ -209,7 +220,7 @@ save_action(GSimpleAction *action, GVariant *parameter, gpointer papp)
 static GActionEntry app_entries[] = {
     { "quit", &quit_action, NULL, NULL, NULL, {0}},
     { "open", &open_action, NULL, NULL, NULL, {0}},
-    { "new", &open_action, NULL, NULL, NULL, {0}},
+    { "new", &new_action, NULL, NULL, NULL, {0}},
     { "save", &save_action, NULL, NULL, NULL, {0}},
     { "save_as", &save_action, NULL, NULL, NULL, {0}},
     { "close", &close_action, NULL, NULL, NULL, {0}},
@@ -271,7 +282,7 @@ edosu_application_new(void)
 EdosuBeatmap *
 edosu_application_get_beatmap_by_view(EdosuApplication *app, EdosuView *view)
 {
-    GList *l; 
+    GList *l;
     for (l = app->beatmaps; l; l = l->next) {
         if (((EdosuBeatmap*) l->data)->view == view)
             return l->data;
@@ -282,7 +293,7 @@ edosu_application_get_beatmap_by_view(EdosuApplication *app, EdosuView *view)
 EdosuBeatmap *
 edosu_application_get_beatmap_by_path(EdosuApplication *app, gchar const *path)
 {
-    GList *l; 
+    GList *l;
     for (l = app->beatmaps; l; l = l->next) {
         if (!strcmp(((EdosuBeatmap*) l->data)->filepath, path))
             return l->data;

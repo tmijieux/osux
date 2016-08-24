@@ -19,7 +19,6 @@ struct _EdosuBeatmap
     GObject parent;
     char *filepath; //canonical
     char *filename;
-    char *audio_filepath;
     gint unique_number;
 
     EdosuView *view;

@@ -11,7 +11,7 @@ void
 edosu_beatmap_init(EdosuBeatmap *beatmap)
 {
     static gint unique_number = 0;
-    
+
     beatmap->view = edosu_view_new();
     beatmap->palette = edosu_palette_new();
     beatmap->inspector = edosu_inspector_new();
@@ -56,10 +56,8 @@ edosu_beatmap_finalize(GObject *obj)
 
     g_free(beatmap->filepath);
     g_free(beatmap->filename);
-    g_free(beatmap->audio_filepath);
     beatmap->filepath = NULL;
     beatmap->filename = NULL;
-    beatmap->audio_filepath = NULL;
 
     G_OBJECT_CLASS (edosu_beatmap_parent_class)->finalize (obj);
 }
@@ -96,13 +94,11 @@ edosu_beatmap_load_from_file(EdosuBeatmap *beatmap, gchar const *filepath)
 
     if (!err) {
         set_path(beatmap, filepath);
-        gchar *dirname;
-        dirname = g_path_get_dirname(beatmap->filepath);
-        g_free(beatmap->audio_filepath);
-        beatmap->audio_filepath = g_build_filename(
-            dirname, osux_bm.AudioFilename, NULL);
-        g_free(dirname);
         edosu_beatmap_load_objects(beatmap, &osux_bm);
+        edosu_inspector_set_model(beatmap->inspector,
+                                  GTK_TREE_MODEL(beatmap->Objects));
+        edosu_properties_load_from_beatmap(beatmap->properties, &osux_bm);
+
         return TRUE;
     } else {
         return FALSE;
