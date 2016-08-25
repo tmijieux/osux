@@ -168,6 +168,24 @@ int osux_beatmap_save_full(osux_beatmap const *beatmap,
                            char const *dirpath, char const *filename,
                            bool use_default_filename);
 
+
+/*
+ * steal the hitobject/timingpoint/event/color argument internals resources and
+ * append it to the beatmap.
+ * Note that after calling one of the 4 following functions,
+ * global consistency of the beatmap is not guaranteed
+ * until 'osux_beatmap_prepare' is called.
+ * When the object have an 'offset', the offset must be greater than all offsets
+ * of objects of the same kind which are already present in the beatmap
+ * otherwise *the behaviour is undefined*
+ * (Note that even 'osux_beatmap_prepare' is not guaranteed to run any sorting
+ * algorithm on the objects)
+ */
+void osux_beatmap_append_hitobject(osux_beatmap *beatmap, osux_hitobject *ho);
+void osux_beatmap_append_timingpoint(osux_beatmap *beatmap, osux_timingpoint *tp);
+void osux_beatmap_append_event(osux_beatmap *beatmap, osux_event *ev);
+void osux_beatmap_append_color(osux_beatmap *beatmap, osux_color *c);
+
 #ifdef __cplusplus
 }
 #endif

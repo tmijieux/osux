@@ -17,8 +17,10 @@ G_DECLARE_FINAL_TYPE(EdosuBeatmap, edosu_beatmap, EDOSU, BEATMAP, GObject);
 struct _EdosuBeatmap
 {
     GObject parent;
+    char *dirpath; //canonical
     char *filepath; //canonical
     char *filename;
+    char *errmsg;
     gint unique_number;
 
     EdosuView *view;
@@ -32,11 +34,17 @@ struct _EdosuBeatmap
     GtkTreeIter Bookmarks;
     GtkTreeIter Events;
     GtkTreeIter Colors;
+
+    // stolen values when beatmap is loaded:
+    osux_hitobject *hitobjects;
+    osux_event *events;
+    osux_color *colors;
+    osux_timingpoint *timingpoints;
 };
 
 EdosuBeatmap *edosu_beatmap_new(void);
 gboolean edosu_beatmap_load_from_file(EdosuBeatmap *beatmap, gchar const *filepath);
-void edosu_beatmap_save(EdosuBeatmap *beatmap, gchar const *filepath);
+void edosu_beatmap_save_to_file(EdosuBeatmap *beatmap, gchar const *filepath);
 
 void edosu_beatmap_load_objects(EdosuBeatmap *beatmap, osux_beatmap *osux_bm);
 void edosu_beatmap_load_and_bind_adjustments(EdosuBeatmap *beatmap,

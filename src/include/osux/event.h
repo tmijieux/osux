@@ -117,6 +117,9 @@ int osux_event_free(osux_event *event);
 int osux_event_build_tree(osux_event *event);
 int osux_event_prepare(osux_event *ev);
 
+void osux_event_move(osux_event *from, osux_event *to);
+void osux_event_copy(osux_event *from, osux_event *to);
+
 char const *osux_event_type_get_name(int event_type);
 char const *osux_event_layer_get_name(int event_type);
 char const *osux_event_loop_get_name(int event_type);

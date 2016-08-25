@@ -1,7 +1,7 @@
 include $(top_srcdir)/common.mk
 
-bin_PROGRAMS = osux_editor
-osux_editor_SOURCES = \
+bin_PROGRAMS = edosu
+edosu_SOURCES = \
 	main.c \
 	edosu-app.c \
 	edosu-win.c \
@@ -14,7 +14,7 @@ osux_editor_SOURCES = \
 	edosu-view.c \
 	edosu-inspector.c
 
-nodist_osux_editor_SOURCES = \
+nodist_edosu_SOURCES = \
 	resources.c \
 	resources.h
 
@@ -52,6 +52,6 @@ resources.c: resources.h $(srcdir)/editor.gresources.xml
 	--target=$@ \
 	--generate-source
 
-osux_editor_CFLAGS = $(GTK3_CFLAGS) $(AM_CFLAGS)
-osux_editor_LDFLAGS = $(GTK3_LIBS) -export-dynamic $(AM_LDFLAGS)
-osux_editor_LDADD = ../lib/libosux.la
+edosu_CFLAGS = $(GTK3_CFLAGS) $(AM_CFLAGS)
+edosu_LDFLAGS = $(GTK3_LIBS) -export-dynamic $(AM_LDFLAGS)
+edosu_LDADD = ../lib/libosux.la

@@ -11,6 +11,7 @@
 #include "osux/timingpoint.h"
 #include "osux/event.h"
 #include "osux/util.h"
+#include "osux/hitsound.h"
 
 int osux_beatmap_free(osux_beatmap *beatmap)
 {
@@ -22,7 +23,6 @@ int osux_beatmap_free(osux_beatmap *beatmap)
     g_free(beatmap->md5_hash);
 
     g_free(beatmap->AudioFilename);
-    g_free(beatmap->SampleSet);
     g_free(beatmap->bookmarks);
     g_free(beatmap->Title);
     g_free(beatmap->TitleUnicode);
@@ -340,6 +340,20 @@ static void fetch_tags(osux_beatmap *beatmap)
     }
 }
 
+#define MATCH_SAMPLE_SET_(value_, caps_, pretty_)       \
+    do {                                                \
+        if (!g_strcmp0((pretty_), sample_set)) {        \
+            return (value_);                            \
+        }                                               \
+    } while (0);
+
+
+static int64_t parse_sample_set(gchar const *sample_set)
+{
+    SAMPLE_SETS(MATCH_SAMPLE_SET_);
+    return -1;
+}
+
 static int fetch_variables(osux_beatmap *beatmap)
 {
     DEFAULT_VALUES(FETCH);
@@ -420,4 +434,44 @@ int osux_beatmap_init(osux_beatmap *beatmap, char const *file_path)
         return err;
     }
     return 0;
+}
+
+void osux_beatmap_append_hitobject(osux_beatmap *beatmap, osux_hitobject *ho)
+{
+    HANDLE_ARRAY_SIZE(beatmap->hitobjects,
+                      beatmap->hitobject_count,
+                      beatmap->hitobject_bufsize);
+    osux_hitobject_move(ho, &beatmap->hitobjects[beatmap->hitobject_count]);
+    UPDATE_STAT_HO_COUNT(
+        beatmap, &beatmap->hitobjects[beatmap->hitobject_count]);
+    ++ beatmap->hitobject_count;
+}
+
+void osux_beatmap_append_timingpoint(osux_beatmap *beatmap, osux_timingpoint *tp)
+{
+    HANDLE_ARRAY_SIZE(beatmap->timingpoints,
+                      beatmap->timingpoint_count,
+                      beatmap->timingpoint_bufsize);
+    osux_timingpoint_move(tp, &beatmap->timingpoints[beatmap->timingpoint_count]);
+    UPDATE_STAT_BPM(
+        beatmap, &beatmap->timingpoints[beatmap->timingpoint_count]);
+    ++ beatmap->timingpoint_count;
+}
+
+void osux_beatmap_append_event(osux_beatmap *beatmap, osux_event *ev)
+{
+    HANDLE_ARRAY_SIZE(beatmap->events,
+                      beatmap->event_count,
+                      beatmap->event_bufsize);
+    osux_event_move(ev, &beatmap->events[beatmap->event_count]);
+    ++ beatmap->event_count;
+}
+
+void osux_beatmap_append_color(osux_beatmap *beatmap, osux_color *c)
+{
+    HANDLE_ARRAY_SIZE(beatmap->colors,
+                      beatmap->color_count,
+                      beatmap->color_bufsize);
+    osux_color_move(c, &beatmap->colors[beatmap->color_count]);
+    ++ beatmap->color_count;
 }

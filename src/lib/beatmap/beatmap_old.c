@@ -18,6 +18,8 @@
 #include <stdlib.h>
 #include <glib.h>
 #include <glib/gstdio.h>
+#include <glib/gstdio.h>
+#include <locale.h>
 
 #include "osux/beatmap.h"
 #include "osux/string2.h"
@@ -26,24 +28,26 @@
 #include "osux/parser.h"
 #include "osux/hitobject.h"
 #include "osux/timingpoint.h"
+#include "osux/hitsound.h"
 #include "osux/color.h"
 
-
-osux_beatmap DEFAULT_BEATMAP = { 0 };
-
 #define PRINT_SECTION(section)                  \
-    fprintf(f, "\r\n["#section"]\r\n")          \
+    fprintf(f, "\r\n["#section"]\r\n")
 
+// space afer colon
 #define PRINT_STRING(map, file, Field)		\
-    fprintf(f, #Field ": %s\r\n", m->Field)	\
+    fprintf(f, #Field ": %s\r\n", m->Field)
 
 #define PRINT_DOUBLE(map, file, Field)		\
-    fprintf(f, #Field ": %.15g\r\n", m->Field)	\
+    fprintf(f, #Field ": %.15g\r\n", m->Field)
 
 #define PRINT_INT(map, file, Field)		\
-    fprintf(f, #Field ": %ld\r\n", m->Field)	\
+    fprintf(f, #Field ": %ld\r\n", m->Field)
 
-int osux_beatmap_print(osux_beatmap const *m, FILE *f)
+#define PRINT_STRING_V(map, file, field, value) \
+    fprintf(f, #field ": %s\r\n", (value))
+
+static int beatmap_print_internal(osux_beatmap const *m, FILE *f)
 {
     fprintf(f, "osu file format v%d\r\n", m->osu_version);
 
@@ -53,7 +57,7 @@ int osux_beatmap_print(osux_beatmap const *m, FILE *f)
     PRINT_INT(m, f, AudioLeadIn);
     PRINT_INT(m, f, PreviewTime);
     PRINT_INT(m, f, Countdown);
-    PRINT_STRING(m, f, SampleSet);  // THIS IS SAMPLE TYPE! ;(
+    PRINT_STRING_V(m, f, SampleSet, osux_sample_set_get_name(m->SampleSet));
 
     PRINT_DOUBLE(m, f, StackLeniency);
     PRINT_INT(m, f, Mode);
@@ -79,7 +83,7 @@ int osux_beatmap_print(osux_beatmap const *m, FILE *f)
     #undef PRINT_STRING
     #undef PRINT_DOUBLE
     #undef PRINT_INT
-
+    // no space afer colon
     #define PRINT_STRING(map, file, Field)      \
         fprintf(f, #Field ":%s\r\n", m->Field)	\
 
@@ -99,14 +103,7 @@ int osux_beatmap_print(osux_beatmap const *m, FILE *f)
     PRINT_STRING(m, f, Creator);
     PRINT_STRING(m, f, Version);
     PRINT_STRING(m, f, Source);
-
-    fprintf(f, "Tags:");
-    for (unsigned i = 0; i < m->tag_count; ++i) {
-	fprintf(f, "%s", m->tags[i]);
-	if (i < m->tag_count - 1)
-	    fprintf(f, " ");
-    }
-    fputs("\r\n", f);
+    PRINT_STRING(m, f, Tags);
 
     PRINT_INT(m, f, BeatmapID);
     PRINT_INT(m, f, BeatmapSetID);
@@ -130,12 +127,39 @@ int osux_beatmap_print(osux_beatmap const *m, FILE *f)
 	PRINT_SECTION( Colours );
 	for (unsigned int i = 0; i < m->color_count; ++i)
 	    osux_color_print(f, &m->colors[i]);
-	fputs("\r\n", f);
     }
 
     PRINT_SECTION( HitObjects );
     for (unsigned int i = 0; i < m->hitobject_count; ++i)
 	osux_hitobject_print(&m->hitobjects[i], m->osu_version, f);
+    return 0;
+}
+
+int osux_beatmap_print(osux_beatmap const *m, FILE *f)
+{
+    locale_t locC = newlocale(LC_ALL_MASK, "C", 0);
+    if (locC == (locale_t) 0) {
+        perror("newlocale");
+        exit(EXIT_FAILURE);
+    }
+
+    // switch to C locale and save old locale
+    locale_t oldLoc = uselocale(locC);
+    if (oldLoc == (locale_t) 0) {
+        perror("uselocale");
+        exit(EXIT_FAILURE);
+    }
+
+    // print the beatmap
+    beatmap_print_internal(m, f);
+
+    // restore old locale
+    locale_t ret = uselocale(oldLoc);
+    if (ret == (locale_t) 0) {
+        perror("uselocale");
+        exit(EXIT_FAILURE);
+    }
+    freelocale(locC);
     return 0;
 }
 

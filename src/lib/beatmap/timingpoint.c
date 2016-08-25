@@ -59,8 +59,8 @@ int osux_timingpoint_init(osux_timingpoint *tp, char *line, uint32_t osu_version
         return -OSUX_ERR_INVALID_TIMINGPOINT;
     }
 
-    tp->offset = strtod(split[0], NULL);
-    tp->millisecond_per_beat = strtod(split[1], NULL);
+    tp->offset = g_ascii_strtod(split[0], NULL);
+    tp->millisecond_per_beat = g_ascii_strtod(split[1], NULL);
     if (osu_version <= 3)
         return 0;
 
@@ -141,4 +141,19 @@ int __must_check osux_timingpoint_prepare(
 
     tp_build_details_string(tp);
     return 0;
+}
+
+void osux_timingpoint_move(osux_timingpoint *from, osux_timingpoint *to)
+{
+    *to = *from;
+    to->last_non_inherited = NULL;
+    memset(from, 0, sizeof *from);
+}
+
+void osux_timingpoint_copy(osux_timingpoint *from, osux_timingpoint *to)
+{
+    *to = *from;
+    to->last_non_inherited = NULL;
+    to->details = g_strdup(from->details);
+    to->errmsg = g_strdup(from->errmsg);
 }

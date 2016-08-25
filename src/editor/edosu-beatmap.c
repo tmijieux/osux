@@ -21,14 +21,17 @@ edosu_beatmap_init(EdosuBeatmap *beatmap)
 }
 
 void
-edosu_beatmap_save(EdosuBeatmap *beatmap, gchar const *filepath)
+edosu_beatmap_save_to_file(EdosuBeatmap *beatmap, gchar const *filepath)
 {
     osux_beatmap o_beatmap;
     memset(&o_beatmap, 0, sizeof o_beatmap);
+    o_beatmap.osu_version = 15;
 
-    (void) beatmap;
-    // unload_beatmap(beatmap, &o_beatmap);
+    edosu_properties_save_to_beatmap(beatmap->properties, &o_beatmap);
+    edosu_beatmap_objects_save(beatmap, &o_beatmap);
+    
     osux_beatmap_save(&o_beatmap, filepath);
+    osux_beatmap_free(&o_beatmap);
 }
 
 static void
@@ -46,7 +49,7 @@ edosu_beatmap_dispose(GObject *obj)
     g_clear_object(&beatmap->palette);
     g_clear_object(&beatmap->inspector);
     g_clear_object(&beatmap->properties);
-    G_OBJECT_CLASS (edosu_beatmap_parent_class)->dispose (obj);
+    G_OBJECT_CLASS(edosu_beatmap_parent_class)->dispose(obj);
 }
 
 static void
@@ -54,12 +57,17 @@ edosu_beatmap_finalize(GObject *obj)
 {
     EdosuBeatmap *beatmap = EDOSU_BEATMAP( obj );
 
-    g_free(beatmap->filepath);
-    g_free(beatmap->filename);
-    beatmap->filepath = NULL;
-    beatmap->filename = NULL;
+    g_clear_pointer(&beatmap->filepath, g_free);
+    g_clear_pointer(&beatmap->filename, g_free);
+    g_clear_pointer(&beatmap->dirpath, g_free);
+    g_clear_pointer(&beatmap->errmsg, g_free);
 
-    G_OBJECT_CLASS (edosu_beatmap_parent_class)->finalize (obj);
+    g_clear_pointer(&beatmap->hitobjects, g_free);
+    g_clear_pointer(&beatmap->timingpoints, g_free);
+    g_clear_pointer(&beatmap->events, g_free);
+    g_clear_pointer(&beatmap->colors, g_free);
+
+    G_OBJECT_CLASS(edosu_beatmap_parent_class)->finalize(obj);
 }
 
 void
@@ -73,7 +81,7 @@ edosu_beatmap_class_init(EdosuBeatmapClass *klass)
 
 EdosuBeatmap *edosu_beatmap_new(void)
 {
-    return EDOSU_BEATMAP(g_object_new(EDOSU_TYPE_BEATMAP, NULL));
+    return EDOSU_BEATMAP(g_object_ref(g_object_new(EDOSU_TYPE_BEATMAP, NULL)));
 }
 
 static void set_path(EdosuBeatmap *beatmap, gchar const *path)
@@ -81,7 +89,11 @@ static void set_path(EdosuBeatmap *beatmap, gchar const *path)
     //gchar *canon_path = edosu_util_canonicalize_path(path);
     gchar *canon_path = g_strdup(path);
     g_free(beatmap->filepath);
+    g_free(beatmap->filename);
+    g_free(beatmap->dirpath);
+
     beatmap->filepath = canon_path;
+    beatmap->dirpath  = g_path_get_dirname(canon_path);
     beatmap->filename = g_path_get_basename(canon_path);
 }
 
@@ -98,9 +110,11 @@ edosu_beatmap_load_from_file(EdosuBeatmap *beatmap, gchar const *filepath)
         edosu_inspector_set_model(beatmap->inspector,
                                   GTK_TREE_MODEL(beatmap->Objects));
         edosu_properties_load_from_beatmap(beatmap->properties, &osux_bm);
-
+        osux_beatmap_free(&osux_bm);
         return TRUE;
     } else {
+        beatmap->errmsg = g_strdup(osux_errmsg(err));
         return FALSE;
     }
+    
 }

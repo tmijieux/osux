@@ -117,3 +117,14 @@ void osux_color_print(FILE *f, osux_color *c)
     else
         fprintf(f, "%s: %d,%d,%d\r\n", color_type_str[c->type], c->r, c->g, c->b);
 }
+
+void osux_color_copy(osux_color *from, osux_color *to)
+{
+    *to = *from;
+}
+
+void osux_color_move(osux_color *from, osux_color *to)
+{
+    *to = *from;
+    memset(from, 0, sizeof *from);
+}

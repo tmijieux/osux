@@ -10,9 +10,6 @@
 G_DEFINE_TYPE(EdosuWindow, edosu_window, GTK_TYPE_APPLICATION_WINDOW);
 
 static gboolean
-on_notebook_page_switch_cb(EdosuWindow *win, EdosuView *page);
-
-static gboolean
 on_notebook_page_switch_cb(EdosuWindow *win, EdosuView *view)
 {
     EdosuApplication *app = win->app;
@@ -34,12 +31,10 @@ on_notebook_page_switch_cb(EdosuWindow *win, EdosuView *view)
 }
 
 static gboolean
-on_notebook_page_removed_cb(GtkNotebook *view_notebook,
+on_notebook_page_removed_cb(EdosuWindow *window,
                             EdosuView *view,
-                            guint page_num,
-                            EdosuWindow *window)
+                            guint page_num)
 {
-    (void) view_notebook;
     (void) view;
     gtk_notebook_remove_page(window->palette_notebook, page_num);
     gtk_notebook_remove_page(window->inspector_notebook, page_num);
@@ -53,20 +48,20 @@ edosu_window_init(EdosuWindow *win)
     gtk_widget_init_template(GTK_WIDGET(win));
     g_signal_connect_swapped(win->view_notebook, "switch-page",
                              G_CALLBACK(on_notebook_page_switch_cb), win);
-    g_signal_connect(win->view_notebook, "page-removed",
-                     G_CALLBACK(on_notebook_page_removed_cb), win);
+    g_signal_connect_swapped(win->view_notebook, "page-removed",
+                             G_CALLBACK(on_notebook_page_removed_cb), win);
 }
 
 static void
 edosu_window_class_init(EdosuWindowClass *klass)
 {
-    GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
+    GtkWidgetClass *k = GTK_WIDGET_CLASS(klass);
     gtk_widget_class_set_template_from_resource(
-        widget_class, "/org/osux/edosu/ui/EdosuWindow.glade");
-    gtk_widget_class_bind_template_child(widget_class, EdosuWindow, view_notebook);
-    gtk_widget_class_bind_template_child(widget_class, EdosuWindow, inspector_notebook);
-    gtk_widget_class_bind_template_child(widget_class, EdosuWindow, properties_notebook);
-    gtk_widget_class_bind_template_child(widget_class, EdosuWindow, palette_notebook);
+        k, "/org/osux/edosu/ui/EdosuWindow.glade");
+    gtk_widget_class_bind_template_child(k, EdosuWindow, view_notebook);
+    gtk_widget_class_bind_template_child(k, EdosuWindow, inspector_notebook);
+    gtk_widget_class_bind_template_child(k, EdosuWindow, properties_notebook);
+    gtk_widget_class_bind_template_child(k, EdosuWindow, palette_notebook);
 }
 
 EdosuWindow *
@@ -128,5 +123,3 @@ void edosu_window_focus_beatmap(EdosuWindow *win, EdosuBeatmap *beatmap)
     n = gtk_notebook_page_num(win->view_notebook, GTK_WIDGET(beatmap->view));
     gtk_notebook_set_current_page(win->view_notebook, n);
 }
-
-

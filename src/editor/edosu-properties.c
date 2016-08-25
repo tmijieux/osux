@@ -23,11 +23,20 @@ add_music_filters(GtkFileChooser *chooser)
 
     ADD_FILTER(chooser, builder, "Audio files");
     ADD_FILTER(chooser, builder, "*.mp3");
-    ADD_FILTER(chooser, builder, "*.wma");
     ADD_FILTER(chooser, builder, "*.wav");
     ADD_FILTER(chooser, builder, "*.ogg");
     ADD_FILTER(chooser, builder, "All files");
     g_object_unref(G_OBJECT( builder));
+}
+
+static void sample_set_changed_cb(GtkComboBox *SampleSet)
+{
+    // 0 is 'Default' is this make no sense to have a default option
+    // in this field, because this field is the default for other fields,
+    // However this is kept for the ENUM consistency (allow easier programming)
+    // and as a work around this is made unselectable with the following code:
+    if (gtk_combo_box_get_active(SampleSet) == 0)
+        gtk_combo_box_set_active(SampleSet, 1);
 }
 
 static void
@@ -35,6 +44,8 @@ edosu_properties_init(EdosuProperties *props)
 {
     gtk_widget_init_template(GTK_WIDGET(props));
     add_music_filters(props->audio_file_chooser);
+    g_signal_connect(props->SampleSet, "changed",
+                     G_CALLBACK(sample_set_changed_cb), NULL);
 }
 
 static void
@@ -111,6 +122,7 @@ edosu_properties_load_from_beatmap(EdosuProperties *p, osux_beatmap *beatmap)
     LOAD_ADJUST(ApproachRate);
     LOAD_ADJUST(SliderMultiplier);
     LOAD_ADJUST(SliderTickRate);
+    LOAD_ADJUST(PreviewTime);
 
     LOAD_BOOL(Countdown);
     LOAD_BOOL(LetterboxInBreaks);
@@ -126,12 +138,63 @@ edosu_properties_load_from_beatmap(EdosuProperties *p, osux_beatmap *beatmap)
     LOAD_TEXT(Tags);
 
     LOAD_ENUM(Mode);
-    //LOAD_ENUM(SampleSet);
+    LOAD_ENUM(SampleSet);
 
     gchar *dirname, *audio_path;
     dirname = g_path_get_dirname(beatmap->file_path);
     audio_path = g_build_filename(dirname, beatmap->AudioFilename, NULL);
     gtk_file_chooser_set_filename(p->audio_file_chooser, audio_path);
     g_free(dirname);
+    g_free(audio_path);
+}
+
+#define SAVE_ADJUST(field)                                      \
+    beatmap->field = gtk_adjustment_get_value(p->field);
+
+#define SAVE_BOOL(field)                                \
+    beatmap->field = gtk_switch_get_active(p->field);
+
+#define SAVE_TEXT(field)                                        \
+    beatmap->field = g_strdup(gtk_entry_get_text(p->field));
+
+#define SAVE_ENUM(field)                                                \
+    beatmap->field = gtk_combo_box_get_active(GTK_COMBO_BOX(p->field))
+
+void
+edosu_properties_save_to_beatmap(EdosuProperties *p, osux_beatmap *beatmap)
+{
+    SAVE_ADJUST(BeatmapID);
+    SAVE_ADJUST(BeatmapSetID);
+    SAVE_ADJUST(DistanceSpacing);
+    SAVE_ADJUST(BeatDivisor);
+    SAVE_ADJUST(GridSize);
+    SAVE_ADJUST(TimelineZoom);
+    SAVE_ADJUST(HPDrainRate);
+    SAVE_ADJUST(CircleSize);
+    SAVE_ADJUST(OverallDifficulty);
+    SAVE_ADJUST(ApproachRate);
+    SAVE_ADJUST(SliderMultiplier);
+    SAVE_ADJUST(SliderTickRate);
+    SAVE_ADJUST(PreviewTime);
+    
+    SAVE_BOOL(Countdown);
+    SAVE_BOOL(LetterboxInBreaks);
+    SAVE_BOOL(WidescreenStoryboard);
+
+    SAVE_TEXT(TitleUnicode);
+    SAVE_TEXT(Title);
+    SAVE_TEXT(ArtistUnicode);
+    SAVE_TEXT(Artist);
+    SAVE_TEXT(Creator);
+    SAVE_TEXT(Version);
+    SAVE_TEXT(Source);
+    SAVE_TEXT(Tags);
+
+    SAVE_ENUM(Mode);
+    SAVE_ENUM(SampleSet);
+
+    gchar *audio_path;
+    audio_path = gtk_file_chooser_get_filename(p->audio_file_chooser);
+    beatmap->AudioFilename = g_path_get_basename(audio_path);
     g_free(audio_path);
 }

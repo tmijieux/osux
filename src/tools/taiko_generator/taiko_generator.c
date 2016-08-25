@@ -101,7 +101,7 @@ static void beatmap_set_general(osux_beatmap *bm)
     bm->osu_version = 14; // ?
     bm->AudioFilename = strdup("none.mp3");
     bm->Mode = GAME_MODE_TAIKO;
-    bm->SampleSet = strdup("");
+    bm->SampleSet = SAMPLE_TYPE_NORMAL;
 }
 
 static char *create_title(struct gengetopt_args_info *info)

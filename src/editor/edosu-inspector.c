@@ -20,7 +20,7 @@ edosu_inspector_class_init(EdosuInspectorClass *klass)
     gtk_widget_class_bind_template_child(widget_class, EdosuInspector, treeview);
 }
 
-EdosuInspector*edosu_inspector_new(void)
+EdosuInspector *edosu_inspector_new(void)
 {
     return EDOSU_INSPECTOR(g_object_new(EDOSU_TYPE_INSPECTOR, NULL));
 }

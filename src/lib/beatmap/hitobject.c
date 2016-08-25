@@ -140,7 +140,7 @@ static int parse_slider(osux_hitobject *ho, char **split, unsigned size)
         return err;
 
     ho->slider.repeat = atoi(split[6]);
-    ho->slider.length = strtod(split[7], NULL);
+    ho->slider.length = g_ascii_strtod(split[7], NULL);
     ho->end_offset = 0; // set later
 
     for (unsigned i = 8; i < size; ++i) {
@@ -163,7 +163,7 @@ static int parse_spinner(osux_hitobject *ho, char **split, unsigned size)
     if (size < 6)
         return -OSUX_ERR_INVALID_HITOBJECT_SPINNER;
 
-    ho->end_offset = strtoull(split[5], NULL, 10);
+    ho->end_offset = g_ascii_strtoull(split[5], NULL, 10);
     return 0;
 }
 
@@ -246,7 +246,6 @@ int osux_hitobject_init(osux_hitobject *ho, char *line, uint32_t osu_version)
     int err;
     char **split = g_strsplit(line, ",", 0);
     unsigned size = strsplit_size(split);
-
     memset(ho, 0, sizeof *ho);
 
     ho->_osu_version = osu_version;
@@ -344,4 +343,25 @@ void osux_hitobject_free(osux_hitobject *ho)
     g_free(ho->details);
     g_free(ho->errmsg);
     memset(ho, 0, sizeof*ho);
+}
+
+void osux_hitobject_move(osux_hitobject *ho, osux_hitobject *target)
+{
+    *target = *ho;
+    memset(ho, 0, sizeof *ho);
+}
+
+void osux_hitobject_copy(osux_hitobject *ho, osux_hitobject *cpy)
+{
+    *cpy = *ho;
+    cpy->hitsound.sfx_filename = g_strdup(ho->hitsound.sfx_filename);
+    cpy->details = g_strdup(ho->details);
+    cpy->errmsg = g_strdup(ho->errmsg);
+
+    if (HIT_OBJECT_IS_SLIDER(ho)) {
+        cpy->slider.points = ARRAY_COPY(ho->slider.points, ho->slider.point_count);
+        cpy->slider.edgehitsounds = ARRAY_COPY(
+            ho->slider.edgehitsounds, ho->slider.repeat+1);
+    }
+    cpy->timingpoint = NULL; // this field has no meaning outside of beatmaps
 }

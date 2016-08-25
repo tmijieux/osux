@@ -67,6 +67,8 @@ int __must_check osux_timingpoint_prepare(
     double slider_velocity);
 
 void osux_timingpoint_print(osux_timingpoint *tp, FILE *f);
+void osux_timingpoint_move(osux_timingpoint *from, osux_timingpoint *to);
+void osux_timingpoint_copy(osux_timingpoint *from, osux_timingpoint *to);
 
 // free timing point's internal resources
 void osux_timingpoint_free(osux_timingpoint *tp);

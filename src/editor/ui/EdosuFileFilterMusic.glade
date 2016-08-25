@@ -5,14 +5,12 @@
   <object class="GtkFileFilter" id="Audio files">
     <mime-types>
       <mime-type>audio/mpeg</mime-type>
-      <mime-type>audio/x-ms-wma</mime-type>
       <mime-type>audio/x-wav</mime-type>
       <mime-type>audio/wav</mime-type>
       <mime-type>audio/ogg</mime-type>
     </mime-types>
     <patterns>
       <pattern>*.mp3</pattern>
-      <pattern>*.wma</pattern>
       <pattern>*.wav</pattern>
       <pattern>*.ogg</pattern>
     </patterns>
@@ -23,14 +21,6 @@
     </mime-types>
     <patterns>
       <pattern>*.mp3</pattern>
-    </patterns>
-  </object>
-  <object class="GtkFileFilter" id="*.wma">
-    <mime-types>
-      <mime-type>audio/x-ms-wma</mime-type>
-    </mime-types>
-    <patterns>
-      <pattern>*.wma</pattern>
     </patterns>
   </object>
   <object class="GtkFileFilter" id="*.wav">

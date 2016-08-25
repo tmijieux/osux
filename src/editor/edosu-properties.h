@@ -54,6 +54,8 @@ struct _EdosuProperties
 EdosuProperties *edosu_properties_new(void);
 void
 edosu_properties_load_from_beatmap(EdosuProperties *props, osux_beatmap *beatmap);
+void
+edosu_properties_save_to_beatmap(EdosuProperties *p, osux_beatmap *beatmap);
 
 G_END_DECLS
 

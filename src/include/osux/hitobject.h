@@ -63,12 +63,12 @@ enum slider_type {
 #define HIT_OBJECT_IS_SPINNER(x) (HIT_OBJECT_TYPE(x) == HITOBJECT_SPINNER)
 #define HIT_OBJECT_IS_HOLD(x) (HIT_OBJECT_TYPE(x) == HITOBJECT_HOLD)
 
-typedef struct osux_point {
+typedef struct osux_point_ {
     int x;
     int y;
 } osux_point;
 
-typedef struct osux_hitsound {
+typedef struct osux_hitsound_ {
     int sample;
     bool have_addon;
     int sample_type;
@@ -78,14 +78,14 @@ typedef struct osux_hitsound {
     char *sfx_filename;
 } osux_hitsound;
 
-typedef struct osux_edgehitsound {
+typedef struct osux_edgehitsound_ {
     // hitsound on slider extremities ('edge')
     int sample;
     int sample_type;
     int addon_sample_type;
 } osux_edgehitsound;
 
-typedef struct osux_slider {
+typedef struct osux_slider_ {
     int type; // 'L', 'P' or 'B' (or 'C')
     uint32_t repeat;
     double length;
@@ -94,8 +94,6 @@ typedef struct osux_slider {
     osux_point *points;
     osux_edgehitsound *edgehitsounds; // bufsize = 0 or 'repeat'
 } osux_slider;
-
-typedef struct osux_spinner osux_hold;
 
 typedef struct osux_hitobject {
     int x;
@@ -117,8 +115,9 @@ typedef struct osux_hitobject {
 int __must_check osux_hitobject_init(
     osux_hitobject *ho, char *line, uint32_t osu_version);
 void osux_hitobject_prepare(osux_hitobject *ho, osux_timingpoint const *tp);
-
 void osux_hitobject_print(osux_hitobject *ho, int version, FILE *f);
 void osux_hitobject_free(osux_hitobject *ho);
+void osux_hitobject_move(osux_hitobject *ho, osux_hitobject *target);
+void osux_hitobject_copy(osux_hitobject *ho, osux_hitobject *target);
 
 #endif //OSUX_HIT_OBJECT_H

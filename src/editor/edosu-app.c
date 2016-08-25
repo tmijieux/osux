@@ -77,6 +77,19 @@ do_close(EdosuApplication *app, EdosuBeatmap *beatmap)
     app->beatmaps = g_list_remove(app->beatmaps, beatmap);
 }
 
+static void
+edosu_application_error(EdosuApplication *app,
+                        gchar const *title, gchar const *error)
+{
+    GtkDialog *dialog;
+    dialog = GTK_DIALOG(gtk_message_dialog_new(
+        GTK_WINDOW(app->window), GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR,
+        GTK_BUTTONS_OK, "%s", error));
+    gtk_window_set_title(GTK_WINDOW(dialog), title);
+    gtk_dialog_run(dialog);
+    gtk_widget_destroy(GTK_WIDGET(dialog));
+}
+
 static gboolean open_beatmap(EdosuApplication *app, gchar *path)
 {
     EdosuBeatmap *beatmap;
@@ -86,8 +99,11 @@ static gboolean open_beatmap(EdosuApplication *app, gchar *path)
         return FALSE;
     }
 
-    if (!edosu_beatmap_load_from_file(beatmap, path))
+    if (!edosu_beatmap_load_from_file(beatmap, path)) {
+        edosu_application_error(app, _("Error loading beatmap"), beatmap->errmsg);
+        g_object_unref(G_OBJECT(beatmap));
         return FALSE;
+    }
     add_beatmap(app, beatmap);
     return TRUE;
 }
@@ -174,10 +190,11 @@ open_action(GSimpleAction *action, GVariant *parameter, gpointer app_ptr)
     {
         GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
         gchar *filename = gtk_file_chooser_get_filename(chooser);
+        gtk_widget_destroy(dialog);
         edosu_application_open_beatmap(app, filename);
         g_free(filename);
-    }
-    gtk_widget_destroy(dialog);
+    } else
+        gtk_widget_destroy(dialog);
 }
 
 static void
@@ -185,9 +202,8 @@ new_action(GSimpleAction *action, GVariant *parameter, gpointer app_ptr)
 {
     (void) action;
     (void) parameter;
-    EdosuApplication *app = EDOSU_APPLICATION(app_ptr);
     EdosuBeatmap *beatmap = edosu_beatmap_new();
-    add_beatmap(app, beatmap);
+    add_beatmap(EDOSU_APPLICATION(app_ptr), beatmap);
 }
 
 static void
@@ -196,7 +212,9 @@ save_action(GSimpleAction *action, GVariant *parameter, gpointer papp)
     (void) action;
     (void) parameter;
     EdosuApplication *app = EDOSU_APPLICATION(papp);
-    if (app->current_beatmap == NULL)
+    EdosuBeatmap *beatmap = app->current_beatmap;
+    
+    if (beatmap == NULL)
         return;
 
     GtkWidget *dialog;
@@ -204,14 +222,19 @@ save_action(GSimpleAction *action, GVariant *parameter, gpointer papp)
         _("Save beatmap"), GTK_WINDOW(app->window), GTK_FILE_CHOOSER_ACTION_SAVE,
         _("_Cancel"), GTK_RESPONSE_CANCEL,
         _("_Save"), GTK_RESPONSE_ACCEPT, NULL);
-
+    GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
+    
+    if (beatmap->dirpath != NULL)
+        gtk_file_chooser_set_current_folder(chooser, beatmap->dirpath);
+    if (beatmap->filename != NULL)
+        gtk_file_chooser_set_current_name(chooser, beatmap->filename);
+    
     gint res = gtk_dialog_run(GTK_DIALOG (dialog));
     if (res == GTK_RESPONSE_ACCEPT)
     {
         char *filename;
-        GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
         filename = gtk_file_chooser_get_filename(chooser);
-        edosu_beatmap_save(app->current_beatmap, filename);
+        edosu_beatmap_save_to_file(app->current_beatmap, filename);
         g_free(filename);
     }
     gtk_widget_destroy(dialog);
@@ -295,7 +318,7 @@ edosu_application_get_beatmap_by_path(EdosuApplication *app, gchar const *path)
 {
     GList *l;
     for (l = app->beatmaps; l; l = l->next) {
-        if (!strcmp(((EdosuBeatmap*) l->data)->filepath, path))
+        if (!g_strcmp0(((EdosuBeatmap*) l->data)->filepath, path))
             return l->data;
     }
     return NULL;

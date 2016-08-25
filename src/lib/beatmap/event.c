@@ -313,10 +313,10 @@ int osux_event_build_tree(osux_event *event)
 static int parse_fade_cmd(osux_event_command *cmd, char **split, unsigned size)
 {
     if (size == 1)
-        cmd->o1 = cmd->o2 = strtod(split[0], NULL);
+        cmd->o1 = cmd->o2 = g_ascii_strtod(split[0], NULL);
     else {
-        cmd->o1 = strtod(split[0], NULL);
-        cmd->o2 = strtod(split[1], NULL);
+        cmd->o1 = g_ascii_strtod(split[0], NULL);
+        cmd->o2 = g_ascii_strtod(split[1], NULL);
     }
     if (size > 2) {
         cmd->next = g_malloc0(sizeof*cmd->next);
@@ -387,10 +387,10 @@ static int parse_movey_cmd(osux_event_command *cmd, char **split, unsigned size)
 static int parse_scale_cmd(osux_event_command *cmd, char **split, unsigned size)
 {
     if (size == 1)
-        cmd->s1 = cmd->s2 = strtod(split[0], NULL);
+        cmd->s1 = cmd->s2 = g_ascii_strtod(split[0], NULL);
     else {
-        cmd->s1 = strtod(split[0], NULL);
-        cmd->s2 = strtod(split[1], NULL);
+        cmd->s1 = g_ascii_strtod(split[0], NULL);
+        cmd->s2 = g_ascii_strtod(split[1], NULL);
     }
     if (size > 2) {
         cmd->next = g_malloc0(sizeof*cmd->next);
@@ -404,8 +404,8 @@ static int parse_vscale_cmd(osux_event_command *cmd, char **split, unsigned size
 {
     if (size < 2)
         return -OSUX_ERR_INVALID_EVENT_COMMAND;
-    cmd->sx1 = strtod(split[0], NULL);
-    cmd->sy1 = strtod(split[1], NULL);
+    cmd->sx1 = g_ascii_strtod(split[0], NULL);
+    cmd->sy1 = g_ascii_strtod(split[1], NULL);
 
     if (size == 2) {
         cmd->sx2 = cmd->sx1;
@@ -415,8 +415,8 @@ static int parse_vscale_cmd(osux_event_command *cmd, char **split, unsigned size
     if (size < 4)
         return -OSUX_ERR_INVALID_EVENT_COMMAND;
 
-    cmd->sx2 = strtod(split[2], NULL);
-    cmd->sy2 = strtod(split[3], NULL);
+    cmd->sx2 = g_ascii_strtod(split[2], NULL);
+    cmd->sy2 = g_ascii_strtod(split[3], NULL);
 
     if (size > 4) {
         cmd->next = g_malloc0(sizeof*cmd->next);
@@ -429,10 +429,10 @@ static int parse_vscale_cmd(osux_event_command *cmd, char **split, unsigned size
 static int parse_rotate_cmd(osux_event_command *cmd, char **split, unsigned size)
 {
     if (size == 1)
-        cmd->a1 = cmd->a2 = strtod(split[0], NULL);
+        cmd->a1 = cmd->a2 = g_ascii_strtod(split[0], NULL);
     else {
-        cmd->a1 = strtod(split[0], NULL);
-        cmd->a2 = strtod(split[1], NULL);
+        cmd->a1 = g_ascii_strtod(split[0], NULL);
+        cmd->a2 = g_ascii_strtod(split[1], NULL);
     }
     if (size > 2) {
         cmd->next = g_malloc0(sizeof*cmd->next);
@@ -482,8 +482,8 @@ static int parse_parameter_cmd(osux_event_command *cmd, char **split, unsigned s
 
 
 /*
- COMPOUND (compound command does not have the default arguments
- (easing,offset,end_offset) like the other commands!!!
+  COMPOUND (compound command does not have the default arguments
+  (easing,offset,end_offset) like the other commands!!!
 */
 
 /*
@@ -493,7 +493,7 @@ static int parse_parameter_cmd(osux_event_command *cmd, char **split, unsigned s
   !! warning:
   when LOOP_ONCE, parent end_offset is computed from loop end_offset; BUT...
   when LOOP_FOREVER loop end_offset is computed from parent end_offset;
- */
+*/
 static int parse_loop_cmd(osux_event_command *cmd, char **split, unsigned size)
 {
     if (size != 3)
@@ -552,4 +552,28 @@ int osux_event_prepare(osux_event *ev)
         }
     }
     return 0;
+}
+
+void osux_event_move(osux_event *from, osux_event *to)
+{
+    *to = *from;
+
+    to->parent = NULL;
+    g_clear_pointer(&to->childs, g_free);
+    to->child_count = 0;
+    to->child_bufsize = 0;
+
+    memset(from, 0, sizeof*from);
+}
+
+void osux_event_copy(osux_event *from, osux_event *to)
+{
+    *to = *from;
+    to->parent = NULL;
+    to->childs = NULL;
+    to->child_count = 0;
+    to->child_bufsize = 0;
+
+    to->object.filename = g_strdup(from->object.filename);
+    to->command.trigger = g_strdup(from->command.trigger);
 }

@@ -17,6 +17,9 @@
  *  limitations under the License.
  */
 
+#include <glib.h>
+#include <glib/gi18n.h>
+
 enum hitsound_sample {
     SAMPLE_NORMAL  = 0x00,
     SAMPLE_UNK1    = 0x01,
@@ -29,18 +32,21 @@ enum hitsound_sample {
     SAMPLE_TAIKO_BIG = SAMPLE_FINISH,
 };
 
-enum hitsound_sample_type {
-    SAMPLE_TYPE_DEFAULT   = 0,  // defaults to timing section sample type.
-    SAMPLE_TYPE_NORMAL    = 1,
-    SAMPLE_TYPE_SOFT      = 2,
-    SAMPLE_TYPE_DRUM      = 3,
-};
-
 #define SAMPLE_SETS(SET)                        \
-    SET(DEFAULT, N_("Default"))                 \
-    SET(NORMAL, N_("Normal"))                   \
-    SET(SOFT, N_("Soft"))                       \
-    SET(DRUM, N_("Drum"))                       \
+    SET(0, DEFAULT, N_("Default"))              \
+    SET(1, NORMAL, N_("Normal"))                \
+    SET(2, SOFT, N_("Soft"))                    \
+    SET(3, DRUM, N_("Drum"))                    \
 
+gchar const *osux_sample_set_get_name(int sample_set);
+gchar const *osux_sample_set_get_localized_name(int sample_set);
+
+#define SAMPLE_SET_TO_ENUM_(value_, caps_, pretty_)     \
+    SAMPLE_TYPE_##caps_ = (value_),
+
+enum hitsound_sample_type {
+    SAMPLE_SETS(SAMPLE_SET_TO_ENUM_)
+    MAX_SAMPLE_TYPE,
+};
 
 #endif // OSUX_HITSOUND_H
