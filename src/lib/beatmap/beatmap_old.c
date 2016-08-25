@@ -137,6 +137,7 @@ static int beatmap_print_internal(osux_beatmap const *m, FILE *f)
 
 int osux_beatmap_print(osux_beatmap const *m, FILE *f)
 {
+   #ifdef __linux__
     locale_t locC = newlocale(LC_ALL_MASK, "C", 0);
     if (locC == (locale_t) 0) {
         perror("newlocale");
@@ -149,10 +150,15 @@ int osux_beatmap_print(osux_beatmap const *m, FILE *f)
         perror("uselocale");
         exit(EXIT_FAILURE);
     }
+    #else
+	_configthreadlocale(_ENABLE_PER_THREAD_LOCALE);
+	setlocale(LC_ALL, "C");
+    #endif
 
     // print the beatmap
     beatmap_print_internal(m, f);
 
+    #ifdef __linux__
     // restore old locale
     locale_t ret = uselocale(oldLoc);
     if (ret == (locale_t) 0) {
@@ -160,6 +166,10 @@ int osux_beatmap_print(osux_beatmap const *m, FILE *f)
         exit(EXIT_FAILURE);
     }
     freelocale(locC);
+    #else
+	setlocale(LC_ALL, "");
+	_configthreadlocale(_DISABLE_PER_THREAD_LOCALE);
+    #endif
     return 0;
 }
 
@@ -183,7 +193,7 @@ int osux_beatmap_save_full(
 int osux_beatmap_save(osux_beatmap const *beatmap, char const *path)
 {
     int err = 0;
-    FILE *file = g_fopen(path, "wb+");
+    FILE *file = g_fopen(path, "wb");
 
     if (file == NULL) {
         osux_error("%s: %s\n", path, strerror(errno));
