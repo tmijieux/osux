@@ -41,6 +41,7 @@ edosu_gl_init(EdosuGL *self)
 static void
 edosu_gl_class_init(EdosuGLClass *klass)
 {
+    (void) klass;
 }
 
 EdosuGL *edosu_gl_new(void)

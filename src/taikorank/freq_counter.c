@@ -57,7 +57,7 @@ static struct counter_entry * cnte_new(const void * d, double nb)
     return e;
 }
 
-static void cnte_free(const char *key __unused, struct counter_entry *e)
+static void cnte_free(const char *key UNUSED, struct counter_entry *e)
 {
     if (e == NULL)
 	return;
@@ -82,7 +82,7 @@ static void cnte_print(const char *key,
 
 //--------------------------------------------------
 
-static void cnte_inherit(const char *key __unused,
+static void cnte_inherit(const char *key UNUSED,
 			 struct counter_entry *e,
 			 struct inheriter *h)
 {
@@ -90,13 +90,13 @@ static void cnte_inherit(const char *key __unused,
 }
 
 static void cnte_add_nb_inherit(const char *key,
-				struct counter_entry *e __unused,
+				struct counter_entry *e UNUSED,
 				struct inheriter *h)
 {
     h->nb += cnt_get_nb_inherit(h->c, key, h->fun.inherit);
 }
 
-static void cnte_where(const char *key __unused,
+static void cnte_where(const char *key UNUSED,
 		       struct counter_entry *e,
 		       struct inheriter *h)
 {

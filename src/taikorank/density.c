@@ -30,8 +30,8 @@
 static struct yaml_wrap * yw_dst;
 static osux_hashtable * ht_cst_dst;
 
-static inline int tro_true(const struct tr_object *o1 __unused,
-			   const struct tr_object *o2 __unused);
+static inline int tro_true(const struct tr_object *o1 UNUSED,
+			   const struct tr_object *o2 UNUSED);
 static inline int tro_are_same_density(const struct tr_object *o1,
 				       const struct tr_object *o2);
 
@@ -163,8 +163,8 @@ static double tro_density(const struct tr_object * obj1,
 	    tro_set_density_##TYPE (&map->object[i], i);	\
     }
 
-static inline int tro_true(const struct tr_object *o1 __unused,
-			   const struct tr_object *o2 __unused)
+static inline int tro_true(const struct tr_object *o1 UNUSED,
+			   const struct tr_object *o2 UNUSED)
 {
     // for hands density, all objects give a density value
     return 1;

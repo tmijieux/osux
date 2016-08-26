@@ -182,13 +182,13 @@ static void opt_bdb_path(const char ** argv)
 
 //-----------------------------------------------------
 
-static void tr_option_print(const char * key __unused,
+static void tr_option_print(const char * key UNUSED,
 			    struct tr_option * opt)
 {
     fprintf(OUTPUT_INFO, "\t%s\t%s\n", opt->long_key, opt->help);
 }
 
-static void opt_help(const char ** argv __unused)
+static void opt_help(const char ** argv UNUSED)
 {
     fprintf(OUTPUT_INFO, "Usage:\n");
     fprintf(OUTPUT_INFO, "taiko_ranking [GLOBAL_OPTION] ... "

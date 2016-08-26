@@ -252,9 +252,9 @@ int main(int argc, char *argv[])
             printf("Output file: '%s'\n", path);
     }
 
-end:
     g_free(filename);
     g_free(path);
+end:
     osux_beatmap_free(&bm);
     cmdline_parser_free(&info);
     return EXIT_SUCCESS;

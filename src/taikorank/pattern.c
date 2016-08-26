@@ -300,7 +300,7 @@ static void pattern_free(struct pattern *p)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-void tro_set_pattern_proba(struct tr_object * o, int i __unused)
+void tro_set_pattern_proba(struct tr_object * o, int i UNUSED)
 {
     o->proba = lf_eval(SINGLETAP_LF, o->rest);
 /*
