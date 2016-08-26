@@ -18,8 +18,6 @@
 #include <stdlib.h>
 #include <glib.h>
 #include <glib/gstdio.h>
-#include <glib/gstdio.h>
-#include <locale.h>
 
 #include "osux/beatmap.h"
 #include "osux/string2.h"
@@ -138,9 +136,16 @@ static int beatmap_print_internal(osux_beatmap const *m, FILE *f)
 
 int osux_beatmap_print(osux_beatmap const *m, FILE *f)
 {
-    PUSH_C_LOCALE(C_LOCALE);
+    SET_THREAD_LOCALE(cloc, "C");
+    
     beatmap_print_internal(m, f);
-    POP_C_LOCALE(C_LOCALE);
+    
+    #ifdef _WIN32
+    SET_THREAD_LOCALE(cloc, "");
+    #elif __linux__
+    RESTORE_THREAD_LOCALE(cloc);
+    #endif
+
     return 0;
 }
 
@@ -175,16 +180,6 @@ int osux_beatmap_save(osux_beatmap const *beatmap, char const *path)
     }
     return err;
 }
-
-#define BEATMAP_HITOBJECT_UPDATE_STAT(beatmap, hitobject)       \
-    do {                                                        \
-        if (HIT_OBJECT_IS_CIRCLE(hitobject))                    \
-            ++ beatmap->circles;                                \
-        else if (HIT_OBJECT_IS_SLIDER(hitobject))               \
-            bm->sliders ++;                                     \
-        else if (HIT_OBJECT_IS_SPINNER(hitobject))              \
-            bm->spinners ++;                                    \
-    } while (0)
 
 static char const sp_chr[] = "/";
 static char const replace_chr[] = "_";

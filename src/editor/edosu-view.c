@@ -19,7 +19,7 @@ edosu_view_class_init(EdosuViewClass *klass)
         widget_class, "/org/osux/edosu/ui/EdosuView.glade");
 }
 
-EdosuView*edosu_view_new(void)
+EdosuView *edosu_view_new(void)
 {
     return EDOSU_VIEW(g_object_new(EDOSU_TYPE_VIEW, NULL));
 }

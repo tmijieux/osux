@@ -112,7 +112,7 @@ typedef struct osux_hitobject {
     char *errmsg;
 } osux_hitobject;
 
-int __must_check osux_hitobject_init(
+int MUST_CHECK osux_hitobject_init(
     osux_hitobject *ho, char *line, uint32_t osu_version);
 void osux_hitobject_prepare(osux_hitobject *ho, osux_timingpoint const *tp);
 void osux_hitobject_print(osux_hitobject *ho, int version, FILE *f);

@@ -23,6 +23,7 @@ PKG_CHECK_MODULES([GMODULE], [gmodule-2.0])
 PKG_CHECK_MODULES([GIO], [gio-2.0])
 PKG_CHECK_MODULES([GOBJECT], [gobject-2.0])
 PKG_CHECK_MODULES([GTK3], [gtk+-3.0])
+PKG_CHECK_MODULES([EPOXY], [epoxy])
 PKG_CHECK_MODULES([GTS], gts >= 0.7.2, ,
                        [AC_CHECK_PROG(GTS_CONFIG, gts-config,
                        gts-config, false)

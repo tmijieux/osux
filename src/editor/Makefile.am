@@ -12,7 +12,8 @@ edosu_SOURCES = \
 	edosu-properties.c \
 	edosu-palette.c \
 	edosu-view.c \
-	edosu-inspector.c
+	edosu-inspector.c \
+	edosu-gl.c
 
 nodist_edosu_SOURCES = \
 	resources.c \
@@ -52,6 +53,6 @@ resources.c: resources.h $(srcdir)/editor.gresources.xml
 	--target=$@ \
 	--generate-source
 
-edosu_CFLAGS = $(GTK3_CFLAGS) $(AM_CFLAGS)
-edosu_LDFLAGS = $(GTK3_LIBS) -export-dynamic $(AM_LDFLAGS)
+edosu_CFLAGS = $(GTK3_CFLAGS) $(EPOXY_CFLAGS) $(AM_CFLAGS)
+edosu_LDFLAGS = $(GTK3_LIBS) $(EPOXY_LIBS) -export-dynamic $(AM_LDFLAGS)
 edosu_LDADD = ../lib/libosux.la

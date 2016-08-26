@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <glade-catalog name="edosuui" depends="gtk+" domain="edosu">
   <glade-widget-classes>
-    <glade-widget-class name="EdosuCloseLabel" generic-name="edosu_close_label" title="CloseLabel">
-    <properties>
-        <property translatable="True" multiline="True" id="label" default="label" custom-layout="True" />
-    </properties>
-    </glade-widget-class>
-
-    <glade-widget-class name="EdosuPopover" generic-name="edosu_editor_popover" title="EditorPopover"/>
-    <glade-widget-class name="EdosuWindow" generic-name="edosu_editor_window" title="EditorWindow"/>
+    <glade-widget-class name="EdosuCloseLabel" generic-name="edosu_close_label" title="CloseLabel" />
+    <glade-widget-class name="EdosuWindow" generic-name="edosu_window" title="Window"/>
+    <glade-widget-class name="EdosuInspector" generic-name="edosu_inspector" title="Inspector"/>
+    <glade-widget-class name="EdosuPalette" generic-name="edosu_palette" title="Palette"/>
+    <glade-widget-class name="EdosuView" generic-name="edosu_view" title="View"/>
+    <glade-widget-class name="EdosuProperties" generic-name="edosu_properties" title="Properties"/>
+    <glade-widget-class name="EdosuGL" generic-name="edosu_gl" title="GL"/>
   </glade-widget-classes>
 
   <glade-widget-group name="edosu" title="Edosu">
-    <glade-widget-class-ref name="EdosuCLoseLabel"/>
-    <glade-widget-class-ref name="EdosuPopover"/>
-    <glade-widget-class-ref name="EdosuWindow"/>
+    <glade-widget-class-ref name="EdosuCloseLabel" />
+    <glade-widget-class-ref name="EdosuWindow" />
+    <glade-widget-class-ref name="EdosuInspector" />
+    <glade-widget-class-ref name="EdosuPalette" />
+    <glade-widget-class-ref name="EdosuView" />
+    <glade-widget-class-ref name="EdosuProperties" />
+    <glade-widget-class-ref name="EdosuGL" />
   </glade-widget-group>
 </glade-catalog>

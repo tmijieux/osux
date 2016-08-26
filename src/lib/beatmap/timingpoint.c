@@ -119,7 +119,7 @@ static void tp_build_details_string(osux_timingpoint *tp)
 }
 
 
-int __must_check osux_timingpoint_prepare(
+int MUST_CHECK osux_timingpoint_prepare(
     osux_timingpoint *tp,
     osux_timingpoint const **last_non_inherited,
     double slider_velocity)

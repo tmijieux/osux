@@ -19,13 +19,13 @@
 
 #ifdef __GNUC__
 
-#define __unused __attribute__((unused))
-#define __must_check __attribute__((warn_unused_result))
+#define UNUSED __attribute__((unused))
+#define MUST_CHECK __attribute__((warn_unused_result))
 
 #else
 
-#define __unused
-#define __must_check
+#define UNUSED
+#define MUST_CHECK
 
 #endif // __GNUC__
 

@@ -158,16 +158,15 @@ struct osux_beatmap {
 extern "C" {
 #endif
 
-int __must_check osux_beatmap_init(osux_beatmap *beatmap, char const *filename);
+int MUST_CHECK osux_beatmap_init(osux_beatmap *beatmap, char const *filename);
 int osux_beatmap_free(osux_beatmap *beatmap);
 char *osux_beatmap_default_filename(const osux_beatmap *bm);
-int __must_check osux_beatmap_prepare(osux_beatmap *beatmap);
+int MUST_CHECK osux_beatmap_prepare(osux_beatmap *beatmap);
 int osux_beatmap_print(osux_beatmap const *m, FILE *f);
 int osux_beatmap_save(osux_beatmap const *beatmap, char const *path);
 int osux_beatmap_save_full(osux_beatmap const *beatmap,
                            char const *dirpath, char const *filename,
                            bool use_default_filename);
-
 
 /*
  * steal the hitobject/timingpoint/event/color argument internals resources and
