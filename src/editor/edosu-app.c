@@ -150,7 +150,8 @@ close_action(GSimpleAction *action, GVariant *parameter, gpointer app_ptr)
     (void) parameter;
 
     EdosuApplication *app = EDOSU_APPLICATION(app_ptr);
-    edosu_application_close_beatmap(app, app->current_beatmap);
+    if (app->current_beatmap != NULL)
+        edosu_application_close_beatmap(app, app->current_beatmap);
 }
 
 static void

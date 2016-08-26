@@ -47,8 +47,10 @@ gboolean edosu_beatmap_load_from_file(EdosuBeatmap *beatmap, gchar const *filepa
 void edosu_beatmap_save_to_file(EdosuBeatmap *beatmap, gchar const *filepath);
 
 void edosu_beatmap_load_objects(EdosuBeatmap *beatmap, osux_beatmap *osux_bm);
+void edosu_beatmap_save_objects(EdosuBeatmap *beatmap, osux_beatmap *osux_bm);
 void edosu_beatmap_load_and_bind_adjustments(EdosuBeatmap *beatmap,
                                              osux_beatmap *osux_bm);
+void edosu_beatmap_dispose_objects(EdosuBeatmap *beatmap);
 
 G_END_DECLS
 

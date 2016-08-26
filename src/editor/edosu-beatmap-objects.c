@@ -67,7 +67,7 @@ load_colors(osux_beatmap *beatmap, GtkTreeStore *tree_store, GtkTreeIter *colors
         gtk_tree_store_append(tree_store, &iter, colors);
         gtk_tree_store_set(tree_store, &iter,
                            COL_OFFSET, c->id,
-                           COL_TYPE, osux_color_type_get_name(c->type),
+                           COL_TYPE, _(osux_color_type_get_name(c->type)),
                            COL_DETAILS, color,
                            COL_OBJECT, c, -1);
     }
@@ -82,7 +82,7 @@ static void load_event(GtkTreeStore *tree_store, osux_event *event,
     gtk_tree_store_append(tree_store, &iter, parent_object);
     gtk_tree_store_set(tree_store, &iter,
                        COL_OFFSET, event->offset,
-                       COL_TYPE, osux_event_type_get_name(event->type),
+                       COL_TYPE, _(osux_event_type_get_name(event->type)),
                        COL_DETAILS, detail,
                        COL_OBJECT, event, -1);
     for (unsigned i = 0; i < event->child_count; ++i)
@@ -93,7 +93,7 @@ static void
 load_events(osux_beatmap *beatmap, GtkTreeStore *tree_store, GtkTreeIter *events)
 {
     for (unsigned i = 0; i < beatmap->event_count; ++i) {
-        if (!osux_event_is_object(&beatmap->events[i]))
+        if (!EVENT_IS_OBJECT(&beatmap->events[i]))
             continue;
         load_event(tree_store, &beatmap->events[i], events);
     }
@@ -123,7 +123,7 @@ edosu_beatmap_steal_objects(EdosuBeatmap *beatmap, osux_beatmap *osux_bm)
     beatmap->events = osux_bm->events;
     beatmap->colors = osux_bm->colors;
     beatmap->timingpoints = osux_bm->timingpoints;
-    
+
     osux_bm->hitobjects = NULL;
     osux_bm->hitobject_count = 0;
     osux_bm->events = NULL;
@@ -175,16 +175,11 @@ save_hitobjects(EdosuBeatmap *beatmap, osux_beatmap *osux_bm)
     GtkTreeIter hoiter;
     gboolean has_next;
     GtkTreeModel *tm = GTK_TREE_MODEL(beatmap->Objects);
-    GValue value;
-    memset(&value, 0, sizeof value);
-    g_value_unset(&value); // "initialization"
 
     has_next = gtk_tree_model_iter_children(tm, &hoiter, &beatmap->HitObjects);
     while (has_next) {
         osux_hitobject ho, *ref;
-        gtk_tree_model_get_value(tm, &hoiter, COL_OBJECT, &value);
-        ref = g_value_get_pointer(&value);
-        g_value_unset(&value);
+        gtk_tree_model_get(tm, &hoiter, COL_OBJECT, &ref, -1);
         osux_hitobject_copy(ref, &ho);
         osux_beatmap_append_hitobject(osux_bm, &ho);
         has_next = gtk_tree_model_iter_next(tm, &hoiter);
@@ -197,16 +192,11 @@ save_timingpoints(EdosuBeatmap *beatmap, osux_beatmap *osux_bm)
     GtkTreeIter tpiter;
     gboolean has_next;
     GtkTreeModel *tm = GTK_TREE_MODEL(beatmap->Objects);
-    GValue value;
-    memset(&value, 0, sizeof value);
-    g_value_unset(&value); // "initialization"
 
     has_next = gtk_tree_model_iter_children(tm, &tpiter, &beatmap->TimingPoints);
     while (has_next) {
         osux_timingpoint tp, *ref;
-        gtk_tree_model_get_value(tm, &tpiter, COL_OBJECT, &value);
-        ref = g_value_get_pointer(&value);
-        g_value_unset(&value);
+        gtk_tree_model_get(tm, &tpiter, COL_OBJECT, &ref, -1);
         osux_timingpoint_copy(ref, &tp);
         osux_beatmap_append_timingpoint(osux_bm, &tp);
         has_next = gtk_tree_model_iter_next(tm, &tpiter);
@@ -214,25 +204,28 @@ save_timingpoints(EdosuBeatmap *beatmap, osux_beatmap *osux_bm)
 }
 
 static void
-save_events(EdosuBeatmap *beatmap, osux_beatmap *osux_bm)
+save_events_rec(GtkTreeModel *model, GtkTreeIter *iter, osux_beatmap *osux_bm)
 {
-    GtkTreeIter eviter;
-    gboolean has_next;
-    GtkTreeModel *tm = GTK_TREE_MODEL(beatmap->Objects);
-    GValue value;
-    memset(&value, 0, sizeof value);
-    g_value_unset(&value); // "initialization"
-
-    has_next = gtk_tree_model_iter_children(tm, &eviter, &beatmap->Events);
-    while (has_next) {
-        osux_event ev, *ref;
-        gtk_tree_model_get_value(tm, &eviter, COL_OBJECT, &value);
-        ref = g_value_get_pointer(&value);
-        g_value_unset(&value);
+    do {
+        osux_event *ref, ev;
+        gtk_tree_model_get(model, iter, COL_OBJECT, &ref, -1);
         osux_event_copy(ref, &ev);
         osux_beatmap_append_event(osux_bm, &ev);
-        has_next = gtk_tree_model_iter_next(tm, &eviter);
-    }
+
+        GtkTreeIter child;
+        if (gtk_tree_model_iter_children(model, &child, iter))
+            save_events_rec(model, &child, osux_bm);
+    } while (gtk_tree_model_iter_next(model, iter));
+}
+
+static void
+save_events(EdosuBeatmap *beatmap, osux_beatmap *osux_bm)
+{
+    GtkTreeIter child;
+    GtkTreeModel *model = GTK_TREE_MODEL(beatmap->Objects);
+
+    if (gtk_tree_model_iter_children(model, &child, &beatmap->Events))
+        save_events_rec(model, &child, osux_bm);
 }
 
 static void
@@ -241,16 +234,11 @@ save_colors(EdosuBeatmap *beatmap, osux_beatmap *osux_bm)
     GtkTreeIter coliter;
     gboolean has_next;
     GtkTreeModel *tm = GTK_TREE_MODEL(beatmap->Objects);
-    GValue value;
-    memset(&value, 0, sizeof value);
-    g_value_unset(&value); // "initialization"
 
     has_next = gtk_tree_model_iter_children(tm, &coliter, &beatmap->Colors);
     while (has_next) {
         osux_color col, *ref;
-        gtk_tree_model_get_value(tm, &coliter, COL_OBJECT, &value);
-        ref = g_value_get_pointer(&value);
-        g_value_unset(&value);
+        gtk_tree_model_get(tm, &coliter, COL_OBJECT, &ref, -1);
         osux_color_copy(ref, &col);
         osux_beatmap_append_color(osux_bm, &col);
         has_next = gtk_tree_model_iter_next(tm, &coliter);
@@ -258,10 +246,92 @@ save_colors(EdosuBeatmap *beatmap, osux_beatmap *osux_bm)
 }
 
 void
-edosu_beatmap_objects_save(EdosuBeatmap *beatmap, osux_beatmap *osux_bm)
+edosu_beatmap_save_objects(EdosuBeatmap *beatmap, osux_beatmap *osux_bm)
 {
     save_hitobjects(beatmap, osux_bm);
     save_timingpoints(beatmap, osux_bm);
     save_events(beatmap, osux_bm);
     save_colors(beatmap, osux_bm);
+}
+
+
+static void
+dispose_hitobjects(EdosuBeatmap *beatmap)
+{
+    GtkTreeIter hoiter;
+    gboolean has_next;
+    GtkTreeModel *tm = GTK_TREE_MODEL(beatmap->Objects);
+
+    has_next = gtk_tree_model_iter_children(tm, &hoiter, &beatmap->HitObjects);
+    while (has_next) {
+        osux_hitobject *ref;
+        gtk_tree_model_get(tm, &hoiter, COL_OBJECT, &ref, -1);
+        osux_hitobject_free(ref);
+        has_next = gtk_tree_model_iter_next(tm, &hoiter);
+    }
+}
+
+static void
+dispose_timingpoints(EdosuBeatmap *beatmap)
+{
+    GtkTreeIter tpiter;
+    gboolean has_next;
+    GtkTreeModel *tm = GTK_TREE_MODEL(beatmap->Objects);
+
+    has_next = gtk_tree_model_iter_children(tm, &tpiter, &beatmap->TimingPoints);
+    while (has_next) {
+        osux_timingpoint *ref;
+        gtk_tree_model_get(tm, &tpiter, COL_OBJECT, &ref, -1);
+        osux_timingpoint_free(ref);
+        has_next = gtk_tree_model_iter_next(tm, &tpiter);
+    }
+}
+
+static void
+dispose_events_rec(GtkTreeModel *model, GtkTreeIter *iter)
+{
+    do {
+        osux_event *ref;
+        gtk_tree_model_get(model, iter, COL_OBJECT, &ref, -1);
+        GtkTreeIter child;
+        if (gtk_tree_model_iter_children(model, &child, iter))
+            dispose_events_rec(model, &child);
+        osux_event_free(ref);
+    } while (gtk_tree_model_iter_next(model, iter));
+}
+
+static void
+dispose_events(EdosuBeatmap *beatmap)
+{
+    GtkTreeIter child;
+    GtkTreeModel *model = GTK_TREE_MODEL(beatmap->Objects);
+
+    if (gtk_tree_model_iter_children(model, &child, &beatmap->Events))
+        dispose_events_rec(model, &child);
+}
+
+static void
+dispose_colors(EdosuBeatmap *beatmap)
+{
+    GtkTreeIter coliter;
+    gboolean has_next;
+    GtkTreeModel *tm = GTK_TREE_MODEL(beatmap->Objects);
+
+    has_next = gtk_tree_model_iter_children(tm, &coliter, &beatmap->Colors);
+    while (has_next) {
+        osux_color *ref;
+        gtk_tree_model_get(tm, &coliter, COL_OBJECT, &ref, -1);
+        osux_color_free(ref);
+        has_next = gtk_tree_model_iter_next(tm, &coliter);
+    }
+}
+
+void edosu_beatmap_dispose_objects(EdosuBeatmap *beatmap)
+{
+    dispose_hitobjects(beatmap);
+    dispose_timingpoints(beatmap);
+    dispose_events(beatmap);
+    dispose_colors(beatmap);
+    
+    g_clear_object(&beatmap->Objects);
 }

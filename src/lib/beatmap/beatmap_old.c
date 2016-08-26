@@ -30,6 +30,7 @@
 #include "osux/timingpoint.h"
 #include "osux/hitsound.h"
 #include "osux/color.h"
+#include "osux/locale.h"
 
 #define PRINT_SECTION(section)                  \
     fprintf(f, "\r\n["#section"]\r\n")
@@ -118,58 +119,28 @@ static int beatmap_print_internal(osux_beatmap const *m, FILE *f)
     PRINT_DOUBLE(m, f, SliderTickRate);
 
     PRINT_SECTION( Events );
+    for (unsigned i = 0; i < m->event_count; ++i)
+	osux_event_print(&m->events[i], f);
 
     PRINT_SECTION( TimingPoints );
-    for (unsigned int i = 0; i < m->timingpoint_count; ++i)
+    for (unsigned i = 0; i < m->timingpoint_count; ++i)
 	osux_timingpoint_print(&m->timingpoints[i], f);
 
-    if (m->color_count) {
-	PRINT_SECTION( Colours );
-	for (unsigned int i = 0; i < m->color_count; ++i)
-	    osux_color_print(f, &m->colors[i]);
-    }
+    PRINT_SECTION( Colours );
+    for (unsigned i = 0; i < m->color_count; ++i)
+        osux_color_print(f, &m->colors[i]);
 
     PRINT_SECTION( HitObjects );
-    for (unsigned int i = 0; i < m->hitobject_count; ++i)
+    for (unsigned i = 0; i < m->hitobject_count; ++i)
 	osux_hitobject_print(&m->hitobjects[i], m->osu_version, f);
     return 0;
 }
 
 int osux_beatmap_print(osux_beatmap const *m, FILE *f)
 {
-   #ifdef __linux__
-    locale_t locC = newlocale(LC_ALL_MASK, "C", 0);
-    if (locC == (locale_t) 0) {
-        perror("newlocale");
-        exit(EXIT_FAILURE);
-    }
-
-    // switch to C locale and save old locale
-    locale_t oldLoc = uselocale(locC);
-    if (oldLoc == (locale_t) 0) {
-        perror("uselocale");
-        exit(EXIT_FAILURE);
-    }
-    #else
-	_configthreadlocale(_ENABLE_PER_THREAD_LOCALE);
-	setlocale(LC_ALL, "C");
-    #endif
-
-    // print the beatmap
+    PUSH_C_LOCALE(C_LOCALE);
     beatmap_print_internal(m, f);
-
-    #ifdef __linux__
-    // restore old locale
-    locale_t ret = uselocale(oldLoc);
-    if (ret == (locale_t) 0) {
-        perror("uselocale");
-        exit(EXIT_FAILURE);
-    }
-    freelocale(locC);
-    #else
-	setlocale(LC_ALL, "");
-	_configthreadlocale(_DISABLE_PER_THREAD_LOCALE);
-    #endif
+    POP_C_LOCALE(C_LOCALE);
     return 0;
 }
 

@@ -1,23 +1,28 @@
 #ifndef OSUX_EVENT_H
 #define OSUX_EVENT_H
 
+#include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <glib/gi18n.h>
 
-typedef struct osux_event_ osux_event;
+#define OSUX_EVENT_HEADER_
 
+typedef struct osux_event_ osux_event;
 typedef struct osux_event_object_ osux_event_object;
 typedef struct osux_event_command_ osux_event_command;
 
+// arg 3 is boolean to whether display the number or the string
+// when printing to '.osu'
+
 #define EVENT_OBJECTS(OBJECT)                                           \
-    OBJECT(0, N_("BackgroundImage"), BACKGROUND_IMAGE, parse_bg_image_object) \
-    OBJECT(1, N_("Video"), VIDEO, parse_video_object)                   \
-    OBJECT(2, N_("BreakPeriod"), BREAK, parse_break_period_object)      \
-    OBJECT(3, N_("BackgroundColour"), BACKGROUND_COLOUR, parse_bg_colour_object) \
-    OBJECT(4, N_("Sprite"), SPRITE, parse_sprite_object)                \
-    OBJECT(5, N_("Sample"), SAMPLE, parse_sample_object)                \
-    OBJECT(6, N_("Animation"), ANIMATION, parse_animation_object)       \
+    OBJECT(0, N_("BackgroundImage"), 0, BACKGROUND_IMAGE, parse_bg_image_object) \
+    OBJECT(1, N_("Video"),           1, VIDEO, parse_video_object)      \
+    OBJECT(2, N_("BreakPeriod"),     0, BREAK, parse_break_period_object) \
+    OBJECT(3, N_("BackgroundColour"),0, BACKGROUND_COLOUR, parse_bg_colour_object) \
+    OBJECT(4, N_("Sprite"),          1,  SPRITE, parse_sprite_object)   \
+    OBJECT(5, N_("Sample"),          1, SAMPLE, parse_sample_object)    \
+    OBJECT(6, N_("Animation"),       1,  ANIMATION, parse_animation_object) \
 
 #define EVENT_COMMANDS(COMMAND)                                         \
     COMMAND(FADE, N_("Fade"), F, parse_fade_cmd)                        \
@@ -52,7 +57,6 @@ typedef struct osux_event_command_ osux_event_command;
     ORIG(6, N_("BottomLeft"),   BOTTOM_LEFT)    \
     ORIG(7, N_("BottomCentre"), BOTTOM_CENTRE)  \
     ORIG(8, N_("BottomRight"),  BOTTOM_RIGHT)   \
-
 
 #include "osux/event_enum.h"
 
@@ -92,8 +96,8 @@ struct osux_event_command_ {
 struct osux_event_ {
     int type;
     uint32_t level;
-    int64_t offset;
-    int64_t end_offset;
+    int offset;
+    int end_offset;
 
     osux_event_object object;
     osux_event_command command;
@@ -111,22 +115,26 @@ extern "C" {
 #endif
 
 int osux_event_init(osux_event *event, char *line, uint32_t osu_version);
-bool osux_event_is_object(osux_event *event);
-bool osux_event_is_command(osux_event *event);
 int osux_event_free(osux_event *event);
 int osux_event_build_tree(osux_event *event);
 int osux_event_prepare(osux_event *ev);
+void osux_event_print(osux_event *ev, FILE *f);
 
 void osux_event_move(osux_event *from, osux_event *to);
 void osux_event_copy(osux_event *from, osux_event *to);
-
-char const *osux_event_type_get_name(int event_type);
-char const *osux_event_layer_get_name(int event_type);
-char const *osux_event_loop_get_name(int event_type);
 char const *osux_event_detail_string(osux_event *ev);
+
+#define EVENT_IS_OBJECT(ev)  (!((ev)->level))
+#define EVENT_IS_COMMAND(ev)  (!!((ev)->level))
+#define EVENT_TYPE_IS_COMPOUND(type)                                    \
+    ((type) == EVENT_COMMAND_TRIGGER || (type) == EVENT_COMMAND_LOOP)
+
+
+#include "event_string.h"
 
 #ifdef __cplusplus
 }
 #endif
 
+#undef OSUX_EVENT_HEADER_
 #endif // OSUX_EVENT_H

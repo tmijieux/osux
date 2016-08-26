@@ -32,7 +32,7 @@ char const *osux_color_type_get_name(int type)
 {
     if (type < 0 || type >= MAX_COLOR_TYPE)
         return NULL;
-    return gettext(color_type_str[type]);
+    return color_type_str[type];
 }
 
 static int parse_data(osux_color *c, char *type, char *data)

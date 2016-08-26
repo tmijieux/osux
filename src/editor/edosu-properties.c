@@ -123,6 +123,8 @@ edosu_properties_load_from_beatmap(EdosuProperties *p, osux_beatmap *beatmap)
     LOAD_ADJUST(SliderMultiplier);
     LOAD_ADJUST(SliderTickRate);
     LOAD_ADJUST(PreviewTime);
+    LOAD_ADJUST(StackLeniency);
+    LOAD_ADJUST(AudioLeadIn);
 
     LOAD_BOOL(Countdown);
     LOAD_BOOL(LetterboxInBreaks);
@@ -176,7 +178,9 @@ edosu_properties_save_to_beatmap(EdosuProperties *p, osux_beatmap *beatmap)
     SAVE_ADJUST(SliderMultiplier);
     SAVE_ADJUST(SliderTickRate);
     SAVE_ADJUST(PreviewTime);
-    
+    SAVE_ADJUST(StackLeniency);
+    SAVE_ADJUST(AudioLeadIn);
+
     SAVE_BOOL(Countdown);
     SAVE_BOOL(LetterboxInBreaks);
     SAVE_BOOL(WidescreenStoryboard);

@@ -9,7 +9,7 @@
 
 typedef int (*command_parser_t)(osux_event_command*,char**,unsigned);
 
-#define PARSER_DECLARE(a, b, c, parser_)                \
+#define PARSER_DECLARE(a, b, c,d, parser_)              \
     static int parser_(osux_event*,char**,unsigned);
 
 #define CMD_PARSER_DECLARE(a, b, c, parser_)                    \
@@ -19,11 +19,6 @@ typedef int (*command_parser_t)(osux_event_command*,char**,unsigned);
     [id] = parser_,
 #define COMMAND_TO_PARSER(ca, pr, s_id, parser_)        \
     [EVENT_COMMAND_##ca] = parser_,
-
-#define EVENT_TYPE_IS_COMPOUND(type)                                    \
-    ((type) == EVENT_COMMAND_TRIGGER || (type) == EVENT_COMMAND_LOOP)
-#define EVENT_IS_COMMAND(ev)  (!!((ev)->level))
-#define EVENT_IS_OBJECT(ev)  (!((ev)->level))
 
 
 static int parse_command(osux_event*,char**,unsigned);
@@ -48,12 +43,12 @@ static int add_child(osux_event *parent, osux_event *child)
 }
 
 // private macro; parse_top_level_event only;
-#define MATCH_OBJECT__(id, pretty_, capital_, parser_)          \
-    do {                                                        \
-        if (!strcmp(type, pretty_) || !strcmp(type, #id)) {     \
-            event->type = EVENT_OBJECT_##capital_;              \
-            return parser_(event, split, size);                 \
-        }                                                       \
+#define MATCH_OBJECT__(id, pretty_, display_, capital_, parser_)        \
+    do {                                                                \
+        if (!strcmp(type, pretty_) || !strcmp(type, #id)) {             \
+            event->type = EVENT_OBJECT_##capital_;                      \
+            return parser_(event, split, size);                         \
+        }                                                               \
     } while (0);
 
 
@@ -88,7 +83,7 @@ static int parse_object_event(osux_event *event, char **split, unsigned size)
     if (!size)
         return -OSUX_ERR_INVALID_EVENT;
     event->type = -1;
-    event->offset = INT64_MAX;
+    event->offset = INT_MAX;
     char *type = split[0];
     EVENT_OBJECTS(MATCH_OBJECT__);
     return -OSUX_ERR_INVALID_EVENT_OBJECT;
@@ -220,7 +215,6 @@ static int parse_sample_object(
     ev->object.sample_volume = 100;
     if (size >= 5)
         ev->object.sample_volume = atoi(split[4]);
-
     return 0;
 }
 
@@ -282,16 +276,6 @@ int osux_event_free(osux_event *event)
 
     memset(event, 0, sizeof*event);
     return 0;
-}
-
-bool osux_event_is_object(osux_event *event)
-{
-    return !event->level;
-}
-
-bool osux_event_is_command(osux_event *event)
-{
-    return !!event->level;
 }
 
 #define EVENT_MAX_STACK_SIZE 200
@@ -485,15 +469,6 @@ static int parse_parameter_cmd(osux_event_command *cmd, char **split, unsigned s
   COMPOUND (compound command does not have the default arguments
   (easing,offset,end_offset) like the other commands!!!
 */
-
-/*
-  loop end offset is either loop->offset + max(end_offset(childs) if LOOP_ONCE
-  or parent->end_offset if LOOP_FOREVER
-
-  !! warning:
-  when LOOP_ONCE, parent end_offset is computed from loop end_offset; BUT...
-  when LOOP_FOREVER loop end_offset is computed from parent end_offset;
-*/
 static int parse_loop_cmd(osux_event_command *cmd, char **split, unsigned size)
 {
     if (size != 3)
@@ -577,3 +552,86 @@ void osux_event_copy(osux_event *from, osux_event *to)
     to->object.filename = g_strdup(from->object.filename);
     to->command.trigger = g_strdup(from->command.trigger);
 }
+
+void osux_event_print(osux_event *ev, FILE *f)
+{
+    fprintf(f, "%*s%s,", ev->level, "", osux_event_type_get_mname(ev->type));
+
+    if (EVENT_IS_COMMAND(ev) && !EVENT_TYPE_IS_COMPOUND(ev->type))
+        fprintf(f, "%d,%d,%d,", ev->command.easing, ev->offset, ev->end_offset);
+
+    switch (ev->type) {
+    case EVENT_OBJECT_BACKGROUND_IMAGE:
+    case EVENT_OBJECT_VIDEO:
+        fprintf(f, "%d,%s,%d,%d", ev->offset, ev->object.filename,
+                ev->object.x, ev->object.y);
+        break;
+    case EVENT_OBJECT_BREAK:
+        fprintf(f, "%d,%d", ev->offset, ev->end_offset);
+        break;
+    case EVENT_OBJECT_BACKGROUND_COLOUR:
+        fprintf(f, "%d,%d,%d,%d", ev->offset,
+                ev->object.r, ev->object.g, ev->object.b);
+        break;
+    case EVENT_OBJECT_SPRITE:
+        fprintf(f, "%s,%s,%s,%d,%d",
+                osux_event_layer_get_name(ev->object.layer),
+                osux_event_origin_get_name(ev->object.origin),
+                ev->object.filename, ev->object.x, ev->object.y);
+        break;
+    case EVENT_OBJECT_ANIMATION:
+        fprintf(f, "%s,%s,%s,%d,%d,%d,%d,%s",
+                osux_event_layer_get_name(ev->object.layer),
+                osux_event_origin_get_name(ev->object.origin),
+                ev->object.filename, ev->object.x, ev->object.y,
+                ev->object.anim_frame_count, ev->object.anim_frame_delay,
+                osux_event_loop_get_name(ev->object.anim_loop));
+        break;
+    case EVENT_OBJECT_SAMPLE:
+        fprintf(f, "%d,%s,%s,%d", ev->offset,
+                osux_event_layer_get_name(ev->object.layer),
+                ev->object.filename, ev->object.sample_volume);
+        break;
+    case EVENT_COMMAND_FADE:
+        fprintf(f, "%g,%g", ev->command.o1, ev->command.o2);
+        break;
+    case EVENT_COMMAND_MOVE:
+        fprintf(f, "%d,%d,%d,%d", ev->command.x1, ev->command.y1,
+                ev->command.x2, ev->command.y2);
+        break;
+    case EVENT_COMMAND_MOVE_X:
+        fprintf(f, "%d,%d", ev->command.x1, ev->command.x2);
+        break;
+    case EVENT_COMMAND_MOVE_Y:
+        fprintf(f, "%d,%d", ev->command.y1, ev->command.y2);
+        break;
+    case EVENT_COMMAND_SCALE:
+        fprintf(f, "%g,%g", ev->command.s1, ev->command.s2);
+        break;
+    case EVENT_COMMAND_VECTOR_SCALE:
+        fprintf(f, "%g,%g,%g,%g", ev->command.sx1, ev->command.sy1,
+                ev->command.sx2, ev->command.sy2);
+        break;
+    case EVENT_COMMAND_ROTATE:
+        fprintf(f, "%g,%g", ev->command.a1, ev->command.a2);
+        break;
+    case EVENT_COMMAND_COLOR:
+        fprintf(f, "%d,%d,%d,%d,%d,%d",
+                ev->command.r1, ev->command.g1, ev->command.b1,
+                ev->command.r2, ev->command.g2, ev->command.b2);
+        break;
+    case EVENT_COMMAND_PARAMETER:
+        fprintf(f, "%c", ev->command.param);
+        break;
+    case EVENT_COMMAND_LOOP:
+        fprintf(f, "%d,%d", ev->offset, ev->command.loop_count);
+        break;
+    case EVENT_COMMAND_TRIGGER:
+        fprintf(f, "%s,%d,%d", ev->command.trigger, ev->offset, ev->end_offset);
+        break;
+    default:
+        break;
+    };
+    fprintf(f, "\r\n");
+}
+

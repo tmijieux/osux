@@ -13,10 +13,3 @@ gchar const *osux_sample_set_get_name(int sample_set)
         return NULL;
     return sample_set_str[sample_set];
 }
-
-gchar const *osux_sample_set_get_localized_name(int sample_set)
-{
-    if (sample_set < 0 || sample_set >= MAX_SAMPLE_TYPE)
-        return NULL;
-    return gettext(sample_set_str[sample_set]);
-}

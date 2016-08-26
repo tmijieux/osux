@@ -28,7 +28,7 @@ edosu_beatmap_save_to_file(EdosuBeatmap *beatmap, gchar const *filepath)
     o_beatmap.osu_version = 15;
 
     edosu_properties_save_to_beatmap(beatmap->properties, &o_beatmap);
-    edosu_beatmap_objects_save(beatmap, &o_beatmap);
+    edosu_beatmap_save_objects(beatmap, &o_beatmap);
     
     osux_beatmap_save(&o_beatmap, filepath);
     osux_beatmap_free(&o_beatmap);
@@ -49,6 +49,8 @@ edosu_beatmap_dispose(GObject *obj)
     g_clear_object(&beatmap->palette);
     g_clear_object(&beatmap->inspector);
     g_clear_object(&beatmap->properties);
+    edosu_beatmap_dispose_objects(beatmap);
+
     G_OBJECT_CLASS(edosu_beatmap_parent_class)->dispose(obj);
 }
 
@@ -61,6 +63,7 @@ edosu_beatmap_finalize(GObject *obj)
     g_clear_pointer(&beatmap->filename, g_free);
     g_clear_pointer(&beatmap->dirpath, g_free);
     g_clear_pointer(&beatmap->errmsg, g_free);
+
 
     g_clear_pointer(&beatmap->hitobjects, g_free);
     g_clear_pointer(&beatmap->timingpoints, g_free);

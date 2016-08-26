@@ -1,9 +1,11 @@
 #ifndef OSUX_EVENT_ENUM_H
 #define OSUX_EVENT_ENUM_H
 
-#include "osux/event.h"
+#ifndef OSUX_EVENT_HEADER_
+#error "Never include this file directly"
+#endif
 
-#define OBJECT_TO_ENUM_WITH_VALUE(value_, pretty_, capital_, parser)    \
+#define OBJECT_TO_ENUM_WITH_VALUE(value_, pretty_, display_, capital_, parser) \
     EVENT_OBJECT_##capital_ = value_,
 #define COMMAND_TO_ENUM(capital_, pretty_, string_value, parser)        \
     EVENT_COMMAND_##capital_,
@@ -27,7 +29,6 @@ enum event_loop {
     EVENT_LOOPS(LOOP_TO_ENUM_WITH_VALUE)
     MAX_LOOP,
 };
-
 enum  event_origin {
     EVENT_ORIGINS(ORIG_TO_ENUM_WITH_VALUE)
     MAX_ORIGIN,

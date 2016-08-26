@@ -21,7 +21,6 @@
 
 #include "osux/beatmap.h"
 #include "osux/hitobject.h"
-#include "osux/hitobject_taiko.h"
 #include "osux/timingpoint.h"
 #include "osux/taiko_autoconvert.h"
 #include "osux/list.h"

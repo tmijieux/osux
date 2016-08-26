@@ -31,7 +31,8 @@ int osux_beatmap_free(osux_beatmap *beatmap)
     g_free(beatmap->Creator);
     g_free(beatmap->Version);
     g_free(beatmap->Source);
-
+    g_free(beatmap->Tags);
+    
     g_strfreev(beatmap->tags);
     g_free(beatmap->colors);
 
@@ -147,7 +148,7 @@ static int parse_option_entry(
     char **split = g_strsplit(line, ":", 2);
     osux_hashtable_insert( section,
                            g_strstrip(split[0]),
-                           g_strchug(g_strdup(split[1]))  );
+                           g_strchug(g_strdup(split[1])) );
     g_strfreev(split);
     return 0;
 }
@@ -333,7 +334,7 @@ static void fetch_tags(osux_beatmap *beatmap)
         beatmap->tags_orig = g_strdup("");
         if (tags != NULL) {
             g_free(beatmap->tags_orig);
-            beatmap->tags_orig = tags;
+            beatmap->tags_orig = g_strdup(tags);
             beatmap->tags = g_strsplit(tags, " ", 0);
             beatmap->tag_count = strsplit_size(beatmap->tags);
         }

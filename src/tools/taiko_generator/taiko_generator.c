@@ -30,6 +30,31 @@ struct taiko_generator {
     double offset_unit;
 };
 
+static int
+make_taiko_circle(osux_hitobject *ho, int offset, int sample)
+{
+    int err = 0;
+    char *rep = NULL;
+    rep = g_strdup_printf(
+        "0,0,%d,%d,%d,0:0:0:0:", offset, HITOBJECT_CIRCLE, sample);
+    err = osux_hitobject_init(ho, rep, 12);
+    g_free(rep);
+    return err;
+}
+
+static int
+make_taiko_spinner(osux_hitobject *ho, int offset, int end_offset)
+{
+    int err = 0;
+    char *rep = NULL;
+    rep = g_strdup_printf(
+        "0,0,%d,%d,%d,%d,0:0:0:0:", offset,
+        HITOBJECT_SPINNER | HITOBJECT_NEWCOMBO,  SAMPLE_NORMAL, end_offset);
+    err = osux_hitobject_init(ho, rep, 12);
+    g_free(rep);
+    return err;
+}
+
 static int str_has_char(const char*s, char c)
 {
     for (uint32_t i = 0; s[i] != '\0'; i++)
@@ -50,22 +75,16 @@ static void tg_check_pattern(struct taiko_generator *tg)
     }
 }
 
-static struct taiko_generator *tg_new(char *pattern, double bpm)
+static int tg_init(struct taiko_generator *tg, char *pattern, double bpm)
 {
-    struct taiko_generator *tg = g_malloc0(sizeof*tg);
+    memset(tg, 0, sizeof*tg);
     tg->pattern = pattern;
     tg->len = strlen(pattern);
     tg->pos = 0;
     tg->offset = 0;
     tg->offset_unit = (60000. / bpm) / 4.;
-
     tg_check_pattern(tg);
-    return tg;
-}
-
-static void tg_free(struct taiko_generator *tg)
-{
-    g_free(tg);
+    return 0;
 }
 
 static int tg_get_sample(struct taiko_generator *tg)
@@ -91,9 +110,9 @@ static void tg_next(struct taiko_generator *tg)
     tg->offset += tg->offset_unit;
 }
 
-static int tg_is_sample(struct taiko_generator *tg)
+static int tg_is_blank(struct taiko_generator *tg)
 {
-    return tg->pattern[tg->pos] != '_';
+    return tg->pattern[tg->pos] == '_';
 }
 
 static void beatmap_set_general(osux_beatmap *bm)
@@ -125,8 +144,8 @@ static char *create_title(struct gengetopt_args_info *info)
     return s;
 }
 
-static void beatmap_set_metadata(osux_beatmap *bm,
-				 struct gengetopt_args_info *info)
+static void
+beatmap_set_metadata(osux_beatmap *bm, struct gengetopt_args_info *info)
 {
     bm->Title         = create_title(info);
     bm->TitleUnicode  = strdup(bm->Title);
@@ -139,8 +158,8 @@ static void beatmap_set_metadata(osux_beatmap *bm,
     bm->BeatmapSetID  = -1;
 }
 
-static void beatmap_set_difficulty(osux_beatmap *bm,
-				   struct gengetopt_args_info *info)
+static void
+beatmap_set_difficulty(osux_beatmap *bm, struct gengetopt_args_info *info)
 {
     bm->HPDrainRate  = 5;
     bm->CircleSize   = 5;
@@ -150,8 +169,8 @@ static void beatmap_set_difficulty(osux_beatmap *bm,
     bm->SliderTickRate = 1;
 }
 
-static void beatmap_set_tp(osux_beatmap *bm,
-			   struct gengetopt_args_info *info)
+static void
+beatmap_set_tp(osux_beatmap *bm, struct gengetopt_args_info *info)
 {
     osux_timingpoint *tp = g_malloc0(sizeof*tp);
     char *rep;
@@ -167,7 +186,6 @@ static void beatmap_set_tp(osux_beatmap *bm,
     bm->timingpoint_count   = 1;
     bm->timingpoint_bufsize = 1;
     bm->timingpoints = tp;
-
 }
 
 static void beatmap_init(osux_beatmap *bm, struct gengetopt_args_info *info)
@@ -181,25 +199,23 @@ static void beatmap_init(osux_beatmap *bm, struct gengetopt_args_info *info)
 
 static void tg_set_ho(struct taiko_generator *tg, osux_hitobject *ho)
 {
-    while(!tg_is_sample(tg)) {
+    while (tg_is_blank(tg))
 	tg_next(tg);
-    }
-    osux_ho_taiko_circle_init(ho, tg->offset, tg_get_sample(tg));
+    make_taiko_circle(ho, tg->offset, tg_get_sample(tg));
     tg_next(tg);
 }
 
-static osux_beatmap *beatmap_add_ho(osux_beatmap *bm,
-				    struct gengetopt_args_info *info)
+void
+beatmap_add_ho(osux_beatmap *bm, struct gengetopt_args_info *info)
 {
-    bm->hitobject_count   = info->nb_ho_arg;
-    bm->hitobject_bufsize = info->nb_ho_arg;
-    bm->hitobjects = g_malloc0((sizeof*bm->hitobjects) * info->nb_ho_arg);
-    struct taiko_generator *tg = tg_new(info->pattern_arg, info->bpm_arg);
-    for (int i = 0; i < info->nb_ho_arg; i++) {
-	tg_set_ho(tg, &bm->hitobjects[i]);
-    }
-    tg_free(tg);
-    return bm;
+    struct taiko_generator tg;
+
+    ALLOC_ARRAY(bm->hitobjects, bm->hitobject_bufsize, info->nb_ho_arg);
+    bm->hitobject_count = info->nb_ho_arg;
+
+    tg_init(&tg, info->pattern_arg, info->bpm_arg);
+    for (int i = 0; i < info->nb_ho_arg; i++)
+	tg_set_ho(&tg, &bm->hitobjects[i]);
 }
 
 int main(int argc, char *argv[])
@@ -222,7 +238,7 @@ int main(int argc, char *argv[])
     err = osux_beatmap_prepare(&bm);
     if (err) {
         fprintf(stderr, "Prepare beatmap has failed: %s\n",  osux_errmsg(err));
-        exit(EXIT_FAILURE);
+        goto end;
     }
 
     gchar *filename = osux_beatmap_default_filename(&bm);
@@ -231,12 +247,12 @@ int main(int argc, char *argv[])
     err = osux_beatmap_save(&bm, path);
     if (err) {
         fprintf(stderr, "Saving '%s' failed: %s\n", path, osux_errmsg(err));
-        exit(EXIT_FAILURE);
+    } else {
+        if (!info.quiet_given)
+            printf("Output file: '%s'\n", path);
     }
 
-    if (!info.quiet_given)
-        printf("Output file: '%s'\n", path);
-
+end:
     g_free(filename);
     g_free(path);
     osux_beatmap_free(&bm);

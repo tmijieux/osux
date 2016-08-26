@@ -8,7 +8,7 @@ edosu_SOURCES = \
 	edosu-close-lbl.c \
 	edosu-adjust.c \
 	edosu-beatmap.c \
-	edosu-beatmap-load.c \
+	edosu-beatmap-objects.c \
 	edosu-properties.c \
 	edosu-palette.c \
 	edosu-view.c \

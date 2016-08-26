@@ -11,7 +11,6 @@ libosux_beatmap_la_SOURCES = \
 	util.c \
 	color.c \
 	hitobject.c \
-	hitobject_taiko.c \
 	hitsound.h \
 	timingpoint.c \
 	taiko_autoconvert.c \
