@@ -12,6 +12,13 @@ G_DECLARE_FINAL_TYPE(EdosuGL, edosu_gl, EDOSU, GL, GtkGLArea);
 struct _EdosuGL
 {
     GtkGLArea parent;
+
+    float mvp[16];
+    guint vao;
+    guint program;
+    guint mvp_location;
+    guint position_index;
+    guint color_index;
 };
 
 EdosuGL *edosu_gl_new(void);
