@@ -18,45 +18,41 @@ from tr_exec import TR_Exec
 from tr_type import TR_Type_Util
 from tr_test import TR_Tester
 from tr_test_stars import TR_Test_Stars
+from tr_models import TR_Map, TR_Map_List
 
 ########################################################
 
 class TR_Test_Mapset(TR_Test_Stars):
-    ########################################################
     def __init__(self, ht):
         ht['expected'] = '\n'
         ht['field']    = 'final_star'
         ht['mods']     = ['__']
         TR_Test_Stars.__init__(self, ht)
-    ########################################################
+    #
     def check_one_mod(self, mod):
         self.expected = self.create_expected(mod)
         return TR_Test_Stars.check_one_mod(self, mod)
-    ########################################################
+    #
     def create_expected(self, mod):
         expected = []
         res = self.res[mod].copy()
-        #
         for i in range(0, len(res)):
-            name = res[i]['difficulty']
-            res[i]['type'] = TR_Type_Util.get_tr_type(name)
-        #
-        res = sorted(res, key=lambda k: k['type'].rank, reverse=True)
-        #
+            name = res[i].difficulty
+            res[i].type = TR_Type_Util.get_tr_type(name)
+        res = sorted(res, key=lambda k: k.type.rank, reverse=True)
         l = []
-        for x in res:
-            l.append(self.str_brief(x))
+        for map in res:
+            l.append(str(map))
         return l
-    ########################################################
 
 ########################################################
 
 class TR_Tester_Mapset(TR_Tester):
     MAX_DEPTH = 3
-    ########################################################
+    #
     def __init__(self, argv):
         TR_Tester.__init__(self, argv)
-    ########################################################
+    #
     def test_dir(self, path):
         data = {}
         data['path'] = path
@@ -64,11 +60,10 @@ class TR_Tester_Mapset(TR_Tester):
         err, tot = test.main()
         self.errors += err
         self.total  += tot
-    ########################################################
+    #
     def test_recursive(self, arg, depth):
         if depth > self.MAX_DEPTH:
             return
-        #
         osu_files = []
         for f in os.listdir(arg):
             path = arg + f + '/'
@@ -76,15 +71,12 @@ class TR_Tester_Mapset(TR_Tester):
                 self.test_recursive(path, depth + 1)
             elif f.endswith(".osu"):
                 osu_files.append(f)
-        #
         if len(osu_files) > 2:
             self.test_dir('"' + arg + '"')
-        #
-    ########################################################
+    #
     def test(self, arg):
         self.test_recursive(arg, 0)
         return (self.errors, self.total)
-    ########################################################
 
 if __name__ == "__main__":
     TR_Tester_Mapset(sys.argv).main()

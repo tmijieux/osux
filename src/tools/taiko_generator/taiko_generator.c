@@ -63,7 +63,7 @@ static int str_has_char(const char*s, char c)
     return 0;
 }
 
-static void tg_check_pattern(struct taiko_generator *tg)
+static void tg_check_pattern(const struct taiko_generator *tg)
 {
     static char *allowed = "dDkK_";
     for (uint32_t i = 0; i < tg->len; i++) {
@@ -87,7 +87,7 @@ static int tg_init(struct taiko_generator *tg, char *pattern, double bpm)
     return 0;
 }
 
-static int tg_get_sample(struct taiko_generator *tg)
+static int tg_get_sample(const struct taiko_generator *tg)
 {
     switch (tg->pattern[tg->pos]) {
     case 'd':
@@ -110,7 +110,7 @@ static void tg_next(struct taiko_generator *tg)
     tg->offset += tg->offset_unit;
 }
 
-static int tg_is_blank(struct taiko_generator *tg)
+static int tg_is_blank(const struct taiko_generator *tg)
 {
     return tg->pattern[tg->pos] == '_';
 }

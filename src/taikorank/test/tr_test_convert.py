@@ -16,71 +16,57 @@ import sys
 from colors import Colors
 from tr_exec import TR_Exec
 from tr_test import TR_Tester_Yaml, TR_Test_Str_List
+from tr_models import TR_Map_List, TR_Map_With_Objects
 
 class TR_Test_Autoconvert(TR_Test_Str_List):
     MAX_LENGTH = 16
-    #########################################################
+    #
     def __init__(self, ht):
         TR_Test_Str_List.__init__(self, ht)
         self.unit = ht['unit']
         self.opt  = {'+ptro': 1, '+autoconvert': 1}
-    #########################################################
+    #
     def compute(self):
-        res = TR_Exec.compute(self.cmd, self.opt)
-        self.res = sorted(res['maps'], key=lambda k: k['difficulty'])
-    #########################################################
+        tmp = TR_Exec.compute(self.cmd, self.opt)
+        tmp = TR_Map_List.from_yaml(tmp, TR_Map_With_Objects)
+        self.res = tmp.sort_by('difficulty', False)
+    #
     S_OK   = "%s - %%s"       % (Colors.green("OK"))
     S_FAIL = "%s - %%s {%%s}" % (Colors.fail("<>"))
     def check(self):
         self.check_same_len(self.res)
-        #
         errors = 0
         zipped = zip(self.expected, self.res);
-        for expected, res in zipped:
-            s = self.str_brief(res)
+        for expected, map in zipped:
+            s = map.str_obj(self.unit, self.MAX_LENGTH)
             if s == expected:
                 print(self.S_OK   % (s))
             else:
                 print(self.S_FAIL % (s, Colors.warning(expected)))
                 errors += 1
         return errors
-    #########################################################
-    def str_brief(self, x):
-        s = ""
-        for i in range(0, len(x['objects'])):
-            if i != 0:
-                space = (x['objects'][i]['offset'] -
-                         x['objects'][i-1]['offset']) / self.unit
-                s += "_" * (int(space) - 1)
-            s += x['objects'][i]['type']
-        #
-        s += " " * (self.MAX_LENGTH - len(s))
-        return "%s%s[%s]" % (s, x['title'], x['difficulty'])
-    #########################################################
+    #
     def dump(self):
-        for x in self.res:
-            print(self.str_brief(x))
-    #########################################################
+        for map in self.res:
+            print(map.str_obj(self.unit, self.MAX_LENGTH))
+    #
     def compare(self):
         errors = self.check()
         total  = len(self.expected)
         return (errors, total)
-    #########################################################
 
 ########################################################
 
 class TR_Tester_Autoconvert(TR_Tester_Yaml):
-    ########################################################
     def __init__(self, argv):
         TR_Tester_Yaml.__init__(self, argv)
-    ########################################################
+    #
     def test_yaml(self, data):
         if 'tests' in data:
             self.test_iterate(data['tests'],
                               TR_Test_Autoconvert,
                               TR_Test_Autoconvert.main)
         return (self.errors, self.total)
-    ########################################################
 
 ########################################################
 

@@ -102,12 +102,12 @@ void tro_print_yaml(const struct tr_object * o)
     fprintf(OUTPUT, "{");
     fprintf(OUTPUT, "offset: %d, ", o->offset);
     fprintf(OUTPUT, "type: %c, ", tro_char_type(o));
-    fprintf(OUTPUT, "density_star: %g, ", o->density_star);
+    fprintf(OUTPUT, "stars: {density_star: %g, ", o->density_star);
     fprintf(OUTPUT, "pattern_star: %g, ", o->pattern_star);
     fprintf(OUTPUT, "reading_star: %g, ", o->reading_star);
     fprintf(OUTPUT, "accuracy_star: %g, ", o->accuracy_star);
     fprintf(OUTPUT, "final_star: %g", o->final_star);
-    fprintf(OUTPUT, "}");
+    fprintf(OUTPUT, "}}");
 }
 
 //---------------------------------------------------

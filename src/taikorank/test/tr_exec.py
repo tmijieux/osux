@@ -29,13 +29,12 @@ class TR_Exec:
         '-quick':       1,
         '-mods':        '__'
     }
-    #########################################################
+    #
     @staticmethod
     def options(opt = {}):
         copy = TR_Exec.OPT.copy()
         copy.update(opt)
         s = " "
-        #
         global_opt = []
         local_opt  = []
         for key, value in copy.items():
@@ -43,13 +42,12 @@ class TR_Exec:
                 global_opt.append((key, value))
             else:
                 local_opt.append((key, value))
-        #
         for key, value in global_opt:
             s += key + " " + str(value) + " "
         for key, value in local_opt:
             s += key + " " + str(value) + " "
         return s
-    #########################################################
+    #
     @staticmethod
     def cmd(cmd):
         if DEBUG:
@@ -74,10 +72,8 @@ class TR_Exec:
     @staticmethod
     def compute(args, opt = {}):
         out, err = TR_Exec.run(args, opt)
-        #
         if DEBUG:
             TR_Exec.debug_print(out, err)
-        #
         try:
             res = yaml.load(out)
         except yaml.parser.ParserError as e:
@@ -86,11 +82,9 @@ class TR_Exec:
             if not DEBUG:
                 TR_Exec.debug_print(out, err)
             return []
-        #
-        if res == None:
+        if res == None or 'maps' not in res:
             print("Error loading yaml")
             if not DEBUG:
                 TR_Exec.debug_print(out, err)
             return []
-        return res;
-    #########################################################
+        return res['maps']

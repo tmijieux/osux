@@ -804,8 +804,8 @@ void tro_free_mesh(struct tr_object * o)
 
 void tro_set_seen(struct tr_object * o)
 {
-    if(o->ps == MISS || o->obj_app <= o->obj_dis) {
-	o->seen = 0;
+    if (o->ps == MISS || o->obj_app <= o->obj_dis) {
+	o->seen = lf_eval(SEEN_LF, 0);
 	return;
     }
     o->seen = tro_seen(o);

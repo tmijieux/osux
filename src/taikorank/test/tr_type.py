@@ -17,13 +17,13 @@ import abc
 
 class TR_Type:
     __metaclass__ = abc.ABCMeta
-    ########################################################
+    #
     def __init__(self, name, rank, include, exclude = []):
         self.name = name
         self.rank = rank
         self.include = include
         self.exclude = exclude
-    ########################################################
+    #
     def is_tr_type(self, name):
         name = name.lower()
         #
@@ -36,28 +36,30 @@ class TR_Type:
                 return True
         #
         return False
-    ########################################################
+    #
     def __str__(self):
         return "%s (%d)" % (self.name, self.rank)
-    ########################################################
+    #
 
 ########################################################
 
 class TR_Type_Util:
     TYPES = {}
-    NONE_TYPE = TR_Type('None', -1, [])
-    ########################################################
+    NONE_TYPE = TR_Type('None', 3, []) # default is like oni
+    #
     @staticmethod
     def add_tr_type(name, rank, include, exclude = []):
         TR_Type_Util.TYPES[name] = TR_Type(name, rank, include, exclude)
-    ########################################################
+    #
     @staticmethod
     def get_tr_type(name):
         for key in TR_Type_Util.TYPES:
             if TR_Type_Util.TYPES[key].is_tr_type(name):
                 return TR_Type_Util.TYPES[key]
         return TR_Type_Util.NONE_TYPE
-    ########################################################
+    #
+
+########################################################
 
 kantan_include    = ['kantan']
 futsuu_include    = ['futsuu', 'futsu', 'fuutsu', 'fuutsuu']
@@ -72,6 +74,8 @@ TR_Type_Util.add_tr_type('Muzukashi', 2, muzukashi_include)
 TR_Type_Util.add_tr_type('Oni',       3, oni_include,       inner_oni_include + ura_oni_include)
 TR_Type_Util.add_tr_type('Inner Oni', 4, inner_oni_include)
 TR_Type_Util.add_tr_type('Ura Oni',   5, ura_oni_include,   muzukashi_include)
+
+########################################################
 
 def TR_Type_test():
     def assert_tr_type(name, expected):

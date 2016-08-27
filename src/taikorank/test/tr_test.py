@@ -24,14 +24,14 @@ class TR_Exception(Exception):
 
 class TR_Tester:
     __metaclass__ = abc.ABCMeta
-    ########################################################
+    #
     def __init__(self, argv):
         self.argv = argv[1:]
         self.errors = 0 # local error for one test
         self.total  = 0 # ^ ~same
         self._errors = 0 # global error on all test so far, don't use
         self._total  = 0 # ^ ~same
-    ########################################################
+    #
     def main(self):
         if not self.argv:
             print("No test file!")
@@ -55,7 +55,7 @@ class TR_Tester:
                     (self._total - self._errors, self._total)))
         #
         return self._errors == 0;
-    ########################################################
+    #
     @abc.abstractmethod
     def test(self, arg):
         """
@@ -63,7 +63,7 @@ class TR_Tester:
         Result must be a tuple (errors, total).
         """
         raise TR_Exception("Abstract method not implemented")
-    ########################################################
+    #
     def test_iterate(self, data, constructor, method):
         for x in data:
             test = constructor(x)
@@ -72,21 +72,21 @@ class TR_Tester:
                 err, tot = method(test)
                 self.errors += err
                 self.total  += tot
-    ########################################################
+    #
 
 ########################################################
 
 class TR_Tester_Yaml(TR_Tester):
     __metaclass__ = abc.ABCMeta
-    ########################################################
+    #
     def __init__(self, argv):
         TR_Tester.__init__(self, argv)
-    ########################################################
+    #
     def test(self, filepath):
         with open(filepath) as f:
             data = yaml.load(f)
             return self.test_yaml(data)
-    ########################################################
+    #
     @abc.abstractmethod
     def test_yaml(self, data):
         """
@@ -94,46 +94,41 @@ class TR_Tester_Yaml(TR_Tester):
         and call main. Result must be a tuple (errors, total).
         """
         raise TR_Exception("Abstract method not implemented")
-    ########################################################
+    #
 
 
-########################################################
-########################################################
 ########################################################
 
 class TR_Test_Yaml:
     __metaclass__ = abc.ABCMeta
-    ########################################################
+    #
     @staticmethod
     def get_if_exists(key, ht, default):
         return ht[key] if key in ht else default
-    ########################################################
+    #
     def __init__(self, ht):
         self.name     = ht['path']
         self.expected = ht['expected']
         self.do = self.get_if_exists('do', ht, True);
-        #
         if ht['path'][-5:] != "*.osu":
             self.cmd = ht['path'] + "*.osu"
         else:
             self.cmd = ht['path']
-    ########################################################
+    #
     def main(self):
         print(Colors.blue("Starting test '%s'" % (self.name)))
-        #
         self.compute()
         if not self.expected:
             print(Colors.warning("No data, dumping"))
             self.dump()
             return (0, 0)
-        #
         errors, total = self.compare()
         if errors == 0:
             print(Colors.green("Test '%s' passed! %d/%d" % (self.name, total - errors, total)))
         else:
             print(Colors.fail("Test '%s' failed! %d/%d" % (self.name, total - errors, total)))
         return (errors, total)
-    ########################################################
+    #
     @abc.abstractmethod
     def dump(self):
         """
@@ -141,14 +136,14 @@ class TR_Test_Yaml:
         Dump the data as it should be expected.
         """
         raise TR_Exception("Abstract method not implemented")
-    ########################################################
+    #
     @abc.abstractmethod
     def compute(self):
         """
         Abstract method to implement for computing maps.
         """
         raise TR_Exception("Abstract method not implemented")
-    ########################################################
+    #
     @abc.abstractmethod
     def compare(self):
         """
@@ -156,18 +151,18 @@ class TR_Test_Yaml:
         Result must be a tuple (errors, total).
         """
         raise TR_Exception("Abstract method not implemented")
-    ########################################################
+    #
 
 ########################################################
 
 class TR_Test_Str_List(TR_Test_Yaml):
     __metaclass__ = abc.ABCMeta
-    ########################################################
+    #
     def __init__(self, ht):
         TR_Test_Yaml.__init__(self, ht)
         if self.expected:
             self.expected = self.expected.split("\n")[:-1]
-    ########################################################
+    #
     def check_same_len(self, res):
         if not self.expected:
             return

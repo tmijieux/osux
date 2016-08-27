@@ -7,10 +7,10 @@
 # x is the sum of all parameters for reading stars
 # y is the reading star rating
 vect_reading_scale_length: 2
-vect_reading_scale_x1: 0.
-vect_reading_scale_y1: 0.
-vect_reading_scale_x2: 4.
-vect_reading_scale_y2: 4.
+vect_reading_scale_x1: 1.
+vect_reading_scale_y1: 1.
+vect_reading_scale_x2: 3.
+vect_reading_scale_y2: 3.
 
 ### Interest
 ## Brief:
