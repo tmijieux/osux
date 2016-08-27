@@ -133,7 +133,7 @@ static char *create_title(struct gengetopt_args_info *info)
     if (info->bpm_given)
 	s = xasprintf("%s%dbpm - ", s, (int) info->bpm_arg);
     if (info->nb_ho_given)
-	s = xasprintf("%s%dobj - ", s, info->nb_ho_given);
+	s = xasprintf("%s%dobj - ", s, (int) info->nb_ho_arg);
 
     if (s[0] == '\0') {
 	s = strdup("Default");

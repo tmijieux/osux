@@ -11,25 +11,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
+import sys
+import yaml
+import re
+from subprocess import Popen, PIPE, STDOUT
 from colors import Colors
 
 DEBUG = False
 
 ##################################################
 
+def propagate(func):
+    def _decorator(self, *args, **kwargs):
+        for g in self.get_leaves():
+            func(g, *args, **kwargs)
+        return self
+    return _decorator
+
+##################################################
+
 class Dir_Generator:
     CMD = "taiko_generator"
-    OPT = "-q" if not DEBUG else ""
+    OPT = ""
     #
     def __init__(self, dir):
-        self.count = 0
         self.up = None
         self.dir = self.clean_dirname(dir)
         self.generators = []
     #
+    def count(self):
+        return 0
+    #
     def count_generated(self):
-        count = self.count
+        count = self.count()
         for g in self.generators:
             count += g.count_generated()
         return count
@@ -64,14 +78,9 @@ class Dir_Generator:
     #
     def main(self):
         self.path = self.get_path()
-        Dir_Generator.cmd("mkdir -p %s" % self.path)
+        Dir_Generator.cmd_mkdir(self.path)
         print("Generating in '%s'" % self.path)
         self.generate()
-    #
-    def tg_cmd(self, arg):
-        self.count += 1
-        cmd = "%s %s -d %s %s" % (self.CMD, self.OPT, self.path, arg)
-        Dir_Generator.cmd(cmd)
     #
     def __str__(self):
         res = "In\t%s\n" % self.get_path()
@@ -86,7 +95,17 @@ class Dir_Generator:
     def cmd(cmd):
         if DEBUG:
             print(Colors.blue("Debug: '%s'" % cmd))
-        return os.system(cmd)
+        p = Popen(cmd, shell=True, universal_newlines=True,
+                  stdout=PIPE, stderr=PIPE, close_fds=True)
+        return p.communicate()
+    #
+    @staticmethod
+    def cmd_mkdir(path):
+        return Dir_Generator.cmd("mkdir -p %s" % path)
+    #
+    def cmd_tg(self, arg):
+        cmd = "%s %s -d %s %s" % (self.CMD, self.OPT, self.path, arg)
+        return Dir_Generator.cmd(cmd)
     #
     @staticmethod
     def clean_pattern(pattern):
@@ -97,42 +116,44 @@ class Dir_Generator:
 
 ##################################################
 
+# Sort ranges from hardest to easiest
 class Ranges():
-    bpm = range(10, 400, 10)
-    obj = [2**i for i in range(1, 10)]
-    od  = [i/2. for i in range(0, 20)]
-    svm = [i/4. for i in range(2, 8)]
+    bpm = range(400, 25, -25)
+    obj = [2**i for i in range(10, 1, -1)]
+    od  = [i/2. for i in range(20, 0, -1)]
+    svm = [i/4. for i in range(8, 2,  -1)]
+    # Spaces can be used in patterns, they will be removed
     patterns = {}
     patterns['group'] = {}
-    patterns['group']['by_2'] = [
+    patterns['group']['by_2/'] = [
         'dd______',
         'd_d_____',
         'd__d____',
         'd___d___',
     ]
-    patterns['group']['by_3'] = [
+    patterns['group']['by_3/'] = [
         'ddd_____',
         'd_d_d___',
         'd__d__d_',
     ]
-    patterns['group']['by_4'] = [
+    patterns['group']['by_4/'] = [
         'dddd____',
-        'd_d_d_d_',
-        'dd__dd__',
         'ddd_d___',
+        'dd__dd__',
+        'd_d_d_d_',
     ]
-    patterns['group']['by_5'] = [
+    patterns['group']['by_5/'] = [
         'ddddd___',
         'ddd_d_d_',
         'dd_dd_d_',
     ]
-    patterns['group']['by_6'] = [
+    patterns['group']['by_6/'] = [
         'dddddd__',
-        'ddd_ddd_',
-        'dddd_dd_',
         'ddddd_d_',
+        'dddd_dd_',
+        'ddd_ddd_',
     ]
-    patterns['group']['start'] = [
+    patterns['group']['start/'] = [
         'dddddddd',
         'ddddddd_',
         'dddddd__',
@@ -142,32 +163,59 @@ class Ranges():
         'dd______',
         'd_______',
     ]
-    patterns['strain'] = [
-        'dddd dddd',
-        'dkdk dkdk',
-        'ddkk ddkk',
+    patterns['strain/'] = [
         'dddd kkkk',
+        'ddkk ddkk',
+        'dkdk dkdk',
+        'dddd dddd',
+    ]
+    patterns['streams'] = {}
+    patterns['streams']['kddd/'] = [
+        'kddd',
+        'kdd',
+        'kd',
+        'k',
+    ]
+    patterns['streams']['groups/'] = [
+        'dddd kkkk',
+        'ddd kkk',
+        'ddkk',
+        'dk',
+        'd',
     ]
 
 ##################################################
-
-def propagate(func):
-    def _decorator(self, *args, **kwargs):
-        if not self.generators:
-            func(self, *args, **kwargs)
-        else:
-            for g in self.get_leaves():
-                func(g, *args, **kwargs)
-        return self
-    return _decorator
 
 class Map_Generator(Dir_Generator):
     def __init__(self, dir, prefix = ''):
         super(Map_Generator, self).__init__(dir)
         self.prefix = prefix
+        self.maps = []
     #
-    def tg_cmd(self, arg):
-        super(Map_Generator, self).tg_cmd(self.prefix + arg)
+    def count(self):
+        return len(self.maps)
+    #
+    def expected(self, field):
+        maps = self.maps.copy()
+        ht = {}
+        ht['path']  = self.get_path() + "*.osu"
+        ht['field'] = field
+        ht['expected'] = maps
+        return ht
+    #
+    def cmd_tg(self, arg):
+        out, err = super(Map_Generator, self).cmd_tg(self.prefix + arg)
+        match = re.search("Output file: '.*/(.*)'", out)
+        if not match:
+            raise Exception("Output is not matching!")
+        filename = match.group(1)
+        match = re.search("Test - (.*) \(.*\) (\[.*\]).osu", filename)
+        if not match:
+            raise Exception("Output is not matching!")
+        title = match.group(1)
+        diff  = match.group(2)
+        self.maps.append(title + diff)        
+        return out, err
     #
     @propagate
     def _with(self, prefix):
@@ -175,7 +223,7 @@ class Map_Generator(Dir_Generator):
     #
     @propagate
     def _on(self, opt_format, list):
-        l = lambda: [self.tg_cmd(opt_format % x) for x in list]
+        l = lambda: [self.cmd_tg(opt_format % x) for x in list]
         self.generate = l
     #
     @propagate
@@ -183,6 +231,13 @@ class Map_Generator(Dir_Generator):
         self.add([
             with_func(Map_Generator(dir_format % x, self.prefix), x)
             for x in list
+        ])
+    #
+    @propagate
+    def _on_each(self, dict, on_func):
+        self.add([
+            on_func(Map_Generator(name), list) 
+            for name, list in dict.items()
         ])
     #
     def with_pattern(self, pattern):
@@ -200,6 +255,7 @@ class Map_Generator(Dir_Generator):
     def on_bpm(self, list = Ranges.bpm):
         return self._on("-b %d ", list)
     def on_pattern(self, list):
+        list = map(lambda x: super(Map_Generator, self).clean_pattern(x), list)
         return self._on("-p %s ", list)
     def on_obj(self, list = Ranges.obj):
         return self._on("-n %d ", list)
@@ -218,18 +274,17 @@ class Map_Generator(Dir_Generator):
         return self._by("OD%g/", list, Map_Generator.with_od)
     def by_svm(self, list = Ranges.svm):
         return self._by("svm%g/", list, Map_Generator.with_svm)
+    #
+    def on_each_pattern(self, dict):
+        return self._on_each(dict, Map_Generator.on_pattern)
 
-##################################################
 ##################################################
 ##################################################
 ##################################################
 
 density_g = Dir_Generator("density/").add([
-    Map_Generator("strain/").by_pattern(Ranges.patterns['strain']).by_obj().on_bpm(),
-    Dir_Generator("by_group/").add([
-        Map_Generator(name).on_pattern(list)
-        for name, list in Ranges.patterns['group'].items()
-    ]),
+    Map_Generator("strain/").by_pattern(Ranges.patterns['strain/']).on_bpm(),
+    Map_Generator("by_group/").by_bpm().on_each_pattern(Ranges.patterns['group']),
 ])
 
 ##################################################
@@ -240,17 +295,19 @@ reading_g = Dir_Generator("reading/").add([
 ##################################################
 
 pattern_g = Dir_Generator("pattern/").add([
+    Map_Generator("streams/").on_each_pattern(Ranges.patterns['streams']),
 ])
 
 ##################################################
 
 accuracy_g = Dir_Generator("accuracy/").add([
-    Map_Generator("od/").by_pattern(Ranges.patterns['strain']).on_od(),
+    Map_Generator("od/").by_pattern(Ranges.patterns['strain/']).on_od(),
 ])
 
 ##################################################
 
 other_g = Dir_Generator("other/").add([
+    Map_Generator("obj/").by_bpm().on_obj().with_pattern('d'),
 ])
 
 ##################################################
@@ -266,6 +323,33 @@ main_g.add([
 
 ##################################################
 
+COMMENTS = [
+    "File generated by '" + __file__ + "'",
+    "Tests for 'tr_test_stars.py'"
+]
+COMMENTS = ''.join(['# ' + line + '\n' for line in COMMENTS])
+
+def expected_list(generator, field):
+    l = []
+    for g in generator.get_leaves():
+        if isinstance(g, Map_Generator):
+            l.append(g.expected(field))
+    return l
+
+def create_main_expected(path):
+    ht = {'tests' : []}
+    ht['tests'].extend(expected_list(density_g,  'density_star'))
+    ht['tests'].extend(expected_list(reading_g,  'reading_star'))
+    ht['tests'].extend(expected_list(pattern_g,  'pattern_star'))
+    ht['tests'].extend(expected_list(accuracy_g, 'accuracy_star'))
+    ht['tests'].extend(expected_list(other_g,    'final_star'))
+    with open(path, "w+") as f:
+        f.write(COMMENTS)
+        f.write(yaml.dump(ht))
+
+##################################################
+
 if __name__ == '__main__':
     main_g.main()
     print("%d beatmaps created!" % main_g.count_generated())
+    create_main_expected("yaml/test_generated.yaml")

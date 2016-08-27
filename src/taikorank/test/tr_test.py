@@ -160,8 +160,8 @@ class TR_Test_Str_List(TR_Test_Yaml):
     #
     def __init__(self, ht):
         TR_Test_Yaml.__init__(self, ht)
-        if self.expected:
-            self.expected = self.expected.split("\n")[:-1]
+        if self.expected and isinstance(self.expected, str):
+                self.expected = self.expected.split("\n")[:-1]
     #
     def check_same_len(self, res):
         if not self.expected:
