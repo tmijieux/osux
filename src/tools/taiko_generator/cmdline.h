@@ -31,7 +31,7 @@ extern "C" {
 
 #ifndef CMDLINE_PARSER_VERSION
 /** @brief the program version */
-#define CMDLINE_PARSER_VERSION "0.1"
+#define CMDLINE_PARSER_VERSION "0.2"
 #endif
 
 /** @brief Where the command line options are stored */
@@ -39,6 +39,13 @@ struct gengetopt_args_info
 {
   const char *help_help; /**< @brief Print help and exit help description.  */
   const char *version_help; /**< @brief Print version and exit help description.  */
+  const char *quiet_help; /**< @brief Don't print a message at the end help description.  */
+  char * output_dir_arg;	/**< @brief Set output directory (default='./').  */
+  char * output_dir_orig;	/**< @brief Set output directory original value given at command line.  */
+  const char *output_dir_help; /**< @brief Set output directory help description.  */
+  char * artist_arg;	/**< @brief Set the beatmap artist (default='Test').  */
+  char * artist_orig;	/**< @brief Set the beatmap artist original value given at command line.  */
+  const char *artist_help; /**< @brief Set the beatmap artist help description.  */
   char * pattern_arg;	/**< @brief Set the pattern repeated along the beatmap.  */
   char * pattern_orig;	/**< @brief Set the pattern repeated along the beatmap original value given at command line.  */
   const char *pattern_help; /**< @brief Set the pattern repeated along the beatmap help description.  */
@@ -48,30 +55,27 @@ struct gengetopt_args_info
   double bpm_arg;	/**< @brief Set the bpm for the beatmap (default='160.').  */
   char * bpm_orig;	/**< @brief Set the bpm for the beatmap original value given at command line.  */
   const char *bpm_help; /**< @brief Set the bpm for the beatmap help description.  */
-  double svm_arg;	/**< @brief Set the slider velocity multiplier (default='1.').  */
-  char * svm_orig;	/**< @brief Set the slider velocity multiplier original value given at command line.  */
-  const char *svm_help; /**< @brief Set the slider velocity multiplier help description.  */
+  double abpm_arg;	/**< @brief Set the apparent bpm, by default same as bpm (default='-1.').  */
+  char * abpm_orig;	/**< @brief Set the apparent bpm, by default same as bpm original value given at command line.  */
+  const char *abpm_help; /**< @brief Set the apparent bpm, by default same as bpm help description.  */
   double od_arg;	/**< @brief Set the overall difficulty (default='5.').  */
   char * od_orig;	/**< @brief Set the overall difficulty original value given at command line.  */
   const char *od_help; /**< @brief Set the overall difficulty help description.  */
-  char * artist_arg;	/**< @brief Set the beatmap artist (default='Test').  */
-  char * artist_orig;	/**< @brief Set the beatmap artist original value given at command line.  */
-  const char *artist_help; /**< @brief Set the beatmap artist help description.  */
-  char * output_dir_arg;	/**< @brief Set output directory (default='./').  */
-  char * output_dir_orig;	/**< @brief Set output directory original value given at command line.  */
-  const char *output_dir_help; /**< @brief Set output directory help description.  */
-  const char *quiet_help; /**< @brief Don't print a message at the end help description.  */
+  int random_arg;	/**< @brief Add randomness to offset, add or substract up to the value in ms (default='0').  */
+  char * random_orig;	/**< @brief Add randomness to offset, add or substract up to the value in ms original value given at command line.  */
+  const char *random_help; /**< @brief Add randomness to offset, add or substract up to the value in ms help description.  */
   
   unsigned int help_given ;	/**< @brief Whether help was given.  */
   unsigned int version_given ;	/**< @brief Whether version was given.  */
+  unsigned int quiet_given ;	/**< @brief Whether quiet was given.  */
+  unsigned int output_dir_given ;	/**< @brief Whether output-dir was given.  */
+  unsigned int artist_given ;	/**< @brief Whether artist was given.  */
   unsigned int pattern_given ;	/**< @brief Whether pattern was given.  */
   unsigned int nb_ho_given ;	/**< @brief Whether nb-ho was given.  */
   unsigned int bpm_given ;	/**< @brief Whether bpm was given.  */
-  unsigned int svm_given ;	/**< @brief Whether svm was given.  */
+  unsigned int abpm_given ;	/**< @brief Whether abpm was given.  */
   unsigned int od_given ;	/**< @brief Whether od was given.  */
-  unsigned int artist_given ;	/**< @brief Whether artist was given.  */
-  unsigned int output_dir_given ;	/**< @brief Whether output-dir was given.  */
-  unsigned int quiet_given ;	/**< @brief Whether quiet was given.  */
+  unsigned int random_given ;	/**< @brief Whether random was given.  */
 
 } ;
 

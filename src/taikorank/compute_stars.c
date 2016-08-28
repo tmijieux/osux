@@ -36,16 +36,16 @@ static void trm_compute_separated(struct tr_map * map)
 {
     trm_treatment(map);
     {
-        #pragma omp task
+#       pragma omp task
 	trm_compute_density(map);
-        #pragma omp task
+#       pragma omp task
 	trm_compute_reading(map);
-        #pragma omp task
+#       pragma omp task
 	trm_compute_pattern(map);
-        #pragma omp task
+#       pragma omp task
 	trm_compute_accuracy(map);
     }
-    #pragma omp taskwait
+#   pragma omp taskwait
 
     trm_compute_final_star(map);
 }

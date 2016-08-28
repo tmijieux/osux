@@ -118,10 +118,13 @@ class Dir_Generator:
 
 # Sort ranges from hardest to easiest
 class Ranges():
-    bpm = range(400, 25, -25)
-    obj = [2**i for i in range(10, 1, -1)]
-    od  = [i/2. for i in range(20, 0, -1)]
-    svm = [i/4. for i in range(8, 2,  -1)]
+    bpm  = range(400, 25, -25)
+    abpm = range(400, 100, -25)
+    hide_bpm  = range(640, 160, -80)
+    slow_abpm = range(10, 100, 10)
+    obj  = [2**i for i in range(10, 1, -1)]
+    od   = [i/2. for i in range(20, 0, -1)]
+    rand = range(30, 0, -5)
     # Spaces can be used in patterns, they will be removed
     patterns = {}
     patterns['group'] = {}
@@ -183,6 +186,16 @@ class Ranges():
         'dk',
         'd',
     ]
+    patterns['ddkd_reduction/'] = [
+        'ddkd ddkd',
+        'ddkd ddk_',
+        'ddk_ ddk_',
+        'd_k_ ddk_',
+        'd_k_ d_k_',
+        'd_k_ d___',
+        'd___ d___',
+        'd___ ____',
+    ]
 
 ##################################################
 
@@ -191,6 +204,19 @@ class Map_Generator(Dir_Generator):
         super(Map_Generator, self).__init__(dir)
         self.prefix = prefix
         self.maps = []
+    #
+    @classmethod
+    def from_parent(cls, dir, parent):
+        g = cls(dir)
+        g.prefix = parent.prefix
+        return g
+    #
+    def __str__(self):
+        s = "In '%s'\n" % self.get_path()
+        s += "prefix: %s\n" % self.prefix
+        for g in self.generators:
+            s += str(g)
+        return s
     #
     def count(self):
         return len(self.maps)
@@ -207,14 +233,14 @@ class Map_Generator(Dir_Generator):
         out, err = super(Map_Generator, self).cmd_tg(self.prefix + arg)
         match = re.search("Output file: '.*/(.*)'", out)
         if not match:
-            raise Exception("Output is not matching!")
+            raise Exception("Output is not matching: '%s'\nErr: %s" % (out, err))
         filename = match.group(1)
         match = re.search("Test - (.*) \(.*\) (\[.*\]).osu", filename)
         if not match:
-            raise Exception("Output is not matching!")
+            raise Exception("Title is not matching: '%s'" % filename)
         title = match.group(1)
         diff  = match.group(2)
-        self.maps.append(title + diff)        
+        self.maps.append(title + diff)
         return out, err
     #
     @propagate
@@ -229,14 +255,14 @@ class Map_Generator(Dir_Generator):
     @propagate
     def _by(self, dir_format, list, with_func):
         self.add([
-            with_func(Map_Generator(dir_format % x, self.prefix), x)
+            with_func(Map_Generator.from_parent(dir_format % x, self), x)
             for x in list
         ])
     #
     @propagate
     def _on_each(self, dict, on_func):
         self.add([
-            on_func(Map_Generator(name), list) 
+            on_func(Map_Generator.from_parent(name, self), list)
             for name, list in dict.items()
         ])
     #
@@ -245,35 +271,41 @@ class Map_Generator(Dir_Generator):
         return self._with("-p %s " % pattern)
     def with_bpm(self, bpm):
         return self._with("-b %d " % bpm)
+    def with_abpm(self, abpm):
+        return self._with("-a %d " % abpm)
     def with_obj(self, obj):
         return self._with("-n %d " % obj)
     def with_od(self, od):
         return self._with("-o %g " % od)
-    def with_svm(self, svm):
-        return self._with("-s %g " % svm)
+    def with_rand(self, rand):
+        return self._with("-r %d " % rand)
     #
     def on_bpm(self, list = Ranges.bpm):
         return self._on("-b %d ", list)
+    def on_abpm(self, list = Ranges.abpm):
+        return self._on("-a %d ", list)
     def on_pattern(self, list):
-        list = map(lambda x: super(Map_Generator, self).clean_pattern(x), list)
+        list = [super(Map_Generator, self).clean_pattern(x) for x in list]
         return self._on("-p %s ", list)
     def on_obj(self, list = Ranges.obj):
         return self._on("-n %d ", list)
     def on_od(self, list = Ranges.od):
         return self._on("-o %g ", list)
-    def on_svm(self, list = Ranges.svm):
-        return self._on("-s %g ", list)
+    def on_rand(self, list = Ranges.rand):
+        return self._on("-r %d ", list)
     #
     def by_bpm(self, list = Ranges.bpm):
         return self._by("%d_bpm/", list, Map_Generator.with_bpm)
+    def by_abpm(self, list = Ranges.abpm):
+        return self._by("%d_abpm/", list, Map_Generator.with_abpm)
     def by_pattern(self, list):
         return self._by("%s/", list, Map_Generator.with_pattern)
     def by_obj(self, list = Ranges.obj):
         return self._by("%d_obj/", list, Map_Generator.with_obj)
     def by_od(self, list = Ranges.od):
         return self._by("OD%g/", list, Map_Generator.with_od)
-    def by_svm(self, list = Ranges.svm):
-        return self._by("svm%g/", list, Map_Generator.with_svm)
+    def by_rand(self, list = Ranges.rand):
+        return self._by("rand_%d/", list, Map_Generator.with_rand)
     #
     def on_each_pattern(self, dict):
         return self._on_each(dict, Map_Generator.on_pattern)
@@ -290,6 +322,8 @@ density_g = Dir_Generator("density/").add([
 ##################################################
 
 reading_g = Dir_Generator("reading/").add([
+    Map_Generator("no_hide/").with_pattern('d___').with_bpm(40).on_abpm(),
+    Map_Generator("hide/").with_pattern('d').with_abpm(160).on_bpm(Ranges.hide_bpm),
 ])
 
 ##################################################
@@ -301,25 +335,28 @@ pattern_g = Dir_Generator("pattern/").add([
 ##################################################
 
 accuracy_g = Dir_Generator("accuracy/").add([
-    Map_Generator("od/").by_pattern(Ranges.patterns['strain/']).on_od(),
+    Map_Generator("od/").with_pattern('d').by_rand().on_od(),
+    Map_Generator("slow/").with_pattern('d').with_bpm(40).on_abpm(Ranges.slow_abpm),
 ])
 
 ##################################################
 
 other_g = Dir_Generator("other/").add([
     Map_Generator("obj/").by_bpm().on_obj().with_pattern('d'),
+    Map_Generator("ddkd_reduction/").by_bpm().on_pattern(Ranges.patterns['ddkd_reduction/']),
 ])
 
 ##################################################
 
+generators_args = {
+    'density'  : [density_g,  'density_star'],
+    'reading'  : [reading_g,  'reading_star'],
+    'pattern'  : [pattern_g,  'pattern_star'],
+    'accuracy' : [accuracy_g, 'accuracy_star'],
+    'other'    : [other_g,    'final_star'],
+}
+
 main_g = Dir_Generator("maps_generated/")
-main_g.add([
-    density_g,
-    reading_g,
-    pattern_g,
-    accuracy_g,
-    other_g,
-])
 
 ##################################################
 
@@ -336,13 +373,11 @@ def expected_list(generator, field):
             l.append(g.expected(field))
     return l
 
-def create_main_expected(path):
+def create_main_expected(path, keys):
     ht = {'tests' : []}
-    ht['tests'].extend(expected_list(density_g,  'density_star'))
-    ht['tests'].extend(expected_list(reading_g,  'reading_star'))
-    ht['tests'].extend(expected_list(pattern_g,  'pattern_star'))
-    ht['tests'].extend(expected_list(accuracy_g, 'accuracy_star'))
-    ht['tests'].extend(expected_list(other_g,    'final_star'))
+    for key in keys:
+        args = generators_args[key]
+        ht['tests'].extend(expected_list(args[0], args[1]))
     with open(path, "w+") as f:
         f.write(COMMENTS)
         f.write(yaml.dump(ht))
@@ -350,6 +385,10 @@ def create_main_expected(path):
 ##################################################
 
 if __name__ == '__main__':
+    keys = ['density', 'reading', 'pattern', 'accuracy', 'other']
+    for key in keys:
+        main_g.add([generators_args[key][0]])
+    #
     main_g.main()
+    create_main_expected("yaml/test_generated.yaml", keys)
     print("%d beatmaps created!" % main_g.count_generated())
-    create_main_expected("yaml/test_generated.yaml")

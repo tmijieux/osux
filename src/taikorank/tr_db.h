@@ -18,6 +18,6 @@
 #define TR_DB_H
 
 void tr_db_init(void);
-void trm_db_insert(struct tr_map * map);
+void trm_db_insert(const struct tr_map * map);
 
 #endif //TR_DB_H

@@ -28,7 +28,7 @@
 #include "tr_db.h"
 #include "tr_mods.h"
 
-static void trs_print_and_db(struct tr_score * score);
+static void trs_print_and_db(const struct tr_score * score);
 static void trs_compute(struct tr_score * score);
 
 static void trs_prepare_acc(struct tr_score * sc, double acc);
@@ -36,7 +36,6 @@ static void trs_prepare_ggm(struct tr_score * sc, int good, int miss);
 
 static struct tr_score * trs_new(const struct tr_map * map);
 static void trs_free(struct tr_score * score);
-static void trs_print(struct tr_score * score);
 
 //--------------------------------------------------
 
@@ -91,7 +90,7 @@ static void trs_prepare_acc(struct tr_score * sc, double acc)
     sc->great = sc->origin->great;
     sc->good  = sc->origin->good;
     sc->miss  = sc->origin->miss;
-    sc->acc   = compute_acc(sc->great, sc->good, sc->miss); 
+    sc->acc   = compute_acc(sc->great, sc->good, sc->miss);
     while (sc->acc > acc) {
 	double try = compute_acc(sc->great-1, sc->good+1, sc->miss);
 	if (try <= acc) {
@@ -127,15 +126,11 @@ static void trs_free(struct tr_score * score)
 
 //--------------------------------------------------
 
-static void trs_print_and_db(struct tr_score * score)
+static void trs_print_and_db(const struct tr_score * score)
 {
-    if (GLOBAL_CONFIG->print_tro)
-	trm_print_out_tro(score->map, GLOBAL_CONFIG->print_filter);
-    if (GLOBAL_CONFIG->print_yaml)
-	trm_print_yaml(score->map);
-    else
-	trs_print(score);
-  
+#   pragma omp critical
+    trs_print(score);
+
     if (GLOBAL_CONFIG->db_enable)
 	trm_db_insert(score->map);
 }
@@ -163,7 +158,7 @@ static void trs_compute(struct tr_score * score)
 	    trm_set_tro_ps(score->map, i, MISS);
 	else
 	    trm_set_tro_ps(score->map, i, GOOD);
-	tro_set_influence(score->map->object, i, 
+	tro_set_influence(score->map->object, i,
 			  score->map->nb_object);
 
 	if (score->map->conf->quick == 0 || trs_is_finished(score)) {
@@ -175,62 +170,20 @@ static void trs_compute(struct tr_score * score)
 
 //--------------------------------------------------
 
-static void trs_print(struct tr_score * score)
+static void trs_print_out(const struct tr_score * score)
 {
     fprintf(OUTPUT_INFO, "Score: %.5g%% \t(aim: %.4g%%) [%d|%d|%d] (%d/%d)\n",
-	    score->map->acc * COEFF_MAX_ACC, 
-	    score->acc * COEFF_MAX_ACC, 
+	    score->map->acc * COEFF_MAX_ACC,
+	    score->acc * COEFF_MAX_ACC,
 	    score->map->great, score->map->good, score->map->miss,
-	    score->map->combo, score->map->max_combo);  
+	    score->map->combo, score->map->max_combo);
     trm_print(score->map);
 }
 
-//--------------------------------------------------
-/*
-  #include "replay/replay.h"
-  #include "mod/game_mode.h"
-  #include "mod/mods.h"
-  #include <glib.h>
-  #include <glib/gstdio.h>
-
-  #define CONVERT_MOD(RP_MOD, TR_MOD, rp_mods, mods)	\
-  if ((rp_mods & RP_MOD) != 0)				\
-  mods |= TR_MOD
-
-  void trs_main_replay(char * replay_file_name, struct tr_map * map)
-  {
-  FILE * f = g_fopen(replay_file_name, "r");
-  struct replay * replay = replay_parse(f);
-
-  if (replay->game_mode != MODE_TAIKO)
-  {
-  tr_error("Not a taiko score.");
-  replay_free(replay);
-  return;
-  }
-
-  struct tr_score * score = trs_new(map);
-
-  int mods = MODS_NONE;
-  CONVERT_MOD(MOD_EASY,       MODS_EZ, replay->mods, mods);
-  CONVERT_MOD(MOD_HARDROCK,   MODS_HR, replay->mods, mods);
-  CONVERT_MOD(MOD_HIDDEN,     MODS_HD, replay->mods, mods);
-  CONVERT_MOD(MOD_FLASHLIGHT, MODS_FL, replay->mods, mods);
-  CONVERT_MOD(MOD_DOUBLETIME, MODS_DT, replay->mods, mods);
-  CONVERT_MOD(MOD_HALFTIME,   MODS_HT, replay->mods, mods);
-
-  score->map = trm_copy(score->origin);
-  trm_set_mods(score->map, mods);
-
-  score->great = replay->_300;
-  score->good  = replay->_100;
-  score->miss  = replay->_miss;
-  score->acc   = compute_acc(score->great, score->good, score->miss);
-  
-  replay_free(replay);
-  
-  //trs_compute(score);
-  trs_free(score);
-  }
-*/
-//--------------------------------------------------
+void trs_print(const struct tr_score * score)
+{
+    if (GLOBAL_CONFIG->print_yaml)
+	trm_print_yaml(score->map);
+    else
+	trs_print_out(score);
+}

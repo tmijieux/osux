@@ -36,14 +36,15 @@ const char *gengetopt_args_info_description = "";
 const char *gengetopt_args_info_help[] = {
   "  -h, --help               Print help and exit",
   "  -V, --version            Print version and exit",
+  "  -q, --quiet              Don't print a message at the end",
+  "  -d, --output-dir=STRING  Set output directory  (default=`./')",
+  "  -A, --artist=STRING      Set the beatmap artist  (default=`Test')",
   "  -p, --pattern=STRING     Set the pattern repeated along the beatmap",
   "  -n, --nb-ho=INT          Set the number of hitobject in the beatmap\n                             (default=`128')",
   "  -b, --bpm=DOUBLE         Set the bpm for the beatmap  (default=`160.')",
-  "  -s, --svm=DOUBLE         Set the slider velocity multiplier  (default=`1.')",
+  "  -a, --abpm=DOUBLE        Set the apparent bpm, by default same as bpm\n                             (default=`-1.')",
   "  -o, --od=DOUBLE          Set the overall difficulty  (default=`5.')",
-  "  -a, --artist=STRING      Set the beatmap artist  (default=`Test')",
-  "  -d, --output-dir=STRING  Set output directory  (default=`./')",
-  "  -q, --quiet              Don't print a message at the end",
+  "  -r, --random=INT         Add randomness to offset, add or substract up to the\n                             value in ms  (default=`0')",
     0
 };
 
@@ -73,34 +74,37 @@ void clear_given (struct gengetopt_args_info *args_info)
 {
   args_info->help_given = 0 ;
   args_info->version_given = 0 ;
+  args_info->quiet_given = 0 ;
+  args_info->output_dir_given = 0 ;
+  args_info->artist_given = 0 ;
   args_info->pattern_given = 0 ;
   args_info->nb_ho_given = 0 ;
   args_info->bpm_given = 0 ;
-  args_info->svm_given = 0 ;
+  args_info->abpm_given = 0 ;
   args_info->od_given = 0 ;
-  args_info->artist_given = 0 ;
-  args_info->output_dir_given = 0 ;
-  args_info->quiet_given = 0 ;
+  args_info->random_given = 0 ;
 }
 
 static
 void clear_args (struct gengetopt_args_info *args_info)
 {
   FIX_UNUSED (args_info);
+  args_info->output_dir_arg = gengetopt_strdup ("./");
+  args_info->output_dir_orig = NULL;
+  args_info->artist_arg = gengetopt_strdup ("Test");
+  args_info->artist_orig = NULL;
   args_info->pattern_arg = NULL;
   args_info->pattern_orig = NULL;
   args_info->nb_ho_arg = 128;
   args_info->nb_ho_orig = NULL;
   args_info->bpm_arg = 160.;
   args_info->bpm_orig = NULL;
-  args_info->svm_arg = 1.;
-  args_info->svm_orig = NULL;
+  args_info->abpm_arg = -1.;
+  args_info->abpm_orig = NULL;
   args_info->od_arg = 5.;
   args_info->od_orig = NULL;
-  args_info->artist_arg = gengetopt_strdup ("Test");
-  args_info->artist_orig = NULL;
-  args_info->output_dir_arg = gengetopt_strdup ("./");
-  args_info->output_dir_orig = NULL;
+  args_info->random_arg = 0;
+  args_info->random_orig = NULL;
   
 }
 
@@ -111,14 +115,15 @@ void init_args_info(struct gengetopt_args_info *args_info)
 
   args_info->help_help = gengetopt_args_info_help[0] ;
   args_info->version_help = gengetopt_args_info_help[1] ;
-  args_info->pattern_help = gengetopt_args_info_help[2] ;
-  args_info->nb_ho_help = gengetopt_args_info_help[3] ;
-  args_info->bpm_help = gengetopt_args_info_help[4] ;
-  args_info->svm_help = gengetopt_args_info_help[5] ;
-  args_info->od_help = gengetopt_args_info_help[6] ;
-  args_info->artist_help = gengetopt_args_info_help[7] ;
-  args_info->output_dir_help = gengetopt_args_info_help[8] ;
-  args_info->quiet_help = gengetopt_args_info_help[9] ;
+  args_info->quiet_help = gengetopt_args_info_help[2] ;
+  args_info->output_dir_help = gengetopt_args_info_help[3] ;
+  args_info->artist_help = gengetopt_args_info_help[4] ;
+  args_info->pattern_help = gengetopt_args_info_help[5] ;
+  args_info->nb_ho_help = gengetopt_args_info_help[6] ;
+  args_info->bpm_help = gengetopt_args_info_help[7] ;
+  args_info->abpm_help = gengetopt_args_info_help[8] ;
+  args_info->od_help = gengetopt_args_info_help[9] ;
+  args_info->random_help = gengetopt_args_info_help[10] ;
   
 }
 
@@ -202,16 +207,17 @@ static void
 cmdline_parser_release (struct gengetopt_args_info *args_info)
 {
 
+  free_string_field (&(args_info->output_dir_arg));
+  free_string_field (&(args_info->output_dir_orig));
+  free_string_field (&(args_info->artist_arg));
+  free_string_field (&(args_info->artist_orig));
   free_string_field (&(args_info->pattern_arg));
   free_string_field (&(args_info->pattern_orig));
   free_string_field (&(args_info->nb_ho_orig));
   free_string_field (&(args_info->bpm_orig));
-  free_string_field (&(args_info->svm_orig));
+  free_string_field (&(args_info->abpm_orig));
   free_string_field (&(args_info->od_orig));
-  free_string_field (&(args_info->artist_arg));
-  free_string_field (&(args_info->artist_orig));
-  free_string_field (&(args_info->output_dir_arg));
-  free_string_field (&(args_info->output_dir_orig));
+  free_string_field (&(args_info->random_orig));
   
   
 
@@ -246,22 +252,24 @@ cmdline_parser_dump(FILE *outfile, struct gengetopt_args_info *args_info)
     write_into_file(outfile, "help", 0, 0 );
   if (args_info->version_given)
     write_into_file(outfile, "version", 0, 0 );
+  if (args_info->quiet_given)
+    write_into_file(outfile, "quiet", 0, 0 );
+  if (args_info->output_dir_given)
+    write_into_file(outfile, "output-dir", args_info->output_dir_orig, 0);
+  if (args_info->artist_given)
+    write_into_file(outfile, "artist", args_info->artist_orig, 0);
   if (args_info->pattern_given)
     write_into_file(outfile, "pattern", args_info->pattern_orig, 0);
   if (args_info->nb_ho_given)
     write_into_file(outfile, "nb-ho", args_info->nb_ho_orig, 0);
   if (args_info->bpm_given)
     write_into_file(outfile, "bpm", args_info->bpm_orig, 0);
-  if (args_info->svm_given)
-    write_into_file(outfile, "svm", args_info->svm_orig, 0);
+  if (args_info->abpm_given)
+    write_into_file(outfile, "abpm", args_info->abpm_orig, 0);
   if (args_info->od_given)
     write_into_file(outfile, "od", args_info->od_orig, 0);
-  if (args_info->artist_given)
-    write_into_file(outfile, "artist", args_info->artist_orig, 0);
-  if (args_info->output_dir_given)
-    write_into_file(outfile, "output-dir", args_info->output_dir_orig, 0);
-  if (args_info->quiet_given)
-    write_into_file(outfile, "quiet", 0, 0 );
+  if (args_info->random_given)
+    write_into_file(outfile, "random", args_info->random_orig, 0);
   
 
   i = EXIT_SUCCESS;
@@ -546,18 +554,19 @@ cmdline_parser_internal (
       static struct option long_options[] = {
         { "help",	0, NULL, 'h' },
         { "version",	0, NULL, 'V' },
+        { "quiet",	0, NULL, 'q' },
+        { "output-dir",	1, NULL, 'd' },
+        { "artist",	1, NULL, 'A' },
         { "pattern",	1, NULL, 'p' },
         { "nb-ho",	1, NULL, 'n' },
         { "bpm",	1, NULL, 'b' },
-        { "svm",	1, NULL, 's' },
+        { "abpm",	1, NULL, 'a' },
         { "od",	1, NULL, 'o' },
-        { "artist",	1, NULL, 'a' },
-        { "output-dir",	1, NULL, 'd' },
-        { "quiet",	0, NULL, 'q' },
+        { "random",	1, NULL, 'r' },
         { 0,  0, 0, 0 }
       };
 
-      c = getopt_long (argc, argv, "hVp:n:b:s:o:a:d:q", long_options, &option_index);
+      c = getopt_long (argc, argv, "hVqd:A:p:n:b:a:o:r:", long_options, &option_index);
 
       if (c == -1) break;	/* Exit from `while (1)' loop.  */
 
@@ -573,6 +582,42 @@ cmdline_parser_internal (
           cmdline_parser_free (&local_args_info);
           exit (EXIT_SUCCESS);
 
+        case 'q':	/* Don't print a message at the end.  */
+        
+        
+          if (update_arg( 0 , 
+               0 , &(args_info->quiet_given),
+              &(local_args_info.quiet_given), optarg, 0, 0, ARG_NO,
+              check_ambiguity, override, 0, 0,
+              "quiet", 'q',
+              additional_error))
+            goto failure;
+        
+          break;
+        case 'd':	/* Set output directory.  */
+        
+        
+          if (update_arg( (void *)&(args_info->output_dir_arg), 
+               &(args_info->output_dir_orig), &(args_info->output_dir_given),
+              &(local_args_info.output_dir_given), optarg, 0, "./", ARG_STRING,
+              check_ambiguity, override, 0, 0,
+              "output-dir", 'd',
+              additional_error))
+            goto failure;
+        
+          break;
+        case 'A':	/* Set the beatmap artist.  */
+        
+        
+          if (update_arg( (void *)&(args_info->artist_arg), 
+               &(args_info->artist_orig), &(args_info->artist_given),
+              &(local_args_info.artist_given), optarg, 0, "Test", ARG_STRING,
+              check_ambiguity, override, 0, 0,
+              "artist", 'A',
+              additional_error))
+            goto failure;
+        
+          break;
         case 'p':	/* Set the pattern repeated along the beatmap.  */
         
         
@@ -609,14 +654,14 @@ cmdline_parser_internal (
             goto failure;
         
           break;
-        case 's':	/* Set the slider velocity multiplier.  */
+        case 'a':	/* Set the apparent bpm, by default same as bpm.  */
         
         
-          if (update_arg( (void *)&(args_info->svm_arg), 
-               &(args_info->svm_orig), &(args_info->svm_given),
-              &(local_args_info.svm_given), optarg, 0, "1.", ARG_DOUBLE,
+          if (update_arg( (void *)&(args_info->abpm_arg), 
+               &(args_info->abpm_orig), &(args_info->abpm_given),
+              &(local_args_info.abpm_given), optarg, 0, "-1.", ARG_DOUBLE,
               check_ambiguity, override, 0, 0,
-              "svm", 's',
+              "abpm", 'a',
               additional_error))
             goto failure;
         
@@ -633,38 +678,14 @@ cmdline_parser_internal (
             goto failure;
         
           break;
-        case 'a':	/* Set the beatmap artist.  */
+        case 'r':	/* Add randomness to offset, add or substract up to the value in ms.  */
         
         
-          if (update_arg( (void *)&(args_info->artist_arg), 
-               &(args_info->artist_orig), &(args_info->artist_given),
-              &(local_args_info.artist_given), optarg, 0, "Test", ARG_STRING,
+          if (update_arg( (void *)&(args_info->random_arg), 
+               &(args_info->random_orig), &(args_info->random_given),
+              &(local_args_info.random_given), optarg, 0, "0", ARG_INT,
               check_ambiguity, override, 0, 0,
-              "artist", 'a',
-              additional_error))
-            goto failure;
-        
-          break;
-        case 'd':	/* Set output directory.  */
-        
-        
-          if (update_arg( (void *)&(args_info->output_dir_arg), 
-               &(args_info->output_dir_orig), &(args_info->output_dir_given),
-              &(local_args_info.output_dir_given), optarg, 0, "./", ARG_STRING,
-              check_ambiguity, override, 0, 0,
-              "output-dir", 'd',
-              additional_error))
-            goto failure;
-        
-          break;
-        case 'q':	/* Don't print a message at the end.  */
-        
-        
-          if (update_arg( 0 , 
-               0 , &(args_info->quiet_given),
-              &(local_args_info.quiet_given), optarg, 0, 0, ARG_NO,
-              check_ambiguity, override, 0, 0,
-              "quiet", 'q',
+              "random", 'r',
               additional_error))
             goto failure;
         

@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #include "osux.h"
 #include "cmdline.h"
@@ -26,9 +27,24 @@ struct taiko_generator {
     uint32_t len;
     uint32_t pos;
 
+    int32_t randomness;
+    GRand *rand;
+
     double offset; // cast to int at the very end
     double offset_unit;
 };
+
+static uint32_t rotl32(uint32_t value, unsigned int count) {
+    const unsigned int mask = (CHAR_BIT * sizeof(value) - 1);
+    count &= mask;
+    return (value << count) | (value >> ((-count) & mask));
+}
+
+static uint32_t rotr32(uint32_t value, unsigned int count) {
+    const unsigned int mask = (CHAR_BIT * sizeof(value) - 1);
+    count &= mask;
+    return (value >> count) | (value << ((-count) & mask));
+}
 
 static int
 make_taiko_circle(osux_hitobject *ho, int offset, int sample)
@@ -55,7 +71,23 @@ make_taiko_spinner(osux_hitobject *ho, int offset, int end_offset)
     return err;
 }
 
-static int str_has_char(const char*s, char c)
+/*
+ * Create a seed from 'useful' parameters.
+ * Thus, maps with the same parameters will be the same.
+ */
+static uint32_t tg_seed(const struct gengetopt_args_info *info)
+{
+    uint32_t seed = info->random_arg * 10;
+    for (uint32_t i = 0; info->pattern_arg[i] != '\0'; i++)
+	seed += info->pattern_arg[i] * (5 + i);
+    seed ^= rotl32(info->nb_ho_arg, 10);
+    seed -= info->bpm_arg * 3;
+    seed += rotl32(info->abpm_arg / info->bpm_arg, 8);
+    seed ^= rotr32(info->od_arg, 3);
+    return seed;
+}
+
+static int str_has_char(const char *s, char c)
 {
     for (uint32_t i = 0; s[i] != '\0'; i++)
 	if (s[i] == c)
@@ -75,15 +107,30 @@ static void tg_check_pattern(const struct taiko_generator *tg)
     }
 }
 
-static int tg_init(struct taiko_generator *tg, char *pattern, double bpm)
+static int tg_init(struct taiko_generator *tg, char *pattern, double bpm, int randomness, uint32_t seed)
 {
     memset(tg, 0, sizeof*tg);
     tg->pattern = pattern;
     tg->len = strlen(pattern);
+    tg->randomness = randomness;
+    tg->rand = g_rand_new_with_seed(seed);
     tg->pos = 0;
     tg->offset = 0;
     tg->offset_unit = (60000. / bpm) / 4.;
     tg_check_pattern(tg);
+    return 0;
+}
+
+static int tg_free(struct taiko_generator *tg)
+{
+    g_rand_free(tg->rand);
+    return 0;
+}
+
+static int32_t tg_rand(const struct taiko_generator *tg)
+{
+    if (tg->randomness)
+	return g_rand_int_range(tg->rand, -tg->randomness, tg->randomness);
     return 0;
 }
 
@@ -128,12 +175,14 @@ static char *create_title(struct gengetopt_args_info *info)
     char *s = "";
     if (info->od_given)
 	s = xasprintf("%sOD%.1f - ", s, info->od_arg);
-    if (info->svm_given)
-	s = xasprintf("%s%dbpma - ", s, (int) (info->svm_arg * info->bpm_arg));
+    if (info->abpm_given)
+	s = xasprintf("%s%dabpm - ", s, (int) info->abpm_arg);
     if (info->bpm_given)
 	s = xasprintf("%s%dbpm - ", s, (int) info->bpm_arg);
     if (info->nb_ho_given)
-	s = xasprintf("%s%dobj - ", s, (int) info->nb_ho_arg);
+	s = xasprintf("%s%dobj - ", s, info->nb_ho_arg);
+    if (info->random_given)
+	s = xasprintf("%s%drand - ", s, info->random_arg);
 
     if (s[0] == '\0') {
 	s = strdup("Default");
@@ -165,7 +214,10 @@ beatmap_set_difficulty(osux_beatmap *bm, struct gengetopt_args_info *info)
     bm->CircleSize   = 5;
     bm->ApproachRate = 5;
     bm->OverallDifficulty = info->od_arg;
-    bm->SliderMultiplier  = 1.4 * info->svm_arg;
+    if (info->abpm_arg > 0)
+	bm->SliderMultiplier = 1.4 * (info->abpm_arg / info->bpm_arg);
+    else
+	bm->SliderMultiplier = 1.4;
     bm->SliderTickRate = 1;
 }
 
@@ -201,7 +253,8 @@ static void tg_set_ho(struct taiko_generator *tg, osux_hitobject *ho)
 {
     while (tg_is_blank(tg))
 	tg_next(tg);
-    make_taiko_circle(ho, tg->offset, tg_get_sample(tg));
+    double offset = tg->offset + tg_rand(tg);
+    make_taiko_circle(ho, offset, tg_get_sample(tg));
     tg_next(tg);
 }
 
@@ -213,9 +266,11 @@ beatmap_add_ho(osux_beatmap *bm, struct gengetopt_args_info *info)
     ALLOC_ARRAY(bm->hitobjects, bm->hitobject_bufsize, info->nb_ho_arg);
     bm->hitobject_count = info->nb_ho_arg;
 
-    tg_init(&tg, info->pattern_arg, info->bpm_arg);
+    uint32_t seed = tg_seed(info);
+    tg_init(&tg, info->pattern_arg, info->bpm_arg, info->random_arg, seed);
     for (int i = 0; i < info->nb_ho_arg; i++)
 	tg_set_ho(&tg, &bm->hitobjects[i]);
+    tg_free(&tg);
 }
 
 int main(int argc, char *argv[])
@@ -231,6 +286,17 @@ int main(int argc, char *argv[])
         fprintf(stderr, "BPM can't be this low (min=5.)\n");
         exit(EXIT_FAILURE);
     }
+    if (info.od_arg < 0. || info.od_arg > 10.) {
+	fprintf(stderr, "OD must be in [0, 10]\n");
+	exit(EXIT_FAILURE);
+    }
+    if (info.nb_ho_arg < 0.) {
+	fprintf(stderr, "Number of hitobjects must be positive\n");
+	exit(EXIT_FAILURE);
+    }
+    if (info.random_arg < 0.)
+	info.random_arg = -info.random_arg;
+
 
     osux_beatmap bm;
     beatmap_init(&bm, &info);
@@ -254,6 +320,7 @@ int main(int argc, char *argv[])
 
     g_free(filename);
     g_free(path);
+
 end:
     osux_beatmap_free(&bm);
     cmdline_parser_free(&info);
