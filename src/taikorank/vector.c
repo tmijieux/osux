@@ -75,16 +75,16 @@ struct vector * cst_vect_from_list(osux_hashtable * ht, const char * key)
 
 struct vector * cst_vect_from_decl(osux_hashtable * ht, const char * key)
 {
-    char *s = xasprintf("%s_length", key);
+    char *s = g_strdup_printf("%s_length", key);
     struct vector * v = vect_new(cst_i(ht, s), CST_VECT_DIM);
-    free(s);
+    g_free(s);
     v->max_index = 0;
     v->min_index = 0;
     for(int i = 0; i < v->len; i++) {
 	for(int j = 0; j < CST_VECT_DIM; j++) {
-	    s = xasprintf("%s_%c%d", key, 'x'+j, i+1);
+	    s = g_strdup_printf("%s_%c%d", key, 'x'+j, i+1);
 	    v->t[i][j] = cst_f(ht, s);
-	    free(s);
+	    g_free(s);
 	}
 	if(v->t[i][0] > v->t[v->max_index][0])
 	    v->max_index = i;

@@ -44,7 +44,7 @@ struct linear_fun {
   a = [a0, a1, a2, ...]
   b = [b0, b1, b2, ...]
   in [xi, xi+1] use ai, bi
- */
+*/
 
 //--------------------------------------------------
 
@@ -60,7 +60,7 @@ struct linear_fun * lf_new(struct vector * v)
     lf->a = malloc(sizeof(double) * lf->len - 1);
     lf->b = malloc(sizeof(double) * lf->len - 1);
     for(int i = 0; i < lf->len - 1; i++) {
-	lf->a[i] = ((v->t[i][1] - v->t[i+1][1]) / 
+	lf->a[i] = ((v->t[i][1] - v->t[i+1][1]) /
 		    (v->t[i][0] - v->t[i+1][0]));
 	lf->b[i] = v->t[i][1] - lf->a[i] * v->t[i][0];
     }
@@ -103,7 +103,7 @@ static inline int find_interval_linear(const double * array, int len,
     return -1;
 }
 
-static inline double lf_eval_interval(struct linear_fun * lf, 
+static inline double lf_eval_interval(struct linear_fun * lf,
 				      double x, int i)
 {
     return lf->a[i] * x + lf->b[i];
@@ -142,45 +142,73 @@ struct linear_fun * cst_lf(osux_hashtable * ht, const char * key)
 void lf_print(struct linear_fun * lf)
 {
     fprintf(stderr, "linear_fun: %s\nx:", lf->name);
-    for (int i = 0; i < lf->len; i++) 
+    for (int i = 0; i < lf->len; i++)
 	fprintf(stderr, "\t%.4g", lf->x[i]);
     fprintf(stderr, "\na:");
-    for (int i = 0; i < lf->len-1; i++) 
+    for (int i = 0; i < lf->len-1; i++)
 	fprintf(stderr, "\t%.4g", lf->a[i]);
     fprintf(stderr, "\nb:");
-    for (int i = 0; i < lf->len-1; i++) 
+    for (int i = 0; i < lf->len-1; i++)
 	fprintf(stderr, "\t%.4g", lf->b[i]);
     fprintf(stderr, "\n");
 }
 
 //--------------------------------------------------
-
-static char * lf_array_to_str(double * t, int len, char * var)
+static void append_string(char **str, char const *format, ...)
 {
-    char * s = xasprintf("%g", t[0]);
-    for (int i = 1; i < len; i++) {
-	s = xasprintf("%s, %g", s, t[i]);
-    }
-    return xasprintf("double %s[%d] = {%s};\n", var, len, s);
+    va_list ap;
+    char *append, *new_str;
+
+    va_start(ap, format);
+    append = g_strdup_vprintf(format, ap);
+    va_end(ap);
+
+    new_str = g_strdup_printf("%s%s", *str, append);
+    g_free(*str); g_free(append);
+    *str = new_str;
+}
+
+static char *lf_array_to_str(double *t, int len, char const *var)
+{
+    char *values = g_strdup_printf("%g", t[0]);
+    for (int i = 1; i < len; i++)
+        append_string(&values, ", %g", t[i]);
+
+    char *array_str;
+    array_str = g_strdup_printf("double %s[%d] = {%s};\n", var, len, values);
+    g_free(values);
+    return array_str;
 }
 
 void lf_dump(struct linear_fun * lf)
 {
-    char * x_name = xasprintf("%s_x", lf->name);
+    char * x_name = g_strdup_printf("%s_x", lf->name);
     char * x = lf_array_to_str(lf->x, lf->len,   x_name);
-    char * a_name = xasprintf("%s_a", lf->name);
+
+    char * a_name = g_strdup_printf("%s_a", lf->name);
     char * a = lf_array_to_str(lf->a, lf->len-1, a_name);
-    char * b_name = xasprintf("%s_b", lf->name);
+
+    char * b_name = g_strdup_printf("%s_b", lf->name);
     char * b = lf_array_to_str(lf->b, lf->len-1, b_name);
-    char * var = xasprintf("struct linear_fun lf_%s = {\n"
-			   "\t.name = \"%s\",\n"
-			   "\t.len = %d,\n"
-			   "\t.x = %s,\n"
-			   "\t.a = %s,\n"
-			   "\t.b = %s,\n"
-			   "};\n",
-			   lf->name, lf->name, lf->len,
-			   x_name, a_name, b_name);
-    char * all = xasprintf("%s%s%s%s", x, a, b, var);
+
+    char *var, *all;
+    var = g_strdup_printf(
+        "struct linear_fun lf_%s = {\n"
+        "\t.name = \"%s\",\n"
+        "\t.len = %d,\n"
+        "\t.x = %s,\n"
+        "\t.a = %s,\n"
+        "\t.b = %s,\n"
+        "};\n",
+        lf->name, lf->name, lf->len,
+        x_name, a_name, b_name
+    );
+    all = g_strdup_printf("%s%s%s%s", x, a, b, var);
     fprintf(stderr, "%s", all);
+
+    g_free(x_name);  g_free(x);
+    g_free(a_name);  g_free(a);
+    g_free(b_name);  g_free(b);
+    g_free(var);
+    g_free(all);
 }

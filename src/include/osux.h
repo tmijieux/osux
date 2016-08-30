@@ -11,7 +11,7 @@
 #include "./osux/database.h"
 #include "./osux/beatmap_database.h"
 #include "./osux/error.h"
-#include "./osux/string2.h"
+#include "./osux/string.h"
 #include "./osux/read.h"
 #include "./osux/cfetch.h"
 #include "./osux/beatmap_set.h"

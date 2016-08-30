@@ -24,7 +24,7 @@
 #include "osux/hitsound.h"
 #include "osux/util.h"
 #include "osux/error.h"
-#include "osux/string2.h"
+#include "osux/string.h"
 
 static int check_slider_type(char type)
 {

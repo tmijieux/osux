@@ -51,8 +51,8 @@ int main(int argc, char * argv[])
 	    fprintf(stderr, "Failed to convert beatmap '%s'\n", argv[i]);
 	    goto end;
 	}
-        char *new_diff_name = xasprintf("%s convert", bm.Version);
-	free(bm.Version);
+        char *new_diff_name = g_strdup_printf("%s convert", bm.Version);
+	g_free(bm.Version);
         bm.Version = new_diff_name;
 	
 	if (osux_beatmap_save_full(&bm, ".", NULL, true) < 0) {
