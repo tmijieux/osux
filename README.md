@@ -15,6 +15,10 @@ make install
 
 #### Autotools
 ```
+# (re-)generate the build system: (you must probably do this if you pulled the project from a git repo)
+./autogen.sh
+
+# build:
 ./configure
 make
 make install

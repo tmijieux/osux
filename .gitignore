@@ -1,9 +1,6 @@
-*~
 *.o
-*.lo
 *.so
 *.a
-*.la
 __pycache__/
 *.pyc
 *.cache
@@ -41,3 +38,26 @@ TAGS
 
 # executables:
 a.out
+
+# autotools
+Makefile.in
+/Makefile
+/aclocal.m4
+/autom4te.cache/
+/config.*
+/configure
+/depcomp
+/compile
+/install-sh
+/libtool
+/ltmain.sh
+/m4/
+/missing
+/ar-lib
+/stamp-h?
+.deps/
+.dirstamp
+.libs/
+*.l[ao]
+*~
+
