@@ -170,39 +170,58 @@ static void beatmap_set_general(osux_beatmap *bm)
     bm->SampleSet = SAMPLE_TYPE_NORMAL;
 }
 
+
+static void
+append_string(char **str, char const *format, ...)
+{
+    va_list ap;
+    char *append, *new_str;
+
+    va_start(ap, format);
+    append = g_strdup_vprintf(format, ap);
+    va_end(ap);
+
+    new_str = g_strdup_printf("%s%s", *str, append);
+    g_free(*str);
+    g_free(append);
+    *str = new_str;
+}
+
 static char *create_title(struct gengetopt_args_info *info)
 {
-    char *s = "";
-    if (info->od_given)
-	s = xasprintf("%sOD%.1f - ", s, info->od_arg);
-    if (info->abpm_given)
-	s = xasprintf("%s%dabpm - ", s, (int) info->abpm_arg);
-    if (info->bpm_given)
-	s = xasprintf("%s%dbpm - ", s, (int) info->bpm_arg);
-    if (info->nb_ho_given)
-	s = xasprintf("%s%dobj - ", s, info->nb_ho_arg);
-    if (info->random_given)
-	s = xasprintf("%s%drand - ", s, info->random_arg);
+    char *str = g_strdup("");
 
-    if (s[0] == '\0') {
-	s = strdup("Default");
-    } else {
-	uint32_t len = strlen(s);
-	s[len-3] = '\0';
+    if (info->od_given)
+        append_string(&str, "OD%.1f - ", info->od_arg);
+    if (info->abpm_given)
+        append_string(&str, "%dabpm - ", (int) info->abpm_arg);
+    if (info->bpm_given)
+        append_string(&str, "%dbpm - ", (int) info->bpm_arg);
+    if (info->nb_ho_given)
+        append_string(&str, "%dobj - ", info->nb_ho_arg);
+    if (info->random_given)
+        append_string(&str, "%drand - ", info->random_arg);
+
+    if (!g_strcmp0(str, ""))
+        append_string(&str, "Default");
+    else {
+	uint32_t len = strlen(str);
+	str[len-3] = '\0'; // remove trailing spaces and dash
     }
-    return s;
+    return str;
 }
 
 static void
 beatmap_set_metadata(osux_beatmap *bm, struct gengetopt_args_info *info)
 {
     bm->Title         = create_title(info);
-    bm->TitleUnicode  = strdup(bm->Title);
-    bm->Artist        = strdup(info->artist_arg);
-    bm->ArtistUnicode = strdup(bm->Artist);
-    bm->Creator       = strdup("Taiko Generator");
-    bm->Source        = strdup(bm->Creator);
-    bm->Version       = strdup(info->pattern_arg);
+    bm->TitleUnicode  = g_strdup(bm->Title);
+    bm->Artist        = g_strdup(info->artist_arg);
+    bm->ArtistUnicode = g_strdup(bm->Artist);
+    bm->Creator       = g_strdup("Taiko Generator");
+    bm->Source        = g_strdup(bm->Creator);
+    bm->Version       = g_strdup(info->pattern_arg);
+    bm->Tags          = g_strdup("taiko_generator");
     bm->BeatmapID     = -1;
     bm->BeatmapSetID  = -1;
 }
@@ -321,7 +340,7 @@ int main(int argc, char *argv[])
     g_free(filename);
     g_free(path);
 
-end:
+ end:
     osux_beatmap_free(&bm);
     cmdline_parser_free(&info);
     return EXIT_SUCCESS;

@@ -57,5 +57,5 @@ resources.c: resources.h $(srcdir)/editor.gresources.xml
 	--generate-source
 
 edosu_CFLAGS = $(GTK3_CFLAGS) $(EPOXY_CFLAGS) $(AM_CFLAGS)
-edosu_LDFLAGS = $(GTK3_LIBS) $(EPOXY_LIBS) -export-dynamic $(AM_LDFLAGS)
+edosu_LDFLAGS = $(GTK3_LIBS) $(EPOXY_LIBS) -export-dynamic $(AM_LDFLAGS) -lm
 edosu_LDADD = ../lib/libosux.la
