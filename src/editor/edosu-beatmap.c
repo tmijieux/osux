@@ -16,6 +16,7 @@ edosu_beatmap_init(EdosuBeatmap *beatmap)
     beatmap->palette = edosu_palette_new();
     beatmap->inspector = edosu_inspector_new();
     beatmap->properties = edosu_properties_new();
+    beatmap->HitObjectsSeq = g_sequence_new(NULL);
     beatmap->unique_number = unique_number++;
     beatmap->filename = g_strdup_printf(_("unsaved beatmap %d"), unique_number);
 }
@@ -29,7 +30,7 @@ edosu_beatmap_save_to_file(EdosuBeatmap *beatmap, gchar const *filepath)
 
     edosu_properties_save_to_beatmap(beatmap->properties, &o_beatmap);
     edosu_beatmap_save_objects(beatmap, &o_beatmap);
-    
+
     osux_beatmap_save(&o_beatmap, filepath);
     osux_beatmap_free(&o_beatmap);
 }
@@ -69,6 +70,7 @@ edosu_beatmap_finalize(GObject *obj)
     g_clear_pointer(&beatmap->timingpoints, g_free);
     g_clear_pointer(&beatmap->events, g_free);
     g_clear_pointer(&beatmap->colors, g_free);
+    g_clear_pointer(&beatmap->HitObjectsSeq, g_sequence_free);
 
     G_OBJECT_CLASS(edosu_beatmap_parent_class)->finalize(obj);
 }
@@ -109,7 +111,10 @@ edosu_beatmap_load_from_file(EdosuBeatmap *beatmap, gchar const *filepath)
 
     if (!err) {
         set_path(beatmap, filepath);
+        int64_t end_time = osux_bm.hitobjects[osux_bm.hitobject_count-1].offset;
+        edosu_view_set_max_time(beatmap->view, end_time + 5000);
         edosu_beatmap_load_objects(beatmap, &osux_bm);
+        edosu_view_set_hit_objects(beatmap->view, beatmap->HitObjectsSeq);
         edosu_inspector_set_model(beatmap->inspector,
                                   GTK_TREE_MODEL(beatmap->Objects));
         edosu_properties_load_from_beatmap(beatmap->properties, &osux_bm);
@@ -119,5 +124,4 @@ edosu_beatmap_load_from_file(EdosuBeatmap *beatmap, gchar const *filepath)
         beatmap->errmsg = g_strdup(osux_errmsg(err));
         return FALSE;
     }
-    
 }

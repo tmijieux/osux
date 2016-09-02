@@ -14,6 +14,7 @@ edosu_SOURCES = \
 	edosu-view.c \
 	edosu-inspector.c \
 	glarea-error.c \
+	edosu-circle.c \
 	edosu-gl.c
 
 nodist_edosu_SOURCES = \
@@ -37,8 +38,8 @@ RESOURCES_DEP= \
 	$(srcdir)/ui/EdosuCloseLabel.glade \
 	$(srcdir)/ui/EdosuFileFilterMusic.glade \
 	$(srcdir)/ui/EdosuFileFilterOsu.glade \
-	$(srcdir)/glarea-fragment.glsl \
-	$(srcdir)/glarea-vertex.glsl
+	$(srcdir)/fragment.glsl \
+	$(srcdir)/vertex.glsl
 
 $(srcdir)/editor.gresources.xml: $(RESOURCES_DEP)
 # technically nothing can be 'rebuilt' here so just update modification time

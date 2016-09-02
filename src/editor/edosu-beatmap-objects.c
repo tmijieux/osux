@@ -4,8 +4,16 @@
 
 enum { COL_OFFSET = 0, COL_TYPE, COL_DETAILS, COL_OBJECT, COL_NUM };
 
+static gint
+sort_object_offset(gconstpointer _a, gconstpointer _b, gpointer UNUSED user_data)
+{
+    return ((osux_hitobject*)_a)->offset - ((osux_hitobject*)_b)->offset;
+}
+
 static void
-load_hit_objects(osux_beatmap *beatmap, GtkTreeStore *tree_store,
+load_hit_objects(osux_beatmap *beatmap,
+                 GtkTreeStore *tree_store,
+                 GSequence *ho_seq,
                  GtkTreeIter *hitobjects)
 {
     for (unsigned i = 0; i < beatmap->hitobject_count; ++i)
@@ -28,7 +36,9 @@ load_hit_objects(osux_beatmap *beatmap, GtkTreeStore *tree_store,
                            COL_TYPE, type,
                            COL_DETAILS, ho->details,
                            COL_OBJECT, ho, -1);
+        g_sequence_append(ho_seq, ho);
     }
+    g_sequence_sort(ho_seq, &sort_object_offset, NULL);
 }
 
 static void
@@ -149,7 +159,7 @@ void edosu_beatmap_load_objects(EdosuBeatmap *beatmap, osux_beatmap *osux_bm)
     gtk_tree_store_append(ts, &beatmap->HitObjects, NULL);
     gtk_tree_store_set(ts, &beatmap->HitObjects, COL_TYPE, _("HitObjects"),
                        COL_OFFSET, osux_bm->hitobject_count, -1);
-    load_hit_objects(osux_bm, ts, &beatmap->HitObjects);
+    load_hit_objects(osux_bm, ts, beatmap->HitObjectsSeq, &beatmap->HitObjects);
 
     gtk_tree_store_append(ts, &beatmap->Bookmarks, NULL);
     gtk_tree_store_set(ts, &beatmap->Bookmarks, COL_TYPE, _("Bookmarks"),
@@ -332,6 +342,6 @@ void edosu_beatmap_dispose_objects(EdosuBeatmap *beatmap)
     dispose_timingpoints(beatmap);
     dispose_events(beatmap);
     dispose_colors(beatmap);
-    
+
     g_clear_object(&beatmap->Objects);
 }

@@ -114,12 +114,13 @@ void edosu_window_remove_beatmap(EdosuWindow *win, EdosuBeatmap *beatmap)
         gtk_window_set_title(GTK_WINDOW(win), _("osux Editor"));
         edosu_application_set_current_beatmap(win->app, NULL);
     }
+    if (win->beatmap_count == 1)
+        gtk_notebook_set_show_tabs(win->view_notebook, FALSE);
 }
 
 void edosu_window_focus_beatmap(EdosuWindow *win, EdosuBeatmap *beatmap)
 {
     gint n;
-
     n = gtk_notebook_page_num(win->view_notebook, GTK_WIDGET(beatmap->view));
     gtk_notebook_set_current_page(win->view_notebook, n);
 }

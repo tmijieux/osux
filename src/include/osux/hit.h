@@ -10,13 +10,6 @@ typedef struct osux_hit_ osux_hit;
 #include "osux/hitobject.h"
 #include "osux/replay.h"
 
-inline double osux_base_approach_rate_length(double approach_rate)
-{
-    if (approach_rate >= 5)
-        return 1200. - 150 * approach_rate;
-    return 1800 - 120 * approach_rate;
-}
-
 extern char const *hit_str[];
 
 typedef enum osux_hit_type_ {
@@ -26,7 +19,7 @@ typedef enum osux_hit_type_ {
     HIT_100,
     HIT_50,
     HIT_MISS,
-    MAX_HIT_TYPE,
+    MAX_HIT_TYPE
 } osux_hit_type;
 
 struct osux_hit_ {
@@ -44,10 +37,10 @@ typedef struct osux_hits_ {
     int game_mode;
     int mods;
     int overall_difficulty;
-    
+
     osux_replay_data *data;
     size_t data_count;
-    
+
     osux_keypress *keypress;
     size_t keypress_count;
 
@@ -56,6 +49,11 @@ typedef struct osux_hits_ {
     size_t hits_size;
 } osux_hits;
 
+void osux_get_hit_windows(
+    double window[], // Array of size MAX_HIT_TYPE to be filled by this function
+    double od, // map overall difficulty
+    int mods); // game mods, only EZ,HR,,HT,DT(or NC) have influence on hit window
+int osux_get_approach_time(double ar, int mods);
 
 int osux_hits_init(osux_hits *hits,
                    osux_beatmap const *beatmap, osux_replay const *replay);

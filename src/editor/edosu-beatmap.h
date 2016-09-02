@@ -27,10 +27,12 @@ struct _EdosuBeatmap
     EdosuPalette *palette;
     EdosuInspector *inspector;
     EdosuProperties *properties;
-    
+
     GtkTreeStore *Objects;
     GtkTreeIter TimingPoints;
     GtkTreeIter HitObjects;
+    GSequence *HitObjectsSeq;
+
     GtkTreeIter Bookmarks;
     GtkTreeIter Events;
     GtkTreeIter Colors;

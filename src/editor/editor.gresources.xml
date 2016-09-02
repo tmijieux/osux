@@ -6,12 +6,11 @@
     <file preprocess="xml-stripblanks">ui/EdosuInspector.glade</file>
     <file preprocess="xml-stripblanks">ui/EdosuPalette.glade</file>
     <file preprocess="xml-stripblanks">ui/EdosuProperties.glade</file>
-
     <file preprocess="xml-stripblanks">ui/EdosuCloseLabel.glade</file>
     <file preprocess="xml-stripblanks">ui/EdosuBeatmapAdjustments.glade</file>
     <file preprocess="xml-stripblanks">ui/EdosuFileFilterMusic.glade</file>
     <file preprocess="xml-stripblanks">ui/EdosuFileFilterOsu.glade</file>
-    <file>glarea-fragment.glsl</file>
-    <file>glarea-vertex.glsl</file>
+    <file>fragment.glsl</file>
+    <file>vertex.glsl</file>
   </gresource>
 </gresources>

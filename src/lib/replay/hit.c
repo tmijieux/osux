@@ -40,11 +40,34 @@ static double base_hit_window(
 #define TWO_THIRD  (.666666666666666)
 #define FOUR_THIRD (1.33333333333333)
 
-static void get_hit_windows(
+int osux_get_approach_time(double ar, int mods)
+{
+    double step = 120.0, base = 1800.0;
+
+    if (mods & MOD_EASY)
+        ar /= 2;
+    else if (mods & MOD_HARDROCK)
+        ar = min(10., 1.4 * ar);
+
+    if (likely( ar > 5.0 )) {
+        ar -= 5;
+        step = 150.0;
+        base = 1200.0;
+    }
+
+    double time = base - ar * step;
+    if (mods & MOD_DOUBLETIME)
+        time *= TWO_THIRD;
+    else if (mods & MOD_HALFTIME)
+        time *= FOUR_THIRD;
+
+    return (int) time;
+}
+
+void osux_get_hit_windows(
     double window[], // Array of size MAX_HIT_TYPE to be filled by this function
     double od, // map overall difficulty
-    int mods // game mods, only EZ,HR,,HT,DT(or NC) will have influence on hit window
-)
+    int mods) // game mods, only EZ,HR,,HT,DT(or NC) have influence on hit window
 {
     if (mods & MOD_EASY)
         od /= 2.;
@@ -54,7 +77,9 @@ static void get_hit_windows(
     memset(window, 0, sizeof window[0] * MAX_HIT_TYPE);
 
     for (unsigned iHit = 0; iHit < MAX_HIT_TYPE; ++iHit) {
-        window[iHit] = base_hit_window(od, base_window[iHit], step_window[iHit]);
+        window[iHit] = base_hit_window(
+            od, base_window[iHit], step_window[iHit]);
+
         if (mods & MOD_DOUBLETIME)
             window[iHit] *= TWO_THIRD;
         else if (mods & MOD_HALFTIME)
@@ -182,11 +207,11 @@ static void keypress_remove_doubles(osux_hits *h)
 static int osux_hits_compute_data(
     osux_hits *h, osux_replay_data const *data, size_t data_count)
 {
-   ALLOC_ARRAY(h->data, h->data_count, data_count-2);
-   COPY_ARRAY(h->data+1, data+2, data_count-3); // evict first, second and last
-   qsort(h->data+1, h->data_count-1, sizeof*data, &cmp_time_offset);
-   memset(h->data, 0, sizeof*data); // zero first element
-   return 0;
+    ALLOC_ARRAY(h->data, h->data_count, data_count-2);
+    COPY_ARRAY(h->data+1, data+2, data_count-3); // evict first, second and last
+    qsort(h->data+1, h->data_count-1, sizeof*data, &cmp_time_offset);
+    memset(h->data, 0, sizeof*data); // zero first element
+    return 0;
 }
 
 static int osux_hits_compute_keypress(osux_hits *h)
@@ -243,7 +268,7 @@ static int osux_hits_compute_hits_std_basic(
     int i_hitobject;
     int64_t max_distance = 0;
 
-    get_hit_windows(window, h->overall_difficulty, h->mods);
+    osux_get_hit_windows(window, h->overall_difficulty, h->mods);
     ALLOC_ARRAY(h->hits, h->hits_size, beatmap->hitobject_count);
 
     for ( p_hitobject = &beatmap->hitobjects[0], i_hitobject = 0;
@@ -325,7 +350,7 @@ static int osux_hits_compute_hits_taiko_basic(
     int i_hitobject;
     int64_t max_distance = 0;
 
-    get_hit_windows(window, h->overall_difficulty, h->mods);
+    osux_get_hit_windows(window, h->overall_difficulty, h->mods);
     ALLOC_ARRAY(h->hits, h->hits_size, beatmap->hitobject_count);
 
     for ( p_hitobject = &beatmap->hitobjects[0], i_hitobject = 0;
@@ -368,8 +393,8 @@ static int osux_hits_compute_hits_taiko_basic(
         } else {
             h->hits[i_hitobject].hitted = true;
             if (HIT_OBJECT_IS_CIRCLE(p_hitobject)) {
-                h->hits[i_hitobject].hit_type = get_hit_type_taiko(window,
-                                                                   distance);
+                h->hits[i_hitobject].hit_type =
+                    get_hit_type_taiko(window, distance);
             } else
                 // free win slider
                 h->hits[i_hitobject].hit_type = HIT_300;
