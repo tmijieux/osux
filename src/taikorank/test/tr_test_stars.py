@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import sys
+import logging
 
 from colors import Colors
 from levenshtein import Levenshtein
@@ -66,23 +67,35 @@ class TR_Test_Stars(TR_Test_Str_List):
         for map in self.res[mod]:
             brief.append(map.str_brief(self.merge_mods))
             full.append(map.str_full(self.field, self.merge_mods))
+
+        errors = Levenshtein(self.expected, brief).dist()
         zipped = zip(self.expected, brief, full)
+        if errors:
+            logging.warning(self.diff_str(zipped))
+        else:
+            logging.info(self.diff_str(zipped))
+        return errors
+    #
+    def diff_str(self, zipped):
+        l = []
         for s_map, s_brief, s_full in zipped:
             if s_map == s_brief:
-                print(self.S_OK % (s_full))
+                l.append(self.S_OK % (s_full))
             else:
-                print(self.S_FAIL % (s_full, Colors.warning(s_map)))
-        return Levenshtein(self.expected, brief).dist()
+                l.append(self.S_FAIL % (s_full, Colors.warning(s_map)))
+        return '\n' + '\n'.join(l)
     #
-    def dump(self):
+    def dump_str(self):
+        l = []
         for map in self.res['__']:
-            print(map.str_brief(self.merge_mods))
+            l.append(map.str_brief(self.merge_mods))
+        return '\n' + '\n'.join(l)
     #
     def compare(self):
         errors = 0
         for mod in self.res.keys():
             if not self.merge_mods:
-                print(Colors.blue("Test on mod '%s'" % mod))
+                logging.info(Colors.blue("Test on mod '%s'" % mod))
             errors += self.check_one_mod(mod)
         total  = len(self.expected) * len(self.res.keys())
         return (errors, total)
@@ -99,7 +112,7 @@ class TR_Tester_Stars(TR_Tester_Yaml):
             test = TR_Test_Stars(x)
             self.tests[test.name] = test
             if test.do:
-                print("")
+                logging.info("")
                 err, tot = test.main()
                 self.errors += err
                 self.total  += tot
@@ -109,7 +122,7 @@ class TR_Tester_Stars(TR_Tester_Yaml):
             test = TR_Test_Stars(x)
             self.tests[test.name] = test
             if test.do:
-                print("")
+                logging.info("")
                 test.combine(self.tests)
                 err, tot = test.main()
                 self.errors += err
@@ -123,4 +136,6 @@ class TR_Tester_Stars(TR_Tester_Yaml):
         return (self.errors, self.total)
 
 if __name__ == "__main__":
+    logging.basicConfig(level = logging.WARNING,
+                        format = '%(message)s')
     TR_Tester_Stars(sys.argv).main()

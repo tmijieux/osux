@@ -36,6 +36,9 @@ bigdb.tar.xz
 libtool
 TAGS
 
+# taiko ranking generated tests
+test_generated*.yaml
+
 # executables:
 a.out
 

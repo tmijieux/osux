@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import sys
+import logging
 
 from colors import Colors
 from tr_exec import TR_Exec
@@ -40,15 +41,17 @@ class TR_Test_Autoconvert(TR_Test_Str_List):
         for expected, map in zipped:
             s = map.str_obj(self.unit, self.MAX_LENGTH)
             if s == expected:
-                print(self.S_OK   % (s))
+                logging.info(self.S_OK   % (s))
             else:
-                print(self.S_FAIL % (s, Colors.warning(expected)))
+                logging.info(self.S_FAIL % (s, Colors.warning(expected)))
                 errors += 1
         return errors
     #
-    def dump(self):
+    def dump_str(self):
+        l = []
         for map in self.res:
-            print(map.str_obj(self.unit, self.MAX_LENGTH))
+            l.append(map.str_obj(self.unit, self.MAX_LENGTH))
+        return '\n' + '\n'.join(l)
     #
     def compare(self):
         errors = self.check()
@@ -71,4 +74,6 @@ class TR_Tester_Autoconvert(TR_Tester_Yaml):
 ########################################################
 
 if __name__ == "__main__":
+    logging.basicConfig(level = logging.WARNING,
+                        format = '%(message)s')
     TR_Tester_Autoconvert(sys.argv).main()

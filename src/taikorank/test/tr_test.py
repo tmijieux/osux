@@ -13,6 +13,7 @@
 
 import abc
 import yaml
+import logging
 from colors import Colors
 
 ########################################################
@@ -34,25 +35,25 @@ class TR_Tester:
     #
     def main(self):
         if not self.argv:
-            print("No test file!")
+            logging.error("No test file!")
             return False
         #
         for arg in self.argv:
             try:
-                print(Colors.blue("Test on %s:" % arg))
+                logging.info(Colors.blue("Test on %s:" % arg))
                 err, tot = self.test(arg)
                 self._errors += err
                 self._total  += tot
             except TR_Exception as e:
-                print(str(e))
+                logging.error(str(e))
         #
-        print("")
+        logging.info("")
         if self._errors == 0:
-            print(Colors.green("All test files passed! %d/%d" %
-                    (self._total - self._errors, self._total)))
+            logging.error(Colors.green("All test files passed! %d/%d" %
+                          (self._total - self._errors, self._total)))
         else:
-            print(Colors.fail("Some test files failed! %d/%d" %
-                    (self._total - self._errors, self._total)))
+            logging.error(Colors.fail("Some test files failed! %d/%d" %
+                          (self._total - self._errors, self._total)))
         #
         return self._errors == 0;
     #
@@ -68,7 +69,7 @@ class TR_Tester:
         for x in data:
             test = constructor(x)
             if test.do:
-                print("")
+                logging.info("")
                 err, tot = method(test)
                 self.errors += err
                 self.total  += tot
@@ -96,7 +97,6 @@ class TR_Tester_Yaml(TR_Tester):
         raise TR_Exception("Abstract method not implemented")
     #
 
-
 ########################################################
 
 class TR_Test_Yaml:
@@ -116,21 +116,23 @@ class TR_Test_Yaml:
             self.cmd = ht['path']
     #
     def main(self):
-        print(Colors.blue("Starting test '%s'" % (self.name)))
+        logging.info(Colors.blue("Starting test '%s'" % (self.name)))
         self.compute()
         if not self.expected:
-            print(Colors.warning("No data, dumping"))
-            self.dump()
+            logging.warning(Colors.warning("No data, dumping"))
+            logging.warning(self.dump_str())
             return (0, 0)
         errors, total = self.compare()
         if errors == 0:
-            print(Colors.green("Test '%s' passed! %d/%d" % (self.name, total - errors, total)))
+            logging.warning(Colors.green("Test '%s' passed! %d/%d" %
+                                        (self.name, total - errors, total)))
         else:
-            print(Colors.fail("Test '%s' failed! %d/%d" % (self.name, total - errors, total)))
+            logging.warning(Colors.fail("Test '%s' failed! %d/%d" %
+                                       (self.name, total - errors, total)))
         return (errors, total)
     #
     @abc.abstractmethod
-    def dump(self):
+    def dump_str(self):
         """
         Abstract method to implement.
         Dump the data as it should be expected.
@@ -167,9 +169,9 @@ class TR_Test_Str_List(TR_Test_Yaml):
         if not self.expected:
             return
         if len(self.expected) != len(res):
-            print(Colors.fail("Incorrect list length"))
-            print("expected: %d" % (len(self.expected)))
-            print("got:      %d" % (len(res)))
-            print(str(self.expected))
-            print(str(res))
+            logging.error(Colors.fail("Incorrect list length"))
+            logging.error("expected: %d" % (len(self.expected)))
+            logging.error("got:      %d" % (len(res)))
+            logging.error(str(self.expected))
+            logging.error(str(res))
             raise TR_Exception("Incorrect list length")
