@@ -89,13 +89,11 @@ void build_bezier_path(bezier_point *W, int length, cairo_t *cr)
                        W[2].x, W[2].y,
                        W[3].x, W[3].y);
     } else if (length > 4) {
-        printf("building bezier curve with %d points\n", length);
         double step = 0.1;
         double t = 0.1;
-
         while (t < 1) {
             bezier_point p = { 0.0, 0.0 };
-            p = Bezier(length-1, t, W);
+            p = Bezier_de_Casteljau(length-1, t, W);
             /* printf("bezier point: x=%g, y=%g\n", p.x, p.y); */
             cairo_line_to(cr, p.x, p.y);
             t += step;

@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <math.h>
 
+#include "osux/util.h"
 #include "osux/error.h"
 #include "bezier.h"
 
@@ -34,7 +35,6 @@ static void init_binomials(int n)
         for (int j = 1; j < i-1; ++j)
             binomials[i][j] = binomials[i-1][j-1] + binomials[i-1][j];
     }
-
     bz_inited = true;
 }
 
@@ -47,16 +47,25 @@ int64_t bezier_binomial(uint32_t n, uint32_t k)
     return binomials[n][k];
 }
 
-bezier_point Bezier(uint32_t n, double t, bezier_point W[restrict (n+1)])
+bezier_point Bezier_de_Casteljau(uint32_t n, // control point count = n+1
+                                 double t, // t € [ 0, 1 ]
+                                 bezier_point W[n+1]) // control points
 {
-    if (!bz_inited)
-        init_binomials(MAX_BINOMIAL);
-            
-    bezier_point p = { 0.0, 0.0 };
-    for (uint32_t i = 0; i <= n; ++i) {
-        double v = bezier_binomial(n, i) * pow(1-t, n-i) * pow(t, i);
-        p.x += v * W[i].x;
-        p.y += v * W[i].y;
+    int s = n+1;
+    bezier_point *X = ARRAY_DUP(W, s);
+    bezier_point *Y = g_malloc(sizeof*Y * s);
+    bezier_point *tmp, p;
+
+    while (s > 1) {
+        for (int i = 0; i < s-1; ++i) {
+            Y[i].x = (1-t) * X[i].x + t * X[i+1].x;
+            Y[i].y = (1-t) * X[i].y + t * X[i+1].y;
+        }
+        SWAP_POINTER(X, Y, tmp);
+        -- s;
     }
+    p = X[0];
+    g_free(X);
+    g_free(Y);
     return p;
 }

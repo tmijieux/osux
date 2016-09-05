@@ -367,8 +367,8 @@ void osux_hitobject_copy(osux_hitobject *ho, osux_hitobject *cpy)
     cpy->errmsg = g_strdup(ho->errmsg);
 
     if (HIT_OBJECT_IS_SLIDER(ho)) {
-        cpy->slider.points = ARRAY_COPY(ho->slider.points, ho->slider.point_count);
-        cpy->slider.edgehitsounds = ARRAY_COPY(
+        cpy->slider.points = ARRAY_DUP(ho->slider.points, ho->slider.point_count);
+        cpy->slider.edgehitsounds = ARRAY_DUP(
             ho->slider.edgehitsounds, ho->slider.repeat+1);
     }
     cpy->timingpoint = NULL; // this field has no meaning outside of beatmaps

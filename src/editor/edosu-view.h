@@ -23,10 +23,10 @@ struct _EdosuView
 
     GtkButton *play_button;
     GtkButton *pause_button;
-    
+
     int64_t position;
     int64_t start_position;
-    
+
     gboolean playing;
     guint tick_id;
     gint64 first_frame_time;
