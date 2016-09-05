@@ -10,7 +10,5 @@
     <file preprocess="xml-stripblanks">ui/EdosuBeatmapAdjustments.glade</file>
     <file preprocess="xml-stripblanks">ui/EdosuFileFilterMusic.glade</file>
     <file preprocess="xml-stripblanks">ui/EdosuFileFilterOsu.glade</file>
-    <file>fragment.glsl</file>
-    <file>vertex.glsl</file>
   </gresource>
 </gresources>

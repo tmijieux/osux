@@ -137,7 +137,7 @@ slider_converter_init(struct taiko_slider_converter *tc,
 void taiko_slider_converter_print(struct taiko_slider_converter const *tc)
 {
     fprintf(stderr, "taiko_slider_converter:\n");
-    fprintf(stderr, "\toffset: %d\n", tc->ho->offset);
+    fprintf(stderr, "\toffset: %ld\n", tc->ho->offset);
     fprintf(stderr, "\tmpb: %g\n", tc->mpb);
     fprintf(stderr, "\tmpt: %g\n", tc->mpt);
     fprintf(stderr, "\tlength: %g\n", tc->length);

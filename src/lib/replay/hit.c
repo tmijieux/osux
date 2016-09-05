@@ -313,7 +313,7 @@ static int osux_hits_compute_hits_std_basic(
                 ++ p_keypress;
                 continue;
             }
-            printf("missed 'after' distance=%ld, hit_offset=%lu, ho_offset=%u\n",
+            printf("missed 'after' distance=%ld, hit_offset=%ld, ho_offset=%ld\n",
                    distance, p_keypress->offset, p_hitobject->offset);
         } else {
             h->hits[i_hitobject].hitted = true;
@@ -323,7 +323,7 @@ static int osux_hits_compute_hits_std_basic(
                 // free win slider
                 h->hits[i_hitobject].hit_type = HIT_300;
 
-            printf("hit %s distance=%ld, hit_offset=%lu, ho_offset=%u\n",
+            printf("hit %s distance=%ld, hit_offset=%ld, ho_offset=%ld\n",
                    hit_str[h->hits[i_hitobject].hit_type], distance,
                    p_keypress->offset, p_hitobject->offset);
             ++ p_keypress;
@@ -387,7 +387,7 @@ static int osux_hits_compute_hits_taiko_basic(
         if (distance > window[HIT_50]) {
             h->hits[i_hitobject].hitted = false;
             h->hits[i_hitobject].hit_type = HIT_MISS;
-            printf("hit %s distance=%ld, hit_offset=%lu, ho_offset=%u\n",
+            printf("hit %s distance=%ld, hit_offset=%ld, ho_offset=%ld\n",
                    hit_str[h->hits[i_hitobject].hit_type], distance,
                    p_keypress->offset, p_hitobject->offset);
         } else {
@@ -398,7 +398,7 @@ static int osux_hits_compute_hits_taiko_basic(
             } else
                 // free win slider
                 h->hits[i_hitobject].hit_type = HIT_300;
-            printf("hit %s distance=%ld, hit_offset=%lu, ho_offset=%u\n",
+            printf("hit %s distance=%ld, hit_offset=%ld, ho_offset=%ld\n",
                    hit_str[h->hits[i_hitobject].hit_type], distance,
                    p_keypress->offset, p_hitobject->offset);
 

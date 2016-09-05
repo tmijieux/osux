@@ -32,7 +32,7 @@ int osux_beatmap_free(osux_beatmap *beatmap)
     g_free(beatmap->Version);
     g_free(beatmap->Source);
     g_free(beatmap->Tags);
-    
+
     g_strfreev(beatmap->tags);
     g_free(beatmap->colors);
 
@@ -92,7 +92,7 @@ static int parse_osu_version(osux_beatmap *beatmap, GIOChannel *file)
         err = -OSUX_ERR_BAD_OSU_VERSION;
     }
 
-finally:
+ finally:
     g_free(line);
     g_match_info_free(info);
     return err;
@@ -363,7 +363,45 @@ static int fetch_variables(osux_beatmap *beatmap)
     return 0;
 }
 
-static int prepare_objects(osux_beatmap *beatmap)
+static int prepare_hitobjects(osux_beatmap *beatmap)
+{
+    int err = 0;
+    uint32_t current_tp = 0;
+    uint32_t current_combo_id = 0;
+    uint32_t current_combo_pos = 1;
+    osux_color *current_color;
+    if (!beatmap->color_count) {
+        g_free(beatmap->colors);
+        beatmap->colors = NULL;
+    }
+    current_color = beatmap->colors;
+
+    for (uint32_t i = 0; !err && i < beatmap->hitobject_count; ++i) {
+	osux_hitobject *ho = &beatmap->hitobjects[i];
+
+        // for each hit object
+        // compute timing point applying on this hit object
+	while (current_tp < (beatmap->timingpoint_count-1) &&
+	       beatmap->timingpoints[current_tp + 1].offset <= ho->offset)
+	    current_tp++;
+        if (HIT_OBJECT_IS_NEWCOMBO(ho)) {
+            current_combo_pos = 1;
+            ++ current_combo_id;
+            do {
+                ++ current_color;
+                if (current_color - beatmap->colors > beatmap->color_count)
+                    current_color = beatmap->colors;
+            } while (current_color != NULL && current_color->type != COLOR_COMBO);
+        } else
+            ++ current_combo_pos;
+	err = osux_hitobject_prepare(
+            ho, current_combo_id, current_combo_pos, current_color,
+            &beatmap->timingpoints[current_tp]);
+    }
+    return err;
+}
+
+int osux_beatmap_prepare(osux_beatmap *beatmap)
 {
     int err = 0;
     osux_timingpoint const *last_non_inherited = NULL;
@@ -374,17 +412,7 @@ static int prepare_objects(osux_beatmap *beatmap)
                                        beatmap->SliderMultiplier);
     }
 
-    uint32_t current_tp = 0;
-    for (uint32_t i = 0; !err && i < beatmap->hitobject_count; ++i) {
-	osux_hitobject *ho = &beatmap->hitobjects[i];
-
-        // for each hit object
-        // compute timing point applying on this hit object
-	while (current_tp < (beatmap->timingpoint_count-1) &&
-	       beatmap->timingpoints[current_tp + 1].offset <= ho->offset)
-	    current_tp++;
-	osux_hitobject_prepare(ho, &beatmap->timingpoints[current_tp]);
-    }
+    err = prepare_hitobjects(beatmap);
 
     // build the event tree
     for (uint32_t i = 0; !err && i < beatmap->event_count; ++i) {
@@ -396,11 +424,6 @@ static int prepare_objects(osux_beatmap *beatmap)
         err = osux_event_prepare(ev);
     }
     return err;
-}
-
-int osux_beatmap_prepare(osux_beatmap *beatmap)
-{
-    return prepare_objects(beatmap);
 }
 
 int osux_beatmap_init(osux_beatmap *beatmap, char const *file_path)
