@@ -89,7 +89,11 @@ Bezier_de_Casteljau(uint32_t n, // control point count = n+1
   otherwise the algorithm used to compute the bezier path is the
   'De Casteljau' algorithm
 */
-static void build_bezier_path(bezier_point *W, int length, cairo_t *cr)
+static void build_bezier_path(
+    bezier_point *W, // control point array
+    int length,      // control point count (size of the array)
+    cairo_t *cr      // cairo context
+)
 {
     cairo_move_to(cr, W[0].x, W[0].y);
     if (length == 2) {
@@ -105,8 +109,9 @@ static void build_bezier_path(bezier_point *W, int length, cairo_t *cr)
                        W[2].x, W[2].y,
                        W[3].x, W[3].y);
     } else if (length > 4) {
-        double step = 0.1;
-        double t = 0.1;
+        // 3 point per control point section:
+        double step = 0.333 / (length-1);
+        double t = step;
         while (t < 1) {
             bezier_point p = { 0.0, 0.0 };
             p = Bezier_de_Casteljau(length-1, t, W);
@@ -160,16 +165,77 @@ static void draw_slider_ball(cairo_t *cr, edosu_color *cl, double x, double y)
     cairo_stroke(cr); // slider ball is red circle
 }
 
+
+static double
+compute_path_lenth(cairo_path_t *path)
+{
+    bool have_prev = false;
+    bezier_point current;
+    double length = 0.0;
+    cairo_path_data_t *data;
+
+    for (int i = 0; i < path->num_data; i += path->data[i].header.length) {
+        data = &path->data[i];
+        switch (data->header.type) {
+        case CAIRO_PATH_MOVE_TO:
+            have_prev = true;
+            current.x = data[1].point.x; current.y = data[1].point.y;
+            break;
+        case CAIRO_PATH_LINE_TO:
+            if (have_prev) {
+                length += sqrt(SQUARE(current.x-data[1].point.x)+
+                               SQUARE(current.y-data[1].point.y));
+            }
+            have_prev = true;
+            current.x = data[1].point.x; current.y = data[1].point.y;
+            break;
+        case CAIRO_PATH_CURVE_TO:
+        case CAIRO_PATH_CLOSE_PATH:
+            break;
+        }
+    }
+    return length;
+}
+
 /*
   compute position of slider ball on a 'B type' slider
   for the given percentage of completion
 */
 static bezier_point
-build_B_position(osux_hitobject *ho, double pct)
+build_B_position(osux_hitobject *ho, cairo_path_t *path, double pct)
 {
-    bezier_point p = { ho->x, ho->y };
-    (void) pct;
-    // TODO: implement this function
+    bool have_prev = false;
+    bezier_point current, p = { ho->x, ho->y };
+    double target = pct * compute_path_lenth(path);
+    double arrow = 0.0;
+    cairo_path_data_t *data;
+
+    for (int i = 0; i < path->num_data; i += path->data[i].header.length) {
+        data = &path->data[i];
+        switch (data->header.type) {
+        case CAIRO_PATH_MOVE_TO:
+            have_prev = true;
+            current.x = data[1].point.x; current.y = data[1].point.y;
+            break;
+        case CAIRO_PATH_LINE_TO:
+            if (have_prev) {
+                double l = sqrt(SQUARE(current.x-data[1].point.x)+
+                                SQUARE(current.y-data[1].point.y));
+                if (arrow+l >= target) {
+                    p.x = current.x * (1-pct) + data[1].point.x * pct;
+                    p.y = current.y * (1-pct) + data[1].point.y * pct;
+                    return p;
+                }
+                arrow += l;
+            }
+            have_prev = true;
+            current.x = data[1].point.x; current.y = data[1].point.y;
+            break;
+        case CAIRO_PATH_CURVE_TO:
+        case CAIRO_PATH_CLOSE_PATH:
+            break;
+        }
+    }
     return p;
 }
 
@@ -310,6 +376,12 @@ static void draw_slider(osux_hitobject *ho, cairo_t *cr,
     unsigned pc = ho->slider.point_count;
     double pct = (double)-local_offset/(double)(ho->end_offset-ho->offset);
 
+    if (ho->slider.type == 'C') {
+        draw_slider_control_points(ho, cr);
+        osux_warning("Catmull sliders are unsupported\n");
+        return;
+    }
+
     if (pc == 2) { // 'L' type slider: straight line
         edosu_line l = {
             ho->x, ho->y,
@@ -332,7 +404,9 @@ static void draw_slider(osux_hitobject *ho, cairo_t *cr,
         }
     } else if (pc > 3) {// 'B' type slider: bezier or piecewise bezier
         build_B_path(ho, cr);
-        slider_ball_pos = build_B_position(ho, pct);
+        cairo_path_t *path = cairo_copy_path_flat(cr);
+        slider_ball_pos = build_B_position(ho, path, pct);
+        cairo_path_destroy(path);
     }
     stroke_slider_body(cr, cl);
     draw_slider_edges(ho, cr, cl);
