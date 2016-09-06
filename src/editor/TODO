@@ -22,10 +22,6 @@ TODO list:
       - Color
       - Event
 
-    - beatmap properties tab:
-      - bind value-changed events to handler to really modify underlying
-        osux_beatmap object.
-
     - support for different editing mode / tools
       - composing
       - storyboarding
@@ -33,7 +29,6 @@ TODO list:
       - modding/checking (aimod verification pass; strain graph, ...)
 
     - music/video player
-    - game object renderer
 
     - File menus:
       - add menu-items to the 'View' menu:
@@ -47,6 +42,4 @@ TODO list:
         and restore it on startup
 
     - Find/Make an icon for the program
-
-
     - way to handle unexpected properties

@@ -206,7 +206,8 @@ build_B_position(osux_hitobject *ho, cairo_path_t *path, double pct)
 {
     bool have_prev = false;
     bezier_point current, p = { ho->x, ho->y };
-    double target = pct * compute_path_lenth(path);
+    double length = compute_path_lenth(path);
+    double target = pct * length;
     double arrow = 0.0;
     cairo_path_data_t *data;
 
@@ -222,6 +223,7 @@ build_B_position(osux_hitobject *ho, cairo_path_t *path, double pct)
                 double l = sqrt(SQUARE(current.x-data[1].point.x)+
                                 SQUARE(current.y-data[1].point.y));
                 if (arrow+l >= target) {
+                    pct = (target-arrow) / l;
                     p.x = current.x * (1-pct) + data[1].point.x * pct;
                     p.y = current.y * (1-pct) + data[1].point.y * pct;
                     return p;
@@ -246,7 +248,7 @@ build_B_position(osux_hitobject *ho, cairo_path_t *path, double pct)
 static bezier_point
 build_straight_line_position(edosu_line *l, double pct)
 {
-    bezier_point p = { 0.0, 0.0 };
+    bezier_point p = { l->x1, l->y1 };
     if (pct < 0) {
         // computing is meaning less if the slider is yet to be triggered
         // output value will be disregarded when pct < 0;
@@ -275,7 +277,6 @@ static void draw_slider_control_points(osux_hitobject *ho, cairo_t *cr)
         cairo_line_to(cr, ho->slider.points[i].x,  ho->slider.points[i].y);
     cairo_stroke(cr);
 }
-
 
 static double angle_main_measure(double a)
 {
