@@ -13,7 +13,7 @@ edosu_SOURCES = \
 	edosu-palette.c \
 	edosu-view.c \
 	edosu-inspector.c \
-	bezier.c
+	edosu-render.c
 
 nodist_edosu_SOURCES = \
 	resources.c \
