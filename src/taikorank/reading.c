@@ -650,7 +650,7 @@ static double tro_seen(const struct tr_object *o)
 	gts_surface_print_stats(o->mesh, stderr);
     }
     if (o->line_a == INFINITY)
-	return 0; // if the object has an insane bpma
+	return lf_eval(SEEN_LF, 0); // if the object has an insane bpma
 
     //tro_inter(o);
     double seen = gts_surface_volume(o->mesh);
