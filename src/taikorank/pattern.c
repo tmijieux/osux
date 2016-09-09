@@ -40,6 +40,7 @@ struct pattern {
     int len;
     double proba_start;
     double proba_end;
+    double proba_total;
 };
 
 //--------------------------------------------------
@@ -101,7 +102,6 @@ static void pattern_global_init(osux_hashtable * ht_cst)
     PATTERN_STAR_COEFF_PATTERN = cst_f(ht_cst, "star_pattern");
 }
 
-
 //-----------------------------------------------------
 
 static void ht_cst_exit_pattern(void)
@@ -129,8 +129,7 @@ void tr_pattern_initialize(void)
 static inline void print_pattern(const struct pattern * p)
 {
     fprintf(stderr, "%s\t%.4g\t%.4g\t(%.4g)\n",
-	    p->s, p->proba_start, p->proba_end,
-	    p->proba_end - p->proba_start);
+	    p->s, p->proba_start, p->proba_end, p->proba_total);
 }
 
 static inline void tro_print_pattern(const struct tr_object * o)
@@ -225,6 +224,20 @@ tro_extract_pattern(const struct tr_object * o, int i, int nb,
     p->proba_end   = PROBA_END;
     tro_pattern_set_str(o, i, nb, p);
     p->len = strlen(p->s);
+    p->proba_total = p->proba_end - p->proba_start;
+    return p;
+}
+
+//-----------------------------------------------------
+
+static struct pattern * pattern_sub(const struct pattern * src, int len)
+{
+    struct pattern * p = malloc(sizeof(*p));
+    p->proba_start = src->proba_start;
+    p->proba_end   = src->proba_end;
+    p->proba_total = (src->proba_end - src->proba_start) / src->len;
+    p->s   = strndup(src->s, len);
+    p->len = len;
     return p;
 }
 
@@ -249,14 +262,14 @@ static void cnt_add_tro_patterns(struct counter * c,
 	const struct pattern *p = table_get(o->patterns, k);
 	if (p->s[0] == '\0')
 	    continue;
-	cnt_add(c, p, p->s, influ * (p->proba_end - p->proba_start));
+	cnt_add(c, p, p->s, influ * p->proba_total);
     }
 }
 
 static struct counter * tro_pattern_new_counter(const struct tr_object * o, int i)
 {
     struct counter * c = cnt_new();
-    for (int j = i-1; j >= 0; j--) {
+    for (int j = i; j >= 0; j--) {
 	double influ = tro_pattern_influence(&o->objs[j], o);
 	if (influ == 0)
 	    break; // j-- influence will remain 0
@@ -277,11 +290,14 @@ static double tro_pattern_freq(const struct tr_object * o,
     double nb = 0;
     for (int k = 0; k < table_len(o->patterns); k++) {
 	const struct pattern * p = table_get(o->patterns, k);
-	double d     = cnt_get_nb_inherit(c, p->s, pattern_nb);
 	double total = cnt_get_nb_inherit(c, p->s, pattern_total);
-	double p_freq = (total == 0) ? 0 : d / total;
-	p_freq = min(1, p_freq * p->len);
-	nb += p_freq * (p->proba_end - p->proba_start);
+        if (total == 0)
+            continue;
+	double value = cnt_get_nb_inherit(c, p->s, pattern_nb);
+	double p_freq = value / total;
+	//p_freq = min(1, p_freq * p->len);
+        //fprintf(stderr, "%s:\t%.3g / %.3g\t%g\n", p->s, value, total, p_freq);
+	nb += p_freq * p->proba_total;
     }
     return nb;
 }
@@ -329,10 +345,20 @@ void tro_set_type(struct tr_object * o)
 
 //-----------------------------------------------------
 
+static void tro_add_pattern(struct tr_object * o, struct pattern * p)
+{
+    for (int i = 1; i < p->len; i++) {
+        struct pattern * sub_p = pattern_sub(p, i);
+        table_add(o->patterns, sub_p);
+    }
+    p->proba_total /= p->len;
+    table_add(o->patterns, p);
+}
+
 void tro_set_patterns(struct tr_object * o, int i, int nb)
 {
-    // taking one more space for some special case
-    o->patterns = table_new(MAX_PATTERN_LENGTH + 1);
+    // taking more space for some special case
+    o->patterns = table_new(pow(MAX_PATTERN_LENGTH + 1, 2));
     double proba = PROBA_START;
     while (proba < PROBA_END) {
 	struct pattern * p = tro_extract_pattern(o, i, nb, proba);
@@ -344,7 +370,7 @@ void tro_set_patterns(struct tr_object * o, int i, int nb)
 	    tro_print_pattern(o);
 	    fprintf(stderr, "-----------------\n");
 	}
-	table_add(o->patterns, p);
+        tro_add_pattern(o, p);
 	proba = p->proba_end;
     }
 }
@@ -359,9 +385,8 @@ void tro_set_pattern_freq(struct tr_object * o, int i)
     o->pattern_freq = lf_eval(PATTERN_FREQ_LF, freq);
 /*
     tro_print_pattern(o);
-    cnt_print_inherit(c, pattern_inherit);
-    printf("Pattern value for obj n°%d: %g\n", i, o->pattern_freq);
-    printf("----------------------------------------------------\n");
+    fprintf(stderr, "Pattern value for obj n°%d: %g\n", i, o->pattern_freq);
+    fprintf(stderr, "----------------------------------------------------\n");
 */
     cnt_free(c);
 }

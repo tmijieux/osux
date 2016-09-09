@@ -21,14 +21,16 @@ vect_reading_scale_y2: 3.
 # y is the interest given to the object.
 ## Note:
 # Under 10bpma difficulty might be reversed.
+#  800ms ~200bpma
+# 1600ms ~100bpma
 vect_interest_length: 5
 vect_interest_x1: 0.
 vect_interest_y1: 0.
-vect_interest_x2: 800.    # ~time for 200bpma
+vect_interest_x2: 726.
 vect_interest_y2: 1.
-vect_interest_x3: 1600.   # ~time for 100bpma
+vect_interest_x3: 1452.
 vect_interest_y3: 0.1
-vect_interest_x4: 16000.  # ~time for 10bpma
+vect_interest_x4: 72600.
 vect_interest_y4: 0.
 vect_interest_x5: 3600000.
 vect_interest_y5: 0.
@@ -54,7 +56,7 @@ vect_seen_x4: 317   # 140bpma
 vect_seen_y4: 1.1
 vect_seen_x5: 400   # 100bpma
 vect_seen_y5: 1.
-vect_seen_x6: 1e5  # make sure high enough
+vect_seen_x6: 1e5   # make sure high enough
 vect_seen_y6: 1.
 
 ### Parameters coeff

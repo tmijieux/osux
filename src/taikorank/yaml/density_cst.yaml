@@ -19,22 +19,27 @@ vect_density_scale_y3: 5
 ## Variable:
 # x is in ms,    the time between the two object
 # y in [1, 100], the density value given
+#  38ms = 1/4 400bpm
+#  46ms = 1/4 320bpm
+#  92ms = 1/4 160bpm
+# 187ms = 1/4  80bpm
+# 375ms = 1/2  80bpm
 vect_density_length: 8
 vect_density_x1: 0.
 vect_density_y1: 100.
-vect_density_x2: 38.      # 1/4 400bpm
+vect_density_x2: 38.
 vect_density_y2: 100.
-vect_density_x3: 46.      # 1/4 320bpm
+vect_density_x3: 46.
 vect_density_y3: 98.
-vect_density_x4: 92.      # 1/4 160bpm
+vect_density_x4: 92.
 vect_density_y4: 45.
-vect_density_x5: 187.     # 1/4 80bpm
+vect_density_x5: 187.
 vect_density_y5: 12.
-vect_density_x6: 375.     # 1/2 80bpm
+vect_density_x6: 375.
 vect_density_y6: 0.5
-vect_density_x7: 10000.   # 10s
+vect_density_x7: 10000.
 vect_density_y7: 0.
-vect_density_x8: 3600000. # 1h
+vect_density_x8: 3600000.
 vect_density_y8: 0.
 
 ### Type

@@ -53,14 +53,14 @@ static int tr_db_insert_bms(const struct tr_map * map, int user_id);
 static int tr_db_insert_diff(const struct tr_map * map, int bms_id);
 static int tr_db_insert_mod(const struct tr_map * map);
 static int tr_db_insert_update_score(const struct tr_map * map,
-				     int diff_id, int mod_id);
+                                     int diff_id, int mod_id);
 
 //-------------------------------------------------
 
 static void tr_db_exit(void)
 {
     if (sql != NULL)
-	mysql_close(sql);
+        mysql_close(sql);
 }
 
 void tr_db_init(void)
@@ -68,20 +68,20 @@ void tr_db_init(void)
     sql = mysql_init(NULL);
 
     if (sql == NULL) {
-	tr_error("Error: mysql init");
-	return;
+        tr_error("Error: mysql init");
+        return;
     }
 
     if (NULL == mysql_real_connect(sql, TR_DB_IP, TR_DB_LOGIN,
-				   TR_DB_PASSWD,
-				   NULL, 0, NULL, 0)) {
-	tr_error("%s", mysql_error(sql));
-	mysql_close(sql);
-	sql = NULL;
-	return;
+                                   TR_DB_PASSWD,
+                                   NULL, 0, NULL, 0)) {
+        tr_error("%s", mysql_error(sql));
+        mysql_close(sql);
+        sql = NULL;
+        return;
     }
     new_rq(sql, "USE %s;", TR_DB_NAME);
-	atexit(tr_db_exit);
+    atexit(tr_db_exit);
 }
 
 
@@ -96,9 +96,9 @@ static int new_rq(MYSQL * sql, const char * rq, ...)
     va_end(va);
 
     if (mysql_query(sql, buf)) {
-	tr_error("'%s' request: '%s'", mysql_error(sql), buf);
-	free(buf);
-	return -1;
+        tr_error("'%s' request: '%s'", mysql_error(sql), buf);
+        free(buf);
+        return -1;
     }
 
     free(buf);
@@ -113,13 +113,13 @@ static int tr_db_get_id(MYSQL * sql, char * table, char * cond)
     MYSQL_ROW row;
     #pragma omp critical
     {
-	new_rq(sql, "SELECT * FROM %s WHERE %s;", table, cond);
-	result = mysql_store_result(sql);
-	row = mysql_fetch_row(result);
+        new_rq(sql, "SELECT * FROM %s WHERE %s;", table, cond);
+        result = mysql_store_result(sql);
+        row = mysql_fetch_row(result);
     }
     int id = -1;
     if (row != NULL)
-	id = atoi(row[0]);
+        id = atoi(row[0]);
     return id;
 }
 
@@ -144,14 +144,14 @@ static int tr_db_insert_user(const struct tr_map * map)
 
     int user_id = tr_db_get_id(sql, TR_DB_USER, cond);
     if (user_id < 0) {
-	#pragma omp critical
-	new_rq(sql,"INSERT INTO %s(name, density_star, reading_star,"
-	       "pattern_star, accuracy_star, final_star)"
-	       "VALUES('%s', 0, 0, 0, 0, 0);",
-	       TR_DB_USER, map_creator);
-	user_id = tr_db_get_id(sql, TR_DB_USER, cond);
-	fprintf(OUTPUT_INFO, "New user: %s, ID: %d\n",
-		map_creator, user_id);
+        #pragma omp critical
+        new_rq(sql,"INSERT INTO %s(name, density_star, reading_star,"
+               "pattern_star, accuracy_star, final_star)"
+               "VALUES('%s', 0, 0, 0, 0, 0);",
+               TR_DB_USER, map_creator);
+        user_id = tr_db_get_id(sql, TR_DB_USER, cond);
+        fprintf(OUTPUT_INFO, "New user: %s, ID: %d\n",
+                map_creator, user_id);
     }
     free(cond);
     free(map_creator);
@@ -169,20 +169,20 @@ static int tr_db_insert_bms(const struct tr_map * map, int user_id)
     char * map_title_uni  = tr_db_escape_str(sql, map->title_uni);
     char * cond = NULL;
     asprintf(&cond, "creator_ID = %d and artist = '%s' and "
-	     "title = '%s'",
-	     user_id, map_artist, map_title);
+             "title = '%s'",
+             user_id, map_artist, map_title);
 
     int bms_id = tr_db_get_id(sql, TR_DB_BMS, cond);
     if (bms_id < 0) {
-	#pragma omp critical
-	new_rq(sql, "INSERT INTO %s(artist, title, source, "
-	       "creator_ID, artist_uni, title_uni, osu_map_ID)"
-	       "VALUES('%s', '%s', '%s', %d, '%s', '%s', %d);",
-	       TR_DB_BMS, map_artist, map_title, map_source, user_id,
-	       map_artist_uni, map_title_uni, map->bms_osu_ID);
-	bms_id = tr_db_get_id(sql, TR_DB_BMS, cond);
-	fprintf(OUTPUT_INFO, "New beatmap: %s - %s ID: %d\n",
-		map_artist, map_title, bms_id);
+        #pragma omp critical
+        new_rq(sql, "INSERT INTO %s(artist, title, source, "
+               "creator_ID, artist_uni, title_uni, osu_map_ID)"
+               "VALUES('%s', '%s', '%s', %d, '%s', '%s', %d);",
+               TR_DB_BMS, map_artist, map_title, map_source, user_id,
+               map_artist_uni, map_title_uni, map->bms_osu_ID);
+        bms_id = tr_db_get_id(sql, TR_DB_BMS, cond);
+        fprintf(OUTPUT_INFO, "New beatmap: %s - %s ID: %d\n",
+                map_artist, map_title, bms_id);
     }
     free(cond);
     free(map_title);
@@ -200,19 +200,19 @@ static int tr_db_insert_diff(const struct tr_map * map, int bms_id)
     char * map_diff = tr_db_escape_str(sql, map->diff);
     char * cond = NULL;
     asprintf(&cond, "bms_ID = %d and diff_name = '%s'",
-	     bms_id, map_diff);
+             bms_id, map_diff);
 
     int diff_id = tr_db_get_id(sql, TR_DB_DIFF, cond);
     if (diff_id < 0) {
-	#pragma omp critical
-	new_rq(sql, "INSERT INTO %s(diff_name, bms_ID, osu_diff_ID,"
-	       "max_combo, bonus, hash)"
-	       "VALUES('%s', %d, %d, %d, %d, '%s');",
-	       TR_DB_DIFF, map_diff, bms_id, map->diff_osu_ID,
-	       map->max_combo, map->bonus, map->hash);
-	diff_id = tr_db_get_id(sql, TR_DB_DIFF, cond);
-	fprintf(OUTPUT_INFO, "New diff: %s ID: %d\n",
-		map_diff, diff_id);
+        #pragma omp critical
+        new_rq(sql, "INSERT INTO %s(diff_name, bms_ID, osu_diff_ID,"
+               "max_combo, bonus, hash)"
+               "VALUES('%s', %d, %d, %d, %d, '%s');",
+               TR_DB_DIFF, map_diff, bms_id, map->diff_osu_ID,
+               map->max_combo, map->bonus, map->hash);
+        diff_id = tr_db_get_id(sql, TR_DB_DIFF, cond);
+        fprintf(OUTPUT_INFO, "New diff: %s ID: %d\n",
+                map_diff, diff_id);
     }
     free(cond);
     free(map_diff);
@@ -229,12 +229,12 @@ static int tr_db_insert_mod(const struct tr_map * map)
 
     int mod_id = tr_db_get_id(sql, TR_DB_MOD, cond);
     if (mod_id < 0) {
-	#pragma omp critical
-	new_rq(sql, "INSERT INTO %s(mod_name) VALUES('%s');",
-	       TR_DB_MOD, mod_str);
-	mod_id = tr_db_get_id(sql, TR_DB_MOD, cond);
-	fprintf(OUTPUT_INFO, "New mod: %s ID: %d\n",
-		mod_str, mod_id);
+        #pragma omp critical
+        new_rq(sql, "INSERT INTO %s(mod_name) VALUES('%s');",
+               TR_DB_MOD, mod_str);
+        mod_id = tr_db_get_id(sql, TR_DB_MOD, cond);
+        fprintf(OUTPUT_INFO, "New mod: %s ID: %d\n",
+                mod_str, mod_id);
     }
     free(cond);
     free(mod_str);
@@ -244,42 +244,42 @@ static int tr_db_insert_mod(const struct tr_map * map)
 //-------------------------------------------------
 
 static int tr_db_insert_update_score(const struct tr_map * map,
-				     int diff_id, int mod_id)
+                                     int diff_id, int mod_id)
 {
     char * cond = NULL;
     asprintf(&cond, "diff_ID = %d and mod_ID = %d and combo = %d "
-	     "and great = %d and good = %d and miss = %d",
-	     diff_id, mod_id, map->combo, map->great, map->good,
-	     map->miss);
+             "and great = %d and good = %d and miss = %d",
+             diff_id, mod_id, map->combo, map->great, map->good,
+             map->miss);
 
     int score_id = tr_db_get_id(sql, TR_DB_SCORE, cond);
     if (score_id < 0) {
-	#pragma omp critical
-	new_rq(sql, "INSERT INTO %s(diff_ID, mod_ID, accuracy, "
-	       "combo, great, good, miss, "
-	       "density_star, pattern_star, reading_star, "
-	       "accuracy_star, final_star)"
-	       "VALUES(%d, %d, %.4g, %d, %d, %d, %d, "
-	       "%.3g, %.3g, %.3g, %.3g, %.3g);",
-	       TR_DB_SCORE, diff_id, mod_id, map->acc*COEFF_MAX_ACC,
-	       map->combo, map->great, map->good, map->miss,
-	       map->density_star, map->pattern_star,
-	       map->reading_star, map->accuracy_star,
-	       map->final_star);
-	score_id = tr_db_get_id(sql, TR_DB_SCORE, cond);
-	fprintf(OUTPUT_INFO, "New score: (%g%%) ID: %d\n",
-		map->acc * COEFF_MAX_ACC, score_id);
+        #pragma omp critical
+        new_rq(sql, "INSERT INTO %s(diff_ID, mod_ID, accuracy, "
+               "combo, great, good, miss, "
+               "density_star, pattern_star, reading_star, "
+               "accuracy_star, final_star)"
+               "VALUES(%d, %d, %.4g, %d, %d, %d, %d, "
+               "%.3g, %.3g, %.3g, %.3g, %.3g);",
+               TR_DB_SCORE, diff_id, mod_id, map->acc*COEFF_MAX_ACC,
+               map->combo, map->great, map->good, map->miss,
+               map->density_star, map->pattern_star,
+               map->reading_star, map->accuracy_star,
+               map->final_star);
+        score_id = tr_db_get_id(sql, TR_DB_SCORE, cond);
+        fprintf(OUTPUT_INFO, "New score: (%g%%) ID: %d\n",
+                map->acc * COEFF_MAX_ACC, score_id);
     } else {
-	#pragma omp critical
-	new_rq(sql, "UPDATE %s SET density_star = %.3g, "
-	       "reading_star = %.3g, pattern_star = %.3g,"
-	       "accuracy_star = %.3g, final_star = %.3g "
-	       "WHERE ID = %d;",
-	       TR_DB_SCORE, map->density_star, map->reading_star,
-	       map->pattern_star, map->accuracy_star,
-	       map->final_star, score_id);
-	fprintf(OUTPUT_INFO, "Updated score: (%g%%) ID: %d\n",
-		map->acc * COEFF_MAX_ACC, score_id);
+        #pragma omp critical
+        new_rq(sql, "UPDATE %s SET density_star = %.3g, "
+               "reading_star = %.3g, pattern_star = %.3g,"
+               "accuracy_star = %.3g, final_star = %.3g "
+               "WHERE ID = %d;",
+               TR_DB_SCORE, map->density_star, map->reading_star,
+               map->pattern_star, map->accuracy_star,
+               map->final_star, score_id);
+        fprintf(OUTPUT_INFO, "Updated score: (%g%%) ID: %d\n",
+                map->acc * COEFF_MAX_ACC, score_id);
     }
     free(cond);
     return score_id;
@@ -290,8 +290,8 @@ static int tr_db_insert_update_score(const struct tr_map * map,
 void trm_db_insert(const struct tr_map * map)
 {
     if (sql == NULL) {
-	tr_error("Couldn't connect to DB. Data won't be stored.");
-	return;
+        tr_error("Couldn't connect to DB. Data won't be stored.");
+        return;
     }
 
     int user_id = tr_db_insert_user(map);

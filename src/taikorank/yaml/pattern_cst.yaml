@@ -75,7 +75,7 @@ vect_singletap_y5: 1.
 # The maximum pattern length considered. 
 ## Variable:
 # number of object.
-max_pattern_length: 4
+max_pattern_length: 8
 
 ### Probability range
 ## Brief:
