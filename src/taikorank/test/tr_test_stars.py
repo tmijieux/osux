@@ -54,8 +54,9 @@ class TR_Test_Stars(TR_Test_Str_List):
             self.res = {'__': l}
         else:
             self.res = res
+        map_str = lambda map: map.str_brief(self.merge_mods)
         for key in self.res:
-            self.res[key] = self.res[key].sort_by(self.field)
+            self.res[key] = self.res[key].sort_by(self.field, True, self.expected, map_str)
         self.computed = True
     #
     S_OK   = "%s - %%s"       % (Colors.green("OK"))

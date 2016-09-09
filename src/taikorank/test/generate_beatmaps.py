@@ -16,6 +16,7 @@ import yaml
 import re
 from subprocess import Popen, PIPE, STDOUT
 from colors import Colors
+from generate_ranges import Ranges
 
 DEBUG = False
 
@@ -120,151 +121,6 @@ class Dir_Generator:
 
 ##################################################
 
-# Sort ranges from hardest to easiest
-class Ranges():
-    mods_HR = ['HDFL', 'HRFL', 'FL', 'HR', 'HD', '__', 'EZ']
-    mods_HD = ['HDFL', 'HRFL', 'FL', 'HD', 'HR', '__', 'EZ']
-    bpm  = range(400, 25, -25)
-    abpm = range(400, 100, -25)
-    hide_bpm  = range(640, 160, -80)
-    slow_abpm = range(10, 100, 10)
-    abpm_mods_HR = range(350, 180, -10)
-    abpm_mods_HD = range(180, 120, -10)
-    obj  = [2**i for i in range(10, 1, -1)]
-    od   = [i/2. for i in range(20, 0, -1)]
-    rand = range(30, 0, -5)
-    # Spaces can be used in patterns, they will be removed
-    patterns = {}
-    patterns['d_spread'] = {}
-    patterns['d_spread']['by_2'] = [
-        'dd______',
-        'd_d_____',
-        'd__d____',
-        'd___d___',
-    ]
-    patterns['d_spread']['by_3'] = [
-        'ddd_____',
-        'd_d_d___',
-        'd__d__d_',
-    ]
-    patterns['d_spread']['by_4'] = [
-        'dddd____',
-        'ddd_d___',
-        'dd__dd__',
-        'd_d_d_d_',
-    ]
-    patterns['d_spread']['by_5'] = [
-        'ddddd___',
-        'ddd_d_d_',
-        'dd_dd_d_',
-    ]
-    patterns['d_spread']['by_6'] = [
-        'dddddd__',
-        'ddddd_d_',
-        'dddd_dd_',
-        'ddd_ddd_',
-    ]
-    patterns['d_spread']['start'] = [
-        'dddddddd',
-        'ddddddd_',
-        'dddddd__',
-        'ddddd___',
-        'dddd____',
-        'ddd_____',
-        'dd______',
-        'd_______',
-    ]
-    patterns['strain'] = [
-        'dddd kkkk',
-        'ddkk ddkk',
-        'dkdk dkdk',
-        'dddd dddd',
-    ]
-    patterns['streams'] = {}
-    patterns['streams']['k$d_0~4'] = [
-        'kdddd',
-        'kddd',
-        'kdd',
-        'kd',
-        'k',
-    ]
-    patterns['streams']['k$d_5~15'] = [
-        'kddd dd',
-        'kddd ddd',
-        'kddd dddd',
-        'kddd dddd d',
-        'kddd dddd dd',
-        'kddd dddd ddd',
-        'kddd dddd dddd',
-        'kddd dddd dddd d',
-        'kddd dddd dddd dd',
-        'kddd dddd dddd ddd',
-        'kddd dddd dddd dddd',
-    ]
-    patterns['streams']['$d$k_0~5'] = [
-        'dddd d    kkkk k',
-        'dddd      kkkk',
-        'ddd       kkk',
-        'dd        kk',
-        'd         k',
-        'd',
-    ]
-    patterns['streams']['$d$k_6~8'] = [
-        'dddd dd   kkkk kk',
-        'dddd ddd  kkkk kkk',
-        'dddd dddd kkkk kkkk',
-    ]
-    patterns['streams']['base_8'] = [
-        'ddkd kkdk',
-        'dddd kkkk',
-        'ddkk ddkk',
-        'dddd dddd',
-    ]
-    patterns['streams']['base_12'] = [
-        'ddd ddk ddd kkk',
-        'ddd ddk',
-        'ddk',
-        'd',
-    ]
-    patterns['patterns'] = {}
-    patterns['patterns']['7'] = [
-        'ddkd kkd_ ____ ____',
-        'dddd kkd_ ____ ____',
-        'dddd ddk_ ____ ____',
-        'dddd ddd_ ____ ____',
-    ]
-    patterns['patterns']['6'] = [
-        'ddkd dk__ ____ ____',
-        'dddd dk__ ____ ____',
-        'dddd dd__ ____ ____',
-    ]
-    patterns['patterns']['5'] = [
-        'dkdd k___ ____ ____',
-        'dddd k___ ____ ____',
-        'dddd d___ ____ ____',
-    ]
-    patterns['patterns']['4'] = [
-        'ddkk ____ ____ ____',
-        'dddd ____ ____ ____',
-    ]
-    patterns['patterns']['3'] = [
-        'ddk_ ____ ____ ____',
-        'ddd_ ____ ____ ____',
-    ]
-    patterns['ddkd_reduction'] = [
-        'ddkd ddkd',
-        'ddkd ddk_',
-        'ddkd d_k_',
-        'ddk_ ddk_',
-        'd_k_ ddk_',
-        'd_k_ d_k_',
-        'd_k_ d___',
-        'd___ d___',
-        'd___ ____',
-    ]
-
-##################################################
-
 class Map_Generator(Dir_Generator):
     def __init__(self, dir, prefix = ''):
         super(Map_Generator, self).__init__(dir)
@@ -323,9 +179,9 @@ class Map_Generator(Dir_Generator):
         ])
     #
     @propagate
-    def _on_each(self, dict, on_func):
+    def _each(self, dict, func):
         self.add([
-            on_func(Map_Generator.from_parent(name, self), list)
+            func(Map_Generator.from_parent(name, self), list)
             for name, list in dict.items()
         ])
     #
@@ -343,35 +199,37 @@ class Map_Generator(Dir_Generator):
     def with_rand(self, rand):
         return self._with("-r %d " % rand)
     #
-    def on_bpm(self, list = Ranges.bpm):
+    def on_bpm(self, list):
         return self._on("-b %d ", list)
-    def on_abpm(self, list = Ranges.abpm):
+    def on_abpm(self, list):
         return self._on("-a %d ", list)
     def on_pattern(self, list):
         list = [super(Map_Generator, self).clean_pattern(x) for x in list]
         return self._on("-p %s ", list)
-    def on_obj(self, list = Ranges.obj):
+    def on_obj(self, list):
         return self._on("-n %d ", list)
-    def on_od(self, list = Ranges.od):
+    def on_od(self, list):
         return self._on("-o %g ", list)
-    def on_rand(self, list = Ranges.rand):
+    def on_rand(self, list):
         return self._on("-r %d ", list)
     #
-    def by_bpm(self, list = Ranges.bpm):
+    def by_bpm(self, list):
         return self._by("%d_bpm/", list, Map_Generator.with_bpm)
-    def by_abpm(self, list = Ranges.abpm):
+    def by_abpm(self, list):
         return self._by("%d_abpm/", list, Map_Generator.with_abpm)
     def by_pattern(self, list):
         return self._by("%s/", list, Map_Generator.with_pattern)
-    def by_obj(self, list = Ranges.obj):
+    def by_obj(self, list):
         return self._by("%d_obj/", list, Map_Generator.with_obj)
-    def by_od(self, list = Ranges.od):
+    def by_od(self, list):
         return self._by("OD%g/", list, Map_Generator.with_od)
-    def by_rand(self, list = Ranges.rand):
+    def by_rand(self, list):
         return self._by("rand_%d/", list, Map_Generator.with_rand)
     #
     def on_each_pattern(self, dict):
-        return self._on_each(dict, Map_Generator.on_pattern)
+        return self._each(dict, Map_Generator.on_pattern)
+    def by_each_pattern(self, dict):
+        return self._each(dict, Map_Generator.by_pattern)
     #
     @staticmethod
     def mods_str(mods):
@@ -411,9 +269,9 @@ class Map_Generator(Dir_Generator):
 density_g = Map_Generator("density/").add([
     Map_Generator("strain/")
         .by_pattern(Ranges.patterns['strain'])
-        .on_bpm(),
+        .on_bpm(Ranges.bpm_large),
     Map_Generator("d_spread/")
-        .by_bpm()
+        .by_bpm(Ranges.bpm_large)
         .on_each_pattern(Ranges.patterns['d_spread']),
 ])
 density_g.expected_field('density_star')
@@ -428,7 +286,7 @@ reading_g = Map_Generator("reading/").add([
     Map_Generator("no_hide/")
         .with_pattern('d___')
         .with_bpm(40)
-        .on_abpm(),
+        .on_abpm(Ranges.abpm),
     Map_Generator("mods/").add([
         Map_Generator("mods_HR/")
             .with_pattern('d___')
@@ -461,12 +319,12 @@ pattern_g.expected_field('pattern_star')
 accuracy_g = Map_Generator("accuracy/").add([
     Map_Generator("od/")
         .with_pattern('d')
-        .by_rand()
-        .on_od(),
+        .by_rand(Ranges.rand)
+        .on_od(Ranges.od),
     Map_Generator("rand/")
         .with_pattern('d')
-        .by_od()
-        .on_rand(),
+        .by_od(Ranges.od)
+        .on_rand(Ranges.rand),
     Map_Generator("slow/")
         .with_pattern('d')
         .with_bpm(40)
@@ -478,11 +336,11 @@ accuracy_g.expected_field('accuracy_star')
 
 other_g = Map_Generator("other/").add([
     Map_Generator("obj/")
-        .by_bpm()
-        .on_obj()
+        .by_bpm(Ranges.bpm_normal)
+        .on_obj(Ranges.obj)
         .with_pattern('d'),
     Map_Generator("ddkd_reduction/")
-        .by_bpm()
+        .by_bpm(Ranges.bpm_normal)
         .on_pattern(Ranges.patterns['ddkd_reduction']),
 ])
 other_g.expected_field('final_star')

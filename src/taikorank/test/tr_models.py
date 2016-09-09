@@ -73,14 +73,37 @@ class TR_Map():
 ############################################################
 
 class TR_Map_List(list):
-    def sort_by(self, field, reverse = True):
+    @staticmethod
+    def get_lambda_expected(expected, map_str):
+        if expected and map_str:
+            return lambda map: expected.index(map_str(map))
+        else:
+            return lambda map: 0
+    #
+    def get_lambda_eval(self, field):
+        if hasattr(self[0], field):
+            return lambda map: getattr(map, field)
+        else:
+            return lambda map: getattr(map.stars, field)
+    #
+    def sort_by(self, field, reverse = True, expected = False, map_str = False):
         if len(self) == 0:
             return TR_Map_List()
-        if hasattr(self[0], field):
-            l = lambda map: getattr(map, field)
-        else:
-            l = lambda map: getattr(map.stars, field)
-        return sorted(self, key = l, reverse = reverse)
+        k1 = self.get_lambda_eval(field)
+        k2 = TR_Map_List.get_lambda_expected(expected, map_str)
+        # when two maps have the same star value there are put in
+        # the wrong order because the expected order is strict
+        key = lambda map: (k1(map), k2(map))
+        return TR_Map_List(sorted(self, key=key, reverse=reverse))
+    #
+    def nb_equals(self, field):
+        if len(self) == 0:
+            return 0
+        val = self.get_lambda_eval(field)
+        values = set()
+        for map in self:
+            values.add(val(map))
+        return len(self) - len(values)
     #
     def __str__(self):
         res = ""
