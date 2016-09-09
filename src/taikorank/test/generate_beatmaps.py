@@ -308,9 +308,14 @@ reading_g.expected_field('reading_star')
 
 pattern_g = Map_Generator("pattern/").add([
     Map_Generator("streams/")
+        .by_bpm(Ranges.bpm_normal)
         .on_each_pattern(Ranges.patterns['streams']),
     Map_Generator("patterns/")
+        .by_bpm(Ranges.bpm_normal)
         .on_each_pattern(Ranges.patterns['patterns']),
+    Map_Generator("splits/")
+        .by_bpm(Ranges.bpm_normal)
+        .on_each_pattern(Ranges.patterns['splits']),
 ])
 pattern_g.expected_field('pattern_star')
 

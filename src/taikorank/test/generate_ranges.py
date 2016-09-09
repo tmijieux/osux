@@ -75,14 +75,14 @@ class Ranges:
         'dddd dddd',
     ]
     patterns['streams'] = {}
-    patterns['streams']['k$d_0~4'] = [
+    patterns['streams']['kd+_0~4'] = [
         'kdddd',
         'kddd',
         'kdd',
         'kd',
         'k',
     ]
-    patterns['streams']['k$d_5~15'] = [
+    patterns['streams']['kd+_5~15'] = [
         'kddd dd',
         'kddd ddd',
         'kddd dddd',
@@ -95,7 +95,7 @@ class Ranges:
         'kddd dddd dddd ddd',
         'kddd dddd dddd dddd',
     ]
-    patterns['streams']['$d$k_0~5'] = [
+    patterns['streams']['d+k+_0~5'] = [
         'dddd d    kkkk k',
         'dddd      kkkk',
         'ddd       kkk',
@@ -103,7 +103,7 @@ class Ranges:
         'd         k',
         'd',
     ]
-    patterns['streams']['$d$k_6~8'] = [
+    patterns['streams']['d+k+_6~8'] = [
         'dddd dd   kkkk kk',
         'dddd ddd  kkkk kkk',
         'dddd dddd kkkk kkkk',
@@ -128,6 +128,7 @@ class Ranges:
         'dddd ddd_ ____ ____',
     ]
     patterns['patterns']['6'] = [
+        'dkdd dk__ ____ ____',
         'ddkd dk__ ____ ____',
         'dddd dk__ ____ ____',
         'dddd dd__ ____ ____',
@@ -144,6 +145,33 @@ class Ranges:
     patterns['patterns']['3'] = [
         'ddk_ ____ ____ ____',
         'ddd_ ____ ____ ____',
+    ]
+    patterns['splits'] = {}
+    patterns['splits']['3_ddk'] = [
+        'ddk',
+        'ddk_',
+        'ddk_ _',
+        'ddk_ __',
+        'ddk_ ___',
+        'ddk_ ____',
+    ]
+    patterns['splits']['4_ddkk'] = [
+        'ddkk',
+        'ddkk _',
+        'ddkk __',
+        'ddkk ___',
+        'ddkk ____',
+    ]
+    patterns['splits']['5_ddkkd'] = [
+        'ddkk d',
+        'ddkk d_',
+        'ddkk d__',
+        'ddkk d___',
+    ]
+    patterns['splits']['5_ddkkdk'] = [
+        'ddkk dk',
+        'ddkk dk_',
+        'ddkk dk__',
     ]
     patterns['ddkd_reduction'] = [
         'ddkd ddkd',

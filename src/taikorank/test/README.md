@@ -9,16 +9,18 @@ There is also linear_fun.py which is a small tool to check how looks the piecewi
 ### Test convert
 For checking if the autoconvert algorithm is correct. Use the following command line to run the test:
 
-`./tr_test_convert.py yaml/test_convert.yaml`
+`./tr_test_convert.py yaml/convert/test_convert.yaml`
 
 They are basicely unit test only on sliders. Even if it looks quite good at the moment, osux convertion algorithm differs from the real one on some maps.
 
 ### Test stars
-For checking star rating based on a given output order. If the beatmaps are not in the same order the number of errors is computed using Levenshtein's distance. Example use:
+For checking star rating based on a given output order. If the beatmaps are not in the same order the number of errors is computed using Levenshtein's distance. First you will have to generate the beatmaps with:
 
-`./tr_test_convert.py yaml/test_density.yaml`
+`./generate_beatmaps.py`
 
-Mostly unit test for each star rating for now. 
+Then you can run all the test like this:
+
+`./tr_test_convert.py yaml/test_generated_main.yaml`
 
 ### Test mapset
 For checking star rating in a mapset without a given output order. The program guess the expecting output based on the difficulty names: Inner Oni > Oni > Muzukashi...
