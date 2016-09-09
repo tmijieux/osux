@@ -375,7 +375,15 @@ static void draw_slider(osux_hitobject *ho, cairo_t *cr,
 {
     bezier_point slider_ball_pos;
     unsigned pc = ho->slider.point_count;
-    double pct = (double)-local_offset/(double)(ho->end_offset-ho->offset);
+    int tick_length = (ho->end_offset-ho->offset);
+    double length = (double) tick_length / (double)ho->slider.repeat;
+    double pct = (double)-local_offset/length;
+    if (ho->slider.repeat > 1) {
+        int i = ((int) 100.*pct ) / 100;
+        pct = pct - (int) pct;
+        if (i % 2 == 1)
+            pct = 1. - pct; // reverse !!
+    }
 
     if (ho->slider.type == 'C') {
         draw_slider_control_points(ho, cr);
