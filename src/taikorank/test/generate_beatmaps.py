@@ -17,6 +17,7 @@ import re
 from subprocess import Popen, PIPE, STDOUT
 from colors import Colors
 from generate_ranges import Ranges
+from tr_models import TR_Map
 
 DEBUG = False
 
@@ -231,12 +232,6 @@ class Map_Generator(Dir_Generator):
     def by_each_pattern(self, dict):
         return self._each(dict, Map_Generator.by_pattern)
     #
-    @staticmethod
-    def mods_str(mods):
-        if mods == '__':
-            return ""
-        return "(" + " ".join(re.findall('..', mods)) + " )"
-    #
     def expected(self):
         self.ht['path'] = self.get_path() + "*.osu"
         if not('mods' in self.ht and self.ht['merge_mods']):
@@ -244,8 +239,14 @@ class Map_Generator(Dir_Generator):
         else:
             self.ht['expected'] = []
             for mods in self.ht['mods']:
-                maps = [map + Map_Generator.mods_str(mods) for map in self.maps]
+                maps = [map + TR_Map.mods_str(mods) for map in self.maps]
                 self.ht['expected'].extend(maps)
+        if 'ggm' in self.ht:
+            copy = self.ht['expected']
+            self.ht['expected'] = []
+            for ggm in self.ht['ggm']:
+                for map in copy:
+                    self.ht['expected'].append(map + TR_Map.ggm_str(ggm))
         return self.ht
     #
     @propagate
@@ -261,6 +262,10 @@ class Map_Generator(Dir_Generator):
     def expected_with_merged_mods(self, mods):
         self.ht['mods']       = mods
         self.ht['merge_mods'] = True
+    #
+    @propagate
+    def expected_with_ggm(self, ggm):
+        self.ht['ggm'] = ggm
 
 ##################################################
 ##################################################
@@ -307,6 +312,9 @@ reading_g.expected_field('reading_star')
 ##################################################
 
 pattern_g = Map_Generator("pattern/").add([
+    Map_Generator("bpm/")
+        .with_pattern('ddkk ddkd')
+        .on_bpm(Ranges.bpm_normal),
     Map_Generator("streams/")
         .by_bpm(Ranges.bpm_normal)
         .on_each_pattern(Ranges.patterns['streams']),
@@ -340,6 +348,12 @@ accuracy_g.expected_field('accuracy_star')
 ##################################################
 
 other_g = Map_Generator("other/").add([
+    Map_Generator("ggm/")
+        .by_bpm(Ranges.bpm_normal)
+        .with_obj(128)
+        .with_pattern('d')
+        .expected_with_ggm(Ranges.ggm_to(128, 4))
+        .on_this(),
     Map_Generator("obj/")
         .by_bpm(Ranges.bpm_normal)
         .on_obj(Ranges.obj)

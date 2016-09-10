@@ -11,6 +11,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
+
 class TR_Stars():
     def __init__(self, dst, rdg, ptr, acc, fin):
         self.density  = dst
@@ -35,11 +37,14 @@ class TR_Stars():
 ############################################################
 
 class TR_Map():
-    def __init__(self, title, artist, difficulty, mods, stars):
+    def __init__(self, title, artist, difficulty, mods, great, good, miss, stars):
         self.title  = title
         self.artist = artist
         self.difficulty = difficulty
         self.mods  = mods
+        self.great = great
+        self.good  = good
+        self.miss  = miss
         self.stars = stars
     #
     def str_full(self, field, with_mods):
@@ -59,8 +64,22 @@ class TR_Map():
         else:
             return s
     #
+    @staticmethod
+    def mods_str(mods):
+        if mods == '__':
+            return ""
+        return "(" + " ".join(re.findall('..', mods)) + " )"
+    #
+    @staticmethod
+    def ggm_str(ggm):
+        if ggm[0] != 0 or ggm[1] != 0:
+            return "{%d|%d}" % (ggm[0], ggm[1])
+        return ""
+    #
     def __str__(self):
-        return "%s[%s]" % (self.title, self.difficulty)
+        s = "%s[%s]" % (self.title, self.difficulty)
+        s += TR_Map.ggm_str((self.good, self.miss))
+        return s
     #
     @classmethod
     def from_yaml(cls, yaml):
@@ -68,6 +87,9 @@ class TR_Map():
                    yaml['artist'],
                    yaml['difficulty'],
                    yaml['mods'],
+                   yaml['great'],
+                   yaml['good'],
+                   yaml['miss'],
                    TR_Stars.from_yaml(yaml['stars']))
 
 ############################################################

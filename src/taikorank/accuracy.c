@@ -203,7 +203,7 @@ void tro_set_hit_window(struct tr_object * o, const double * ggm_val)
 void tro_set_slow(struct tr_object * o)
 {
     if(o->ps == MISS) {
-	o->slow = 0;
+	o->slow = 1;
 	return;
     }
     o->slow = tro_slow(o);

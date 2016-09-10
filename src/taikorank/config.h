@@ -45,6 +45,7 @@ struct tr_global_config {
     int print_tro;
     int print_yaml;
     int print_filter;
+    int print_last_score_only;
     char * print_order;
 
     int beatmap_db_enable;

@@ -128,7 +128,7 @@ static void trs_free(struct tr_score * score)
 
 static void trs_print_and_db(const struct tr_score * score)
 {
-#   pragma omp critical
+    #pragma omp critical
     trs_print(score);
 
     if (GLOBAL_CONFIG->db_enable)
@@ -150,7 +150,8 @@ static void trs_compute(struct tr_score * score)
 {
     trm_apply_mods(score->map);
     trm_compute_stars(score->map);
-    trs_print_and_db(score);
+    if (!GLOBAL_CONFIG->print_last_score_only || trs_is_finished(score))
+        trs_print_and_db(score);
 
     while (!trs_is_finished(score)) {
 	int i = score->map->conf->trm_method_get_tro(score->map);

@@ -64,6 +64,8 @@ void tr_global_config_print(const struct tr_global_config *conf)
     fprintf(OUTPUT_INFO, "print_tro:    %d\n", conf->print_tro);
     fprintf(OUTPUT_INFO, "print_yaml:   %d\n", conf->print_yaml);
     fprintf(OUTPUT_INFO, "print_filter: %d\n", conf->print_filter); // not readable...
+    fprintf(OUTPUT_INFO, "print_last_score_only: %d\n", conf->print_last_score_only);
+
     fprintf(OUTPUT_INFO, "print_order:  %s\n", conf->print_order);
 
     fprintf(OUTPUT_INFO, "bdb_enable: %d\n", conf->beatmap_db_enable);
@@ -101,6 +103,7 @@ static void config_init(void)
     GLOBAL_CONFIG->print_tro   = cst_i(ht_conf, "print_tro");
     GLOBAL_CONFIG->print_yaml  = cst_i(ht_conf, "print_yaml");
     GLOBAL_CONFIG->print_order = cst_str(ht_conf, "print_order");
+    GLOBAL_CONFIG->print_last_score_only = cst_i(ht_conf, "print_last_score_only");
     global_config_set_filter(cst_str(ht_conf, "print_filter"));
 
     GLOBAL_CONFIG->db_enable = cst_i(ht_conf, "db_enable");

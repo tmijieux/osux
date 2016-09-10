@@ -141,6 +141,11 @@ static void opt_print_yaml(const char ** argv)
     GLOBAL_CONFIG->print_yaml = atoi(argv[0]);
 }
 
+static void opt_print_last_score_only(const char ** argv)
+{
+    GLOBAL_CONFIG->print_last_score_only = atoi(argv[0]);
+}
+
 static void opt_print_filter(const char ** argv)
 {
     global_config_set_filter(argv[0]);
@@ -267,6 +272,8 @@ void tr_options_initialize(void)
 		      "Enable or disable object printing");
     new_tr_global_opt("pyaml", 1, opt_print_yaml,
 		      "Enable or disable yaml output");
+    new_tr_global_opt("plast_score_only", 1, opt_print_last_score_only,
+		      "Only print the last result when computing scores");
     new_tr_global_opt("porder", 1, opt_print_order,
 		      "Set star order");
     new_tr_global_opt("pfilter", 1, opt_print_filter,

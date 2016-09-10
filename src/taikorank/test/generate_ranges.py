@@ -27,6 +27,16 @@ class Ranges:
     obj  = [2**i for i in range(10, 1, -1)]
     od   = [i/2. for i in range(20, 0, -1)]
     rand = range(30, 0, -5)
+    #
+    _miss = list(range(0, 64, 4))
+    _good = [0] * len(_miss)
+    ggm = list(zip(_good, _miss))
+    @staticmethod
+    def ggm_to(miss, step = 1):
+        miss = list(range(0, miss, step))
+        good = [0] * len(miss)
+        return list(zip(good, miss))
+    #
     # Spaces can be used in patterns, they will be removed
     patterns = {}
     patterns['d_spread'] = {}

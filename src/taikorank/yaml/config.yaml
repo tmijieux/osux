@@ -15,6 +15,7 @@ osuxdb_path:   ./osuxdb
 ### Print
 print_tro:  0
 print_yaml: 0
+print_last_score_only: 0
 print_filter: ba
 # b -> basic
 # B -> basic+

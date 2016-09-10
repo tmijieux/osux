@@ -50,6 +50,7 @@ Global options are prefixed with `+`
 ###### Print
 * `+ptro [0|1]` print all objects
 * `+pyaml [0|1]` print result in yaml
+* `+plast_score_only [0|1]` only print the last result when computing scores
 * `+pfilter [bB+drRpa*]` print specific information. (b = basic, B = basic+, + = additionnal, d = density, r = reading, R = reading+, p = pattern, a = accuracy, * = star)
 * `+porder [FDRPA]` choose order (F = final, D = density, R = reading, P = pattern, A = accuracy)
 

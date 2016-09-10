@@ -23,8 +23,9 @@ from tr_test import TR_Tester_Yaml, TR_Test_Str_List, TR_Exception
 class TR_Test_Stars(TR_Test_Str_List):
     def __init__(self, ht):
         TR_Test_Str_List.__init__(self, ht)
-        self.field = self.get_if_exists('field',   ht, 'final_star')
-        self.mods  = self.get_if_exists('mods',    ht, ['__'])
+        self.field = self.get_if_exists('field', ht, 'final_star')
+        self.mods  = self.get_if_exists('mods',  ht, ['__'])
+        self.ggm   = self.get_if_exists('ggm',   ht, [(0, 0)])
         self.merge_mods = self.get_if_exists('merge_mods', ht, True)
         self.computed = False
     #
@@ -45,8 +46,10 @@ class TR_Test_Stars(TR_Test_Str_List):
             return
         res = {}
         for mod in self.mods:
-            tmp = TR_Exec.compute(self.cmd, {'-mods': mod})
-            res[mod] = TR_Map_List.from_yaml(tmp)
+            res[mod] = TR_Map_List()
+            for ggm in self.ggm:
+                tmp = TR_Exec.compute(self.cmd, {'+plast_score_only': 1, '-mods': mod, '-ggm': "%d %d" % ggm})
+                res[mod].extend(TR_Map_List.from_yaml(tmp))
         if self.merge_mods:
             l = TR_Map_List()
             for key in res:

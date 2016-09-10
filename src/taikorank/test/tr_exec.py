@@ -25,7 +25,7 @@ class TR_Exec:
         '+ptro':        0,
         '+pyaml':       1,
         '+autoconvert': 0,
-        '-score':       0,
+        '-score':       1,
         '-quick':       1,
         '-mods':        '__'
     }

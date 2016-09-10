@@ -154,6 +154,7 @@ void lf_print(struct linear_fun * lf)
 }
 
 //--------------------------------------------------
+
 static void append_string(char **str, char const *format, ...)
 {
     va_list ap;
