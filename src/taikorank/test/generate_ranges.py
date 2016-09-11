@@ -32,10 +32,16 @@ class Ranges:
     _good = [0] * len(_miss)
     ggm = list(zip(_good, _miss))
     @staticmethod
-    def ggm_to(miss, step = 1):
-        miss = list(range(0, miss, step))
+    def ggm_to_miss(miss, step):
+        ggm = {
+            'good': 0,
+            'miss': miss,
+            'step': step
+        }
+        miss = range(0, miss + step, step)
         good = [0] * len(miss)
-        return list(zip(good, miss))
+        ggm['zip'] = [[g, m] for g, m in zip(good, miss)]
+        return ggm
     #
     # Spaces can be used in patterns, they will be removed
     patterns = {}

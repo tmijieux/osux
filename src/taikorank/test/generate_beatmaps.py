@@ -245,7 +245,7 @@ class Map_Generator(Dir_Generator):
         if 'ggm' in self.ht:
             copy = self.ht['expected']
             self.ht['expected'] = []
-            for ggm in self.ht['ggm']:
+            for ggm in self.ht['ggm']['zip']:
                 for map in copy:
                     self.ht['expected'].append(map + TR_Map.ggm_str(ggm))
         return self.ht
@@ -366,7 +366,7 @@ score_g = Map_Generator("score/").add([
         .by_bpm(Ranges.bpm_normal)
         .with_obj(128)
         .with_pattern('d')
-        .expected_with_ggm(Ranges.ggm_to(128, 4))
+        .expected_with_ggm(Ranges.ggm_to_miss(128, 4))
         .on_this(),
 ])
 score_g.expected_field('final_star')

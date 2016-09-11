@@ -25,7 +25,9 @@ class TR_Test_Stars(TR_Test_Str_List):
         TR_Test_Str_List.__init__(self, ht)
         self.field = self.get_if_exists('field', ht, 'final_star')
         self.mods  = self.get_if_exists('mods',  ht, ['__'])
-        self.ggm   = self.get_if_exists('ggm',   ht, [(0, 0)])
+        self.ggm   = self.get_if_exists('ggm',   ht, {
+            'step': -1, 'good': 0, 'miss': 0, 'zip': [(0, 0)]
+        })
         self.merge_mods = self.get_if_exists('merge_mods', ht, True)
         self.computed = False
     #
@@ -46,10 +48,13 @@ class TR_Test_Stars(TR_Test_Str_List):
             return
         res = {}
         for mod in self.mods:
-            res[mod] = TR_Map_List()
-            for ggm in self.ggm:
-                tmp = TR_Exec.compute(self.cmd, {'+plast_score_only': 1, '-mods': mod, '-ggm': "%d %d" % ggm})
-                res[mod].extend(TR_Map_List.from_yaml(tmp))
+            opt = {
+                '-step': self.ggm['step'],
+                '-mods': mod,
+                '-ggm': "%d %d" % (self.ggm['good'], self.ggm['miss'])
+            }
+            yaml = TR_Exec.compute(self.cmd, opt)
+            res[mod] = TR_Map_List.from_yaml(yaml)
         if self.merge_mods:
             l = TR_Map_List()
             for key in res:

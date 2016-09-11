@@ -170,7 +170,7 @@ static double tro_eval_obj_front(struct tr_object * o, int offset)
     else if (o->offset_app <= offset)
 	return o->line_a * offset + o->line_b;
     else {
-	tr_error("Out of bounds for tro_eval_obj_back: %d", offset);
+	tr_error("Out of bounds for tro_eval_obj_front: %d", offset);
 	tro_print(o, FILTER_BASIC | FILTER_READING_PLUS);
     }
     return -1;
