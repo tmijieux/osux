@@ -23,6 +23,6 @@ enum tr_load_osu {
     TR_FILENAME_HASH = 2,
 };
 
-int tr_check_file(char *file_name);
+int tr_check_file(const char *file_name);
 
 #endif // TR_LOAD_OSU_H

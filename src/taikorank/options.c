@@ -108,6 +108,12 @@ static void opt_score_quick(const char ** argv)
     LOCAL_CONFIG->quick = atoi(argv[0]);
 }
 
+static void opt_score_step(const char ** argv)
+{
+    local_config_set_tr_main(MAIN_SCORE);
+    LOCAL_CONFIG->step = atof(argv[0]);
+}
+
 static void opt_score_input(const char ** argv)
 {
     local_config_set_tr_main(MAIN_SCORE);
@@ -117,7 +123,7 @@ static void opt_score_input(const char ** argv)
 static void opt_score_acc(const char ** argv)
 {
     local_config_set_tr_main(MAIN_SCORE);
-    LOCAL_CONFIG->acc   = atof(argv[0]) / COEFF_MAX_ACC;
+    LOCAL_CONFIG->acc   = atof(argv[0]);
     LOCAL_CONFIG->input = SCORE_INPUT_ACC;
 }
 
@@ -139,11 +145,6 @@ static void opt_print_tro(const char ** argv)
 static void opt_print_yaml(const char ** argv)
 {
     GLOBAL_CONFIG->print_yaml = atoi(argv[0]);
-}
-
-static void opt_print_last_score_only(const char ** argv)
-{
-    GLOBAL_CONFIG->print_last_score_only = atoi(argv[0]);
 }
 
 static void opt_print_filter(const char ** argv)
@@ -272,8 +273,6 @@ void tr_options_initialize(void)
 		      "Enable or disable object printing");
     new_tr_global_opt("pyaml", 1, opt_print_yaml,
 		      "Enable or disable yaml output");
-    new_tr_global_opt("plast_score_only", 1, opt_print_last_score_only,
-		      "Only print the last result when computing scores");
     new_tr_global_opt("porder", 1, opt_print_order,
 		      "Set star order");
     new_tr_global_opt("pfilter", 1, opt_print_filter,
@@ -293,6 +292,9 @@ void tr_options_initialize(void)
 		     "Enable or disable score computation");
     new_tr_local_opt("quick", 1, opt_score_quick,
 		     "Enable or disable quick score computation");
+    new_tr_local_opt("step", 1, opt_score_step,
+		     "Set score step for printing. A negative value "
+                     "will only print the last score.");
     new_tr_local_opt("input", 1, opt_score_input,
 		     "Set score input method");
     new_tr_local_opt("acc", 1, opt_score_acc,

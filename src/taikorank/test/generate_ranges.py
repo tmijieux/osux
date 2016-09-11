@@ -85,6 +85,13 @@ class Ranges:
         'dddd dddd',
     ]
     patterns['streams'] = {}
+    patterns['streams']['kd+_change'] = [
+        'kdkddkddd'
+        'kdkdd'
+        'kdd'
+        'kd',
+        'k',
+    ]
     patterns['streams']['kd+_0~4'] = [
         'kdddd',
         'kddd',

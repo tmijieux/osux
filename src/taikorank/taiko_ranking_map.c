@@ -26,6 +26,7 @@
 #include "tr_db.h"
 #include "tr_mods.h"
 #include "compute_stars.h"
+#include "treatment.h"
 
 #include "config.h"
 #include "check_osu_file.h"
@@ -44,7 +45,7 @@ static void trm_add_to_ps(struct tr_map * map,
 
 static void trm_acc(struct tr_map * map);
 static struct tr_map * trm_from_osux_map(osux_beatmap * map);
-static struct tr_map * trm_from_file(char * filename);
+static struct tr_map * trm_from_file(const char * filename);
 
 //--------------------------------------------------
 
@@ -52,24 +53,18 @@ void trm_main(const struct tr_map * map)
 {
     struct tr_map * map_copy = trm_copy(map);
     trm_set_mods(map_copy, map->conf->mods);
-    trm_set_read_only_objects(map_copy);
 
-    // modifications
     trm_add_modifier(map_copy);
 
-    // compute
     trm_apply_mods(map_copy);
     trm_compute_stars(map_copy);
 
-    // printing
-#   pragma omp critical
+    #pragma omp critical
     trm_print(map_copy);
 
-    // db
     if (GLOBAL_CONFIG->db_enable)
 	trm_db_insert(map_copy);
 
-    // free
     trm_free(map_copy);
 }
 
@@ -116,6 +111,7 @@ struct tr_map * trm_copy(const struct tr_map * map)
     copy->artist_uni = strdup(map->artist_uni);
     copy->hash = strdup(map->hash);
 
+    trm_set_read_only_objects(copy);
     return copy;
 }
 
@@ -141,7 +137,7 @@ void trm_free(struct tr_map * map)
 
 //--------------------------------------------------
 
-struct tr_map *trm_new(char *filename)
+struct tr_map *trm_new(const char *filename)
 {
     struct tr_map *res = NULL;
     char *path = NULL;
@@ -218,7 +214,7 @@ static double get_bpm_app_from_osux_tp(osux_timingpoint * tp, double sv)
 //---------------------------------------------------------------
 //---------------------------------------------------------------
 
-static struct tr_map *trm_from_file(char *filename)
+static struct tr_map *trm_from_file(const char *filename)
 {
     osux_beatmap map;
     if (osux_beatmap_init(&map, filename) < 0) {
@@ -382,7 +378,7 @@ static void trm_print_out_results(const struct tr_map * map)
 	}
 	i++;
     }
-    fprintf(OUTPUT, "(%.4g%%)\t", map->acc * COEFF_MAX_ACC);
+    fprintf(OUTPUT, "(%.4g%%)\t", map->acc);
     trm_print_out_mods(map);
     print_string_size(map->diff,    24, OUTPUT);
     print_string_size(map->title,   32, OUTPUT);
@@ -447,7 +443,7 @@ void trm_print_yaml(const struct tr_map * map)
     fprintf_dquote_escape(OUTPUT, map->diff);
     fprintf(OUTPUT, "\", ");
 
-    fprintf(OUTPUT, "accuracy: %g, ", map->acc * COEFF_MAX_ACC);
+    fprintf(OUTPUT, "accuracy: %g, ", map->acc);
     fprintf(OUTPUT, "great: %d, ",  map->great);
     fprintf(OUTPUT, "good: %d, ",  map->good);
     fprintf(OUTPUT, "miss: %d, ",  map->miss);
@@ -572,6 +568,8 @@ void trm_set_tro_ps(struct tr_map * map, int x, enum played_state ps)
 	map->object[x].pattern_star = 0;
 	map->object[x].accuracy_star = 0;
 	map->object[x].final_star = 0;
+    } else {
+        trm_set_combo(map);
     }
 }
 
@@ -579,7 +577,7 @@ void trm_set_tro_ps(struct tr_map * map, int x, enum played_state ps)
 
 double compute_acc(int great, int good, int miss)
 {
-    return (((double)(great + good * 0.5)) / (great + good + miss));
+    return (great + good * 0.5) / (great + good + miss) * MAX_ACC;
 }
 
 static void trm_acc(struct tr_map * map)

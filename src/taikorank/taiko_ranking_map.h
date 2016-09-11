@@ -20,9 +20,7 @@
 struct tr_object;
 enum played_state;
 
-#define MAX_ACC 1.
-#define COEFF_MAX_ACC 100.
-
+#define MAX_ACC 100.
 
 struct tr_map
 {
@@ -40,16 +38,16 @@ struct tr_map
     unsigned int bms_osu_ID;
     unsigned int diff_osu_ID;
     char * hash;
-  
+
     // Song Info
     int mods;
     double od;
-    double od_mod_mult; // DT and HT...
-  
+    double od_hit_window_mult; // for DT and HT
+
     // Taiko objects
     int nb_object;
-    struct tr_object * object; 
-  
+    struct tr_object * object;
+
     // stars *-*
     double density_star;
     double reading_star;
@@ -58,9 +56,9 @@ struct tr_map
     double final_star;
 
     // acc
-    double acc;
+    double acc; // stored in percent i.e. [0, 100]
     int combo;
-    int max_combo; 
+    int max_combo;
 
     int great;
     int good;
@@ -70,7 +68,7 @@ struct tr_map
 
 //----------------------------------------
 
-struct tr_map * trm_new(char * file_name);
+struct tr_map * trm_new(const char * filename);
 struct tr_map * trm_copy(const struct tr_map * map);
 void trm_free(struct tr_map * map);
 

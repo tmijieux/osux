@@ -15,7 +15,6 @@ osuxdb_path:   ./osuxdb
 ### Print
 print_tro:  0
 print_yaml: 0
-print_last_score_only: 0
 print_filter: ba
 # b -> basic
 # B -> basic+
@@ -54,6 +53,7 @@ score_input:  1
 score_acc:  100
 score_good: 0
 score_miss: 0
+score_step: 0
 
 # About score_methods:
 # quick is way less accurate

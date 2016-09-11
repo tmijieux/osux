@@ -119,11 +119,11 @@ static int equal_i(int x, int y)
 double * trm_get_ggm_val(const struct tr_map * map)
 {
     double ggm_ms[3];
-    ggm_ms[0] = (map->od_mod_mult *
+    ggm_ms[0] = (map->od_hit_window_mult *
 		 (MS_GREAT - (MS_COEFF_GREAT * map->od)));
-    ggm_ms[1] = (map->od_mod_mult *
+    ggm_ms[1] = (map->od_hit_window_mult *
 		 (MS_GOOD  - (MS_COEFF_GOOD  * map->od)));
-    ggm_ms[2] = (map->od_mod_mult *
+    ggm_ms[2] = (map->od_hit_window_mult *
 		 (MS_MISS  - (MS_COEFF_MISS  * map->od)));
     double * ggm_val = malloc(sizeof(double) * 3);
     for (int i = 0; i < 3; i++)
@@ -244,7 +244,7 @@ static void trm_set_slow(struct tr_map * map)
 static void trm_set_hit_window(struct tr_map * map)
 {
     double * ggm_val = trm_get_ggm_val(map);
-    for(int i = 0; i < map->nb_object; i++)
+    for (int i = 0; i < map->nb_object; i++)
 	tro_set_hit_window(&map->object[i], ggm_val);
     free(ggm_val);
 }
@@ -253,7 +253,7 @@ static void trm_set_hit_window(struct tr_map * map)
 
 static void trm_set_spacing(struct tr_map * map)
 {
-    for(int i = 0; i < map->nb_object; i++)
+    for (int i = 0; i < map->nb_object; i++)
 	tro_set_spacing(&map->object[i], i);
 }
 
@@ -271,7 +271,7 @@ static void trm_set_accuracy_star(struct tr_map * map)
 
 void trm_compute_accuracy(struct tr_map * map)
 {
-    if(ht_cst_acc == NULL) {
+    if (ht_cst_acc == NULL) {
 	tr_error("Unable to compute accuracy stars.");
 	return;
     }

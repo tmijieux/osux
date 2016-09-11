@@ -50,7 +50,6 @@ Global options are prefixed with `+`
 ###### Print
 * `+ptro [0|1]` print all objects
 * `+pyaml [0|1]` print result in yaml
-* `+plast_score_only [0|1]` only print the last result when computing scores
 * `+pfilter [bB+drRpa*]` print specific information. (b = basic, B = basic+, + = additionnal, d = density, r = reading, R = reading+, p = pattern, a = accuracy, * = star)
 * `+porder [FDRPA]` choose order (F = final, D = density, R = reading, P = pattern, A = accuracy)
 
@@ -61,6 +60,7 @@ Local options are prefixed with `-`
 * `-score [0|1]` compute a score
 * `-quick [0|1]` do not recompute all objects after every modification
 * `-input [0|1]` change input to accuracy (0) or great/good/miss (1)
+* `-step [DOUBLE]` set a step to print score every time the step is reached. Use a negative value to only print the last score. Use 0 to print every step.
 * `-ggm [GOOD] [MISS]` set number of good and number of miss for a score
 * `-acc [0-100]` set accuracy for a score
 

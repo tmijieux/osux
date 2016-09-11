@@ -121,7 +121,7 @@ static void trm_apply_mods_EZ(struct tr_map * map)
 
 static void trm_apply_mods_DT(struct tr_map * map)
 {
-    map->od_mod_mult = DT_COEFF_MS;
+    map->od_hit_window_mult = DT_COEFF_MS;
   
     for(int i = 0; i < map->nb_object; i++) {
 	map->object[i].bpm_app    *= DT_COEFF_SPEED;
@@ -134,7 +134,7 @@ static void trm_apply_mods_DT(struct tr_map * map)
 
 static void trm_apply_mods_HT(struct tr_map * map)
 {
-    map->od_mod_mult = HT_COEFF_MS;
+    map->od_hit_window_mult = HT_COEFF_MS;
   
     for(int i = 0; i < map->nb_object; i++) {
 	map->object[i].bpm_app    *= HT_COEFF_SPEED;
@@ -200,7 +200,7 @@ static void trm_apply_NM_app_dis(struct tr_map * map)
 
 static void trm_apply_NM_ms_coeff(struct tr_map * map)
 {
-    map->od_mod_mult = NM_COEFF_MS;
+    map->od_hit_window_mult = NM_COEFF_MS;
 }
 
 //---------------------------------------------

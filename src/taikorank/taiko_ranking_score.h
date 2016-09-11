@@ -29,9 +29,15 @@ struct tr_score
     int great;
     int good;
     int miss;
+
+    double last_point;
+    double step;
   
     // working:
     struct tr_map * map; // current map
+
+    void (*trs_prepare)(struct tr_score *);
+    int (*trs_has_reached_step)(struct tr_score *);
 };
 
 void trs_main(const struct tr_map * map);

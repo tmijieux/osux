@@ -39,6 +39,7 @@ class Dir_Generator:
     def __init__(self, dir):
         self.up = None
         self.dir = self.clean_dirname(dir)
+        self.name = self.dir.replace("/", "")
         self.generators = []
     #
     def count(self):
@@ -321,9 +322,6 @@ pattern_g = Map_Generator("pattern/").add([
     Map_Generator("patterns/")
         .by_bpm(Ranges.bpm_normal)
         .on_each_pattern(Ranges.patterns['patterns']),
-    Map_Generator("splits/")
-        .by_bpm(Ranges.bpm_normal)
-        .on_each_pattern(Ranges.patterns['splits']),
 ])
 pattern_g.expected_field('pattern_star')
 
@@ -348,21 +346,30 @@ accuracy_g.expected_field('accuracy_star')
 ##################################################
 
 other_g = Map_Generator("other/").add([
+    Map_Generator("obj/")
+        .by_bpm(Ranges.bpm_normal)
+        .with_pattern('d')
+        .on_obj(Ranges.obj),
+    Map_Generator("ddkd_reduction/")
+        .by_bpm(Ranges.bpm_normal)
+        .on_pattern(Ranges.patterns['ddkd_reduction']),
+    Map_Generator("patterns_splits/")
+        .by_bpm(Ranges.bpm_normal)
+        .on_each_pattern(Ranges.patterns['splits']),
+])
+other_g.expected_field('final_star')
+
+##################################################
+
+score_g = Map_Generator("score/").add([
     Map_Generator("ggm/")
         .by_bpm(Ranges.bpm_normal)
         .with_obj(128)
         .with_pattern('d')
         .expected_with_ggm(Ranges.ggm_to(128, 4))
         .on_this(),
-    Map_Generator("obj/")
-        .by_bpm(Ranges.bpm_normal)
-        .on_obj(Ranges.obj)
-        .with_pattern('d'),
-    Map_Generator("ddkd_reduction/")
-        .by_bpm(Ranges.bpm_normal)
-        .on_pattern(Ranges.patterns['ddkd_reduction']),
 ])
-other_g.expected_field('final_star')
+score_g.expected_field('final_star')
 
 ##################################################
 
@@ -372,6 +379,7 @@ main_g = Dir_Generator("maps_generated/").add([
     pattern_g,
     accuracy_g,
     other_g,
+    score_g,
 ])
 
 ##################################################
@@ -401,10 +409,7 @@ def create_expected(generator, path):
 
 if __name__ == '__main__':
     main_g.main()
-    create_expected(main_g,     "yaml/test_generated_main.yaml")
-    create_expected(density_g,  "yaml/test_generated_density.yaml")
-    create_expected(reading_g,  "yaml/test_generated_reading.yaml")
-    create_expected(pattern_g,  "yaml/test_generated_pattern.yaml")
-    create_expected(accuracy_g, "yaml/test_generated_accuracy.yaml")
-    create_expected(other_g,    "yaml/test_generated_other.yaml")
+    create_expected(main_g, "yaml/test_generated_main.yaml")
+    for g in main_g.generators:
+        create_expected(g, "yaml/test_generated_"+g.name+".yaml")
     print("%d beatmaps created!" % main_g.count_generated())

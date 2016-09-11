@@ -26,7 +26,7 @@
 #include "check_osu_file.h"
 #include "print.h"
 
-int tr_check_file(char *file_name)
+int tr_check_file(const char *file_name)
 {
     // cheking that it's a .osu file
     int length = strlen(file_name);
