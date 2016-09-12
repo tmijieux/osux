@@ -35,7 +35,7 @@ void tro_set_influence(struct tr_object * objs, int i, int nb);
    - density_star
    - reading_star
    - pattern_star
-   - accuracy_star   
+   - accuracy_star
 */
 void tro_set_final_star(struct tr_object * o);
 

@@ -40,16 +40,16 @@ struct tr_map
     unsigned int bms_osu_ID;
     unsigned int diff_osu_ID;
     char * hash;
-  
+
     // Song Info
     int mods;
     double od;
     double od_mod_mult; // DT and HT...
-  
+
     // Taiko objects
     int nb_object;
-    struct tr_object * object; 
-  
+    struct tr_object * object;
+
     // stars *-*
     double density_star;
     double reading_star;
@@ -60,7 +60,7 @@ struct tr_map
     // acc
     double acc;
     int combo;
-    int max_combo; 
+    int max_combo;
 
     int great;
     int good;

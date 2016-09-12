@@ -22,7 +22,7 @@
  */
 void tro_set_length(struct tr_object * obj);
 
-/* Use: 
+/* Use:
    - ps
    - d/k/D/K/s/r/R
 */

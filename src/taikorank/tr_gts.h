@@ -23,13 +23,13 @@ tr_gts_vertex_new(int offset, double objs, double interest)
 }
 
 // Always set bottom vertex as first (if there is a bottom vertex...)
-static inline GtsEdge * 
+static inline GtsEdge *
 tr_gts_edge_new(GtsVertex * v_bot, GtsVertex * v_top)
 {
     return gts_edge_new(gts_edge_class(), v_bot, v_top);
 }
 
-static inline GtsFace * 
+static inline GtsFace *
 tr_gts_face_new(GtsEdge * e1, GtsEdge * e2, GtsEdge * e3)
 {
     return gts_face_new(gts_face_class(), e1, e2, e3);

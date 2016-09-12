@@ -98,8 +98,8 @@
 
 double default_weight(int i, double val)
 {
-    return EXP_2_PT(i, 
-		    DEF_WEIGHT_X1, DEF_WEIGHT_Y1, 
+    return EXP_2_PT(i,
+		    DEF_WEIGHT_X1, DEF_WEIGHT_Y1,
 		    DEF_WEIGHT_X2, DEF_WEIGHT_Y2) * val;
 }
 
@@ -175,7 +175,7 @@ void stats_print(struct stats * stats)
     fprintf(OUTPUT_INFO, "\n");
     fprintf(OUTPUT_INFO, "mean:   %g\n", stats->mean);
     fprintf(OUTPUT_INFO, "\n");
-  
+
     fprintf(OUTPUT_INFO, "D1:     %g\n", stats->d1);
     fprintf(OUTPUT_INFO, "Q1:     %g\n", stats->q1);
     fprintf(OUTPUT_INFO, "median: %g\n", stats->median);

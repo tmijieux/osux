@@ -117,7 +117,7 @@ void cnt_free(struct counter * c)
 {
     if (c == NULL)
 	return;
-    osux_hashtable_each(c->ht, 
+    osux_hashtable_each(c->ht,
 			(void (*)(const char*, void*)) cnte_free);
     osux_hashtable_delete(c->ht);
     free(c);

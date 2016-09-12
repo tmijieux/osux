@@ -70,7 +70,7 @@ EXPRESSLY ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 	#define	null_argument		0	/*Argument Null*/
 	#define	no_argument			0	/*Argument Switch Only*/
 	#define required_argument	1	/*Argument Required*/
-	#define optional_argument	2	/*Argument Optional*/	
+	#define optional_argument	2	/*Argument Optional*/
 
 	// Shorter Options
 	#define ARG_NULL	0	/*Argument Null*/
@@ -111,8 +111,8 @@ _BEGIN_EXTERN_C
 	extern _GETOPT_API wchar_t *optarg_w;
 	extern _GETOPT_API int getopt_w(int argc, wchar_t *const *argv, const wchar_t *optstring) _GETOPT_THROW;
 	extern _GETOPT_API int getopt_long_w(int argc, wchar_t *const *argv, const wchar_t *options, const struct option_w *long_options, int *opt_index) _GETOPT_THROW;
-	extern _GETOPT_API int getopt_long_only_w(int argc, wchar_t *const *argv, const wchar_t *options, const struct option_w *long_options, int *opt_index) _GETOPT_THROW;	
-	
+	extern _GETOPT_API int getopt_long_only_w(int argc, wchar_t *const *argv, const wchar_t *options, const struct option_w *long_options, int *opt_index) _GETOPT_THROW;
+
 _END_EXTERN_C
 
 	#undef _BEGIN_EXTERN_C

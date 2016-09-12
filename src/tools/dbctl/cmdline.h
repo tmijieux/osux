@@ -54,7 +54,7 @@ struct gengetopt_args_info
   char * hash_arg;	/**< @brief retrieve the path of the beatmap identified by the string argument.  */
   char * hash_orig;	/**< @brief retrieve the path of the beatmap identified by the string argument original value given at command line.  */
   const char *hash_help; /**< @brief retrieve the path of the beatmap identified by the string argument help description.  */
-  
+
   unsigned int help_given ;	/**< @brief Whether help was given.  */
   unsigned int version_given ;	/**< @brief Whether version was given.  */
   unsigned int database_given ;	/**< @brief Whether database was given.  */
@@ -152,7 +152,7 @@ void cmdline_parser_print_help(void);
 void cmdline_parser_print_version(void);
 
 /**
- * Initializes all the fields a cmdline_parser_params structure 
+ * Initializes all the fields a cmdline_parser_params structure
  * to their default values
  * @param params the structure to initialize
  */

@@ -6,7 +6,7 @@
 #include "osux/list.h"
 
 typedef struct osux_database_ {
-    
+
     sqlite3 *mem_handle;
     sqlite3 *file_handle;
     bool in_memory;

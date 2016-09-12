@@ -177,6 +177,6 @@ void tro_print(const struct tr_object * obj, int filter)
 		obj->pattern_star,
 		obj->accuracy_star,
 		obj->final_star);
-  
+
     fprintf(OUTPUT_INFO, "\n");
 }

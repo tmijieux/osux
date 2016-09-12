@@ -404,7 +404,7 @@ void tr_print_yaml_exit(void)
     }
 }
 
-static void fprintf_escape_char(FILE * out, const char * s, 
+static void fprintf_escape_char(FILE * out, const char * s,
 				char c, const char * escaped)
 {
     if (s == NULL || s[0] == '\0')

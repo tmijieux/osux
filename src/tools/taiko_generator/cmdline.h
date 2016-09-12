@@ -64,7 +64,7 @@ struct gengetopt_args_info
   int random_arg;	/**< @brief Add randomness to offset, add or substract up to the value in ms (default='0').  */
   char * random_orig;	/**< @brief Add randomness to offset, add or substract up to the value in ms original value given at command line.  */
   const char *random_help; /**< @brief Add randomness to offset, add or substract up to the value in ms help description.  */
-  
+
   unsigned int help_given ;	/**< @brief Whether help was given.  */
   unsigned int version_given ;	/**< @brief Whether version was given.  */
   unsigned int quiet_given ;	/**< @brief Whether quiet was given.  */
@@ -164,7 +164,7 @@ void cmdline_parser_print_help(void);
 void cmdline_parser_print_version(void);
 
 /**
- * Initializes all the fields a cmdline_parser_params structure 
+ * Initializes all the fields a cmdline_parser_params structure
  * to their default values
  * @param params the structure to initialize
  */

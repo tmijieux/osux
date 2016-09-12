@@ -37,7 +37,7 @@ struct stats
     double min;
     double max;
     double spread;
-  
+
     double mean;
     double d1;
     double q1;

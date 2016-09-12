@@ -26,15 +26,15 @@ static bool beatmap_table_is_present(osux_beatmap_db *db)
 
 #define DB_BIND_INT(db, name, text)                                     \
     if ((ret = osux_database_bind_int(&(db)->base, (":"name), (text))) < 0) \
-        return ret 
+        return ret
 
 #define DB_BIND_DOUBLE(db, name, text)                                  \
     if ((ret = osux_database_bind_double(&(db)->base, (":"name), (text))) < 0) \
-        return ret 
+        return ret
 
 #define DB_BIND_TEXT(db, name, text)                                    \
     if ((ret = osux_database_bind_string(&(db)->base, (":"name), (text))) < 0) \
-        return ret 
+        return ret
 
 static int beatmap_insert(osux_beatmap_db *db, osux_beatmap *bm)
 {
@@ -63,7 +63,7 @@ static int beatmap_insert(osux_beatmap_db *db, osux_beatmap *bm)
             ":mania_scroll_speed)");
         if (ret < 0)
             return ret;
-        db->insert_prepared = true;        
+        db->insert_prepared = true;
     }
 
     DB_BIND_INT(db, "osu_beatmap_id", bm->BeatmapID);
@@ -100,7 +100,7 @@ static int beatmap_insert(osux_beatmap_db *db, osux_beatmap *bm)
     DB_BIND_INT(db, "disable_video", bm->disable_video);
     DB_BIND_INT(db, "visual_override", bm->visual_override);
     DB_BIND_INT(db, "mania_scroll_speed", bm->mania_scroll_speed);
-    
+
     return osux_database_exec_prepared_query(&db->base, NULL);
 }
 
@@ -189,7 +189,7 @@ int osux_beatmap_db_init(
     memset(db, 0, sizeof*db);
     if ((err = osux_database_init(&db->base, file_path)) < 0)
         return err;
-    
+
     db->song_dir = g_strdup(song_dir);
     db->song_dir_length = strlen(song_dir);
     db->insert_prepared = false;
@@ -213,7 +213,7 @@ int osux_beatmap_db_free(osux_beatmap_db *db)
     memset(db, 0, sizeof*db);
     return 0;
 }
-    
+
 int osux_beatmap_db_dump(osux_beatmap_db *db, FILE *out)
 {
     return osux_database_print_query(&db->base, "SELECT * FROM beatmap", out);

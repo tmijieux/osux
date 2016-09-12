@@ -29,7 +29,7 @@ struct tr_score
     int great;
     int good;
     int miss;
-  
+
     // working:
     struct tr_map * map; // current map
 };

@@ -20,7 +20,7 @@
 #include "taiko_ranking_object.h"
 #include "treatment.h"
 
-static void tro_set_hand(struct tr_object * obj, 
+static void tro_set_hand(struct tr_object * obj,
 			 int * d_hand, int * k_hand);
 
 static void trm_set_length(struct tr_map * map);
@@ -99,7 +99,7 @@ void trm_set_combo(struct tr_map * map)
     int combo = 0;
     map->combo = 0;
     for(int i = 0; i < map->nb_object; i++) {
-	if(map->object[i].ps == GREAT || 
+	if(map->object[i].ps == GREAT ||
 	   map->object[i].ps == GOOD)
 	    combo++;
 	else if(map->object[i].ps == MISS) {

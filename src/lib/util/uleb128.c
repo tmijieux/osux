@@ -19,16 +19,16 @@
 
 uint64_t read_ULEB128(FILE * f)
 {
-    uint64_t value = 0;				
-    unsigned shift = 0;				
-    uint8_t p;					
-    do {						
-	xfread(&p, 1, 1, f);				
-	value += (uint64_t)(p & 0x7f) << shift;	
-	shift += 7;					
-    } while (p >= 0x80);				
-    return value;						
-}							
+    uint64_t value = 0;
+    unsigned shift = 0;
+    uint8_t p;
+    do {
+	xfread(&p, 1, 1, f);
+	value += (uint64_t)(p & 0x7f) << shift;
+	shift += 7;
+    } while (p >= 0x80);
+    return value;
+}
 
 void write_ULEB128(uint64_t value, FILE *output, unsigned padding)
 {
@@ -39,7 +39,7 @@ void write_ULEB128(uint64_t value, FILE *output, unsigned padding)
             byte |= 0x80; // Mark this byte to show that more bytes will follow.
         fwrite(&byte, 1, 1, output);
     } while (value != 0);
- 
+
     // Pad with 0x80 and emit a null byte at the end.
     if (padding != 0) {
         char v[] = { '\x80', '\0' };

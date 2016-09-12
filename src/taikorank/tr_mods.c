@@ -53,7 +53,7 @@
 #define HT_COEFF_SPEED (2 / 3.)
 #define EZ_COEFF_SPEED (2 / 3.)
 
-#ifdef RESOLUTION_10 
+#ifdef RESOLUTION_10
   #define HR_COEFF_SPEED (4 / 3.)
 #endif
 
@@ -98,9 +98,9 @@ static void trm_apply_mods_HR(struct tr_map * map)
     map->od *= HR_COEFF_OD;
     if(map->od > MAX_OD)
 	map->od = MAX_OD;
-    
+
     for(int i = 0; i < map->nb_object; i++) {
-	map->object[i].bpm_app *= HR_COEFF_SPEED; 
+	map->object[i].bpm_app *= HR_COEFF_SPEED;
 	map->object[i].obj_app = NM_NB_OBJ_APP;
 	map->object[i].obj_dis = NM_NB_OBJ_DIS;
     }
@@ -111,9 +111,9 @@ static void trm_apply_mods_HR(struct tr_map * map)
 static void trm_apply_mods_EZ(struct tr_map * map)
 {
     map->od *= EZ_COEFF_OD;
-  
+
     for(int i = 0; i < map->nb_object; i++) {
-	map->object[i].bpm_app *= EZ_COEFF_SPEED; 
+	map->object[i].bpm_app *= EZ_COEFF_SPEED;
     }
 }
 
@@ -122,11 +122,11 @@ static void trm_apply_mods_EZ(struct tr_map * map)
 static void trm_apply_mods_DT(struct tr_map * map)
 {
     map->od_mod_mult = DT_COEFF_MS;
-  
+
     for(int i = 0; i < map->nb_object; i++) {
 	map->object[i].bpm_app    *= DT_COEFF_SPEED;
 	map->object[i].offset     /= DT_COEFF_BPM;
-	map->object[i].end_offset /= DT_COEFF_BPM; 
+	map->object[i].end_offset /= DT_COEFF_BPM;
     }
 }
 
@@ -135,11 +135,11 @@ static void trm_apply_mods_DT(struct tr_map * map)
 static void trm_apply_mods_HT(struct tr_map * map)
 {
     map->od_mod_mult = HT_COEFF_MS;
-  
+
     for(int i = 0; i < map->nb_object; i++) {
 	map->object[i].bpm_app    *= HT_COEFF_SPEED;
 	map->object[i].offset     /= HT_COEFF_BPM;
-	map->object[i].end_offset /= HT_COEFF_BPM; 
+	map->object[i].end_offset /= HT_COEFF_BPM;
     }
 }
 
@@ -168,7 +168,7 @@ void trm_apply_mods_FL(struct tr_map * map)
 {
     int combo = 0;
     for(int i = 0; i < map->nb_object; i++) {
-	if(map->object[i].ps == GREAT || 
+	if(map->object[i].ps == GREAT ||
 	   map->object[i].ps == GOOD)
 	    combo++;
 	else if(map->object[i].ps == MISS)
@@ -178,9 +178,9 @@ void trm_apply_mods_FL(struct tr_map * map)
 	    map->object[i].obj_app = FL_NB_OBJ_APP3;
 	else if(combo >= FL_START_APP2)
 	    map->object[i].obj_app = FL_NB_OBJ_APP2;
-	else 
+	else
 	    map->object[i].obj_app = FL_NB_OBJ_APP1;
-      
+
 	if((map->mods & MODS_HD) == 0)
 	    map->object[i].obj_dis = NM_NB_OBJ_DIS;
     }
@@ -208,12 +208,12 @@ static void trm_apply_NM_ms_coeff(struct tr_map * map)
 //---------------------------------------------
 
 void trm_apply_mods(struct tr_map * map)
-{  
+{
     if((map->mods & MODS_HR) != 0)
 	trm_apply_mods_HR(map);
     else if((map->mods & MODS_EZ) != 0)
 	trm_apply_mods_EZ(map);
-  
+
     if((map->mods & MODS_DT) != 0)
 	trm_apply_mods_DT(map);
     else if((map->mods & MODS_HT) != 0)
@@ -259,7 +259,7 @@ char * trm_mods_to_str(const struct tr_map * map)
 {
     char * s = calloc(sizeof(char), STR_MODS_LENGTH * MAX_MODS + 1);
     int i = 0;
-  
+
     if(trm_print_one_mod(map, MODS_HR, &i, s, "HR ") == 0)
 	trm_print_one_mod(map, MODS_EZ, &i, s, "EZ ");
 
@@ -268,6 +268,6 @@ char * trm_mods_to_str(const struct tr_map * map)
 
     trm_print_one_mod(map, MODS_HD, &i, s, "HD ");
     trm_print_one_mod(map, MODS_FL, &i, s, "FL ");
-  
+
     return s;
 }

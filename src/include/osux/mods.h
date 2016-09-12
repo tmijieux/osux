@@ -38,7 +38,7 @@ enum mods {
     MOD_SPUNOUT         =       (1 << 12),
     MOD_AUTOPILOT	=	(1 << 13),
     MOD_PERFECT 	=	(1 << 14),
-    
+
     MOD_4K		=	(1 << 15),
     MOD_5K		=	(1 << 16),
     MOD_6K		= 	(1 << 17),
@@ -50,7 +50,7 @@ enum mods {
     MOD_CINEMA		= 	(1 << 22),
 
     MOD_TARGETPRACTICE	=	(1 << 23),
-    
+
     MOD_9K		=	(1 << 24),
     MOD_COOP		=	(1 << 25),
 
@@ -72,7 +72,7 @@ enum mods {
 };
 
 enum mods_id {
-    IMOD_NOFAIL 	= 0,	
+    IMOD_NOFAIL 	= 0,
     IMOD_EASY  		= 1,
     IMOD_NOVIDEO	= 2,
     IMOD_HIDDEN		= 3,
@@ -88,7 +88,7 @@ enum mods_id {
     IMOD_SPUNOUT	= 12,
     IMOD_AUTOPILOT	= 13,
     IMOD_PERFECT 	= 14,
-    
+
     IMOD_4K		= 15,
     IMOD_5K		= 16,
     IMOD_6K		= 17,

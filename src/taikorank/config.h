@@ -36,7 +36,7 @@ enum tr_main {
 
 struct tr_global_config {
     int autoconvert_enable;
-    
+
     int db_enable;
     char * db_ip;
     char * db_login;

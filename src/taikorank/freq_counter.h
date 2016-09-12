@@ -23,7 +23,7 @@ typedef double (*where_fun)(const void*);
 struct counter * cnt_new(void);
 void cnt_free(struct counter * c);
 
-void cnt_add(struct counter * c, const void * data, const char * key, 
+void cnt_add(struct counter * c, const void * data, const char * key,
 	     double val);
 
 double cnt_get_total(const struct counter * c);
