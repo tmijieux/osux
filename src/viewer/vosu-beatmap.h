@@ -37,13 +37,11 @@ struct _VosuBeatmap
     osux_timingpoint *timingpoints;
 };
 
-VosuBeatmap *vosu_beatmap_new(void);
+VosuBeatmap *vosu_beatmap_new(gchar const *filepath);
 gboolean vosu_beatmap_load_from_file(VosuBeatmap *beatmap, gchar const *filepath);
-void vosu_beatmap_save_to_file(VosuBeatmap *beatmap, gchar const *filepath);
+
 void vosu_beatmap_load_objects(VosuBeatmap *beatmap, osux_beatmap *osux_bm);
-void vosu_beatmap_save_objects(VosuBeatmap *beatmap, osux_beatmap *osux_bm);
-void vosu_beatmap_load_and_bind_adjustments(VosuBeatmap *beatmap,
-                                             osux_beatmap *osux_bm);
+
 void vosu_beatmap_dispose_objects(VosuBeatmap *beatmap);
 
 G_END_DECLS

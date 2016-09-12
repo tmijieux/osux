@@ -5,7 +5,6 @@ vosu_SOURCES = \
 	main.c \
 	vosu-app.c \
 	vosu-win.c \
-	vosu-close-lbl.c \
 	vosu-beatmap.c \
 	vosu-beatmap-objects.c \
 	vosu-view.c \
@@ -23,14 +22,10 @@ CLEANFILES = \
 
 GLIB_BUILD_RESOURCE = glib-compile-resources
 RESOURCES_DEP= \
-	$(srcdir)/ui/vosuWindow.glade \
-	$(srcdir)/ui/vosuView.glade \
-	$(srcdir)/ui/vosuInspector.glade \
-	$(srcdir)/ui/vosuPalette.glade \
-	$(srcdir)/ui/vosuProperties.glade \
-	$(srcdir)/ui/vosuCloseLabel.glade \
-	$(srcdir)/ui/vosuFileFilterMusic.glade \
-	$(srcdir)/ui/vosuFileFilterOsu.glade
+	$(srcdir)/ui/VosuWindow.glade \
+	$(srcdir)/ui/VosuView.glade \
+	$(srcdir)/ui/VosuFileFilterMusic.glade \
+	$(srcdir)/ui/VosuFileFilterOsu.glade
 
 $(srcdir)/editor.gresources.xml: $(RESOURCES_DEP)
 # technically nothing can be 'rebuilt' here so just update modification time

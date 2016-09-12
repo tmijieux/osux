@@ -1,5 +1,4 @@
 #include "vosu-beatmap.h"
-#include "vosu-adjust.h"
 #include "osux/hitobject.h"
 
 enum { COL_OFFSET = 0, COL_TYPE, COL_DETAILS, COL_OBJECT, COL_NUM };

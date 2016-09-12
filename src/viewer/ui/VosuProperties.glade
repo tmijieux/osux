@@ -85,7 +85,7 @@
     <property name="step_increment">0.01</property>
     <property name="page_increment">1</property>
   </object>
-  <template class="EdosuProperties" parent="GtkNotebook">
+  <template class="VosuProperties" parent="GtkNotebook">
     <property name="visible">True</property>
     <property name="can_focus">True</property>
     <property name="show_border">False</property>

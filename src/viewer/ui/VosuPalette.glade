@@ -2,7 +2,7 @@
 <!-- Generated with glade 3.20.0 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
-  <template class="EdosuPalette" parent="GtkScrolledWindow">
+  <template class="VosuPalette" parent="GtkScrolledWindow">
     <property name="visible">True</property>
     <property name="can_focus">True</property>
     <property name="shadow_type">in</property>

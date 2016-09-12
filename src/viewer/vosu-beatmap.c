@@ -3,31 +3,17 @@
 
 #include "vosu-beatmap.h"
 #include "osux/hitobject.h"
+#include "osux/error.h"
 
 G_DEFINE_TYPE(VosuBeatmap, vosu_beatmap, G_TYPE_OBJECT);
 
 void
 vosu_beatmap_init(VosuBeatmap *beatmap)
 {
-    static gint unique_number = 0;
-
     beatmap->view = vosu_view_new();
     beatmap->HitObjectsSeq = g_sequence_new(NULL);
 }
 
-void
-vosu_beatmap_save_to_file(VosuBeatmap *beatmap, gchar const *filepath)
-{
-    osux_beatmap o_beatmap;
-    memset(&o_beatmap, 0, sizeof o_beatmap);
-    o_beatmap.osu_version = 15;
-
-    vosu_properties_save_to_beatmap(beatmap->properties, &o_beatmap);
-    vosu_beatmap_save_objects(beatmap, &o_beatmap);
-
-    osux_beatmap_save(&o_beatmap, filepath);
-    osux_beatmap_free(&o_beatmap);
-}
 
 static void
 vosu_beatmap_constructed(GObject *obj)
@@ -41,9 +27,6 @@ vosu_beatmap_dispose(GObject *obj)
     VosuBeatmap *beatmap = VOSU_BEATMAP( obj );
 
     g_clear_object(&beatmap->view);
-    g_clear_object(&beatmap->palette);
-    g_clear_object(&beatmap->inspector);
-    g_clear_object(&beatmap->properties);
     vosu_beatmap_dispose_objects(beatmap);
 
     G_OBJECT_CLASS(vosu_beatmap_parent_class)->dispose(obj);
@@ -115,9 +98,6 @@ vosu_beatmap_load_from_file(VosuBeatmap *beatmap, gchar const *filepath)
         vosu_view_set_max_time(beatmap->view, end_time + 5000, beatlength);
         vosu_beatmap_load_objects(beatmap, &osux_bm);
         vosu_view_set_hit_objects(beatmap->view, beatmap->HitObjectsSeq);
-        vosu_inspector_set_model(beatmap->inspector,
-                                  GTK_TREE_MODEL(beatmap->Objects));
-        vosu_properties_load_from_beatmap(beatmap->properties, &osux_bm);
         osux_beatmap_free(&osux_bm);
         return TRUE;
     } else {

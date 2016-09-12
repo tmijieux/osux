@@ -12,13 +12,8 @@ G_DECLARE_FINAL_TYPE(VosuApplication, vosu_application,
                      VOSU, APPLICATION, GtkApplication)
 
 VosuApplication *vosu_application_new(void);
-void vosu_application_set_current_beatmap(VosuApplication *app,
-                                           VosuBeatmap *bm);
-VosuBeatmap *
-vosu_application_get_beatmap_by_view(VosuApplication *app, VosuView *view);
-VosuBeatmap *
-vosu_application_get_beatmap_by_path(VosuApplication *app, gchar const *path);
-void vosu_application_close_beatmap(VosuApplication *app, VosuBeatmap *beatmap);
+void vosu_application_close_beatmap(VosuApplication *app);
+
 G_END_DECLS
 
 #endif // VOSU_APPLICATION_H

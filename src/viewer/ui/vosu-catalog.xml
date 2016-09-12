@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<glade-catalog name="vosuui" depends="gtk+" domain="vosu">
+  <glade-widget-classes>
+    <glade-widget-class name="VosuCloseLabel" generic-name="vosu_close_label" title="CloseLabel" />
+    <glade-widget-class name="VosuWindow" generic-name="vosu_window" title="Window"/>
+    <glade-widget-class name="VosuInspector" generic-name="vosu_inspector" title="Inspector"/>
+    <glade-widget-class name="VosuPalette" generic-name="vosu_palette" title="Palette"/>
+    <glade-widget-class name="VosuView" generic-name="vosu_view" title="View"/>
+    <glade-widget-class name="VosuProperties" generic-name="vosu_properties" title="Properties"/>
+    <glade-widget-class name="VosuGL" generic-name="vosu_gl" title="GL"/>
+  </glade-widget-classes>
+
+  <glade-widget-group name="vosu" title="Vosu">
+    <glade-widget-class-ref name="VosuCloseLabel" />
+    <glade-widget-class-ref name="VosuWindow" />
+    <glade-widget-class-ref name="VosuInspector" />
+    <glade-widget-class-ref name="VosuPalette" />
+    <glade-widget-class-ref name="VosuView" />
+    <glade-widget-class-ref name="VosuProperties" />
+    <glade-widget-class-ref name="VosuGL" />
+  </glade-widget-group>
+</glade-catalog>

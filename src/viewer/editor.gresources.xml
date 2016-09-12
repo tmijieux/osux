@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
-  <gresource prefix="/org/osux/edosu">
-    <file preprocess="xml-stripblanks">ui/EdosuWindow.glade</file>
-    <file preprocess="xml-stripblanks">ui/EdosuView.glade</file>
-    <file preprocess="xml-stripblanks">ui/EdosuInspector.glade</file>
-    <file preprocess="xml-stripblanks">ui/EdosuPalette.glade</file>
-    <file preprocess="xml-stripblanks">ui/EdosuProperties.glade</file>
-    <file preprocess="xml-stripblanks">ui/EdosuCloseLabel.glade</file>
-    <file preprocess="xml-stripblanks">ui/EdosuFileFilterMusic.glade</file>
-    <file preprocess="xml-stripblanks">ui/EdosuFileFilterOsu.glade</file>
+  <gresource prefix="/org/osux/vosu">
+    <file preprocess="xml-stripblanks">ui/VosuWindow.glade</file>
+    <file preprocess="xml-stripblanks">ui/VosuView.glade</file>
+    <file preprocess="xml-stripblanks">ui/VosuFileFilterMusic.glade</file>
+    <file preprocess="xml-stripblanks">ui/VosuFileFilterOsu.glade</file>
   </gresource>
 </gresources>
