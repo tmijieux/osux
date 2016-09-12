@@ -79,6 +79,7 @@ static void set_beatmap(VosuApplication *app, VosuBeatmap *beatmap)
     if (app->beatmap != NULL)
         vosu_application_close_beatmap(app);
     app->beatmap = beatmap;
+    osux_debug("prepare to call window set view\n");
     vosu_window_set_view(app->window, beatmap->view);
 }
 
@@ -114,7 +115,7 @@ void vosu_application_close_beatmap(VosuApplication *app)
     app->beatmap = NULL;
 }
 
-/* ---- actions */
+/* ---- application actions */
 
 static void
 close_action(GSimpleAction *action, GVariant *parameter, gpointer app_ptr)
@@ -177,7 +178,50 @@ static GActionEntry app_entries[] = {
     { "close", &close_action, NULL, NULL, NULL, {0}},
 };
 
-/* ---- actions end */
+/*  ---- app actions end  */
+/*  ---- window actions  */
+
+static void
+fullscreen_action(GSimpleAction *action,
+                  GVariant *parameter, gpointer win_ptr)
+{
+    (void) action;
+    (void) parameter;
+    VosuWindow *win = VOSU_WINDOW(win_ptr);
+    if (!win->fullscreen)
+        gtk_window_fullscreen(GTK_WINDOW(win));
+    else
+        gtk_window_unfullscreen(GTK_WINDOW(win));
+}
+
+static GActionEntry win_entries[] = {
+    { "fullscreen", &fullscreen_action, NULL, NULL, NULL, {0}},
+};
+
+/* ---- window actions end */
+
+
+/* signal tracking window fullscreen state: */
+gboolean
+on_window_state_event (GtkWidget *window_widget,
+                       GdkEvent  *event)
+{
+    VosuWindow *win = VOSU_WINDOW(window_widget);
+    switch (event->type)  {
+    case GDK_WINDOW_STATE: {
+        GdkEventWindowState *winev;
+        winev = (GdkEventWindowState*) event;
+        if (winev->new_window_state & GDK_WINDOW_STATE_FULLSCREEN)
+            win->fullscreen = TRUE;
+        else
+            win->fullscreen = FALSE;
+        break;
+    }
+    default:
+        break;
+    }
+    return FALSE;
+}
 
 static void
 vosu_application_startup(GApplication *gapp)
@@ -187,6 +231,11 @@ vosu_application_startup(GApplication *gapp)
     g_action_map_add_action_entries(
         G_ACTION_MAP(app), app_entries, G_N_ELEMENTS(app_entries), app);
     app->window = vosu_window_new(app);
+    g_action_map_add_action_entries(G_ACTION_MAP(app->window), win_entries,
+                                    G_N_ELEMENTS(win_entries), app->window);
+
+    g_signal_connect(G_OBJECT(app->window), "window-state-event",
+                     G_CALLBACK(on_window_state_event), NULL);
 }
 
 static void

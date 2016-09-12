@@ -19,30 +19,12 @@ struct _VosuBeatmap
     char *errmsg;
 
     VosuView *view;
-
-    GtkTreeStore *Objects;
-    GtkTreeIter TimingPoints;
-    GtkTreeIter HitObjects;
     GSequence *HitObjectsSeq;
-
-    GtkTreeIter Bookmarks;
-    GtkTreeIter Events;
-    GtkTreeIter Colors;
-
-    // stolen values when beatmap is loaded:
-    osux_hitobject *hitobjects;
-    osux_event *events;
-    osux_color *colors;
-    uint32_t color_count;
-    osux_timingpoint *timingpoints;
+    osux_beatmap xbeatmap;
 };
 
 VosuBeatmap *vosu_beatmap_new(gchar const *filepath);
 gboolean vosu_beatmap_load_from_file(VosuBeatmap *beatmap, gchar const *filepath);
-
-void vosu_beatmap_load_objects(VosuBeatmap *beatmap, osux_beatmap *osux_bm);
-
-void vosu_beatmap_dispose_objects(VosuBeatmap *beatmap);
 
 G_END_DECLS
 

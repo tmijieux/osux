@@ -6,7 +6,6 @@ vosu_SOURCES = \
 	vosu-app.c \
 	vosu-win.c \
 	vosu-beatmap.c \
-	vosu-beatmap-objects.c \
 	vosu-view.c \
 	vosu-render.c
 

@@ -38,12 +38,13 @@ static void update_view_position(GtkAdjustment *adj, VosuView *self)
 }
 
 static bool
-object_is_approach_time_or_slider(osux_hitobject *ho, int64_t position)
+object_is_approach_time_or_slider(osux_hitobject *ho, int64_t position,
+                                  double ar, int mods)
 {
     int approach_time;
     int64_t local_offset = ho->offset - position;
     int64_t local_end_offset = ho->end_offset - position;
-    approach_time = osux_get_approach_time(9.0, 0);
+    approach_time = osux_get_approach_time(ar, mods);
     return local_offset < approach_time && local_end_offset >= 0;
 }
 
@@ -72,7 +73,8 @@ static void draw(GtkDrawingArea *drawing_area, cairo_t *cr, VosuView *self)
     GList *list = NULL;
     while (!g_sequence_iter_is_end(iter) &&
            (obj = g_sequence_get(iter)) &&
-           object_is_approach_time_or_slider(obj, self->position))
+           object_is_approach_time_or_slider(
+               obj, self->position, self->approach_rate, self->mods))
     {
         list = g_list_prepend(list, (gpointer) obj);
         iter = g_sequence_iter_next(iter);
@@ -83,7 +85,8 @@ static void draw(GtkDrawingArea *drawing_area, cairo_t *cr, VosuView *self)
         vosu_color cl;
         obj = (osux_hitobject*) itr->data;
         vosu_color_get(&cl, obj);
-        vosu_draw_object(obj, cr, self->position, &cl);
+        vosu_draw_object(obj, cr, self->position,
+                         &cl, self->approach_rate, self->mods);
         itr = itr->next;
     }
     g_list_free(list);
@@ -186,8 +189,17 @@ VosuView *vosu_view_new(void)
     return VOSU_VIEW(g_object_new(VOSU_TYPE_VIEW, NULL));
 }
 
-void vosu_view_set_max_time(VosuView *self, uint64_t max_time, double page_range)
+void vosu_view_set_properties(VosuView *self,
+                              uint64_t max_time,
+                              double page_range,
+                              GSequence *hitobjects,
+                              double approach_rate,
+                              int mods)
 {
+    self->hitobjects = hitobjects;
+    self->approach_rate = approach_rate;
+    self->mods = mods;
+
     self->time_max = max_time;
     gtk_adjustment_set_upper(self->time_adjust, (gdouble) max_time);
     gtk_range_set_fill_level(self->time_range, (gdouble) max_time);

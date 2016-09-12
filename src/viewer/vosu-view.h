@@ -16,27 +16,31 @@ struct _VosuView
     GtkBox parent;
 
     GtkDrawingArea *drawing_area;
-    GtkAdjustment *time_adjust;
-    GtkRange *time_range;
-    gdouble time_max;
-    GSequence *hitobjects;
-
     GtkButton *play_button;
     GtkButton *pause_button;
+    gdouble time_max;
+    GtkRange *time_range;
+    GtkAdjustment *time_adjust;
 
+    // animation control
     int64_t position;
     int64_t start_position;
-
     gboolean playing;
     guint tick_id;
     gint64 first_frame_time;
 
-    gint color_id;
+    GSequence *hitobjects;
+    double approach_rate;
+    int mods;
 };
 
 VosuView *vosu_view_new(void);
-void vosu_view_set_max_time(VosuView *view, uint64_t max_time, double page_range);
-void vosu_view_set_hit_objects(VosuView *view, GSequence *hitobjects);
+void vosu_view_set_properties(VosuView *view,
+                              uint64_t max_time,
+                              double page_range,
+                              GSequence *hitobjects,
+                              double approach_rate,
+                              int mods);
 
 G_END_DECLS
 

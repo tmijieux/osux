@@ -452,18 +452,21 @@ static void draw_spinner(cairo_t *cr)
     cairo_fill(cr);// gray screw !
 }
 
-static void draw_approach_circle(osux_hitobject *ho, cairo_t *cr,
-                                 vosu_color *cl, int64_t local_offset)
+static void
+draw_approach_circle(osux_hitobject *ho, cairo_t *cr,
+                     vosu_color *cl, int64_t local_offset,
+                     double approach_rate, int mods)
 {
-    double approach_time = osux_get_approach_time(9.0, 0);
+    double approach_time = osux_get_approach_time(approach_rate, mods);
     double pct = local_offset / approach_time;
-    cairo_arc(cr, ho->x, ho->y, 40+40*pct, 0, 2 * M_PI);
+    cairo_arc(cr, ho->x, ho->y, 40+50*pct, 0, 2 * M_PI);
     cairo_set_source_rgb(cr, cl->r, cl->g, cl->b);
     cairo_stroke(cr);
 }
 
 void vosu_draw_object(osux_hitobject *ho, cairo_t *cr,
-                       int64_t position, vosu_color *cl)
+                      int64_t position, vosu_color *cl,
+                      double approach_rate, int mods)
 {
     int64_t local_offset = ho->offset - position;
     int64_t local_end_offset = ho->end_offset - position;
@@ -479,5 +482,5 @@ void vosu_draw_object(osux_hitobject *ho, cairo_t *cr,
 
     if (local_offset < 0 || HIT_OBJECT_IS_SPINNER(ho))
         return;
-    draw_approach_circle(ho, cr, cl, local_offset);
+    draw_approach_circle(ho, cr, cl, local_offset, approach_rate, mods);
 }

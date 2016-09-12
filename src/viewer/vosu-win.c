@@ -35,8 +35,9 @@ vosu_window_new(VosuApplication *app)
 void vosu_window_close_view(VosuWindow *win)
 {
     int n = gtk_notebook_get_n_pages(win->view_notebook);
+    osux_debug("n = %d\n", n);
     if (n == 1)
-        gtk_notebook_remove_page(win->view_notebook, 1);
+        gtk_notebook_remove_page(win->view_notebook, 0);
 }
 
 void vosu_window_set_view(VosuWindow *win, VosuView *view)

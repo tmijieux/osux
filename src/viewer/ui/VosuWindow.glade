@@ -11,7 +11,7 @@
     <property name="is_focus">True</property>
     <property name="can_default">True</property>
     <property name="has_default">True</property>
-    <property name="title" translatable="yes">osux Editor</property>
+    <property name="title" translatable="yes">osux viewer</property>
     <property name="window_position">center</property>
     <property name="default_width">1200</property>
     <property name="default_height">600</property>

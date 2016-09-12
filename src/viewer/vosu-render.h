@@ -10,6 +10,7 @@ typedef struct vosu_color_ {
 } vosu_color;
 
 void vosu_draw_object(osux_hitobject *ho, cairo_t *cr,
-                       int64_t position, vosu_color *cl);
+                      int64_t position, vosu_color *cl,
+                      double approach_rate, int mods);
 
 #endif //RENDER_H

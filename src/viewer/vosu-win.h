@@ -16,6 +16,8 @@ struct _VosuWindow {
     GtkApplicationWindow parent;
     VosuApplication *app;
     GtkNotebook *view_notebook;
+
+    gboolean fullscreen;
 };
 
 VosuWindow *vosu_window_new(VosuApplication *app);
