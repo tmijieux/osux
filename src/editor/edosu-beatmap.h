@@ -3,7 +3,6 @@
 
 #include <gtk/gtk.h>
 #include "osux/beatmap.h"
-#include "edosu-adjust.h"
 #include "edosu-view.h"
 #include "edosu-palette.h"
 #include "edosu-inspector.h"

@@ -1,0 +1,45 @@
+TODO list:
+
+    - objects detail string (for inspector's details field)
+      - hitobject
+      - timingpoint
+      - events
+      - color: add a color widget (also for color and background color events)
+
+    - parser
+      - complete event parser
+
+    - build file filters programmatically to make them translatable
+
+    - ability to save opened beatmaps
+    - ability to close opened beatmaps (with save verification)
+
+    - object selection (both from inspector and central panel)
+
+    - properties tabs for objects:
+      - HitObject
+      - TimingPoint
+      - Color
+      - Event
+
+    - support for different editing mode / tools
+      - composing
+      - storyboarding
+      - timing (timing auto detection tool)
+      - modding/checking (aimod verification pass; strain graph, ...)
+
+    - music/video player
+
+    - File menus:
+      - add menu-items to the 'View' menu:
+        - check boxes to make tool palette, inspector, and properties tab
+          detachable as separates windows (like in glade or gimp)
+      - check if not using builtin menus for the 'File' menu will improve
+        distributability on windows (the icons seems to be missing in msys2)
+
+    - configuration:
+      - save window(s) layout on program exit in cfg (ini style; with glib GKeyFile)
+        and restore it on startup
+
+    - Find/Make an icon for the program
+    - way to handle unexpected properties

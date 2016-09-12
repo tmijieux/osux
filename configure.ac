@@ -70,5 +70,6 @@ AC_CONFIG_FILES([
 		  src/taikorank/Makefile
 		  src/taikorank/yaml/Makefile
 		  src/editor/Makefile
+		  src/viewer/Makefile
                ])
 AC_OUTPUT

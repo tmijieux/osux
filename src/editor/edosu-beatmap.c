@@ -2,7 +2,6 @@
 #include <string.h>
 
 #include "edosu-beatmap.h"
-#include "edosu-adjust.h"
 #include "osux/hitobject.h"
 
 G_DEFINE_TYPE(EdosuBeatmap, edosu_beatmap, G_TYPE_OBJECT);

@@ -1,4 +1,5 @@
-#include "edosu-beatmap.h"
+#include "vosu-beatmap.h"
+#include "vosu-adjust.h"
 #include "osux/hitobject.h"
 
 enum { COL_OFFSET = 0, COL_TYPE, COL_DETAILS, COL_OBJECT, COL_NUM };
@@ -126,7 +127,7 @@ load_bookmarks(osux_beatmap *beatmap, GtkTreeStore *tree_store,
 }
 
 void
-edosu_beatmap_steal_objects(EdosuBeatmap *beatmap, osux_beatmap *osux_bm)
+vosu_beatmap_steal_objects(VosuBeatmap *beatmap, osux_beatmap *osux_bm)
 {
     beatmap->hitobjects = osux_bm->hitobjects;
     beatmap->events = osux_bm->events;
@@ -144,7 +145,7 @@ edosu_beatmap_steal_objects(EdosuBeatmap *beatmap, osux_beatmap *osux_bm)
     osux_bm->timingpoint_count = 0;
 }
 
-void edosu_beatmap_load_objects(EdosuBeatmap *beatmap, osux_beatmap *osux_bm)
+void vosu_beatmap_load_objects(VosuBeatmap *beatmap, osux_beatmap *osux_bm)
 {
     GtkTreeStore *ts;
     ts = gtk_tree_store_new(COL_NUM,
@@ -176,11 +177,11 @@ void edosu_beatmap_load_objects(EdosuBeatmap *beatmap, osux_beatmap *osux_bm)
                        COL_OFFSET, osux_bm->color_count, -1);
     load_colors(osux_bm, ts, &beatmap->Colors);
 
-    edosu_beatmap_steal_objects(beatmap, osux_bm);
+    vosu_beatmap_steal_objects(beatmap, osux_bm);
 }
 
 static void
-save_hitobjects(EdosuBeatmap *beatmap, osux_beatmap *osux_bm)
+save_hitobjects(VosuBeatmap *beatmap, osux_beatmap *osux_bm)
 {
     GtkTreeIter hoiter;
     gboolean has_next;
@@ -197,7 +198,7 @@ save_hitobjects(EdosuBeatmap *beatmap, osux_beatmap *osux_bm)
 }
 
 static void
-save_timingpoints(EdosuBeatmap *beatmap, osux_beatmap *osux_bm)
+save_timingpoints(VosuBeatmap *beatmap, osux_beatmap *osux_bm)
 {
     GtkTreeIter tpiter;
     gboolean has_next;
@@ -229,7 +230,7 @@ save_events_rec(GtkTreeModel *model, GtkTreeIter *iter, osux_beatmap *osux_bm)
 }
 
 static void
-save_events(EdosuBeatmap *beatmap, osux_beatmap *osux_bm)
+save_events(VosuBeatmap *beatmap, osux_beatmap *osux_bm)
 {
     GtkTreeIter child;
     GtkTreeModel *model = GTK_TREE_MODEL(beatmap->Objects);
@@ -239,7 +240,7 @@ save_events(EdosuBeatmap *beatmap, osux_beatmap *osux_bm)
 }
 
 static void
-save_colors(EdosuBeatmap *beatmap, osux_beatmap *osux_bm)
+save_colors(VosuBeatmap *beatmap, osux_beatmap *osux_bm)
 {
     GtkTreeIter coliter;
     gboolean has_next;
@@ -256,7 +257,7 @@ save_colors(EdosuBeatmap *beatmap, osux_beatmap *osux_bm)
 }
 
 void
-edosu_beatmap_save_objects(EdosuBeatmap *beatmap, osux_beatmap *osux_bm)
+vosu_beatmap_save_objects(VosuBeatmap *beatmap, osux_beatmap *osux_bm)
 {
     save_hitobjects(beatmap, osux_bm);
     save_timingpoints(beatmap, osux_bm);
@@ -266,7 +267,7 @@ edosu_beatmap_save_objects(EdosuBeatmap *beatmap, osux_beatmap *osux_bm)
 
 
 static void
-dispose_hitobjects(EdosuBeatmap *beatmap)
+dispose_hitobjects(VosuBeatmap *beatmap)
 {
     GtkTreeIter hoiter;
     gboolean has_next;
@@ -282,7 +283,7 @@ dispose_hitobjects(EdosuBeatmap *beatmap)
 }
 
 static void
-dispose_timingpoints(EdosuBeatmap *beatmap)
+dispose_timingpoints(VosuBeatmap *beatmap)
 {
     GtkTreeIter tpiter;
     gboolean has_next;
@@ -311,7 +312,7 @@ dispose_events_rec(GtkTreeModel *model, GtkTreeIter *iter)
 }
 
 static void
-dispose_events(EdosuBeatmap *beatmap)
+dispose_events(VosuBeatmap *beatmap)
 {
     GtkTreeIter child;
     GtkTreeModel *model = GTK_TREE_MODEL(beatmap->Objects);
@@ -321,7 +322,7 @@ dispose_events(EdosuBeatmap *beatmap)
 }
 
 static void
-dispose_colors(EdosuBeatmap *beatmap)
+dispose_colors(VosuBeatmap *beatmap)
 {
     GtkTreeIter coliter;
     gboolean has_next;
@@ -336,7 +337,7 @@ dispose_colors(EdosuBeatmap *beatmap)
     }
 }
 
-void edosu_beatmap_dispose_objects(EdosuBeatmap *beatmap)
+void vosu_beatmap_dispose_objects(VosuBeatmap *beatmap)
 {
     dispose_hitobjects(beatmap);
     dispose_timingpoints(beatmap);
