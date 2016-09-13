@@ -6,6 +6,7 @@ vosu_SOURCES = \
 	vosu-app.c \
 	vosu-win.c \
 	vosu-beatmap.c \
+	vosu-player.c \
 	vosu-view.c \
 	vosu-render.c
 
@@ -42,6 +43,6 @@ resources.c: resources.h $(srcdir)/editor.gresources.xml
 	--target=$@ \
 	--generate-source
 
-vosu_CFLAGS = $(GTK3_CFLAGS) $(EPOXY_CFLAGS) $(AM_CFLAGS)
-vosu_LDFLAGS = $(GTK3_LIBS) $(EPOXY_LIBS) -export-dynamic $(AM_LDFLAGS) -lm
+vosu_CFLAGS = $(GTK3_CFLAGS) $(EPOXY_CFLAGS) $(AM_CFLAGS) $(GST_CFLAGS)
+vosu_LDFLAGS = $(GTK3_LIBS) $(EPOXY_LIBS) -export-dynamic $(AM_LDFLAGS) -lm $(GST_LIBS)
 vosu_LDADD = ../lib/libosux.la

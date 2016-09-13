@@ -31,38 +31,36 @@ get_object_end_offset(gconstpointer _a, gconstpointer _b, gpointer user_data)
     return ((osux_hitobject*)_a)->end_offset - ((osux_hitobject*)_b)->end_offset;
 }
 
+static gint
+get_cursor_offset(gconstpointer _a, gconstpointer _b, gpointer user_data)
+{
+    (void) user_data;
+    return ((osux_replay_data*)_a)->time_offset -
+        ((osux_replay_data*)_b)->time_offset;
+}
+
 static void update_view_position(GtkAdjustment *adj, VosuView *self)
 {
     self->position = gtk_adjustment_get_value(adj);
     gtk_widget_queue_draw(GTK_WIDGET(self->drawing_area));
 }
 
-static bool
-object_is_approach_time_or_slider(osux_hitobject *ho, int64_t position,
-                                  double ar, int mods)
+osux_replay_data *get_cursor(VosuView *self)
 {
-    int approach_time;
-    int64_t local_offset = ho->offset - position;
-    int64_t local_end_offset = ho->end_offset - position;
-    approach_time = osux_get_approach_time(ar, mods);
-    return local_offset < approach_time && local_end_offset >= 0;
+    osux_replay_data key;
+    GSequenceIter *iter = NULL;
+    key.time_offset = self->position-1;
+    iter = g_sequence_search(self->cursor_data, &key,
+                             get_cursor_offset, NULL);
+    return g_sequence_get(iter);
 }
 
-static float _w = 667., _h = 499.;
+#define OBJECT_CAN_DRAW(ho, current, approach_time)      \
+    (((ho)->offset - (current)) < (approach_time) &&    \
+     ((ho)->end_offset - (current)) >= 0)
 
-static void draw(GtkDrawingArea *drawing_area, cairo_t *cr, VosuView *self)
+static GList *get_draw_objects(VosuView *self)
 {
-    (void) drawing_area;
-
-    if (self->hitobjects == NULL)
-        return;
-
-    cairo_scale(cr, _w/667., _h/499.);
-    cairo_translate(cr, 77, 57);
-    cairo_set_source_rgb(cr, 0.6, 0.6, 0.6);
-    cairo_set_line_join(cr, CAIRO_LINE_JOIN_ROUND);
-    cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
-
     osux_hitobject key, *obj;
     GSequenceIter *iter = NULL;
     key.offset = self->position-1;
@@ -73,23 +71,51 @@ static void draw(GtkDrawingArea *drawing_area, cairo_t *cr, VosuView *self)
     GList *list = NULL;
     while (!g_sequence_iter_is_end(iter) &&
            (obj = g_sequence_get(iter)) &&
-           object_is_approach_time_or_slider(
-               obj, self->position, self->approach_rate, self->mods))
+           OBJECT_CAN_DRAW(obj, self->position, self->approach_time))
     {
         list = g_list_prepend(list, (gpointer) obj);
         iter = g_sequence_iter_next(iter);
     }
+    return list;
+}
 
-    GList *itr = list;
+static void draw_objects(VosuView  *self, cairo_t *cr, GList *objects)
+{
+    osux_hitobject *obj;
+    GList *itr = objects;
     while (itr != NULL) {
         vosu_color cl;
         obj = (osux_hitobject*) itr->data;
         vosu_color_get(&cl, obj);
         vosu_draw_object(obj, cr, self->position,
-                         &cl, self->approach_rate, self->mods);
+                         &cl, self->approach_time);
         itr = itr->next;
     }
+}
+
+static float _w = 667., _h = 499.;
+static void draw(GtkDrawingArea *drawing_area, cairo_t *cr, VosuView *self)
+{
+    (void) drawing_area;
+
+    if (self->hitobjects == NULL)
+        return;
+
+    cairo_scale(cr, _w/667., _h/499.); // screen size
+    cairo_translate(cr, 77, 57); // margin
+    cairo_set_source_rgb(cr, 0.6, 0.6, 0.6); // default color and style:
+    cairo_set_line_join(cr, CAIRO_LINE_JOIN_ROUND);
+    cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
+
+    GList *list = get_draw_objects(self);
+    draw_objects(self, cr, list);
     g_list_free(list);
+
+    if (self->cursor_data != NULL) {
+        osux_replay_data *cursor;
+        cursor = get_cursor(self);
+        vosu_draw_cursor(cr, cursor);
+    }
 }
 
 static gboolean animate_play(GtkWidget *widget,
@@ -123,6 +149,7 @@ pause_clicked(VosuView *self)
         self->playing = FALSE;
         self->tick_id = 0;
         self->first_frame_time = 0;
+        vosu_player_pause(self->player);
     }
 }
 
@@ -136,6 +163,7 @@ play_clicked(VosuView *self)
         self->first_frame_time = 0;
         self->tick_id = gtk_widget_add_tick_callback(
             GTK_WIDGET(self->drawing_area), animate_play, self, NULL);
+        vosu_player_play(self->player);
     }
 }
 
@@ -146,12 +174,17 @@ static void resize(GtkDrawingArea *drawing_area, GdkRectangle*rec)
     gtk_widget_queue_draw(GTK_WIDGET(drawing_area));
 }
 
-static gboolean range_clicked(VosuView *self)
+static gboolean
+range_clicked(VosuView *self, GtkScrollType *scroll_type, gdouble value)
 {
+    int64_t offset = value;
     self->first_frame_time = 0;
+    if (scroll_type != GTK_SCROLL_NONE)
+        vosu_player_seek(self->player, offset);
     return FALSE;
 }
 
+static void break_here_lol() {}
 static void
 vosu_view_init(VosuView *self)
 {
@@ -169,6 +202,25 @@ vosu_view_init(VosuView *self)
     self->playing = FALSE;
     g_signal_connect_swapped(
         self->time_range, "change-value", G_CALLBACK(range_clicked), self);
+    self->player = vosu_player_new();
+    break_here_lol();
+}
+
+static void
+vosu_view_finalize(GObject *obj)
+{
+    (void) obj;
+    printf("view finalized\n");
+    G_OBJECT_CLASS(vosu_view_parent_class)->finalize(obj);
+}
+
+static void
+vosu_view_dispose(GObject *obj)
+{
+    VosuView *view = VOSU_VIEW(obj);
+    g_clear_object(&view->player);
+    printf("view disposed\n");
+    G_OBJECT_CLASS(vosu_view_parent_class)->dispose(obj);
 }
 
 static void
@@ -182,6 +234,9 @@ vosu_view_class_init(VosuViewClass *klass)
     gtk_widget_class_bind_template_child(widget_class, VosuView, drawing_area);
     gtk_widget_class_bind_template_child(widget_class, VosuView, play_button);
     gtk_widget_class_bind_template_child(widget_class, VosuView, pause_button);
+
+    G_OBJECT_CLASS(klass)->dispose = &vosu_view_dispose;
+    G_OBJECT_CLASS(klass)->finalize = &vosu_view_finalize;
 }
 
 VosuView *vosu_view_new(void)
@@ -194,20 +249,14 @@ void vosu_view_set_properties(VosuView *self,
                               double page_range,
                               GSequence *hitobjects,
                               double approach_rate,
-                              int mods)
+                              int mods, gchar const *music_file)
 {
     self->hitobjects = hitobjects;
-    self->approach_rate = approach_rate;
-    self->mods = mods;
+    self->approach_time = osux_get_approach_time(approach_rate, mods);
 
     self->time_max = max_time;
     gtk_adjustment_set_upper(self->time_adjust, (gdouble) max_time);
     gtk_range_set_fill_level(self->time_range, (gdouble) max_time);
     gtk_adjustment_set_page_increment(self->time_adjust, page_range);
-}
-
-void vosu_view_set_hit_objects(VosuView *self, GSequence *hitobjects)
-{
-    //vosu_gl_set_hit_objects(view->gl_area, hitobjects);
-    self->hitobjects = hitobjects;
+    vosu_player_set_file(self->player, music_file);
 }

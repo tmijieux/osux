@@ -149,8 +149,10 @@ struct osux_beatmap {
     uint32_t hitobject_count;
     uint32_t hitobject_bufsize;
     osux_hitobject *hitobjects;
-
     osux_hashtable *sections;
+
+    osux_hashtable *h_data;
+    void *data;
 };
 
 

@@ -57,7 +57,7 @@ static void vosu_application_dispose(GObject *obj)
 
 static void vosu_application_finalize(GObject *obj)
 {
-    G_OBJECT_CLASS (vosu_application_parent_class)->finalize(obj);
+    G_OBJECT_CLASS(vosu_application_parent_class)->finalize(obj);
 }
 
 static void
@@ -66,15 +66,16 @@ vosu_application_error(VosuApplication *app,
 {
     GtkDialog *dialog;
     dialog = GTK_DIALOG(gtk_message_dialog_new(
-        GTK_WINDOW(app->window), GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR,
-        GTK_BUTTONS_OK, "%s", error));
+        GTK_WINDOW(app->window), GTK_DIALOG_MODAL,
+        GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, "%s", error));
     gtk_window_set_title(GTK_WINDOW(dialog), title);
     gtk_dialog_run(dialog);
     gtk_widget_destroy(GTK_WIDGET(dialog));
     osux_error("%s\n", error);
 }
 
-static void set_beatmap(VosuApplication *app, VosuBeatmap *beatmap)
+static void
+set_beatmap(VosuApplication *app, VosuBeatmap *beatmap)
 {
     if (app->beatmap != NULL)
         vosu_application_close_beatmap(app);
@@ -83,12 +84,18 @@ static void set_beatmap(VosuApplication *app, VosuBeatmap *beatmap)
     vosu_window_set_view(app->window, beatmap->view);
 }
 
-static gboolean open_beatmap(VosuApplication *app, gchar *path)
+static gboolean
+open_beatmap(VosuApplication *app, gchar *path)
 {
     VosuBeatmap *beatmap;
-    beatmap = vosu_beatmap_new(path);
+    beatmap = vosu_beatmap_new();
     if (beatmap == NULL) {
-        vosu_application_error(app, _("Error loading beatmap"), beatmap->errmsg);
+        return FALSE;
+    }
+    if (!vosu_beatmap_load_from_file(beatmap, path)) {
+        vosu_application_error(app, _("Error loading beatmap"),
+                               beatmap->errmsg);
+        g_object_unref(beatmap);
         return FALSE;
     }
 

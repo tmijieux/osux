@@ -23,7 +23,9 @@
 #include <time.h>
 
 typedef struct osux_replay_data_ osux_replay_data;
+typedef struct osux_replay_life_ osux_replay_life;
 typedef struct osux_replay_ osux_replay;
+
 
 #include "osux/beatmap.h"
 #include "osux/hit.h"
@@ -37,7 +39,7 @@ struct osux_replay_data_ {
     uint32_t keys;
 };
 
-struct replay_life {
+struct osux_replay_life_ {
     uint64_t time_offset;
     double life_amount;
 };
@@ -67,7 +69,7 @@ struct osux_replay_ {
        during the play  */
 
     uint32_t life_count;
-    struct replay_life *life;
+    osux_replay_life *life;
 
     /* the date and time of the play  */
     time_t timestamp;

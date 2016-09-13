@@ -107,7 +107,7 @@ static void print_date(FILE *f, time_t t)
     g_date_time_unref(dateTime);
 }
 
-static int replay_life_init(struct replay_life *life, char const *lifestr)
+static int replay_life_init(osux_replay_life *life, char const *lifestr)
 {
     gchar **split = g_strsplit(lifestr, "|", 0);
     unsigned size = strsplit_size(split);
@@ -233,7 +233,7 @@ void osux_replay_print(osux_replay const *r, FILE *f)
     fprintf(f, "Life Graph: "/*%s\n", r->lifebar_graph*/);
 
     for (unsigned i = 0; i < r->life_count; ++i) {
-        struct replay_life *l = &r->life[i];
+        osux_replay_life *l = &r->life[i];
         g_fprintf(f, "%"G_GUINT64_FORMAT"|%lg,",
                   l->time_offset, l->life_amount);
     }

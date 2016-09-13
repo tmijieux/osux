@@ -17,13 +17,14 @@ struct _VosuBeatmap
     char *filepath; //canonical
     char *filename;
     char *errmsg;
+    char *music_file;
 
     VosuView *view;
     GSequence *HitObjectsSeq;
     osux_beatmap xbeatmap;
 };
 
-VosuBeatmap *vosu_beatmap_new(gchar const *filepath);
+VosuBeatmap *vosu_beatmap_new(void);
 gboolean vosu_beatmap_load_from_file(VosuBeatmap *beatmap, gchar const *filepath);
 
 G_END_DECLS

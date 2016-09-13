@@ -27,7 +27,6 @@ typedef struct vosu_line_ {
     double x1, y1, x2, y2;
 } vosu_line;
 
-
 static void stroke_slider_body(cairo_t *cr, vosu_color *cl)
 {
     cairo_set_line_width(cr, 80);
@@ -455,9 +454,8 @@ static void draw_spinner(cairo_t *cr)
 static void
 draw_approach_circle(osux_hitobject *ho, cairo_t *cr,
                      vosu_color *cl, int64_t local_offset,
-                     double approach_rate, int mods)
+                     double approach_time)
 {
-    double approach_time = osux_get_approach_time(approach_rate, mods);
     double pct = local_offset / approach_time;
     cairo_arc(cr, ho->x, ho->y, 40+50*pct, 0, 2 * M_PI);
     cairo_set_source_rgb(cr, cl->r, cl->g, cl->b);
@@ -466,7 +464,7 @@ draw_approach_circle(osux_hitobject *ho, cairo_t *cr,
 
 void vosu_draw_object(osux_hitobject *ho, cairo_t *cr,
                       int64_t position, vosu_color *cl,
-                      double approach_rate, int mods)
+                      int approach_time)
 {
     int64_t local_offset = ho->offset - position;
     int64_t local_end_offset = ho->end_offset - position;
@@ -482,5 +480,13 @@ void vosu_draw_object(osux_hitobject *ho, cairo_t *cr,
 
     if (local_offset < 0 || HIT_OBJECT_IS_SPINNER(ho))
         return;
-    draw_approach_circle(ho, cr, cl, local_offset, approach_rate, mods);
+    draw_approach_circle(ho, cr, cl, local_offset, approach_time);
+}
+
+
+void vosu_draw_cursor(cairo_t *cr, osux_replay_data *cursor)
+{
+    cairo_arc(cr, cursor->x, cursor->y, 30, 0, 2 * M_PI);
+    cairo_set_source_rgba(cr, 255, 0, 0, 180);
+    cairo_fill(cr);
 }
