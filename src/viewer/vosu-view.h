@@ -34,9 +34,8 @@ struct _VosuView
     vosu_renderer renderer;
     VosuPlayer *player; /* music player */
 
-    int64_t draw_length[100];
-    int draw_length_id;
-    int64_t seconds;
+    // last time info were displayed in console
+    int64_t info_display_old_time;
 };
 
 VosuView *vosu_view_new(void);

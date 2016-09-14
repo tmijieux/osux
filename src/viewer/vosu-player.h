@@ -18,6 +18,7 @@ struct _VosuPlayer
     GstElement *filt;
     GstElement *snk;
     GstBus *bus;
+    GstQuery *query;
 
     gchar *file;
     int64_t early_seek_offset;
@@ -29,7 +30,7 @@ void vosu_player_play(VosuPlayer *player);
 void vosu_player_pause(VosuPlayer *player);
 void vosu_player_seek(VosuPlayer *player, int64_t offset);
 void vosu_player_set_file(VosuPlayer *player, gchar const *filename);
-guint64 vosu_player_get_time(VosuPlayer *player);
+int64_t vosu_player_get_time(VosuPlayer *player);
 
 G_END_DECLS
 

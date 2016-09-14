@@ -82,6 +82,7 @@ vosu_player_init(VosuPlayer *p)
     p->src = gst_element_factory_make("filesrc", NULL);
     p->filt = gst_element_factory_make("decodebin", NULL);
     p->snk = gst_element_factory_make("autoaudiosink", NULL);
+    p->query = gst_query_new_position(GST_FORMAT_TIME);
     g_signal_connect(G_OBJECT(p->filt), "pad-added",
                      G_CALLBACK(newpad_cb), p);
     gst_bin_add_many(GST_BIN(p->pipeline),
@@ -104,11 +105,13 @@ vosu_player_finalize(GObject *obj)
     G_OBJECT_CLASS(vosu_player_parent_class)->finalize(obj);
 }
 
-guint64 vosu_player_get_time(VosuPlayer *player)
+int64_t vosu_player_get_time(VosuPlayer *player)
 {
     GstFormat fmt = GST_FORMAT_TIME;
-    gint64 current = -1;
-    gst_element_query_position(player->pipeline, fmt, &current);
+    int64_t current = -1;
+    gst_element_query(player->pipeline, player->query);
+    gst_query_parse_position(player->query, &fmt, &current);
+    //gst_element_query_position(player->pipeline, fmt, &current);
     return current;
 }
 
@@ -119,6 +122,7 @@ vosu_player_dispose(GObject *obj)
     gst_element_set_state(player->pipeline, GST_STATE_NULL);
     g_clear_object(&player->pipeline);
     g_clear_object(&player->bus);
+    g_clear_object(&player->query);
     G_OBJECT_CLASS(vosu_player_parent_class)->dispose(obj);
 }
 

@@ -73,45 +73,61 @@ draw_objects(VosuView *self, GList *objects)
     }
 }
 
+static void
+draw_handle_time_end(VosuView *self)
+{
+    int64_t minutes = self->position/60000;
+    int64_t seconds = self->position/1000 - minutes*60;
+    int64_t diff = self->position - self->info_display_old_time;
+
+    if (diff < 0 || diff > 100) {
+        printf("\rTime = %02ld:%02ld     ", minutes, seconds);
+        self->info_display_old_time = self->position;
+        fflush(stdout);
+    }
+}
+
 static float _w = 614.4, _h = 460.8;
+static void
+draw_init_cairo(VosuView *self, cairo_t *cr)
+{
+    cairo_set_line_join(cr, CAIRO_LINE_JOIN_ROUND);
+    cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
+    cairo_scale(cr, _w/614.4, _h/460.8); // screen size
+    self->renderer.cr = cr;
+}
+
+static void
+draw_playfield_limit(VosuView *self)
+{
+    cairo_t *cr = self->renderer.cr;
+
+    cairo_rectangle(cr, 0, 0, 614.4, 460.8);
+    cairo_translate(cr, 51.2, 38.4); // margin
+    cairo_rectangle(cr, 0, 0, 512, 384);
+    cairo_set_source_rgb(cr, 0, 0, 0);
+    cairo_stroke(cr);
+}
+
+
 static void
 draw(GtkDrawingArea *drawing_area, cairo_t *cr, VosuView *self)
 {
     (void) drawing_area;
-
-    int64_t draw_length = 0.0;
-    for (int i = 0; i < 100; ++i)
-        draw_length += self->draw_length[i];
-    draw_length /= 100;
-
-    int64_t pos = vosu_player_get_time(self->player) / GST_MSECOND;
-    self->position = pos + draw_length / 1000;
-    uint64_t minutes = self->position/60000;
-    uint64_t seconds = self->position/1000 - minutes*60;
-
-    if (seconds - self->seconds) {
-        printf("\rTime = %02ld:%02ld | Draw length average: %5ld µs         ",
-               minutes, seconds, draw_length);
-        self->seconds = seconds;
-        fflush(stdout);
-    }
-
-    struct timeval start, end;
-    gettimeofday(&start, NULL);
+    int64_t pos;
+    if (self->playing)
+        pos = vosu_player_get_time(self->player) / GST_MSECOND;
+    else
+        pos = gtk_adjustment_get_value(self->time_adjust);
+    self->position = pos;
 
     if (self->hitobjects == NULL)
         return;
-    cairo_set_source_rgb(cr, 0, 0, 0);
-    cairo_set_line_join(cr, CAIRO_LINE_JOIN_ROUND);
-    cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
-    cairo_scale(cr, _w/614.4, _h/460.8); // screen size
-    cairo_rectangle(cr, 0, 0, 614.4, 460.8);
-    cairo_translate(cr, 51.2, 38.4); // margin
-    cairo_rectangle(cr, 0, 0, 512, 384);
-    cairo_stroke(cr);
+
+    draw_init_cairo(self, cr);
+    draw_playfield_limit(self);
 
     GList *list = get_draw_objects(self);
-    self->renderer.cr = cr;
     draw_objects(self, list);
     g_list_free(list);
 
@@ -120,12 +136,7 @@ draw(GtkDrawingArea *drawing_area, cairo_t *cr, VosuView *self)
         cursor = get_cursor(self);
         vosu_draw_cursor(&self->renderer, cursor);
     }
-    gettimeofday(&end, NULL);
-    guint64 length = (end.tv_sec-start.tv_sec)*1000000
-        +(end.tv_usec-start.tv_usec);
-    ++ self->draw_length_id;
-    self->draw_length_id %= 100;
-    self->draw_length[self->draw_length_id] = length;
+    draw_handle_time_end(self);
 }
 
 static gboolean
@@ -170,7 +181,7 @@ static void range_value_changed_cb(GtkAdjustment *adj, VosuView *self)
 {
     gtk_widget_queue_draw(GTK_WIDGET(self->drawing_area));
     self->position = gtk_adjustment_get_value(adj);
-    if (self->position >= self->time_max-1)
+    if (self->position >= self->time_max)
         pause_clicked(self);
 }
 
@@ -208,9 +219,6 @@ vosu_view_init(VosuView *self)
     g_signal_connect_swapped(
         self->time_range, "change-value", G_CALLBACK(range_clicked), self);
     self->player = vosu_player_new();
-
-    memset(self->draw_length, 0, sizeof self->draw_length);
-    self->draw_length_id = 0;
 }
 
 static void
