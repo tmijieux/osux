@@ -41,7 +41,6 @@ vosu_player_finalize(GObject *obj)
     VosuPlayer *player = VOSU_PLAYER(obj);
     g_clear_pointer(&player->file, g_free);
     G_OBJECT_CLASS(vosu_player_parent_class)->finalize(obj);
-    printf("player finalized\n");
 }
 
 static void
@@ -52,7 +51,6 @@ vosu_player_dispose(GObject *obj)
     g_clear_object(&player->pipeline);
     g_clear_object(&player->bus);
     G_OBJECT_CLASS(vosu_player_parent_class)->dispose(obj);
-    printf("player disposed\n");
 }
 
 static void

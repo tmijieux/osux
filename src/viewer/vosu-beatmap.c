@@ -20,7 +20,6 @@ vosu_beatmap_dispose(GObject *obj)
     VosuBeatmap *beatmap = VOSU_BEATMAP( obj );
     g_clear_object(&beatmap->view);
     G_OBJECT_CLASS(vosu_beatmap_parent_class)->dispose(obj);
-    printf("beatmap disposed\n");
 }
 
 static void
@@ -37,7 +36,6 @@ vosu_beatmap_finalize(GObject *obj)
 
     g_clear_pointer(&beatmap->HitObjectsSeq, g_sequence_free);
     G_OBJECT_CLASS(vosu_beatmap_parent_class)->finalize(obj);
-    printf("beatmap finalized\n");
 }
 
 void

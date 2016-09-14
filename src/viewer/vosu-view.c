@@ -210,7 +210,6 @@ static void
 vosu_view_finalize(GObject *obj)
 {
     (void) obj;
-    printf("view finalized\n");
     G_OBJECT_CLASS(vosu_view_parent_class)->finalize(obj);
 }
 
@@ -219,7 +218,6 @@ vosu_view_dispose(GObject *obj)
 {
     VosuView *view = VOSU_VIEW(obj);
     g_clear_object(&view->player);
-    printf("view disposed\n");
     G_OBJECT_CLASS(vosu_view_parent_class)->dispose(obj);
 }
 
