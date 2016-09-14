@@ -13,6 +13,7 @@
 
 import sys
 import os
+import logging
 
 from tr_exec import TR_Exec
 from tr_type import TR_Type_Util
@@ -28,6 +29,9 @@ class TR_Test_Mapset(TR_Test_Stars):
         ht['field']    = 'final_star'
         ht['mods']     = ['__']
         TR_Test_Stars.__init__(self, ht)
+    #
+    def sort_maps(self, list):
+        return list.sort_by(self.field, True)
     #
     def check_one_mod(self, mod):
         self.expected = self.create_expected(mod)
@@ -79,4 +83,6 @@ class TR_Tester_Mapset(TR_Tester):
         return (self.errors, self.total)
 
 if __name__ == "__main__":
+    logging.basicConfig(level = logging.WARNING,
+                        format = '%(message)s')
     TR_Tester_Mapset(sys.argv).main()

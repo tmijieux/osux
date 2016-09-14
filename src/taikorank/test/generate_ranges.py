@@ -19,6 +19,7 @@ class Ranges:
     mods_HD = ['HDFL', 'HRFL', 'FL', 'HD', 'HR', '__', 'EZ']
     bpm_large  = range(400,  25, -25)
     bpm_normal = range(240, 120, -10)
+    bpm_high   = range(480, 240, -20)
     abpm = range(400, 100, -25)
     hide_bpm  = range(640, 160, -80)
     slow_abpm = range(10, 100, 10)
@@ -28,9 +29,6 @@ class Ranges:
     od   = [i/2. for i in range(20, 0, -1)]
     rand = range(30, 0, -5)
     #
-    _miss = list(range(0, 64, 4))
-    _good = [0] * len(_miss)
-    ggm = list(zip(_good, _miss))
     @staticmethod
     def ggm_to_miss(miss, step):
         ggm = {
@@ -142,6 +140,13 @@ class Ranges:
         'ddd ddk',
         'ddk',
         'd',
+    ]
+    patterns['stream_compression'] = {}
+    patterns['stream_compression']['ddkd_kkdk'] = [
+        'd_d_ k_d_ k_k_ d_k_',
+        'dd__ kd__ kk__ dk__',
+        'ddkd ____ kkdk ____',
+        'ddkd kkdk ____ ____',
     ]
     patterns['patterns'] = {}
     patterns['patterns']['7'] = [

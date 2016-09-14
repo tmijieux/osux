@@ -129,6 +129,7 @@ class Map_Generator(Dir_Generator):
         self.prefix = prefix
         self.maps = []
         self.ht = {}
+        self.reverse = False
     #
     @classmethod
     def from_parent(cls, dir, parent):
@@ -248,7 +249,13 @@ class Map_Generator(Dir_Generator):
             for ggm in self.ht['ggm']['zip']:
                 for map in copy:
                     self.ht['expected'].append(map + TR_Map.ggm_str(ggm))
+        if self.reverse:
+            self.ht['expected'].reverse()
         return self.ht
+    #
+    @propagate
+    def expected_reverse(self):
+        self.reverse = not self.reverse
     #
     @propagate
     def expected_field(self, field):
@@ -279,6 +286,10 @@ density_g = Map_Generator("density/").add([
     Map_Generator("d_spread/")
         .by_bpm(Ranges.bpm_large)
         .on_each_pattern(Ranges.patterns['d_spread']),
+    Map_Generator("stream_compression/")
+        .by_bpm(Ranges.bpm_high)
+        .on_each_pattern(Ranges.patterns['stream_compression'])
+        .expected_reverse(),
 ])
 density_g.expected_field('density_star')
 
@@ -322,6 +333,9 @@ pattern_g = Map_Generator("pattern/").add([
     Map_Generator("patterns/")
         .by_bpm(Ranges.bpm_normal)
         .on_each_pattern(Ranges.patterns['patterns']),
+    Map_Generator("stream_compression/")
+        .by_bpm(Ranges.bpm_high)
+        .on_each_pattern(Ranges.patterns['stream_compression']),
 ])
 pattern_g.expected_field('pattern_star')
 

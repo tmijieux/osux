@@ -61,13 +61,15 @@ class TR_Type_Util:
 
 ########################################################
 
+basic_include     = ['basic', 'beginner']
 kantan_include    = ['kantan']
 futsuu_include    = ['futsuu', 'futsu', 'fuutsu', 'fuutsuu']
 muzukashi_include = ['muzukashi', 'muzukashii', 'muzu']
 oni_include       = ['oni']
 inner_oni_include = ['inner']
-ura_oni_include   = ['ura', 'fatal', 'rampage', 'hell', 'wereoni']
+ura_oni_include   = ['ura', 'fatal', 'rampage', 'hell', 'wereoni', 'wrath', 'crazy']
 
+TR_Type_Util.add_tr_type('Basic',    -1, basic_include)
 TR_Type_Util.add_tr_type('Kantan',    0, kantan_include)
 TR_Type_Util.add_tr_type('Futsuu',    1, futsuu_include,    oni_include)
 TR_Type_Util.add_tr_type('Muzukashi', 2, muzukashi_include)
@@ -80,6 +82,9 @@ TR_Type_Util.add_tr_type('Ura Oni',   5, ura_oni_include,   muzukashi_include)
 def TR_Type_test():
     def assert_tr_type(name, expected):
         assert TR_Type_Util.get_tr_type(name).name == expected
+    #
+    assert_tr_type("basic", 'Basic')
+    assert_tr_type("Beginner", 'Basic')
     #
     assert_tr_type("kantan", 'Kantan')
     assert_tr_type("My KanTAN", 'Kantan')
