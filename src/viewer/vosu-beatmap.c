@@ -103,7 +103,8 @@ vosu_beatmap_load_from_file(VosuBeatmap *b, gchar const *filepath)
                                  end_time+2000,
                                  beatlength,
                                  b->HitObjectsSeq,
-                                 pBm->ApproachRate, 0,
+                                 pBm->ApproachRate,
+                                 pBm->CircleSize, 0,
                                  b->music_file);
         return TRUE;
     } else {

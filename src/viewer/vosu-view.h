@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "vosu-player.h"
+#include "vosu-render.h"
 
 G_BEGIN_DECLS
 
@@ -25,16 +26,17 @@ struct _VosuView
 
     // animation control
     int64_t position;
-    int64_t start_position;
     gboolean playing;
     guint tick_id;
-    gint64 first_frame_time;
 
     GSequence *hitobjects;
     GSequence *cursor_data;
-    int approach_time;
-
+    vosu_renderer renderer;
     VosuPlayer *player; /* music player */
+
+    int64_t draw_length[100];
+    int draw_length_id;
+    int64_t seconds;
 };
 
 VosuView *vosu_view_new(void);
@@ -43,6 +45,7 @@ void vosu_view_set_properties(VosuView *view,
                               double page_range,
                               GSequence *hitobjects,
                               double approach_rate,
+                              double circle_size,
                               int mods, gchar const *music_file);
 
 G_END_DECLS

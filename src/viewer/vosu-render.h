@@ -6,13 +6,15 @@
 #include "osux/hitobject.h"
 #include "osux/replay.h"
 
-typedef struct vosu_color_ {
+typedef struct vosu_renderer_ {
+    cairo_t *cr;
+    int64_t position;
+    int approach_time;
+    int circle_size;
     double r, g, b, a;
-} vosu_color;
+} vosu_renderer;
 
-void vosu_draw_object(osux_hitobject *ho, cairo_t *cr,
-                      int64_t position, vosu_color *cl,
-                      int approach_time);
-void vosu_draw_cursor(cairo_t *cr, osux_replay_data *cursor);
+void vosu_draw_object(vosu_renderer *r, osux_hitobject *ho);
+void vosu_draw_cursor(vosu_renderer const *r, osux_replay_data *cursor);
 
 #endif //RENDER_H

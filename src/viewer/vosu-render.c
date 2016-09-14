@@ -10,6 +10,9 @@
 #define SQUARE(x) ((x)*(x))
 #endif
 
+#define NORM(x, y) sqrt(SQUARE(x)+SQUARE(y))
+#define DEGREE_TO_RADIAN(x) ((x) * M_PI / 180.)
+
 typedef struct bezier_point_ {
     double x, y;
 } bezier_point;
@@ -27,22 +30,41 @@ typedef struct vosu_line_ {
     double x1, y1, x2, y2;
 } vosu_line;
 
-static void stroke_slider_body(cairo_t *cr, vosu_color *cl)
+static void renderer_color_get(vosu_renderer *r, osux_hitobject *ho)
 {
-    cairo_set_line_width(cr, 80);
+    if (ho->combo_color == NULL) {
+        r->r = 0.6;
+        r->g = 0.6;
+        r->b = 0.6;
+        r->a = 1.0;
+        return;
+    }
+    r->r = (double) ho->combo_color->r / 255.;
+    r->g = (double) ho->combo_color->g / 255.;
+    r->b = (double) ho->combo_color->b / 255.;
+    r->a = (double) ho->combo_color->a / 255.;
+}
+
+static void stroke_slider_body(vosu_renderer const *r)
+{
+    cairo_t *cr = r->cr;
+
+    cairo_set_line_width(cr, 2*r->circle_size);
     cairo_set_source_rgb(cr, 1, 1, 1);
     cairo_stroke_preserve(cr); // white border
-    cairo_set_line_width(cr, 76);
-    cairo_set_source_rgba(cr, cl->r, cl->g, cl->b, cl->a);
+    cairo_set_line_width(cr, 1.85*r->circle_size);
+    cairo_set_source_rgba(cr, r->r, r->g, r->b, r->a);
     cairo_stroke(cr); // color inner
 }
 
-static void draw_object_number(osux_hitobject *ho, cairo_t *cr)
+static void
+draw_object_number(vosu_renderer const *r, osux_hitobject *ho)
 {
+    cairo_t *cr = r->cr;
     cairo_font_extents_t fe;
     cairo_text_extents_t te;
 
-    cairo_set_font_size(cr, 30);
+    cairo_set_font_size(cr, 0.75 * r->circle_size);
     cairo_font_extents(cr, &fe);
     cairo_set_source_rgb(cr, 1., 1., 1.);
 
@@ -154,16 +176,16 @@ build_straight_line_path(cairo_t *cr, vosu_line *l)
     cairo_line_to(cr, l->x2, l->y2);
 }
 
-static void draw_slider_ball(cairo_t *cr, vosu_color *cl, double x, double y)
+static void
+draw_slider_ball(vosu_renderer const *r, double x, double y)
 {
-    (void) cl; // TODO: use color for slider ball
+    cairo_t *cr = r->cr;
 
-    cairo_arc(cr, x, y, 40, 0, 2*M_PI);
-    cairo_set_line_width(cr, 2);
+    cairo_arc(cr, x, y, r->circle_size, 0, 2*M_PI);
+    cairo_set_line_width(cr, 0.05 * r->circle_size);
     cairo_set_source_rgb(cr, 1, 0, 0);
     cairo_stroke(cr); // slider ball is red circle
 }
-
 
 static double
 compute_path_lenth(cairo_path_t *path)
@@ -274,6 +296,7 @@ static void draw_slider_control_points(osux_hitobject *ho, cairo_t *cr)
     cairo_set_source_rgb(cr, 0., 1., 0.);
     for (unsigned i = 1; i < pc; ++i)
         cairo_line_to(cr, ho->slider.points[i].x,  ho->slider.points[i].y);
+    cairo_set_line_width(cr, 2);
     cairo_stroke(cr);
 }
 
@@ -347,36 +370,113 @@ build_arc_spline_position(vosu_arc_spline *as, double pct)
     return pos;
 }
 
-static void draw_slider_edges(osux_hitobject *ho, cairo_t *cr, vosu_color *cl)
+static void draw_circle(vosu_renderer const *r, int x, int y)
 {
-    cairo_set_line_width(cr, 2);
-    cairo_set_source_rgba(cr, cl->r, cl->g, cl->b, cl->a);
+    cairo_t *cr = r->cr;
 
-    int i = ho->slider.point_count-1;
-    double x = ho->slider.points[i].x, y = ho->slider.points[i].y;
-    cairo_arc(cr, x, y, 40, 0, 2 * M_PI);
-
+    cairo_arc(cr, x, y, r->circle_size, 0, 2 * M_PI);
     cairo_set_source_rgb(cr, 1, 1, 1);
-    cairo_stroke(cr); // white border (end edge)
+    cairo_fill(cr); // white color fill
 
-    // round first point and fill it
-    cairo_arc(cr, ho->x, ho->y, 40, 0, 2 * M_PI);
-
-    cairo_set_source_rgba(cr, cl->r, cl->g, cl->b, cl->a);
-    cairo_fill_preserve(cr);// fill circle with color (start edge)
-
-    cairo_set_source_rgb(cr, 1, 1, 1);
-    cairo_stroke(cr); //  white border (start edge)
+    cairo_arc(cr, x, y, 0.925 * r->circle_size, 0, 2 * M_PI);
+    cairo_set_source_rgba(cr, r->r, r->g, r->b, r->a);
+    cairo_fill(cr); // inner color fill
 }
 
-static void draw_slider(osux_hitobject *ho, cairo_t *cr,
-                        vosu_color *cl, int64_t local_offset)
+static void
+vec2_rotate(double *vx, double *vy, double angle)
 {
+    double rx, ry;
+    double cn = cos(angle);
+    double sn = sin(angle);
+    rx = *vx * cn - *vy * sn;
+    ry = *vx * sn + *vy * cn;
+    *vx = rx;
+    *vy = ry;
+}
+
+static void
+draw_slider_reverse_arrow(vosu_renderer const *r,
+                          int x, int y, int tx, int ty, double angle)
+{
+    cairo_t *cr = r->cr;
+    double vx, vy, wx, wy;
+    vx = tx - x; vy = ty - y;
+    double n = NORM(vx, vy);
+    vx /= n; vy /= n;
+    vec2_rotate(&vx, &vy, angle);
+    wx = vy; wy = -vx;
+
+    double as = 1.2 * r->circle_size;
+
+    cairo_move_to(cr, x-0.35*as*vx, y-0.35*as*vy);
+    cairo_rel_line_to(cr, 0.2*as*wx, 0.2*as*wy);
+    cairo_rel_line_to(cr, 0.4*as*vx, 0.4*as*vy);
+    cairo_rel_line_to(cr, 0.1*as*wx, 0.1*as*wy);
+
+    cairo_rel_line_to(cr,
+                      -0.3*as*wx  + 0.2*as*vx,
+                      -0.3*as*wy  + 0.2*as*vy);
+    cairo_rel_line_to(cr,
+                      -0.3*as*wx  + -0.2*as*vx,
+                      -0.3*as*wy  + -0.2*as*vy);
+
+    cairo_rel_line_to(cr, 0.1*as*wx, 0.1*as*wy);
+    cairo_rel_line_to(cr, -0.4*as*vx, -0.4*as*vy);
+    cairo_rel_line_to(cr, 0.2*as*wx, 0.2*as*wy);
+    cairo_close_path(cr);
+
+    cairo_set_line_width(cr, 0.05 * r->circle_size);
+    cairo_set_source_rgb(cr, 1, 1, 1);
+    cairo_stroke(cr);
+}
+
+static void
+draw_slider_edges(vosu_renderer const *r,
+                  osux_hitobject *ho, int64_t local_offset)
+{
+    int i = ho->slider.point_count-1;
+    double x = ho->slider.points[i].x, y = ho->slider.points[i].y;
+    double total_length, length, beatlength, angle;
+    total_length = ho->end_offset-ho->offset;
+    length = total_length / (double)ho->slider.repeat;
+    beatlength = ho->timingpoint->millisecond_per_beat;
+    angle = DEGREE_TO_RADIAN(15.0) * sin(-local_offset*(M_PI/beatlength));
+
+
+    draw_circle(r, x, y);
+    if (ho->slider.repeat > 1 &&
+        -local_offset < total_length - length)
+    {
+        int tx = ho->slider.points[i-1].x;
+        int ty = ho->slider.points[i-1].y;
+        draw_slider_reverse_arrow(r, x, y, tx, ty, angle);
+    }
+
+    draw_circle(r, ho->x, ho->y);
+    if (local_offset >= 0)
+        draw_object_number(r, ho);
+    else if (ho->slider.repeat > 1 &&
+             -local_offset < total_length - 2*length)
+    {
+        int tx = ho->slider.points[1].x;
+        int ty = ho->slider.points[1].y;
+        draw_slider_reverse_arrow(r, ho->x, ho->y, tx, ty, angle);
+    }
+
+}
+
+static void
+draw_slider(vosu_renderer const *r,
+            osux_hitobject *ho, int64_t local_offset)
+{
+    cairo_t *cr = r->cr;
     bezier_point slider_ball_pos;
     unsigned pc = ho->slider.point_count;
-    int tick_length = (ho->end_offset-ho->offset);
-    double length = (double) tick_length / (double)ho->slider.repeat;
+    int total_length = (ho->end_offset-ho->offset);
+    double length = (double) total_length / (double)ho->slider.repeat;
     double pct = (double)-local_offset/length;
+
     if (ho->slider.repeat > 1) {
         int i = ((int) 100.*pct ) / 100;
         pct = pct - (int) pct;
@@ -416,29 +516,27 @@ static void draw_slider(osux_hitobject *ho, cairo_t *cr,
         slider_ball_pos = build_B_position(ho, path, pct);
         cairo_path_destroy(path);
     }
-    stroke_slider_body(cr, cl);
-    draw_slider_edges(ho, cr, cl);
-    draw_object_number(ho, cr);
+    stroke_slider_body(r);
+    draw_slider_edges(r, ho, local_offset);
 
     if (local_offset < 0)
-        draw_slider_ball(cr, cl, slider_ball_pos.x, slider_ball_pos.y);
+        draw_slider_ball(r, slider_ball_pos.x, slider_ball_pos.y);
+    /*
     if (pc >= 3)
         draw_slider_control_points(ho, cr);
+    */
 }
 
-static void draw_circle(osux_hitobject *ho, cairo_t *cr, vosu_color *cl)
+static void
+draw_circle_object(vosu_renderer const *r, osux_hitobject *ho)
 {
-    cairo_arc(cr, ho->x, ho->y, 40, 0, 2 * M_PI);
-    cairo_set_source_rgba(cr, cl->r, cl->g, cl->b, cl->a);
-    cairo_fill_preserve(cr); // color fill
-    cairo_set_source_rgb(cr, 1, 1, 1);
-    cairo_stroke(cr); // white border
-    draw_object_number(ho, cr);
+    draw_circle(r, ho->x, ho->y);
+    draw_object_number(r, ho);
 }
 
 static void draw_spinner(cairo_t *cr)
 {
-    cairo_arc(cr, 256, 192, 200, 0, 2 * M_PI);
+    cairo_arc(cr, 256, 192, 150, 0, 2 * M_PI);
     cairo_set_source_rgb(cr, 0, 0, 1); // blue fill
     cairo_fill_preserve(cr);
     cairo_set_line_width(cr, 10);
@@ -452,41 +550,46 @@ static void draw_spinner(cairo_t *cr)
 }
 
 static void
-draw_approach_circle(osux_hitobject *ho, cairo_t *cr,
-                     vosu_color *cl, int64_t local_offset,
-                     double approach_time)
+draw_approach_circle(vosu_renderer const *r, osux_hitobject *ho,
+                     int64_t local_offset)
 {
-    double pct = local_offset / approach_time;
-    cairo_arc(cr, ho->x, ho->y, 40+50*pct, 0, 2 * M_PI);
-    cairo_set_source_rgb(cr, cl->r, cl->g, cl->b);
+    cairo_t *cr = r->cr;
+    double pct = (double) local_offset / r->approach_time;
+    double size = r->circle_size * ( 1.0 + 1.2 * pct );
+
+    cairo_set_line_width(cr, 0.05 * size);
+    cairo_arc(cr, ho->x, ho->y, size, 0, 2 * M_PI);
+    cairo_set_source_rgb(cr, r->r, r->g, r->b);
     cairo_stroke(cr);
 }
 
-void vosu_draw_object(osux_hitobject *ho, cairo_t *cr,
-                      int64_t position, vosu_color *cl,
-                      int approach_time)
+void vosu_draw_object(vosu_renderer *r, osux_hitobject *ho)
 {
-    int64_t local_offset = ho->offset - position;
-    int64_t local_end_offset = ho->end_offset - position;
+    int64_t local_offset = ho->offset - r->position;
+    int64_t local_end_offset = ho->end_offset - r->position;
+    renderer_color_get(r, ho);
 
     if (local_end_offset <= 0)
         return;
     if (HIT_OBJECT_IS_CIRCLE(ho))
-        draw_circle(ho, cr, cl);
+        draw_circle_object(r, ho);
     else if (HIT_OBJECT_IS_SLIDER(ho))
-        draw_slider(ho, cr, cl, local_offset);
+        draw_slider(r, ho, local_offset);
     else if (HIT_OBJECT_IS_SPINNER(ho) && local_offset < 0)
-        draw_spinner(cr);
+        draw_spinner(r->cr);
 
     if (local_offset < 0 || HIT_OBJECT_IS_SPINNER(ho))
         return;
-    draw_approach_circle(ho, cr, cl, local_offset, approach_time);
+    draw_approach_circle(r, ho, local_offset);
 }
 
-
-void vosu_draw_cursor(cairo_t *cr, osux_replay_data *cursor)
+void
+vosu_draw_cursor(vosu_renderer const *r, osux_replay_data *cursor)
 {
-    cairo_arc(cr, cursor->x, cursor->y, 30, 0, 2 * M_PI);
+    cairo_t *cr = r->cr;
+    double size = 0.7 * r->circle_size;
+
+    cairo_arc(cr, cursor->x, cursor->y, size, 0, 2 * M_PI);
     cairo_set_source_rgba(cr, 255, 0, 0, 180);
     cairo_fill(cr);
 }
