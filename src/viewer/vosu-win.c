@@ -21,6 +21,15 @@ vosu_window_class_init(VosuWindowClass *klass)
     gtk_widget_class_set_template_from_resource(
         k, "/org/osux/vosu/ui/VosuWindow.glade");
     gtk_widget_class_bind_template_child(k, VosuWindow, view_notebook);
+    gtk_widget_class_bind_template_child(k, VosuWindow, replay_file_chooser);
+}
+
+static void
+replay_file_set_cb(GtkFileChooser *chooser, VosuApplication *app)
+{
+    gchar *filename = gtk_file_chooser_get_filename(chooser);
+    vosu_application_set_replay_file(app, filename);
+    g_free(filename);
 }
 
 VosuWindow *
@@ -29,6 +38,10 @@ vosu_window_new(VosuApplication *app)
     VosuWindow *w;
     w = VOSU_WINDOW(g_object_new(VOSU_TYPE_WINDOW, "application", app, NULL));
     w->app = app;
+    gtk_file_chooser_add_filter(w->replay_file_chooser, app->osr_file_filter);
+    gtk_file_chooser_add_filter(w->replay_file_chooser, app->all_file_filter);
+    g_signal_connect(w->replay_file_chooser, "file-set",
+                     G_CALLBACK(replay_file_set_cb), app);
     return w;
 }
 

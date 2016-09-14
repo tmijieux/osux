@@ -8,37 +8,25 @@
 #include "vosu-win.h"
 #include "vosu-beatmap.h"
 
-struct _VosuApplication
-{
-    GtkApplication parent;
-    VosuWindow *window;
-
-    VosuBeatmap *beatmap;
-
-    GtkFileFilter *osu_file_filter;
-    GtkFileFilter *osb_file_filter;
-    GtkFileFilter *all_file_filter;
-};
-
 G_DEFINE_TYPE(VosuApplication, vosu_application, GTK_TYPE_APPLICATION);
 
 static void vosu_application_init(VosuApplication *app)
 {
     GtkBuilder *builder;
-    GObject *osu_file_filter, *osb_file_filter, *all_file_filter;
+    GObject *osu_file_filter, *osr_file_filter, *all_file_filter;
 
     builder = gtk_builder_new_from_resource(
         "/org/osux/vosu/ui/VosuFileFilterOsu.glade");
     all_file_filter = gtk_builder_get_object(builder, "All files");
     osu_file_filter = gtk_builder_get_object(builder, "Beatmaps");
-    osb_file_filter = gtk_builder_get_object(builder, "Storyboards");
+    osr_file_filter = gtk_builder_get_object(builder, "Replays");
     g_object_ref(all_file_filter);
     g_object_ref(osu_file_filter);
-    g_object_ref(osb_file_filter);
+    g_object_ref(osr_file_filter);
 
     app->all_file_filter =  GTK_FILE_FILTER(all_file_filter);
     app->osu_file_filter = GTK_FILE_FILTER(osu_file_filter);
-    app->osb_file_filter = GTK_FILE_FILTER(osb_file_filter);
+    app->osr_file_filter = GTK_FILE_FILTER(osr_file_filter);
 
     g_object_unref(G_OBJECT(builder));
     app->beatmap = NULL;
@@ -48,11 +36,21 @@ static void vosu_application_dispose(GObject *obj)
 {
     VosuApplication *app = VOSU_APPLICATION( obj );
     g_clear_object(&app->osu_file_filter);
-    g_clear_object(&app->osb_file_filter);
+    g_clear_object(&app->osr_file_filter);
     g_clear_object(&app->all_file_filter);
     g_clear_object(&app->beatmap);
 
     G_OBJECT_CLASS(vosu_application_parent_class)->dispose(obj);
+}
+
+void
+vosu_application_set_replay_file(VosuApplication *app,
+                                 gchar const *filename)
+{
+    printf("replay file set to '%s'\n", filename);
+
+    (void) app;
+    osux_debug("NOT IMPLEMENTED\n");
 }
 
 static void vosu_application_finalize(GObject *obj)
@@ -154,7 +152,6 @@ create_open_beatmap_dialog(VosuApplication *app, GtkWindow *window)
 
     GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
     gtk_file_chooser_add_filter(chooser, app->osu_file_filter);
-    gtk_file_chooser_add_filter(chooser, app->osb_file_filter);
     gtk_file_chooser_add_filter(chooser, app->all_file_filter);
     return dialog;
 }

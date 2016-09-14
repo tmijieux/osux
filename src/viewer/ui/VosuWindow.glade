@@ -269,7 +269,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
-                  <object class="GtkFileChooserButton" id="audio_file_chooser">
+                  <object class="GtkFileChooserButton" id="replay_file_chooser">
                     <property name="width_request">120</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>

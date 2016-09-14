@@ -25,7 +25,8 @@ struct _VosuBeatmap
 };
 
 VosuBeatmap *vosu_beatmap_new(void);
-gboolean vosu_beatmap_load_from_file(VosuBeatmap *beatmap, gchar const *filepath);
+gboolean vosu_beatmap_load_from_file(VosuBeatmap *beatmap,
+                                     gchar const *filepath);
 
 G_END_DECLS
 

@@ -2,8 +2,6 @@
 #define VOSU_WINDOW_H
 
 #include <gtk/gtk.h>
-#include "vosu-app.h"
-#include "vosu-beatmap.h"
 
 G_BEGIN_DECLS
 
@@ -12,10 +10,14 @@ G_BEGIN_DECLS
 G_DECLARE_FINAL_TYPE(VosuWindow, vosu_window,
                      VOSU, WINDOW, GtkApplicationWindow);
 
+#include "vosu-app.h"
+#include "vosu-beatmap.h"
+
 struct _VosuWindow {
     GtkApplicationWindow parent;
     VosuApplication *app;
     GtkNotebook *view_notebook;
+    GtkFileChooser *replay_file_chooser;
 
     gboolean fullscreen;
 };
