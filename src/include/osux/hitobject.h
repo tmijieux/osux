@@ -128,5 +128,6 @@ void osux_hitobject_print(osux_hitobject *ho, int version, FILE *f);
 void osux_hitobject_free(osux_hitobject *ho);
 void osux_hitobject_move(osux_hitobject *ho, osux_hitobject *target);
 void osux_hitobject_copy(osux_hitobject *ho, osux_hitobject *target);
+void osux_hitobject_apply_mods(osux_hitobject *ho, int mods);
 
 #endif //OSUX_HIT_OBJECT_H

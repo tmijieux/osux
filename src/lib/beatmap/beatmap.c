@@ -12,6 +12,7 @@
 #include "osux/event.h"
 #include "osux/util.h"
 #include "osux/hitsound.h"
+#include "osux/mods.h"
 
 int osux_beatmap_free(osux_beatmap *beatmap)
 {
@@ -498,4 +499,13 @@ void osux_beatmap_append_color(osux_beatmap *beatmap, osux_color *c)
                       beatmap->color_bufsize);
     osux_color_move(c, &beatmap->colors[beatmap->color_count]);
     ++ beatmap->color_count;
+}
+
+
+/* return the circle radius in scene pixel */
+int osux_get_circle_size(double circle_size, int mods)
+{
+    if (mods & MOD_HARDROCK)
+        circle_size = MIN(7.0, 1.4 * circle_size);
+    return 57 - 4 * circle_size;
 }

@@ -34,7 +34,7 @@
 #define min(x, y) ((x) < (y) ? (x) : (y))
 #define max(x, y) ((x) < (y) ? (y) : (x))
 
-    int osux_getline(GIOChannel *chan, char **return_value);
+int osux_getline(GIOChannel *chan, char **return_value);
 char *bytearray2hexstr(uint8_t const *bytearray, size_t size);
 char *osux_get_file_hashstr(char const *file_path);
 unsigned strsplit_size(char **split);

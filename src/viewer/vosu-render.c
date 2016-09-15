@@ -182,9 +182,9 @@ draw_slider_ball(vosu_renderer const *r, double x, double y)
     cairo_t *cr = r->cr;
 
     cairo_arc(cr, x, y, r->circle_size, 0, 2*M_PI);
-    cairo_set_line_width(cr, 0.05 * r->circle_size);
-    cairo_set_source_rgb(cr, 1, 0, 0);
-    cairo_stroke(cr); // slider ball is red circle
+    //cairo_set_line_width(cr, 0.05 * r->circle_size);
+    cairo_set_source_rgb(cr, 1-r->r, 1-r->g, 1-r->b);
+    cairo_fill(cr);
 }
 
 static double
@@ -396,18 +396,18 @@ vec2_rotate(double *vx, double *vy, double angle)
 }
 
 static void
-draw_slider_reverse_arrow(vosu_renderer const *r,
-                          int x, int y, int tx, int ty, double angle)
+draw_slider_reverse_arrow(vosu_renderer const *r, double size_bonus,
+                          int x, int y, int tx, int ty)
 {
     cairo_t *cr = r->cr;
     double vx, vy, wx, wy;
     vx = tx - x; vy = ty - y;
     double n = NORM(vx, vy);
     vx /= n; vy /= n;
-    vec2_rotate(&vx, &vy, angle);
+    //vec2_rotate(&vx, &vy, angle);
     wx = vy; wy = -vx;
 
-    double as = 1.2 * r->circle_size;
+    double as = (1.2+size_bonus) * r->circle_size;
 
     cairo_move_to(cr, x-0.35*as*vx, y-0.35*as*vy);
     cairo_rel_line_to(cr, 0.2*as*wx, 0.2*as*wy);
@@ -428,42 +428,72 @@ draw_slider_reverse_arrow(vosu_renderer const *r,
 
     cairo_set_line_width(cr, 0.05 * r->circle_size);
     cairo_set_source_rgb(cr, 1, 1, 1);
-    cairo_stroke(cr);
+    cairo_fill(cr);
+}
+
+typedef osux_point ivec2;
+
+static void
+draw_slider_edge(vosu_renderer const *r, bool draw_arrow,
+                 double size_bonus, ivec2 *center, ivec2 *eye)
+{
+    draw_circle(r, center->x, center->y);
+    if (draw_arrow)
+        draw_slider_reverse_arrow(r, size_bonus,
+                                  center->x, center->y,
+                                  eye->x, eye->y);
+}
+
+static void
+get_edges_point(osux_hitobject *ho, bool reverse,
+                ivec2 *src, ivec2 *srcd, ivec2 *dst, ivec2 *dstd)
+{
+    int last = ho->slider.point_count-1;
+    if (!reverse) {
+        *src = ho->slider.points[0];
+        *srcd = ho->slider.points[1];
+        *dst = ho->slider.points[last];
+        *dstd = ho->slider.points[last-1];
+    } else {
+        *src = ho->slider.points[last];
+        *srcd = ho->slider.points[last-1];
+        *dst = ho->slider.points[0];
+        *dstd = ho->slider.points[1];
+    }
+}
+
+static void
+draw_circle_object(vosu_renderer const *r, osux_hitobject *ho)
+{
+    draw_circle(r, ho->x, ho->y);
+    draw_object_number(r, ho);
 }
 
 static void
 draw_slider_edges(vosu_renderer const *r,
                   osux_hitobject *ho, int64_t local_offset)
 {
-    int i = ho->slider.point_count-1;
-    double x = ho->slider.points[i].x, y = ho->slider.points[i].y;
-    double total_length, length, beatlength, angle;
+    ivec2 src, srcd, dst, dstd;
+    int64_t total_length, length;
+    int repeat = ho->slider.repeat;
+
     total_length = ho->end_offset-ho->offset;
-    length = total_length / (double)ho->slider.repeat;
-    beatlength = ho->timingpoint->millisecond_per_beat;
-    angle = DEGREE_TO_RADIAN(15.0) * sin(-local_offset*(M_PI/beatlength));
+    length = total_length / (repeat);
+    int pass = (-local_offset/(int)length);
+    pass = MAX(0, MIN(pass, repeat-1));
+    bool reverse = pass%2;
 
+    get_edges_point(ho, reverse, &src, &srcd, &dst, &dstd);
 
-    draw_circle(r, x, y);
-    if (ho->slider.repeat > 1 &&
-        -local_offset < total_length - length)
-    {
-        int tx = ho->slider.points[i-1].x;
-        int ty = ho->slider.points[i-1].y;
-        draw_slider_reverse_arrow(r, x, y, tx, ty, angle);
-    }
+    double beatlength = ho->timingpoint->millisecond_per_beat;
+    double size_bonus = 0.15*(1.+sin(-local_offset*(M_PI/beatlength)));
 
-    draw_circle(r, ho->x, ho->y);
-    if (local_offset >= 0)
-        draw_object_number(r, ho);
-    else if (ho->slider.repeat > 1 &&
-             -local_offset < total_length - 2*length)
-    {
-        int tx = ho->slider.points[1].x;
-        int ty = ho->slider.points[1].y;
-        draw_slider_reverse_arrow(r, ho->x, ho->y, tx, ty, angle);
-    }
+    if (local_offset <= 0 && pass != repeat-1)
+        draw_slider_edge(r, pass < repeat-2, size_bonus, &src, &srcd);
+    draw_slider_edge(r, pass < repeat-1, size_bonus, &dst, &dstd);
 
+    if (local_offset > 0)
+        draw_circle_object(r, ho);
 }
 
 static void
@@ -527,13 +557,6 @@ draw_slider(vosu_renderer const *r,
     */
 }
 
-static void
-draw_circle_object(vosu_renderer const *r, osux_hitobject *ho)
-{
-    draw_circle(r, ho->x, ho->y);
-    draw_object_number(r, ho);
-}
-
 static void draw_spinner(cairo_t *cr)
 {
     cairo_arc(cr, 256, 192, 150, 0, 2 * M_PI);
@@ -563,6 +586,8 @@ draw_approach_circle(vosu_renderer const *r, osux_hitobject *ho,
     cairo_stroke(cr);
 }
 
+
+
 void vosu_draw_object(vosu_renderer *r, osux_hitobject *ho)
 {
     int64_t local_offset = ho->offset - r->position;
@@ -587,7 +612,7 @@ void
 vosu_draw_cursor(vosu_renderer const *r, osux_replay_data *cursor)
 {
     cairo_t *cr = r->cr;
-    double size = 0.7 * r->circle_size;
+    double size = 0.5 * r->circle_size;
 
     cairo_arc(cr, cursor->x, cursor->y, size, 0, 2 * M_PI);
     cairo_set_source_rgba(cr, 255, 0, 0, 180);

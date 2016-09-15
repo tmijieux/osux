@@ -4,14 +4,16 @@
 #include <gtk/gtk.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "vosu-player.h"
-#include "vosu-render.h"
 
 G_BEGIN_DECLS
 
 #define VOSU_TYPE_VIEW (vosu_view_get_type())
 
 G_DECLARE_FINAL_TYPE(VosuView, vosu_view, VOSU, VIEW, GtkBox);
+
+#include "vosu-player.h"
+#include "vosu-render.h"
+#include "vosu-sequence.h"
 
 struct _VosuView
 {
@@ -29,8 +31,10 @@ struct _VosuView
     gboolean playing;
     guint tick_id;
 
-    GSequence *hitobjects;
-    GSequence *cursor_data;
+    VosuSequence *hitobjects;
+    VosuSequence *hitobjects_mod;
+    VosuSequence *cursor_data;
+
     vosu_renderer renderer;
     VosuPlayer *player; /* music player */
 
@@ -39,13 +43,15 @@ struct _VosuView
 };
 
 VosuView *vosu_view_new(void);
-void vosu_view_set_properties(VosuView *view,
-                              uint64_t max_time,
-                              double page_range,
-                              GSequence *hitobjects,
-                              double approach_rate,
-                              double circle_size,
-                              int mods, gchar const *music_file);
+void vosu_view_set_beatmap_properties(
+    VosuView *view,
+    uint64_t max_time, double page_range,
+    VosuSequence *hitobjects, double approach_rate,
+    double circle_size, gchar const *music_file);
+
+void vosu_view_set_replay_properties(
+    VosuView *view,
+    VosuSequence *cursor_data, int mods);
 
 G_END_DECLS
 

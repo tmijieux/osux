@@ -9,8 +9,13 @@
 typedef struct vosu_renderer_ {
     cairo_t *cr;
     int64_t position;
+
+    double approach_rate;
     int approach_time;
+    double base_circle_size;
     int circle_size;
+
+    int mod;
     double r, g, b, a;
 } vosu_renderer;
 

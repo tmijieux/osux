@@ -43,14 +43,57 @@ static void vosu_application_dispose(GObject *obj)
     G_OBJECT_CLASS(vosu_application_parent_class)->dispose(obj);
 }
 
-void
-vosu_application_set_replay_file(VosuApplication *app,
-                                 gchar const *filename)
+static void set_replay(VosuApplication *app, VosuReplay *replay)
 {
-    printf("replay file set to '%s'\n", filename);
+    g_clear_object(&app->replay);
+    app->replay = replay;
 
-    (void) app;
-    osux_debug("NOT IMPLEMENTED\n");
+    VosuView *view;
+    view = vosu_window_get_view(app->window);
+    if (view != NULL)
+        vosu_replay_configure_view(replay, view);
+}
+
+static gboolean
+open_replay(VosuApplication *app, gchar const *filename)
+{
+    if (app->beatmap == NULL) {
+        vosu_application_error(
+            app, _("Replay"),
+            _("Cannot open a replay without a beatmap!"));
+        return FALSE;
+    }
+    VosuReplay *replay = vosu_replay_new();
+    g_return_val_if_fail(replay != NULL, FALSE);
+
+    if (!vosu_replay_load_from_file(replay, filename)) {
+        gchar const *errmsg;
+        errmsg = vosu_replay_get_errmsg(replay);
+        vosu_application_error(app, _("Error loading replay"), errmsg);
+        g_object_unref(replay);
+        return FALSE;
+    }
+    gchar const *beatmap_hash, *replay_beatmap_hash;
+    beatmap_hash = vosu_beatmap_get_hash(app->beatmap);
+    replay_beatmap_hash = vosu_replay_get_beatmap_hash(replay);
+
+    if (g_strcmp0(beatmap_hash, replay_beatmap_hash) != 0) {
+        vosu_application_error(
+            app, _("Replay error."),
+            _("the replay is not for this beatmap"));
+        g_object_unref(replay);
+        return FALSE;
+    }
+    set_replay(app, replay);
+    printf(_("replay file set to '%s'\n"), filename);
+    return TRUE;
+}
+
+gboolean
+vosu_application_open_replay(VosuApplication *app,
+                             gchar const *filename)
+{
+     return open_replay(app, filename);
 }
 
 static void vosu_application_finalize(GObject *obj)
@@ -58,9 +101,9 @@ static void vosu_application_finalize(GObject *obj)
     G_OBJECT_CLASS(vosu_application_parent_class)->finalize(obj);
 }
 
-static void
+void
 vosu_application_error(VosuApplication *app,
-                        gchar const *title, gchar const *error)
+                       gchar const *title, gchar const *error)
 {
     GtkDialog *dialog;
     dialog = GTK_DIALOG(gtk_message_dialog_new(
@@ -78,31 +121,34 @@ set_beatmap(VosuApplication *app, VosuBeatmap *beatmap)
     if (app->beatmap != NULL)
         vosu_application_close_beatmap(app);
     app->beatmap = beatmap;
-    osux_debug("prepare to call window set view\n");
-    vosu_window_set_view(app->window, beatmap->view);
+
+    VosuView *view;
+    view = vosu_view_new();
+    vosu_beatmap_configure_view(beatmap, view);
+    vosu_window_set_view(app->window, view);
 }
 
 static gboolean
-open_beatmap(VosuApplication *app, gchar *path)
+open_beatmap(VosuApplication *app, gchar const *path)
 {
     VosuBeatmap *beatmap;
     beatmap = vosu_beatmap_new();
-    if (beatmap == NULL) {
+    if (beatmap == NULL)
         return FALSE;
-    }
+
     if (!vosu_beatmap_load_from_file(beatmap, path)) {
-        vosu_application_error(app, _("Error loading beatmap"),
-                               beatmap->errmsg);
+        gchar const *errmsg;
+        errmsg = vosu_beatmap_get_errmsg(beatmap);
+        vosu_application_error(app, _("Error loading beatmap"), errmsg);
         g_object_unref(beatmap);
         return FALSE;
     }
-
     set_beatmap(app, beatmap);
     return TRUE;
 }
 
 gboolean
-vosu_application_open_beatmap(VosuApplication *app, gchar *path)
+vosu_application_open_beatmap(VosuApplication *app, gchar const *path)
 {
     g_return_val_if_fail(path != NULL, FALSE);
     if (app->beatmap != NULL && !g_strcmp0(path, app->beatmap->filepath))
@@ -116,8 +162,20 @@ vosu_application_open_beatmap(VosuApplication *app, gchar *path)
 void vosu_application_close_beatmap(VosuApplication *app)
 {
     vosu_window_close_view(app->window);
-    g_object_unref(app->beatmap);
-    app->beatmap = NULL;
+    g_clear_object(&app->beatmap);
+    g_clear_object(&app->replay);
+}
+
+void
+vosu_application_close_replay(VosuApplication *app)
+{
+    if (app->beatmap == NULL)
+        return;
+    VosuView *view;
+    view = vosu_window_get_view(app->window);
+    if (view != NULL)
+        vosu_view_set_replay_properties(view, NULL, 0);
+    g_clear_object(&app->replay);
 }
 
 /* ---- application actions */

@@ -258,5 +258,11 @@ void osux_replay_free(osux_replay *r)
     g_free(r->replay_hash);
     g_free(r->life);
     g_free(r->data);
+    memset(r, 0, sizeof *r);
 }
 
+void osux_replay_move(osux_replay *src, osux_replay *dst)
+{
+    *dst = *src;
+    memset(src, 0, sizeof *dst);
+}

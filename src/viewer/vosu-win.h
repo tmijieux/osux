@@ -18,12 +18,15 @@ struct _VosuWindow {
     VosuApplication *app;
     GtkNotebook *view_notebook;
     GtkFileChooser *replay_file_chooser;
+    GtkButton *close_replay_button;
 
     gboolean fullscreen;
 };
 
 VosuWindow *vosu_window_new(VosuApplication *app);
 void vosu_window_set_view(VosuWindow *win, VosuView *view);
+VosuView *vosu_window_get_view(VosuWindow *win);
+void vosu_window_set_replay(VosuWindow *win, VosuView *view);
 void vosu_window_close_view(VosuWindow *win);
 
 G_END_DECLS

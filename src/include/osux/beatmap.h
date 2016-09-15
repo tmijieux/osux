@@ -187,6 +187,9 @@ void osux_beatmap_append_timingpoint(osux_beatmap *beatmap, osux_timingpoint *tp
 void osux_beatmap_append_event(osux_beatmap *beatmap, osux_event *ev);
 void osux_beatmap_append_color(osux_beatmap *beatmap, osux_color *c);
 
+/* return the circle radius in scene pixel */
+int osux_get_circle_size(double circle_size, int mods);
+
 #ifdef __cplusplus
 }
 #endif

@@ -1,5 +1,5 @@
-#ifndef OSU_REPLAY_H
-#define OSU_REPLAY_H
+#ifndef OSUX_REPLAY_H
+#define OSUX_REPLAY_H
 
 /*
  *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
@@ -84,7 +84,7 @@ struct osux_replay_ {
 int osux_replay_init(osux_replay *r, char const *file_path);
 void osux_replay_print(osux_replay const *r, FILE *f);
 void osux_replay_free(osux_replay *r);
-
+void osux_replay_move(osux_replay *src, osux_replay *dst);
 int osux_replay_compute_hit(osux_replay *r, osux_beatmap *b, osux_hit **hits);
 
-#endif // OSU_REPLAY_H
+#endif // OSUX_REPLAY_H

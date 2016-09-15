@@ -10,15 +10,14 @@ G_DEFINE_TYPE(VosuBeatmap, vosu_beatmap, G_TYPE_OBJECT);
 void
 vosu_beatmap_init(VosuBeatmap *beatmap)
 {
-    beatmap->view = vosu_view_new();
-    beatmap->HitObjectsSeq = g_sequence_new(NULL);
+    beatmap->HitObjectsSeq = vosu_sequence_new(NULL);
 }
 
 static void
 vosu_beatmap_dispose(GObject *obj)
 {
-    VosuBeatmap *beatmap = VOSU_BEATMAP( obj );
-    g_clear_object(&beatmap->view);
+    VosuBeatmap *beatmap = VOSU_BEATMAP(obj);
+    g_clear_object(&beatmap->HitObjectsSeq);
     G_OBJECT_CLASS(vosu_beatmap_parent_class)->dispose(obj);
 }
 
@@ -33,17 +32,14 @@ vosu_beatmap_finalize(GObject *obj)
     g_clear_pointer(&beatmap->errmsg, g_free);
     g_clear_pointer(&beatmap->music_file, g_free);
     osux_beatmap_free(&beatmap->xbeatmap);
-
-    g_clear_pointer(&beatmap->HitObjectsSeq, g_sequence_free);
     G_OBJECT_CLASS(vosu_beatmap_parent_class)->finalize(obj);
 }
 
 void
 vosu_beatmap_class_init(VosuBeatmapClass *klass)
 {
-    GObjectClass *object_class = G_OBJECT_CLASS( klass );
-    object_class->dispose = vosu_beatmap_dispose;
-    object_class->finalize = vosu_beatmap_finalize;
+    G_OBJECT_CLASS(klass)->dispose = &vosu_beatmap_dispose;
+    G_OBJECT_CLASS(klass)->finalize = &vosu_beatmap_finalize;
 }
 
 VosuBeatmap *vosu_beatmap_new(void)
@@ -74,13 +70,13 @@ sort_object_end_offset(gconstpointer _a, gconstpointer _b,
 
 
 static void
-load_hit_objects(osux_beatmap *beatmap, GSequence *ho_seq)
+load_hit_objects(osux_beatmap *beatmap, VosuSequence *ho_seq)
 {
     for (unsigned i = 0; i < beatmap->hitobject_count; ++i) {
         osux_hitobject *ho = &beatmap->hitobjects[i];
-        g_sequence_append(ho_seq, ho);
+        vosu_sequence_append(ho_seq, ho);
     }
-    g_sequence_sort(ho_seq, &sort_object_end_offset, NULL);
+    vosu_sequence_sort(ho_seq, &sort_object_end_offset, NULL);
 }
 
 gboolean
@@ -92,20 +88,9 @@ vosu_beatmap_load_from_file(VosuBeatmap *b, gchar const *filepath)
 
     if (!err) {
         set_path(b, filepath);
-        int64_t end_time, beatlength = 1000;
-        end_time = pBm->hitobjects[pBm->hitobject_count-1].offset;
-        if (pBm->timingpoint_count > 0)
-            beatlength = pBm->timingpoints[0].millisecond_per_beat;
         load_hit_objects(pBm, b->HitObjectsSeq);
         b->music_file = g_build_filename(
             b->dirpath, pBm->AudioFilename, NULL);
-        vosu_view_set_properties(b->view,
-                                 end_time+2000,
-                                 beatlength,
-                                 b->HitObjectsSeq,
-                                 pBm->ApproachRate,
-                                 pBm->CircleSize, 0,
-                                 b->music_file);
         return TRUE;
     } else {
         b->errmsg = g_strdup(osux_errmsg(err));
@@ -113,3 +98,28 @@ vosu_beatmap_load_from_file(VosuBeatmap *b, gchar const *filepath)
     }
 }
 
+void vosu_beatmap_configure_view(VosuBeatmap *b, VosuView *view)
+{
+    osux_beatmap *pBm = &b->xbeatmap;
+    int64_t end_time, beatlength = 1000;
+    end_time = pBm->hitobjects[pBm->hitobject_count-1].offset;
+    if (pBm->timingpoint_count > 0)
+        beatlength = pBm->timingpoints[0].millisecond_per_beat;
+
+    vosu_view_set_beatmap_properties(
+        view, end_time+2000, beatlength, b->HitObjectsSeq,
+        pBm->ApproachRate, pBm->CircleSize,  b->music_file);
+}
+
+gchar const *
+vosu_beatmap_get_errmsg(VosuBeatmap *beatmap)
+{
+    return beatmap->errmsg;
+}
+
+
+gchar const *
+vosu_beatmap_get_hash(VosuBeatmap *beatmap)
+{
+    return beatmap->xbeatmap.md5_hash;
+}

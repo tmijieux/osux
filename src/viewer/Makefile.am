@@ -8,6 +8,8 @@ vosu_SOURCES = \
 	vosu-beatmap.c \
 	vosu-player.c \
 	vosu-view.c \
+	vosu-replay.c \
+	vosu-sequence.c \
 	vosu-render.c
 
 nodist_vosu_SOURCES = \

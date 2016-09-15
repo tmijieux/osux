@@ -25,6 +25,7 @@
 #include "osux/util.h"
 #include "osux/error.h"
 #include "osux/string.h"
+#include "osux/mods.h"
 
 static int check_slider_type(char type)
 {
@@ -371,5 +372,20 @@ void osux_hitobject_copy(osux_hitobject *ho, osux_hitobject *cpy)
         cpy->slider.edgehitsounds = ARRAY_DUP(
             ho->slider.edgehitsounds, ho->slider.repeat+1);
     }
-    cpy->timingpoint = NULL; // this field has no meaning outside of beatmaps
+
+    // cpy->timingpoint = NULL;
+    // this field has no meaning outside of beatmaps
+}
+
+void osux_hitobject_apply_mods(osux_hitobject *ho, int mods)
+{
+    if (mods & MOD_HARDROCK) {
+        ho->y = 384 - ho->y;
+        if (HIT_OBJECT_IS_SLIDER(ho)) {
+            for (unsigned i = 0; i < ho->slider.point_count; ++i) {
+                int y = ho->slider.points[i].y;
+                ho->slider.points[i].y = 384 - y;
+            }
+        }
+    }
 }

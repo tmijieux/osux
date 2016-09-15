@@ -72,14 +72,14 @@ const char *osux_errmsg(int errcode);
 
 #define osux_error(format, ...)                                 \
     do {                                                        \
-        fprintf(stderr, "ERROR: %s: %d|%s: ",  __FILENAME__ ,   \
+        fprintf(stderr, "ERROR: %s:%d|%s: ",  __FILENAME__ ,   \
                 __LINE__, __PRETTY_FUNCTION__);                 \
         fprintf(stderr, format, ##__VA_ARGS__);                 \
     } while(0)
 
 #define osux_warning(format, ...)                               \
     do {                                                        \
-        fprintf(stderr, "WARNING: %s: %d|%s: ",  __FILENAME__ , \
+        fprintf(stderr, "WARNING: %s:%d|%s: ",  __FILENAME__ , \
                 __LINE__, __PRETTY_FUNCTION__);                 \
         fprintf(stderr, format, ##__VA_ARGS__);                 \
     } while(0)
@@ -91,8 +91,11 @@ const char *osux_errmsg(int errcode);
 
 #ifdef DEBUG
 #define osux_debug(format, ...)                                 \
+    do {                                                        \
     fprintf(stderr, "DEBUG: %s:%d|%s: " format, __FILENAME__ ,  \
-            __LINE__, __PRETTY_FUNCTION__, ##__VA_ARGS__);
+            __LINE__, __PRETTY_FUNCTION__, ##__VA_ARGS__);      \
+    } while(0)
+
 #else // DEBUG
 # define osux_debug(format, ...) ((void) (format))
 #endif // DEBUG
