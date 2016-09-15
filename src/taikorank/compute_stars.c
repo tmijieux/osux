@@ -54,7 +54,7 @@ static void trm_compute_separated(struct tr_map * map)
 
 void trm_compute_stars(struct tr_map * map)
 {
-    if((map->mods & MODS_FL) != 0)
+    if ((map->mods & MODS_FL) != 0)
         trm_apply_mods_FL(map);
 
     trm_compute_separated(map);

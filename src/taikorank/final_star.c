@@ -123,7 +123,7 @@ static void tro_apply_influence_coeff(struct tr_object * o, double c)
 
 void tro_set_final_star(struct tr_object * o)
 {
-    if(o->ps != GREAT) {
+    if (o->ps != GREAT) {
 	o->density_star  = 0;
 	o->reading_star  = 0;
 	o->pattern_star  = 0;
@@ -143,16 +143,16 @@ void tro_set_final_star(struct tr_object * o)
 
 void tro_set_influence(struct tr_object * objs, int i, int nb)
 {
-    if(objs[i].ps == GREAT || objs[i].ps == BONUS) {
+    if (objs[i].ps == GREAT || objs[i].ps == BONUS) {
 	return;
     }
-    for(int j = i; j >= 0; j--) {
+    for (int j = i; j >= 0; j--) {
 	double coeff = tro_influence_coeff(&objs[i], &objs[j]);
 	if (coeff == 1)
 	    break; /* influence will remain to 1 */
 	tro_apply_influence_coeff(&objs[j], coeff);
     }
-    for(int j = i+1; j < nb; j++) {
+    for (int j = i+1; j < nb; j++) {
 	double coeff = tro_influence_coeff(&objs[i], &objs[j]);
 	if (coeff == 1)
 	    break; /* influence will remain to 1 */
@@ -166,7 +166,7 @@ void tro_set_influence(struct tr_object * objs, int i, int nb)
 
 static void trm_set_final_star(struct tr_map * map)
 {
-    for(int i = 0; i < map->nb_object; i++)
+    for (int i = 0; i < map->nb_object; i++)
 	tro_set_final_star(&map->object[i]);
 }
 
@@ -174,7 +174,7 @@ static void trm_set_final_star(struct tr_map * map)
 
 static void trm_set_influence(struct tr_map * map)
 {
-    for(int i = 0; i < map->nb_object; i++)
+    for (int i = 0; i < map->nb_object; i++)
 	tro_set_influence(map->object, i, map->nb_object);
 }
 
@@ -198,7 +198,7 @@ static void trm_set_global_stars(struct tr_map * map)
 
 void trm_compute_final_star(struct tr_map * map)
 {
-    if(ht_cst_fin == NULL) {
+    if (ht_cst_fin == NULL) {
 	tr_error("Unable to compute final stars.");
 	return;
     }

@@ -134,16 +134,16 @@ static double tro_density(const struct tr_object * obj1,
 #define TRO_SET_DENSITY_TYPE(TYPE, TRO_TEST)			\
     void tro_set_density_##TYPE (struct tr_object * o, int i)	\
     {								\
-	if(o->ps == MISS) {					\
+	if (o->ps == MISS) {					\
 	    o->density_##TYPE = 0;				\
 	    return;						\
 	}							\
 								\
 	double sum = 0;						\
-	for(int j = i-1; j >= 0; j--) {				\
-	    if(o->objs[j].ps == MISS)				\
+	for (int j = i-1; j >= 0; j--) {				\
+	    if (o->objs[j].ps == MISS)				\
 		continue;					\
-	    if(TRO_TEST(&o->objs[j], o)) {			\
+	    if (TRO_TEST(&o->objs[j], o)) {			\
 		/* each object give a density value */		\
 		/* based on the time between the two objects */	\
 		double d = tro_density(&o->objs[j], o);		\
@@ -159,7 +159,7 @@ static double tro_density(const struct tr_object * obj1,
     static void trm_set_density_##TYPE(struct tr_map * map)	\
     {								\
 	map->object[0].density_##TYPE = 0;			\
-	for(int i = 1; i < map->nb_object; i++)			\
+	for (int i = 1; i < map->nb_object; i++)			\
 	    tro_set_density_##TYPE (&map->object[i], i);	\
     }
 
@@ -207,7 +207,7 @@ void tro_set_density_star(struct tr_object * obj)
 
 static void trm_set_density_star(struct tr_map * map)
 {
-    for(int i = 0; i < map->nb_object; i++)
+    for (int i = 0; i < map->nb_object; i++)
 	tro_set_density_star(&map->object[i]);
 }
 
@@ -217,7 +217,7 @@ static void trm_set_density_star(struct tr_map * map)
 
 void trm_compute_density(struct tr_map * map)
 {
-    if(ht_cst_dst == NULL) {
+    if (ht_cst_dst == NULL) {
 	tr_error("Unable to compute density stars.");
 	return;
     }

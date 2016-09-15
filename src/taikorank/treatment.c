@@ -36,10 +36,10 @@ static void trm_set_length(struct tr_map * map);
 static void tro_set_hand(struct tr_object * o,
 			 int * d_hand, int * k_hand)
 {
-    if(o->ps == MISS)
+    if (o->ps == MISS)
 	return;
 
-    if((tro_is_big(o) && tro_is_circle(o)) || tro_is_spinner(o))
+    if ((tro_is_big(o) && tro_is_circle(o)) || tro_is_spinner(o))
 	o->bf |= TRO_HAND;
     else {
 	if (tro_is_don(o)) {
@@ -72,7 +72,7 @@ void trm_set_hand(struct tr_map * map)
 {
     int d_hand = 0;
     int k_hand = 0;
-    for(int i = 0; i < map->nb_object; i++)
+    for (int i = 0; i < map->nb_object; i++)
 	tro_set_hand(&map->object[i], &d_hand, &k_hand);
 }
 
@@ -81,10 +81,10 @@ void trm_set_hand(struct tr_map * map)
 void trm_set_rest(struct tr_map * map)
 {
     map->object[0].rest = MAX_REST;
-    for(int i = 1; i < map->nb_object; i++) {
-	if(map->object[i].ps == MISS)
+    for (int i = 1; i < map->nb_object; i++) {
+	if (map->object[i].ps == MISS)
 	    map->object[i].rest = MAX_REST;
-	else if(map->object[i-1].ps == MISS)
+	else if (map->object[i-1].ps == MISS)
 	    map->object[i].rest = MAX_REST;
 	else
 	    map->object[i].rest = (map->object[i].offset -
@@ -98,17 +98,17 @@ void trm_set_combo(struct tr_map * map)
 {
     int combo = 0;
     map->combo = 0;
-    for(int i = 0; i < map->nb_object; i++) {
-	if(map->object[i].ps == GREAT || 
+    for (int i = 0; i < map->nb_object; i++) {
+	if (map->object[i].ps == GREAT || 
 	   map->object[i].ps == GOOD)
 	    combo++;
-	else if(map->object[i].ps == MISS) {
-	    if(combo > map->combo)
+	else if (map->object[i].ps == MISS) {
+	    if (combo > map->combo)
 		map->combo = combo;
 	    combo = 0;
 	}
     }
-    if(combo > map->combo)
+    if (combo > map->combo)
 	map->combo = combo;
 }
 
@@ -116,7 +116,7 @@ void trm_set_combo(struct tr_map * map)
 
 static void trm_set_length(struct tr_map * map)
 {
-    for(int i = 0; i < map->nb_object; i++)
+    for (int i = 0; i < map->nb_object; i++)
 	tro_set_length(&map->object[i]);
 }
 

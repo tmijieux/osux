@@ -43,7 +43,7 @@ struct tr_object * tro_copy(const struct tr_object * o, int nb)
 
 double tro_get_radius(const struct tr_object * obj)
 {
-    if(tro_is_big(obj))
+    if (tro_is_big(obj))
 	return TRO_BIG_RADIUS;
     else
 	return TRO_SMALL_RADIUS;
@@ -62,7 +62,7 @@ int equal(double x, double y)
 
 char * tro_str_state(const struct tr_object * o)
 {
-    switch(o->ps) {
+    switch (o->ps) {
     case GREAT:
 	return "Great";
     case GOOD:
@@ -114,14 +114,14 @@ void tro_print_yaml(const struct tr_object * o)
 
 void tro_print(const struct tr_object * obj, int filter)
 {
-    if((filter & FILTER_BASIC) != 0)
+    if ((filter & FILTER_BASIC) != 0)
 	fprintf(OUTPUT_INFO, "%d\t%d\t%c\t%.3g\t%s\t",
 		obj->offset,
 		obj->rest,
 		tro_char_type(obj),
 		obj->bpm_app,
 		tro_str_state(obj));
-    if((filter & FILTER_BASIC_PLUS) != 0)
+    if ((filter & FILTER_BASIC_PLUS) != 0)
 	fprintf(OUTPUT_INFO, "%d\t%d\t%d\t%c\t%.3g\t%s\t",
 		obj->offset,
 		obj->end_offset,
@@ -129,24 +129,24 @@ void tro_print(const struct tr_object * obj, int filter)
 		tro_char_type(obj),
 		obj->bpm_app,
 		tro_str_state(obj));
-    if((filter & FILTER_ADDITIONNAL) != 0)
+    if ((filter & FILTER_ADDITIONNAL) != 0)
 	fprintf(OUTPUT_INFO, "%d\t%d\t%g\t%g\t",
 		tro_is_left_hand(obj),
 		tro_is_right_hand(obj),
 		obj->obj_app,
 		obj->obj_dis);
-    if((filter & FILTER_DENSITY) != 0)
+    if ((filter & FILTER_DENSITY) != 0)
 	fprintf(OUTPUT_INFO, "%g\t%g\t%g\t",
 		obj->density_raw,
 		obj->density_color,
 		obj->density_star);
-    if((filter & FILTER_READING) != 0)
+    if ((filter & FILTER_READING) != 0)
 	fprintf(OUTPUT_INFO, "%d\t%d\t%.0f.\t%.3g\t",
 		obj->offset_app,
 		obj->offset_dis,
 		obj->seen,
 		obj->reading_star);
-    if((filter & FILTER_READING_PLUS) != 0)
+    if ((filter & FILTER_READING_PLUS) != 0)
 	fprintf(OUTPUT_INFO, "%d\t%d\t%d\t%d\t%d\t%.2g\t%.2g\t%.2g\t%g\t%.3g\t",
 		obj->offset_app,
 		obj->end_offset_app,
@@ -158,25 +158,25 @@ void tro_print(const struct tr_object * obj, int filter)
 		obj->line_b_end,
 		obj->seen,
 		obj->reading_star);
-    if((filter & FILTER_ACCURACY) != 0)
+    if ((filter & FILTER_ACCURACY) != 0)
 	fprintf(OUTPUT_INFO, "%.3g\t%.3g\t%.3g\t%.3g\t",
 		obj->slow,
 		obj->hit_window,
 		obj->spacing,
 		obj->accuracy_star);
-    if((filter & FILTER_PATTERN) != 0) {
+    if ((filter & FILTER_PATTERN) != 0) {
 	fprintf(OUTPUT_INFO, "%.3g\t%.3g\t%g\t",
 		obj->proba,
 		obj->pattern_freq,
 		obj->pattern_star);
     }
-    if((filter & FILTER_STAR) != 0)
+    if ((filter & FILTER_STAR) != 0)
 	fprintf(OUTPUT_INFO, "%.3g\t%.3g\t%.3g\t%.3g\t%.3g\t",
 		obj->density_star,
 		obj->reading_star,
 		obj->pattern_star,
 		obj->accuracy_star,
 		obj->final_star);
-  
+
     fprintf(OUTPUT_INFO, "\n");
 }

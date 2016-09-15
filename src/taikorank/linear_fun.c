@@ -54,12 +54,12 @@ struct linear_fun * lf_new(struct vector * v)
     lf->has_error = 0;
     lf->len = v->len;
     lf->x = malloc(sizeof(double) * lf->len);
-    for(int i = 0; i < lf->len; i++) {
+    for (int i = 0; i < lf->len; i++) {
 	lf->x[i] = v->t[i][0];
     }
     lf->a = malloc(sizeof(double) * lf->len - 1);
     lf->b = malloc(sizeof(double) * lf->len - 1);
-    for(int i = 0; i < lf->len - 1; i++) {
+    for (int i = 0; i < lf->len - 1; i++) {
 	lf->a[i] = ((v->t[i][1] - v->t[i+1][1]) /
 		    (v->t[i][0] - v->t[i+1][0]));
 	lf->b[i] = v->t[i][1] - lf->a[i] * v->t[i][0];
@@ -69,7 +69,7 @@ struct linear_fun * lf_new(struct vector * v)
 
 void lf_free(struct linear_fun * lf)
 {
-    if(lf == NULL)
+    if (lf == NULL)
 	return;
     free(lf->x);
     free(lf->a);
@@ -97,7 +97,7 @@ static inline int find_interval_linear(const double * array, int len,
 {
     if (x < array[0])
 	return -1;
-    for(int i = 1; i < len; i++)
+    for (int i = 1; i < len; i++)
 	if (x <= array[i])
 	    return i-1;
     return -1;

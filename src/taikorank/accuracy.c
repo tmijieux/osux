@@ -155,8 +155,8 @@ static struct spacing_count *
 tro_spacing_init(const struct tr_object * objs, int i)
 {
     struct spacing_count * spc = spc_new(equal_i);
-    for(int j = i; j >= 0; j--) {
-	if(objs[j].ps == MISS)
+    for (int j = i; j >= 0; j--) {
+	if (objs[j].ps == MISS)
 	    continue;
 	double influ = tro_spacing_influence(&objs[j], &objs[i]);
 	if (influ == 0)
@@ -185,7 +185,7 @@ static double tro_spacing(const struct tr_object * o,
 
 void tro_set_hit_window(struct tr_object * o, const double * ggm_val)
 {
-    switch(o->ps) {
+    switch (o->ps) {
     case GREAT:
 	o->hit_window = ggm_val[0];
 	break;
@@ -202,7 +202,7 @@ void tro_set_hit_window(struct tr_object * o, const double * ggm_val)
 
 void tro_set_slow(struct tr_object * o)
 {
-    if(o->ps == MISS) {
+    if (o->ps == MISS) {
 	o->slow = 1;
 	return;
     }

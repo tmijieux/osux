@@ -51,13 +51,25 @@
 
 #define DT_COEFF_SPEED 1.5
 #define HT_COEFF_SPEED (2 / 3.)
-#define EZ_COEFF_SPEED (2 / 3.)
+#define EZ_COEFF_SPEED (2 / 3.) // not sure
 
-#ifdef RESOLUTION_10 
-  #define HR_COEFF_SPEED (4 / 3.)
+#ifdef RESOLUTION_10
+  #define HR_COEFF_SPEED   (4 / 3.)
+  #define HDHR_COEFF_SPEED (4 / 3.) // not sure
+#elif defined RESOLUTION_14
+#elif defined RESOLUTION_18
 #endif
 
 // ----------------------------------------
+
+#ifdef RESOLUTION_10
+  #define NM_NB_OBJ_APP 10.
+#elif defined RESOLUTION_14
+  #define NM_NB_OBJ_APP 14.
+#elif defined RESOLUTION_18
+  #define NM_NB_OBJ_APP 18.
+#endif
+#define NM_NB_OBJ_DIS  0.
 
 #define FL_NB_OBJ_APP1 5.
 #define FL_NB_OBJ_APP2 4.
@@ -69,41 +81,40 @@
 #define HD_NB_OBJ_DIS  6.
 
 #ifdef RESOLUTION_10
-  #define NM_NB_OBJ_APP  10.
+  #define HDHR_NB_OBJ_DIS 8. // not sure
 #elif defined RESOLUTION_14
-  #define NM_NB_OBJ_APP  14.
 #elif defined RESOLUTION_18
-  #define NM_NB_OBJ_APP  18.
 #endif
-#define NM_NB_OBJ_DIS  0.
-
-// -----------------------------
 
 static void trm_apply_mods_EZ(struct tr_map * map);
 static void trm_apply_mods_HT(struct tr_map * map);
 static void trm_apply_mods_HR(struct tr_map * map);
 static void trm_apply_mods_DT(struct tr_map * map);
 static void trm_apply_mods_HD(struct tr_map * map);
+static void trm_apply_mods_HDHR(struct tr_map * map);
 
-static void trm_apply_NM_app_dis(struct tr_map * map);
-static void trm_apply_NM_ms_coeff(struct tr_map * map);
+static void trm_apply_mods_NM(struct tr_map * map);
 
 static int trm_print_one_mod(const struct tr_map * map, int mods, int * i,
-			     char * buffer, char * string);
+                             char * buffer, char * string);
+
+//---------------------------------------------
+
+static int trm_has_mods(const struct tr_map * map, int mods)
+{
+    return (map->mods & mods) != 0;
+}
 
 //---------------------------------------------
 
 static void trm_apply_mods_HR(struct tr_map * map)
 {
     map->od *= HR_COEFF_OD;
-    if(map->od > MAX_OD)
-	map->od = MAX_OD;
-    
-    for(int i = 0; i < map->nb_object; i++) {
-	map->object[i].bpm_app *= HR_COEFF_SPEED; 
-	map->object[i].obj_app = NM_NB_OBJ_APP;
-	map->object[i].obj_dis = NM_NB_OBJ_DIS;
-    }
+    if (map->od > MAX_OD)
+        map->od = MAX_OD;
+
+    for (int i = 0; i < map->nb_object; i++)
+        map->object[i].bpm_app *= HR_COEFF_SPEED;
 }
 
 //---------------------------------------------
@@ -111,10 +122,9 @@ static void trm_apply_mods_HR(struct tr_map * map)
 static void trm_apply_mods_EZ(struct tr_map * map)
 {
     map->od *= EZ_COEFF_OD;
-  
-    for(int i = 0; i < map->nb_object; i++) {
-	map->object[i].bpm_app *= EZ_COEFF_SPEED; 
-    }
+
+    for (int i = 0; i < map->nb_object; i++)
+        map->object[i].bpm_app *= EZ_COEFF_SPEED;
 }
 
 //---------------------------------------------
@@ -122,11 +132,11 @@ static void trm_apply_mods_EZ(struct tr_map * map)
 static void trm_apply_mods_DT(struct tr_map * map)
 {
     map->od_hit_window_mult = DT_COEFF_MS;
-  
-    for(int i = 0; i < map->nb_object; i++) {
-	map->object[i].bpm_app    *= DT_COEFF_SPEED;
-	map->object[i].offset     /= DT_COEFF_BPM;
-	map->object[i].end_offset /= DT_COEFF_BPM; 
+
+    for (int i = 0; i < map->nb_object; i++) {
+        map->object[i].bpm_app    *= DT_COEFF_SPEED;
+        map->object[i].offset     /= DT_COEFF_BPM;
+        map->object[i].end_offset /= DT_COEFF_BPM;
     }
 }
 
@@ -135,11 +145,11 @@ static void trm_apply_mods_DT(struct tr_map * map)
 static void trm_apply_mods_HT(struct tr_map * map)
 {
     map->od_hit_window_mult = HT_COEFF_MS;
-  
-    for(int i = 0; i < map->nb_object; i++) {
-	map->object[i].bpm_app    *= HT_COEFF_SPEED;
-	map->object[i].offset     /= HT_COEFF_BPM;
-	map->object[i].end_offset /= HT_COEFF_BPM; 
+
+    for (int i = 0; i < map->nb_object; i++) {
+        map->object[i].bpm_app    *= HT_COEFF_SPEED;
+        map->object[i].offset     /= HT_COEFF_BPM;
+        map->object[i].end_offset /= HT_COEFF_BPM;
     }
 }
 
@@ -147,18 +157,23 @@ static void trm_apply_mods_HT(struct tr_map * map)
 
 static void trm_apply_mods_HD(struct tr_map * map)
 {
-    for(int i = 0; i < map->nb_object; i++) {
-	if(tro_is_circle(&map->object[i])) {
-	    if((map->mods & MODS_FL) == 0)
-		map->object[i].obj_app = HD_NB_OBJ_APP;
+    if (!trm_has_mods(map, MODS_FL))
+        for (int i = 0; i < map->nb_object; i++)
+            map->object[i].obj_app = HD_NB_OBJ_APP;
 
-	    map->object[i].obj_dis = HD_NB_OBJ_DIS;
-	}
-	else {
-	    if((map->mods & MODS_FL) == 0)
-		map->object[i].obj_app = HD_NB_OBJ_APP;
-	    map->object[i].obj_dis = NM_NB_OBJ_DIS;
-	}
+    for (int i = 0; i < map->nb_object; i++)
+        if (tro_is_circle(&map->object[i]))
+            map->object[i].obj_dis = HD_NB_OBJ_DIS;
+}
+
+//---------------------------------------------
+
+static void trm_apply_mods_HDHR(struct tr_map * map)
+{
+    for (int i = 0; i < map->nb_object; i++) {
+        map->object[i].bpm_app *= HDHR_COEFF_SPEED;
+        if (tro_is_circle(&map->object[i]))
+            map->object[i].obj_dis = HDHR_NB_OBJ_DIS;
     }
 }
 
@@ -167,40 +182,30 @@ static void trm_apply_mods_HD(struct tr_map * map)
 void trm_apply_mods_FL(struct tr_map * map)
 {
     int combo = 0;
-    for(int i = 0; i < map->nb_object; i++) {
-	if(map->object[i].ps == GREAT || 
-	   map->object[i].ps == GOOD)
-	    combo++;
-	else if(map->object[i].ps == MISS)
-	    combo = 0;
+    for (int i = 0; i < map->nb_object; i++) {
+        if (map->object[i].ps == GREAT || map->object[i].ps == GOOD)
+            combo++;
+        else if (map->object[i].ps == MISS)
+            combo = 0;
 
-	if(combo >= FL_START_APP3)
-	    map->object[i].obj_app = FL_NB_OBJ_APP3;
-	else if(combo >= FL_START_APP2)
-	    map->object[i].obj_app = FL_NB_OBJ_APP2;
-	else 
-	    map->object[i].obj_app = FL_NB_OBJ_APP1;
-      
-	if((map->mods & MODS_HD) == 0)
-	    map->object[i].obj_dis = NM_NB_OBJ_DIS;
+        if (combo >= FL_START_APP3)
+            map->object[i].obj_app = FL_NB_OBJ_APP3;
+        else if (combo >= FL_START_APP2)
+            map->object[i].obj_app = FL_NB_OBJ_APP2;
+        else
+            map->object[i].obj_app = FL_NB_OBJ_APP1;
     }
 }
 
 //---------------------------------------------
 
-static void trm_apply_NM_app_dis(struct tr_map * map)
-{
-    for(int i = 0; i < map->nb_object; i++) {
-	map->object[i].obj_app = NM_NB_OBJ_APP;
-	map->object[i].obj_dis = NM_NB_OBJ_DIS;
-    }
-}
-
-//---------------------------------------------
-
-static void trm_apply_NM_ms_coeff(struct tr_map * map)
+static void trm_apply_mods_NM(struct tr_map * map)
 {
     map->od_hit_window_mult = NM_COEFF_MS;
+    for (int i = 0; i < map->nb_object; i++) {
+        map->object[i].obj_app = NM_NB_OBJ_APP;
+        map->object[i].obj_dis = NM_NB_OBJ_DIS;
+    }
 }
 
 //---------------------------------------------
@@ -208,38 +213,36 @@ static void trm_apply_NM_ms_coeff(struct tr_map * map)
 //---------------------------------------------
 
 void trm_apply_mods(struct tr_map * map)
-{  
-    if((map->mods & MODS_HR) != 0)
-	trm_apply_mods_HR(map);
-    else if((map->mods & MODS_EZ) != 0)
-	trm_apply_mods_EZ(map);
-  
-    if((map->mods & MODS_DT) != 0)
-	trm_apply_mods_DT(map);
-    else if((map->mods & MODS_HT) != 0)
-	trm_apply_mods_HT(map);
+{
+    trm_apply_mods_NM(map);
 
-    if((map->mods & MODS_HD) != 0)
-	trm_apply_mods_HD(map);
-    if((map->mods & MODS_FL) != 0)
-	trm_apply_mods_FL(map);
+    if (trm_has_mods(map, MODS_HR) && !trm_has_mods(map, MODS_HD))
+        trm_apply_mods_HR(map);
+    else if (trm_has_mods(map, MODS_EZ))
+        trm_apply_mods_EZ(map);
 
-    if((map->mods & (MODS_FL | MODS_HD | MODS_HR)) == 0)
-	trm_apply_NM_app_dis(map);
-    if((map->mods & (MODS_DT | MODS_HT)) == 0)
-	trm_apply_NM_ms_coeff(map);
+    if (trm_has_mods(map, MODS_DT))
+        trm_apply_mods_DT(map);
+    else if (trm_has_mods(map, MODS_HT))
+        trm_apply_mods_HT(map);
+
+    if (trm_has_mods(map, MODS_HD) && !trm_has_mods(map, MODS_HR))
+        trm_apply_mods_HD(map);
+    if (trm_has_mods(map, MODS_HD) && trm_has_mods(map, MODS_HR))
+        trm_apply_mods_HDHR(map);
+    if (trm_has_mods(map, MODS_FL))
+        trm_apply_mods_FL(map);
 }
 
-//---------------------------------------------
 //-------------------------------------------------
 
 static int trm_print_one_mod(const struct tr_map * map, int mods, int * i,
-			     char * buffer, char * string)
+                             char * buffer, char * string)
 {
-    if((map->mods & mods) != 0) {
-	sprintf(&buffer[*i], string);
-	*i += STR_MODS_LENGTH;
-	return 1;
+    if ((map->mods & mods) != 0) {
+        sprintf(&buffer[*i], string);
+        *i += STR_MODS_LENGTH;
+        return 1;
     }
     return 0;
 }
@@ -259,15 +262,15 @@ char * trm_mods_to_str(const struct tr_map * map)
 {
     char * s = calloc(sizeof(char), STR_MODS_LENGTH * MAX_MODS + 1);
     int i = 0;
-  
-    if(trm_print_one_mod(map, MODS_HR, &i, s, "HR ") == 0)
-	trm_print_one_mod(map, MODS_EZ, &i, s, "EZ ");
 
-    if(trm_print_one_mod(map, MODS_DT, &i, s, "DT ") == 0)
-	trm_print_one_mod(map, MODS_HT, &i, s, "HT ");
+    if (trm_print_one_mod(map, MODS_HR, &i, s, "HR ") == 0)
+        trm_print_one_mod(map, MODS_EZ, &i, s, "EZ ");
+
+    if (trm_print_one_mod(map, MODS_DT, &i, s, "DT ") == 0)
+        trm_print_one_mod(map, MODS_HT, &i, s, "HT ");
 
     trm_print_one_mod(map, MODS_HD, &i, s, "HD ");
     trm_print_one_mod(map, MODS_FL, &i, s, "FL ");
-  
+
     return s;
 }

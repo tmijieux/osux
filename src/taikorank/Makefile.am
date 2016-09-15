@@ -14,6 +14,7 @@ taiko_ranking_SOURCES = \
 	treatment.c \
 	stats.c \
 	tr_db.c \
+	tr_gts.c \
 	config.c \
 	options.c \
 	cst_yaml.c \

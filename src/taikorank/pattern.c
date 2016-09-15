@@ -134,7 +134,7 @@ static inline void print_pattern(const struct pattern * p)
 
 static inline void tro_print_pattern(const struct tr_object * o)
 {
-    for(int j = 0; j < table_len(o->patterns); j++)
+    for (int j = 0; j < table_len(o->patterns); j++)
 	print_pattern(table_get(o->patterns, j));
 }
 
@@ -404,7 +404,7 @@ void tro_set_pattern_star(struct tr_object * o)
 
 void tro_free_patterns(struct tr_object * o)
 {
-    for(int i = 0; i < table_len(o->patterns); i++) {
+    for (int i = 0; i < table_len(o->patterns); i++) {
 	const struct pattern * p = table_get(o->patterns, i);
 	// disregard const but it isn't needed anymore...
 	pattern_free((struct pattern *) p);
@@ -418,7 +418,7 @@ void tro_free_patterns(struct tr_object * o)
 
 static void trm_set_pattern_proba(struct tr_map * map)
 {
-    for(int i = 0; i < map->nb_object; i++)
+    for (int i = 0; i < map->nb_object; i++)
 	tro_set_pattern_proba(&map->object[i], i);
 }
 
@@ -426,7 +426,7 @@ static void trm_set_pattern_proba(struct tr_map * map)
 
 static void trm_set_type(struct tr_map * map)
 {
-    for(int i = 0; i < map->nb_object; i++)
+    for (int i = 0; i < map->nb_object; i++)
 	tro_set_type(&map->object[i]);
 }
 
@@ -434,7 +434,7 @@ static void trm_set_type(struct tr_map * map)
 
 static void trm_set_patterns(struct tr_map * map)
 {
-    for(int i = 0; i < map->nb_object; i++)
+    for (int i = 0; i < map->nb_object; i++)
 	tro_set_patterns(&map->object[i], i, map->nb_object);
 }
 
@@ -442,7 +442,7 @@ static void trm_set_patterns(struct tr_map * map)
 
 static void trm_set_pattern_freq(struct tr_map * map)
 {
-    for(int i = 0; i < map->nb_object; i++)
+    for (int i = 0; i < map->nb_object; i++)
 	tro_set_pattern_freq(&map->object[i], i);
 }
 
@@ -468,7 +468,7 @@ static void trm_free_patterns(struct tr_map * map)
 
 void trm_compute_pattern(struct tr_map * map)
 {
-    if(ht_cst_ptr == NULL) {
+    if (ht_cst_ptr == NULL) {
 	tr_error("Unable to compute pattern stars.");
 	return;
     }

@@ -73,6 +73,7 @@ struct tr_object
     double line_b_end;   // nb obj before end_app
 
     GtsSurface * mesh;
+    GtsSurface * final_mesh;
     int count;
     int done;     // used as a bitfield
 
@@ -158,9 +159,9 @@ static inline int tro_are_same_hand(const struct tr_object * o1,
 static inline int tro_are_same_type(const struct tr_object * o1,
 				    const struct tr_object * o2)
 {
-    if(TRO_S & (o1->bf | o2->bf)) // one is spinner
+    if (TRO_S & (o1->bf | o2->bf)) // one is spinner
 	return 1; // d and k are played
-    if(TRO_R & (o1->bf | o2->bf)) // one is roll
+    if (TRO_R & (o1->bf | o2->bf)) // one is roll
 	return 0; // suppose you play the easier...
     return (TRO_DK & o1->bf & o2->bf);
 }

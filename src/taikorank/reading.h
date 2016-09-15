@@ -48,7 +48,14 @@ void tro_set_line_coeff(struct tr_object * o);
    - line_coeff
    - offset_app (after same_bpm)
  */
-void tro_set_mesh(struct tr_object * o);
+void tro_set_mesh_base(struct tr_object * o);
+
+/* Use:
+   - line_coeff
+   - offset_app (after same_bpm)
+   - mesh_base
+ */
+void tro_set_mesh_remove_intersection(struct tr_object * o);
 
 /* Use:
    - ps

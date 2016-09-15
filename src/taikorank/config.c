@@ -28,7 +28,7 @@
 #include "config.h"
 #include "print.h"
 
-#define CONFIG_FILE  "config.yaml"
+#define CONFIG_FILE "config.yaml"
 
 #define MOD_STR_LENGTH 2
 
@@ -122,7 +122,7 @@ static void config_init(void)
 
 void local_config_set_tr_main(enum tr_main i)
 {
-    switch(i) {
+    switch (i) {
     case MAIN_SCORE:
 	LOCAL_CONFIG->tr_main = trs_main;
 	break;
@@ -134,7 +134,7 @@ void local_config_set_tr_main(enum tr_main i)
 
 void local_config_set_score_method(enum score_method i)
 {
-    switch(i) {
+    switch (i) {
     case SCORE_INPUT_INFLUENCE:
 	LOCAL_CONFIG->trm_method_get_tro = trm_best_influence_tro;
 	break;
@@ -169,7 +169,7 @@ void global_config_set_filter(const char * filter)
     GLOBAL_CONFIG->print_filter = 0;
     int i = 0;
     while (filter[i] != 0) {
-	switch(filter[i]) {
+	switch (filter[i]) {
 	    CASE_FILTER('b', FILTER_BASIC);
 	    CASE_FILTER('B', FILTER_BASIC_PLUS);
 	    CASE_FILTER('+', FILTER_ADDITIONNAL);
@@ -189,7 +189,7 @@ void global_config_set_filter(const char * filter)
 //-----------------------------------------------------
 
 #define IF_MOD_SET(STR, MOD, i)				\
-    if(strncmp(STR, &mods[i], MOD_STR_LENGTH) == 0) {	\
+    if (strncmp(STR, &mods[i], MOD_STR_LENGTH) == 0) {	\
 	LOCAL_CONFIG->mods |= MOD;			\
 	continue;					\
     }
@@ -197,7 +197,7 @@ void global_config_set_filter(const char * filter)
 void local_config_set_mods(const char * mods)
 {
     LOCAL_CONFIG->mods = MODS_NONE;
-    for(int i = 0; mods[i]; i += MOD_STR_LENGTH) {
+    for (int i = 0; mods[i]; i += MOD_STR_LENGTH) {
 	IF_MOD_SET("EZ", MODS_EZ, i);
 	IF_MOD_SET("HR", MODS_HR, i);
 	IF_MOD_SET("HT", MODS_HT, i);
@@ -205,8 +205,8 @@ void local_config_set_mods(const char * mods)
 	IF_MOD_SET("HD", MODS_HD, i);
 	IF_MOD_SET("FL", MODS_FL, i);
 	IF_MOD_SET("__", MODS_NONE, i);
-	for(int k = 1; k < MOD_STR_LENGTH; k++) {
-	    if(mods[i+k] == 0) {
+	for (int k = 1; k < MOD_STR_LENGTH; k++) {
+	    if (mods[i+k] == 0) {
 		tr_error("Wrong mod length.");
 		goto break2;
 	    }
@@ -221,9 +221,6 @@ void local_config_set_mods(const char * mods)
     if ((LOCAL_CONFIG->mods & MODS_HT) &&
 	(LOCAL_CONFIG->mods & MODS_DT))
 	tr_error("Incompatible mods HT and DT");
-    if ((LOCAL_CONFIG->mods & MODS_HD) &&
-	(LOCAL_CONFIG->mods & MODS_HR))
-	tr_error("HDHR is unsupported for now.");
 }
 
 //-----------------------------------------------------

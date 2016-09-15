@@ -183,7 +183,7 @@ static int get_tro_type_from_osux_ho(osux_hitobject * ho)
     else if (HIT_OBJECT_IS_SPINNER(ho))
 	bits |= TRO_S;
     else if (HIT_OBJECT_IS_CIRCLE(ho)) {
-	if((sample & (SAMPLE_WHISTLE | SAMPLE_CLAP)) != 0)
+	if ((sample & (SAMPLE_WHISTLE | SAMPLE_CLAP)) != 0)
 	    bits |= TRO_K;
 	else
 	    bits |= TRO_D;
@@ -267,7 +267,7 @@ static struct tr_map * trm_from_osux_map(osux_beatmap *map)
     unsigned current_tp = 0;
     tr_map->max_combo = 0;
     for (unsigned i = 0; i < map->hitobject_count; i++) {
-	while(current_tp < (map->timingpoint_count - 1) &&
+	while (current_tp < (map->timingpoint_count - 1) &&
 	      map->timingpoints[current_tp + 1].offset
 	      <= map->hitobjects[i].offset)
 	    current_tp++;
@@ -366,8 +366,8 @@ static void trm_print_out_results(const struct tr_map * map)
 {
     char * order = GLOBAL_CONFIG->print_order;
     int i = 0;
-    while(order[i]) {
-	switch(order[i]) {
+    while (order[i]) {
+	switch (order[i]) {
 	    CASE_PRINT('F', map->final_star);
 	    CASE_PRINT('D', map->density_star);
 	    CASE_PRINT('R', map->reading_star);
@@ -536,7 +536,7 @@ int trm_best_influence_tro(struct tr_map * map)
 static void trm_add_to_ps(struct tr_map * map,
 			  enum played_state ps, int i)
 {
-    switch(ps) {
+    switch (ps) {
     case GREAT:
 	map->great += i;
 	break;

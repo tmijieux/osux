@@ -10,6 +10,7 @@ set(TR_SOURCE
   treatment.c			treatment.h
   stats.c			stats.h
   tr_db.c			tr_db.h
+  tr_gts.c			tr_gts.h
   config.c			config.c
   options.c 			options.h
   cst_yaml.c			cst_yaml.h
@@ -24,7 +25,6 @@ set(TR_SOURCE
   accuracy.c			accuracy.h
   final_star.c			final_star.h
   )
-
 
 if(OPENMP_FOUND)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")

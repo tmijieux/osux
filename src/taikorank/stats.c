@@ -107,13 +107,13 @@ double default_weight(int i, double val)
     double trm_weight_sum_##FIELD (struct tr_map * map,		\
 				   double(*weight)(int,double))	\
     {								\
-	if(weight == NULL)					\
+	if (weight == NULL)					\
 	    weight = default_weight;				\
 	struct tr_object * copy = tro_copy(map->object,		\
 					   map->nb_object);	\
 	tro_sort_##FIELD (copy, map->nb_object);		\
 	double sum = 0;						\
-	for(int i = 0; i < map->nb_object; i++)	{		\
+	for (int i = 0; i < map->nb_object; i++)	{       \
 	    double d = weight(map->nb_object-i, copy[i].FIELD);	\
 	    sum += d;						\
 	}							\
