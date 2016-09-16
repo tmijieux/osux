@@ -16,14 +16,14 @@ import logging
 
 from colors import Colors
 from tr_exec import TR_Exec
-from tr_test import TR_Tester_Yaml, TR_Test_Str_List
+from tr_test import TR_Tester_Yaml, TR_Test_Expected
 from tr_models import TR_Map_List, TR_Map_With_Objects
 
-class TR_Test_Autoconvert(TR_Test_Str_List):
+class TR_Test_Autoconvert(TR_Test_Expected):
     MAX_LENGTH = 16
     #
     def __init__(self, ht):
-        TR_Test_Str_List.__init__(self, ht)
+        TR_Test_Expected.__init__(self, ht)
         self.unit = ht['unit']
         self.opt  = {'+ptro': 1, '+autoconvert': 1}
     #

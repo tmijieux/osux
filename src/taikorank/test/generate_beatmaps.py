@@ -351,6 +351,7 @@ accuracy_g = Map_Generator("accuracy/").add([
         .by_od(Ranges.od)
         .on_rand(Ranges.rand),
     Map_Generator("slow/")
+        .by_od(Ranges.od)
         .with_pattern('d')
         .with_bpm(40)
         .on_abpm(Ranges.slow_abpm),
@@ -376,11 +377,17 @@ other_g.expected_field('final_star')
 ##################################################
 
 score_g = Map_Generator("score/").add([
-    Map_Generator("ggm/")
+    Map_Generator("miss/")
         .by_bpm(Ranges.bpm_normal)
         .with_obj(128)
         .with_pattern('d')
-        .expected_with_ggm(Ranges.ggm_to_miss(128, 4))
+        .expected_with_ggm(Ranges.ggm_miss(128, 4))
+        .on_this(),
+    Map_Generator("good/")
+        .by_bpm(Ranges.bpm_normal)
+        .with_obj(128)
+        .with_pattern('d')
+        .expected_with_ggm(Ranges.ggm_good(128, 4))
         .on_this(),
 ])
 score_g.expected_field('final_star')

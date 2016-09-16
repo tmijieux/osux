@@ -118,6 +118,14 @@ class TR_Map_List(list):
         key = lambda map: (k1(map), k2(map))
         return TR_Map_List(sorted(self, key=key, reverse=reverse))
     #
+    def filter_le(self, field, value):
+        k = self.get_lambda_eval(field)
+        return TR_Map_List([map for map in self if k(map) <= value])
+    #
+    def filter_ge(self, field, value):
+        k = self.get_lambda_eval(field)
+        return TR_Map_List([map for map in self if k(map) >= value])
+    #
     def nb_equals(self, field):
         if len(self) == 0:
             return 0
@@ -131,6 +139,12 @@ class TR_Map_List(list):
         res = ""
         for map in self:
             res += str(map) + '\n'
+        return res
+    #
+    def str_full(self, field, with_mods):
+        res = ""
+        for map in self:
+            res += map.str_full(field, with_mods) +'\n' 
         return res
     #
     @classmethod
@@ -157,8 +171,8 @@ class TR_Object:
 ############################################################
 
 class TR_Map_With_Objects(TR_Map):
-    def __init__(self, title, artist, difficulty, mods, stars, objects):
-        TR_Map.__init__(self, title, artist, difficulty, mods, stars)
+    def __init__(self, title, artist, difficulty, mods, great, good, miss, stars, objects):
+        TR_Map.__init__(self, title, artist, difficulty, mods, great, good, miss, stars)
         self.objects = objects
     #
     def str_obj(self, unit, max_length):
@@ -181,4 +195,7 @@ class TR_Map_With_Objects(TR_Map):
                    yaml['artist'],
                    yaml['difficulty'],
                    yaml['mods'],
+                   yaml['great'],
+                   yaml['good'],
+                   yaml['miss'],
                    TR_Stars.from_yaml(yaml['stars']), l)

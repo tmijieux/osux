@@ -68,12 +68,10 @@ class TR_Tester:
     def test_iterate(self, data, constructor, method):
         for x in data:
             test = constructor(x)
-            if test.do:
-                logging.info("")
-                err, tot = method(test)
-                self.errors += err
-                self.total  += tot
-    #
+            logging.info("")
+            err, tot = method(test)
+            self.errors += err
+            self.total  += tot
 
 ########################################################
 
@@ -99,45 +97,32 @@ class TR_Tester_Yaml(TR_Tester):
 
 ########################################################
 
-class TR_Test_Yaml:
+class TR_Test:
     __metaclass__ = abc.ABCMeta
+    #
+    def __init__(self, name):
+        self.name = name
     #
     @staticmethod
     def get_if_exists(key, ht, default):
         return ht[key] if key in ht else default
     #
-    def __init__(self, ht):
-        self.name     = ht['path']
-        self.expected = ht['expected']
-        self.do = self.get_if_exists('do', ht, True);
-        if ht['path'][-5:] != "*.osu":
-            self.cmd = ht['path'] + "*.osu"
+    def print_start(self):
+        logging.info(Colors.blue("Starting test '%s'" % (self.name)))
+    #
+    def print_result(self, errors, total):
+        args = (self.name, total - errors, total)
+        if errors == 0:
+            logging.warning(Colors.green("Test '%s' passed! %d/%d" % args))
         else:
-            self.cmd = ht['path']
+            logging.warning(Colors.fail("Test '%s' failed! %d/%d" % args))
     #
     def main(self):
-        logging.info(Colors.blue("Starting test '%s'" % (self.name)))
+        self.print_start()
         self.compute()
-        if not self.expected:
-            logging.warning(Colors.warning("No data, dumping"))
-            logging.warning(self.dump_str())
-            return (0, 0)
         errors, total = self.compare()
-        if errors == 0:
-            logging.warning(Colors.green("Test '%s' passed! %d/%d" %
-                                        (self.name, total - errors, total)))
-        else:
-            logging.warning(Colors.fail("Test '%s' failed! %d/%d" %
-                                       (self.name, total - errors, total)))
+        self.print_result(errors, total)
         return (errors, total)
-    #
-    @abc.abstractmethod
-    def dump_str(self):
-        """
-        Abstract method to implement.
-        Dump the data as it should be expected.
-        """
-        raise TR_Exception("Abstract method not implemented")
     #
     @abc.abstractmethod
     def compute(self):
@@ -152,18 +137,44 @@ class TR_Test_Yaml:
         Abstract method to implement for checking results.
         Result must be a tuple (errors, total).
         """
-        raise TR_Exception("Abstract method not implemented")
-    #
+        raise TR_Exception("Abstract method not implemented")    
 
 ########################################################
 
-class TR_Test_Str_List(TR_Test_Yaml):
+class TR_Test_Expected(TR_Test):
     __metaclass__ = abc.ABCMeta
     #
     def __init__(self, ht):
-        TR_Test_Yaml.__init__(self, ht)
+        TR_Test.__init__(self, ht['path'])
+        self.expected = ht['expected']
+        if ht['path'][-5:] != "*.osu":
+            self.cmd = ht['path'] + "*.osu"
+        else:
+            self.cmd = ht['path']
         if self.expected and isinstance(self.expected, str):
-                self.expected = self.expected.split("\n")[:-1]
+            self.expected = self.expected.split("\n")[:-1]
+    #
+    def check_has_expected(self):
+        if not self.expected:
+            self.print_start()
+            logging.warning(Colors.warning("No data, dumping"))
+            logging.warning(self.dump_str())
+            return False
+        return True
+    #
+    def main(self):
+        if self.check_has_expected():
+            return TR_Test.main(self)
+        else:
+            return (0, 0)
+    #
+    @abc.abstractmethod
+    def dump_str(self):
+        """
+        Abstract method to implement.
+        Dump the data as it should be expected.
+        """
+        raise TR_Exception("Abstract method not implemented")
     #
     def check_same_len(self, res):
         if not self.expected:
@@ -175,3 +186,4 @@ class TR_Test_Str_List(TR_Test_Yaml):
             logging.error(str(self.expected))
             logging.error(str(res))
             raise TR_Exception("Incorrect list length")
+

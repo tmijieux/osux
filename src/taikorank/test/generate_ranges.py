@@ -30,16 +30,26 @@ class Ranges:
     rand = range(30, 0, -5)
     #
     @staticmethod
-    def ggm_to_miss(miss, step):
+    def _ggm_state(state, step, first, second):
         ggm = {
-            'good': 0,
-            'miss': miss,
+            first: state,
+            second: 0,
             'step': step
         }
-        miss = range(0, miss + step, step)
-        good = [0] * len(miss)
-        ggm['zip'] = [[g, m] for g, m in zip(good, miss)]
+        state1 = range(0, state + step, step)
+        state2 = [0] * len(state1)
+        if first == 'good':
+            ggm['zip'] = [[s1, s2] for s1, s2 in zip(state1, state2)]
+        elif first == 'miss':
+            ggm['zip'] = [[s2, s1] for s1, s2 in zip(state1, state2)]
         return ggm
+    #
+    @staticmethod
+    def ggm_miss(miss, step):
+        return Ranges._ggm_state(miss, step, 'miss', 'good')
+    @staticmethod
+    def ggm_good(good, step):
+        return Ranges._ggm_state(good, step, 'good', 'miss')
     #
     # Spaces can be used in patterns, they will be removed
     patterns = {}
@@ -147,6 +157,12 @@ class Ranges:
         'dd__ kd__ kk__ dk__',
         'ddkd ____ kkdk ____',
         'ddkd kkdk ____ ____',
+    ]
+    patterns['stream_compression']['dddd_kkkk'] = [
+        'd_d_ d_d_ k_k_ k_k_',
+        'dd__ dd__ kk__ kk__',
+        'dddd ____ kkkk ____',
+        'dddd kkkk ____ ____',
     ]
     patterns['patterns'] = {}
     patterns['patterns']['7'] = [

@@ -18,11 +18,11 @@ from colors import Colors
 from levenshtein import Levenshtein
 from tr_models import TR_Map_List
 from tr_exec import TR_Exec
-from tr_test import TR_Tester_Yaml, TR_Test_Str_List, TR_Exception
+from tr_test import TR_Tester_Yaml, TR_Test_Expected, TR_Exception
 
-class TR_Test_Stars(TR_Test_Str_List):
+class TR_Test_Stars(TR_Test_Expected):
     def __init__(self, ht):
-        TR_Test_Str_List.__init__(self, ht)
+        TR_Test_Expected.__init__(self, ht)
         self.field = self.get_if_exists('field', ht, 'final_star')
         self.mods  = self.get_if_exists('mods',  ht, ['__'])
         self.ggm   = self.get_if_exists('ggm',   ht, {
@@ -123,22 +123,20 @@ class TR_Tester_Stars(TR_Tester_Yaml):
         for x in data:
             test = TR_Test_Stars(x)
             self.tests[test.name] = test
-            if test.do:
-                logging.info("")
-                err, tot = test.main()
-                self.errors += err
-                self.total  += tot
+            logging.info("")
+            err, tot = test.main()
+            self.errors += err
+            self.total  += tot
     #
     def test_combined(self, data):
         for x in data:
             test = TR_Test_Stars(x)
             self.tests[test.name] = test
-            if test.do:
-                logging.info("")
-                test.combine(self.tests)
-                err, tot = test.main()
-                self.errors += err
-                self.total  += tot
+            logging.info("")
+            test.combine(self.tests)
+            err, tot = test.main()
+            self.errors += err
+            self.total  += tot
     #
     def test_yaml(self, data):
         if 'tests' in data:
