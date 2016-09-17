@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 #include <time.h>
 #include <math.h>
 #include <stdio.h>
@@ -25,7 +24,6 @@
 #include "bpm.h"
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"
-#include "stats.h"
 #include "cst_yaml.h"
 #include "linear_fun.h"
 #include "vector.h"
@@ -500,12 +498,15 @@ tro_open_front_back_mesh(struct tr_object * o, int offset)
     struct edge_2_rect * r;
     if (v_top->p.z == 0) {
         r = e2r_vertex_link_rect(v_top, r_new);
-        GtsFace * f_front = tr_gts_face_new(r->new->e_front, r->e_front_bot, r->e_front_top);
-        GtsFace * f_back  = tr_gts_face_new(r->new->e_back,  r->e_back_top,  r->e_back_bot);
+        GtsFace * f_front = tr_gts_face_new(
+            r->new->e_front, r->e_front_bot, r->e_front_top);
+        GtsFace * f_back  = tr_gts_face_new(
+            r->new->e_back,  r->e_back_top,  r->e_back_bot);
         gts_surface_add_face(o->mesh, f_front);
         gts_surface_add_face(o->mesh, f_back);
     } else {
-        GtsVertex * v_bot = tr_gts_vertex_bot_new(o->end_offset_dis, o->obj_dis);
+        GtsVertex * v_bot = tr_gts_vertex_bot_new(
+            o->end_offset_dis, o->obj_dis);
         GtsEdge * e = tr_gts_edge_new(v_bot, v_top);
         r = e2r_edge_link_rect(e, r_new);
         tro_add_face_front(o, r);
@@ -524,8 +525,10 @@ static struct edge_rect * tro_open_mesh(struct tr_object * o)
 
     struct edge_2_rect * r = tro_open_front_back_mesh(o, offset);
 
-    GtsFace * f_top = tr_gts_face_new(r->new->e_top, r->e_front_top, r->e_back_top);
-    GtsFace * f_bot = tr_gts_face_new(r->new->e_bot, r->e_back_bot,  r->e_front_bot);
+    GtsFace * f_top = tr_gts_face_new(
+        r->new->e_top, r->e_front_top, r->e_back_top);
+    GtsFace * f_bot = tr_gts_face_new(
+        r->new->e_bot, r->e_back_bot,  r->e_front_bot);
     gts_surface_add_face(o->mesh, f_top);
     gts_surface_add_face(o->mesh, f_bot);
 
@@ -546,8 +549,10 @@ tro_close_front_back_mesh(struct tr_object * o, struct edge_rect * r_old)
     struct edge_2_rect * r;
     if (v_top->p.z == 0) {
         r = e2r_rect_link_vertex(r_old, v_top);
-        GtsFace * f_front = tr_gts_face_new(r->old->e_front, r->e_front_top, r->e_front_bot);
-        GtsFace * f_back  = tr_gts_face_new(r->old->e_back,  r->e_back_bot,  r->e_back_top);
+        GtsFace * f_front = tr_gts_face_new(
+            r->old->e_front, r->e_front_top, r->e_front_bot);
+        GtsFace * f_back  = tr_gts_face_new(
+            r->old->e_back,  r->e_back_bot,  r->e_back_top);
         gts_surface_add_face(o->mesh, f_front);
         gts_surface_add_face(o->mesh, f_back);
     } else {
@@ -567,8 +572,10 @@ static void tro_close_mesh(struct tr_object * o,
 {
     struct edge_2_rect * r = tro_close_front_back_mesh(o, r_old);
 
-    GtsFace * f_top = tr_gts_face_new(r->old->e_top, r->e_back_top,  r->e_front_top);
-    GtsFace * f_bot = tr_gts_face_new(r->old->e_bot, r->e_front_bot, r->e_back_bot);
+    GtsFace * f_top = tr_gts_face_new(
+        r->old->e_top, r->e_back_top,  r->e_front_top);
+    GtsFace * f_bot = tr_gts_face_new(
+        r->old->e_bot, r->e_front_bot, r->e_back_bot);
     gts_surface_add_face(o->mesh, f_top);
     gts_surface_add_face(o->mesh, f_bot);
 

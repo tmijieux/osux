@@ -46,12 +46,12 @@ static osux_hashtable * ht_global_opt;
 //-----------------------------------------------------
 
 static int tr_option_apply(const struct tr_option * opt,
-			   int argc, const char ** argv)
+                           int argc, const char ** argv)
 {
     if (argc < opt->nb_arg) {
-	tr_error("Option '%s' need %d arguments.",
-		 opt->long_key, opt->nb_arg);
-	return 0;
+        tr_error("Option '%s' need %d arguments.",
+                 opt->long_key, opt->nb_arg);
+        return 0;
     }
     opt->fun(argv);
     return opt->nb_arg;
@@ -60,13 +60,13 @@ static int tr_option_apply(const struct tr_option * opt,
 //-----------------------------------------------------
 
 static int opt_set(int argc, const char ** argv,
-		   osux_hashtable * ht_opt)
+                   osux_hashtable * ht_opt)
 {
     struct tr_option * opt = NULL;
     osux_hashtable_lookup(ht_opt, argv[0], &opt);
     if (opt == NULL) {
-	tr_error("Unknown option: '%s'", argv[0]);
-	return 0;
+        tr_error("Unknown option: '%s'", argv[0]);
+        return 0;
     }
     return tr_option_apply(opt, argc-1, (const char **) &argv[1]);
 }
@@ -189,7 +189,7 @@ static void opt_bdb_path(const char ** argv)
 //-----------------------------------------------------
 
 static void tr_option_print(const char * key UNUSED,
-			    struct tr_option * opt)
+                            struct tr_option * opt)
 {
     fprintf(OUTPUT_INFO, "\t%s\t%s\n", opt->long_key, opt->help);
 }
@@ -198,13 +198,13 @@ static void opt_help(const char ** argv UNUSED)
 {
     fprintf(OUTPUT_INFO, "Usage:\n");
     fprintf(OUTPUT_INFO, "taiko_ranking [GLOBAL_OPTION] ... "
-	    "[LOCAL_OPTIONS] [FILE|HASH] ...\n");
+            "[LOCAL_OPTIONS] [FILE|HASH] ...\n");
     fprintf(OUTPUT_INFO, "Global options:\n");
     osux_hashtable_each(ht_global_opt, (void (*)(const char*, void*))
-			tr_option_print);
+                        tr_option_print);
     fprintf(OUTPUT_INFO, "Local options:\n");
     osux_hashtable_each(ht_local_opt, (void (*)(const char*, void*))
-			tr_option_print);
+                        tr_option_print);
     exit(EXIT_SUCCESS);
 }
 
@@ -224,23 +224,23 @@ void add_opt(osux_hashtable * ht_opt, struct tr_option * opt)
 {
     osux_hashtable_insert(ht_opt, opt->long_key, opt);
     if (opt->short_key != NULL)
-	osux_hashtable_insert(ht_opt, opt->short_key, opt);
+        osux_hashtable_insert(ht_opt, opt->short_key, opt);
 }
 
-#define new_tr_local_opt(LG_KEY, NB_ARG, FUNC, HELP)		\
-    static struct tr_option tr_opt_##FUNC = {			\
-	NULL,							\
-	LOCAL_OPT_PREFIX LG_KEY,				\
-	NB_ARG, local_opt, FUNC, HELP				\
-    };								\
+#define new_tr_local_opt(LG_KEY, NB_ARG, FUNC, HELP)            \
+    static struct tr_option tr_opt_##FUNC = {                   \
+        NULL,                                                   \
+        LOCAL_OPT_PREFIX LG_KEY,                                \
+        NB_ARG, local_opt, FUNC, HELP                           \
+    };                                                          \
     add_opt(ht_local_opt, &tr_opt_##FUNC)
 
-#define new_tr_global_opt(LG_KEY, NB_ARG, FUNC, HELP)		\
-    static struct tr_option tr_opt_##FUNC = {			\
-	NULL,							\
-	GLOBAL_OPT_PREFIX LG_KEY,				\
-	NB_ARG, global_opt, FUNC, HELP				\
-    };								\
+#define new_tr_global_opt(LG_KEY, NB_ARG, FUNC, HELP)           \
+    static struct tr_option tr_opt_##FUNC = {                   \
+        NULL,                                                   \
+        GLOBAL_OPT_PREFIX LG_KEY,                               \
+        NB_ARG, global_opt, FUNC, HELP                          \
+    };                                                          \
     add_opt(ht_global_opt, &tr_opt_##FUNC)
 
 
@@ -258,49 +258,49 @@ void tr_options_initialize(void)
     ht_global_opt = osux_hashtable_new(0);
 
     new_tr_global_opt("help", 0, opt_help,
-		      "Show this message");
+                      "Show this message");
 
     new_tr_global_opt("autoconvert", 1, opt_autoconvert,
-		      "Enable or disable autoconvertion");
+                      "Enable or disable autoconvertion");
     new_tr_global_opt("db", 1, opt_db,
-		      "Enable or disable database storing");
+                      "Enable or disable database storing");
     new_tr_global_opt("bdb", 1, opt_bdb,
-		      "Enable or disable beatmap database lookup");
+                      "Enable or disable beatmap database lookup");
     new_tr_global_opt("bdb_path", 1, opt_bdb_path,
-		      "Set the path to the beatmap database");
+                      "Set the path to the beatmap database");
 
     new_tr_global_opt("ptro", 1, opt_print_tro,
-		      "Enable or disable object printing");
+                      "Enable or disable object printing");
     new_tr_global_opt("pyaml", 1, opt_print_yaml,
-		      "Enable or disable yaml output");
+                      "Enable or disable yaml output");
     new_tr_global_opt("porder", 1, opt_print_order,
-		      "Set star order");
+                      "Set star order");
     new_tr_global_opt("pfilter", 1, opt_print_filter,
-		      "Set printed data filter");
+                      "Set printed data filter");
 
     // local options
     ht_local_opt  = osux_hashtable_new(0);
 
     new_tr_local_opt("mods", 1, opt_mods,
-		     "Set mods");
+                     "Set mods");
     new_tr_local_opt("no_bonus", 1, opt_no_bonus,
-		     "Enable or disable bonus objects removing");
+                     "Enable or disable bonus objects removing");
     new_tr_local_opt("flat", 1, opt_flat,
-		     "Enable or disable objects flatening");
+                     "Enable or disable objects flatening");
 
     new_tr_local_opt("score", 1, opt_score,
-		     "Enable or disable score computation");
+                     "Enable or disable score computation");
     new_tr_local_opt("quick", 1, opt_score_quick,
-		     "Enable or disable quick score computation");
+                     "Enable or disable quick score computation");
     new_tr_local_opt("step", 1, opt_score_step,
-		     "Set score step for printing. A negative value "
+                     "Set score step for printing. A negative value "
                      "will only print the last score.");
     new_tr_local_opt("input", 1, opt_score_input,
-		     "Set score input method");
+                     "Set score input method");
     new_tr_local_opt("acc", 1, opt_score_acc,
-		     "Set score accuracy");
+                     "Set score accuracy");
     new_tr_local_opt("ggm", 2, opt_score_ggm,
-		     "Set score number of good and miss");
+                     "Set score number of good and miss");
 
     atexit(options_exit);
 }

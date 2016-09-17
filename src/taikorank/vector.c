@@ -34,12 +34,12 @@
 struct vector * vect_new(int length, int dim)
 {
     if (length < 0)
-	length = 0;
+        length = 0;
     struct vector * v = malloc(sizeof(*v));
     v->len = length;
     v->t = malloc(sizeof(double *) * v->len);
     for (int i = 0; i < v->len; i++)
-	v->t[i] = malloc(sizeof(double) * dim);
+        v->t[i] = malloc(sizeof(double) * dim);
     return v;
 }
 
@@ -48,9 +48,9 @@ struct vector * vect_new(int length, int dim)
 void vect_free(struct vector * v)
 {
     if (v == NULL)
-	return;
+        return;
     for (int i = 0; i < v->len; i++)
-	free(v->t[i]);
+        free(v->t[i]);
     free(v->t);
     free(v);
 }
@@ -61,14 +61,14 @@ struct vector * cst_vect_from_list(osux_hashtable * ht, const char * key)
 {
     osux_list * l = cst_list(ht, key);
     if (l == NULL)
-	return NULL;
+        return NULL;
     struct vector * v = vect_new(osux_list_size(l), CST_VECT_DIM);
     for (int i = 0; i < v->len; i++) {
-	osux_list * l2 = yw_extract_list(osux_list_get(l, i+1));
-	if (l2 == NULL)
-	    return NULL;
-	for (int j = 0; j < CST_VECT_DIM; j++)
-	    v->t[i][j] = atof(yw_extract_scalar(osux_list_get(l2, j+1)));
+        osux_list * l2 = yw_extract_list(osux_list_get(l, i+1));
+        if (l2 == NULL)
+            return NULL;
+        for (int j = 0; j < CST_VECT_DIM; j++)
+            v->t[i][j] = atof(yw_extract_scalar(osux_list_get(l2, j+1)));
     }
     return v;
 }
@@ -81,15 +81,15 @@ struct vector * cst_vect_from_decl(osux_hashtable * ht, const char * key)
     v->max_index = 0;
     v->min_index = 0;
     for (int i = 0; i < v->len; i++) {
-	for (int j = 0; j < CST_VECT_DIM; j++) {
-	    s = g_strdup_printf("%s_%c%d", key, 'x'+j, i+1);
-	    v->t[i][j] = cst_f(ht, s);
-	    g_free(s);
-	}
-	if (v->t[i][0] > v->t[v->max_index][0])
-	    v->max_index = i;
-	if (v->t[i][0] < v->t[v->min_index][0])
-	    v->min_index = i;
+        for (int j = 0; j < CST_VECT_DIM; j++) {
+            s = g_strdup_printf("%s_%c%d", key, 'x'+j, i+1);
+            v->t[i][j] = cst_f(ht, s);
+            g_free(s);
+        }
+        if (v->t[i][0] > v->t[v->max_index][0])
+            v->max_index = i;
+        if (v->t[i][0] < v->t[v->min_index][0])
+            v->min_index = i;
     }
     return v;
 }
@@ -100,18 +100,18 @@ struct vector * cst_vect(osux_hashtable * ht, const char * key)
 {
     typedef struct vector* (*cst_vect_f)(osux_hashtable*, const char*);
     static cst_vect_f funs[] = {
-	cst_vect_from_decl,
-	cst_vect_from_list,
+        cst_vect_from_decl,
+        cst_vect_from_list,
     };
     tr_set_print_level(NONE);
     struct vector * v = NULL;
     for (unsigned int i = 0; i < ARRAY_LENGTH(funs); i++) {
-	v = funs[i](ht, key);
-	if (v != NULL)
-	    break;
+        v = funs[i](ht, key);
+        if (v != NULL)
+            break;
     }
     tr_set_print_level(ALL);
     if (v == NULL)
-	tr_error("Failed to find '%s'", key);
+        tr_error("Failed to find '%s'", key);
     return v;
 }

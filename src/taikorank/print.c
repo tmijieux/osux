@@ -33,13 +33,13 @@ void tr_set_print_level(enum print_level level)
 
 //-------------------------------------------------
 
-#define tr_print(msg, level)					\
-    if (PRINT_LEVEL < level)					\
-	return;							\
-    va_list vl;							\
-    va_start(vl, s);						\
-    fprintf(OUTPUT_ERR, TR_PREFIX msg);				\
-    vfprintf(OUTPUT_ERR, s, vl);				\
+#define tr_print(msg, level)                                    \
+    if (PRINT_LEVEL < level)                                    \
+        return;                                                 \
+    va_list vl;                                                 \
+    va_start(vl, s);                                            \
+    fprintf(OUTPUT_ERR, TR_PREFIX msg);                         \
+    vfprintf(OUTPUT_ERR, s, vl);                                \
     fprintf(OUTPUT_ERR, "\n")
 
 //-------------------------------------------------
@@ -61,16 +61,16 @@ void print_string_size(const char *src, int max, FILE * output)
     char * s = strdup(src);
     int length = strlen(s);
     if (length >= max) {
-	s[max-1] = '\0';
-	s[max-2] = '.';
-	s[max-3] = '.';
-	s[max-4] = '.';
-	length = max;
+        s[max-1] = '\0';
+        s[max-2] = '.';
+        s[max-3] = '.';
+        s[max-4] = '.';
+        length = max;
     }
     fprintf(output, "%s", s);
     length = max - length - 1;
     for (int i = 0; i < length; i++)
-	fprintf(output, " ");
+        fprintf(output, " ");
     fprintf(output, "\t");
     free(s);
 }

@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 #ifndef TAIKO_RANKING_SCORE_H
 #define TAIKO_RANKING_SCORE_H
 
@@ -32,7 +31,7 @@ struct tr_score
 
     double last_point;
     double step;
-  
+
     // working:
     struct tr_map * map; // current map
 

@@ -1,6 +1,3 @@
-#ifndef TR_SPACING_COUNT_H
-#define TR_SPACING_COUNT_H
-
 /*
  *  Copyright (©) 2015-2016 Lucas Maugère, Thomas Mijieux
  *
@@ -16,6 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+#ifndef TR_SPACING_COUNT_H
+#define TR_SPACING_COUNT_H
 
 struct spacing_count;
 

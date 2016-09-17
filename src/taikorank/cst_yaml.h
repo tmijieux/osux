@@ -1,6 +1,3 @@
-#ifndef CST_YAML_H
-#define CST_YAML_H
-
 /*
  *  Copyright (©) 2015-2016 Lucas Maugère, Thomas Mijieux
  *
@@ -16,6 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+#ifndef CST_YAML_H
+#define CST_YAML_H
 
 struct yaml_wrap * cst_get_yw(const char * file_name);
 
@@ -27,6 +26,5 @@ osux_list * cst_list(osux_hashtable * ht, const char * key);
 double cst_f(osux_hashtable * ht, const char * key);
 int cst_i(osux_hashtable * ht, const char * key);
 char * cst_str(osux_hashtable * ht, const char * key);
-struct stats * cst_stats(osux_hashtable * ht, const char * key);
 
 #endif //CST_YAML_H

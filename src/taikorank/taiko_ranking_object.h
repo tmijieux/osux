@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 #ifndef TRO_H
 #define TRO_H
 
@@ -151,18 +150,18 @@ static inline int tro_is_left_hand(const struct tr_object * obj) {
 }
 
 static inline int tro_are_same_hand(const struct tr_object * o1,
-				    const struct tr_object * o2)
+                                    const struct tr_object * o2)
 {
     return TRO_HAND & o1->bf & o2->bf;
 }
 
 static inline int tro_are_same_type(const struct tr_object * o1,
-				    const struct tr_object * o2)
+                                    const struct tr_object * o2)
 {
     if (TRO_S & (o1->bf | o2->bf)) // one is spinner
-	return 1; // d and k are played
+        return 1; // d and k are played
     if (TRO_R & (o1->bf | o2->bf)) // one is roll
-	return 0; // suppose you play the easier...
+        return 0; // suppose you play the easier...
     return (TRO_DK & o1->bf & o2->bf);
 }
 

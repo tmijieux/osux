@@ -35,17 +35,20 @@ struct inheriter {
     const struct counter * c;
     struct counter_entry * e;
     union {
-	inherit_fun inherit;
-	where_fun where;
+        inherit_fun inherit;
+        where_fun where;
     } fun;
     double nb;
 };
 
 static struct counter_entry * cnte_new(const void * d, double nb);
 static void cnte_free(const char *key, struct counter_entry *e);
-static void cnte_print(const char *key, struct counter_entry *e, struct inheriter *h);
-static void cnte_inherit(const char *key, struct counter_entry *e, struct inheriter *h);
-static void cnte_add_nb_inherit(const char *key, struct counter_entry *e, struct inheriter *h);
+static void cnte_print(
+    const char *key, struct counter_entry *e, struct inheriter *h);
+static void cnte_inherit(
+    const char *key, struct counter_entry *e, struct inheriter *h);
+static void cnte_add_nb_inherit(
+    const char *key, struct counter_entry *e, struct inheriter *h);
 
 //--------------------------------------------------
 
@@ -60,7 +63,7 @@ static struct counter_entry * cnte_new(const void * d, double nb)
 static void cnte_free(const char *key UNUSED, struct counter_entry *e)
 {
     if (e == NULL)
-	return;
+        return;
     free(e);
 }
 
@@ -68,37 +71,37 @@ static void cnte_free(const char *key UNUSED, struct counter_entry *e)
 
 static void cnte_print(const char *key,
                        struct counter_entry * e,
-		       struct inheriter * h)
+                       struct inheriter * h)
 {
     if (h == NULL) {
-	printf("Entry:\t%s\t%.4g\t%.4f\n",
-	       key, e->nb, e->nb / h->c->total);
+        printf("Entry:\t%s\t%.4g\t%.4f\n",
+               key, e->nb, e->nb / h->c->total);
     } else {
-	double d = cnt_get_nb_inherit(h->c, key, h->fun.inherit);
-	printf("Entry:\t%s\t%.4g\t%.4g\t%.4f\t%.4f\n",
-	       key, e->nb, d, e->nb / h->c->total, d / h->c->total);
+        double d = cnt_get_nb_inherit(h->c, key, h->fun.inherit);
+        printf("Entry:\t%s\t%.4g\t%.4g\t%.4f\t%.4f\n",
+               key, e->nb, d, e->nb / h->c->total, d / h->c->total);
     }
 }
 
 //--------------------------------------------------
 
 static void cnte_inherit(const char *key UNUSED,
-			 struct counter_entry *e,
-			 struct inheriter *h)
+                         struct counter_entry *e,
+                         struct inheriter *h)
 {
     h->nb += e->nb * h->fun.inherit(h->e->data, e->data);
 }
 
 static void cnte_add_nb_inherit(const char *key,
-				struct counter_entry *e UNUSED,
-				struct inheriter *h)
+                                struct counter_entry *e UNUSED,
+                                struct inheriter *h)
 {
     h->nb += cnt_get_nb_inherit(h->c, key, h->fun.inherit);
 }
 
 static void cnte_where(const char *key UNUSED,
-		       struct counter_entry *e,
-		       struct inheriter *h)
+                       struct counter_entry *e,
+                       struct inheriter *h)
 {
     h->nb += e->nb * h->fun.where(e->data);
 }
@@ -116,9 +119,9 @@ struct counter * cnt_new(void)
 void cnt_free(struct counter * c)
 {
     if (c == NULL)
-	return;
-    osux_hashtable_each(c->ht, 
-			(void (*)(const char*, void*)) cnte_free);
+        return;
+    osux_hashtable_each(c->ht,
+                        (void (*)(const char*, void*)) cnte_free);
     osux_hashtable_delete(c->ht);
     free(c);
 }
@@ -126,15 +129,15 @@ void cnt_free(struct counter * c)
 //--------------------------------------------------
 
 void cnt_add(struct counter * c, const void * data,
-	     const char * key, double val)
+             const char * key, double val)
 {
     struct counter_entry * e = NULL;
     osux_hashtable_lookup(c->ht, key, &e);
     if (e != NULL) {
-	e->nb += val;
+        e->nb += val;
     } else {
-	e = cnte_new(data, val);
-	osux_hashtable_insert(c->ht, key, e);
+        e = cnte_new(data, val);
+        osux_hashtable_insert(c->ht, key, e);
     }
     c->total += val;
 }
@@ -142,12 +145,12 @@ void cnt_add(struct counter * c, const void * data,
 //--------------------------------------------------
 
 double cnt_get_nb_inherit(const struct counter * c,
-			  const char * key, inherit_fun inherit)
+                          const char * key, inherit_fun inherit)
 {
     struct counter_entry * e = NULL;
     osux_hashtable_lookup(c->ht, key, &e);
     if (e == NULL)
-	return 0;
+        return 0;
     struct inheriter total = {NULL, e, {inherit}, 0};
     osux_hashtable_each_r(c->ht, (ht_fun) cnte_inherit, &total);
     return total.nb;
@@ -158,7 +161,7 @@ double cnt_get_nb(const struct counter * c, const char * key)
     struct counter_entry * e = NULL;
     osux_hashtable_lookup(c->ht, key, &e);
     if (e == NULL)
-	return 0;
+        return 0;
     return e->nb;
 }
 

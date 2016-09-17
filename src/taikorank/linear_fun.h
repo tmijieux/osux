@@ -1,6 +1,3 @@
-#ifndef TR_LINEAR_FUN_H
-#define TR_LINEAR_FUN_H
-
 /*
  *  Copyright (©) 2015-2016 Lucas Maugère, Thomas Mijieux
  *
@@ -16,6 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+#ifndef TR_LINEAR_FUN_H
+#define TR_LINEAR_FUN_H
 
 struct vector;
 struct linear_fun;
@@ -23,7 +22,7 @@ struct linear_fun;
 struct linear_fun * lf_new(struct vector * v);
 void lf_free(struct linear_fun * lf);
 
-// Values must be sorted 
+// Values must be sorted
 struct linear_fun * cst_lf(osux_hashtable * ht, const char * key);
 
 double lf_eval(struct linear_fun * lf, double x);

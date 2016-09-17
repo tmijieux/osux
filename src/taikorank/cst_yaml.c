@@ -13,13 +13,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 #include <stdio.h>
 
 #include "osux.h"
 
 #include "taiko_ranking_map.h"
-#include "stats.h"
 #include "cst_yaml.h"
 #include "print.h"
 
@@ -33,9 +31,9 @@ struct yaml_wrap * cst_get_yw(const char * file_name)
 {
     struct yaml_wrap * yw = NULL;
     if (0 != yaml2_parse_file(&yw, file_name))
-	tr_error("Unable to parse yaml file '%s'.", file_name);
+        tr_error("Unable to parse yaml file '%s'.", file_name);
     if (yw == NULL)
-	tr_error("No wrapping.");
+        tr_error("No wrapping.");
     return yw;
 }
 
@@ -44,8 +42,8 @@ struct yaml_wrap * cst_get_yw(const char * file_name)
 osux_hashtable * yw_extract_ht(struct yaml_wrap * yw)
 {
     if (yw->type != YAML_MAPPING) {
-	tr_error("Constant is not a hash table.");
-	return NO_MAPPING;
+        tr_error("Constant is not a hash table.");
+        return NO_MAPPING;
     }
     return yw->content.mapping;
 }
@@ -53,8 +51,8 @@ osux_hashtable * yw_extract_ht(struct yaml_wrap * yw)
 osux_list * yw_extract_list(struct yaml_wrap * yw)
 {
     if (yw->type != YAML_SEQUENCE) {
-	tr_error("Constant is not a list.");
-	return NO_SEQUENCE;
+        tr_error("Constant is not a list.");
+        return NO_SEQUENCE;
     }
     return yw->content.sequence;
 }
@@ -62,8 +60,8 @@ osux_list * yw_extract_list(struct yaml_wrap * yw)
 char * yw_extract_scalar(struct yaml_wrap * yw)
 {
     if (yw->type != YAML_SCALAR) {
-	tr_error("Constant is not a scalar.");
-	return NO_SCALAR;
+        tr_error("Constant is not a scalar.");
+        return NO_SCALAR;
     }
     return yw->content.scalar;
 }
@@ -75,8 +73,8 @@ osux_list * cst_list(osux_hashtable * ht, const char * key)
     struct yaml_wrap * yw = NULL;
     osux_hashtable_lookup(ht, key, &yw);
     if (yw == NULL) {
-	tr_error("List '%s' not found.", key);
-	return NO_SEQUENCE;
+        tr_error("List '%s' not found.", key);
+        return NO_SEQUENCE;
     }
     return yw_extract_list(yw);
 }
@@ -86,8 +84,8 @@ char * cst_str(osux_hashtable * ht, const char * key)
     struct yaml_wrap * yw = NULL;
     osux_hashtable_lookup(ht, key, &yw);
     if (yw == NULL) {
-	tr_error("Scalar '%s' not found.", key);
-	return NO_SCALAR;
+        tr_error("Scalar '%s' not found.", key);
+        return NO_SCALAR;
     }
     return yw_extract_scalar(yw);
 }
@@ -100,28 +98,4 @@ double cst_f(osux_hashtable * ht, const char * key)
 int cst_i(osux_hashtable * ht, const char * key)
 {
     return atoi(cst_str(ht, key));
-}
-
-//--------------------------------------------------
-
-struct stats * cst_stats(osux_hashtable * ht, const char * key)
-{
-    struct stats * stats = calloc(sizeof(*stats), 1);
-    struct yaml_wrap * yw = NULL;
-    osux_hashtable_lookup(ht, key, &yw);
-    if (yw == NULL) {
-	tr_error("Stats '%s' not found.", key);
-    } else if (yw->type != YAML_MAPPING) {
-	tr_error("Stats '%s' is not a mapping.", key);
-    } else {
-	osux_hashtable * ht_stats = yw->content.mapping;
-	stats->scaling = cst_f(ht_stats, "scaling");
-	stats->median  = cst_f(ht_stats, "median");
-	stats->mean    = cst_f(ht_stats, "mean");
-	stats->d1 = cst_f(ht_stats, "d1");
-	stats->d9 = cst_f(ht_stats, "d9");
-	stats->q1 = cst_f(ht_stats, "q1");
-	stats->q3 = cst_f(ht_stats, "q3");
-    }
-    return stats;
 }

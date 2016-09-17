@@ -43,7 +43,7 @@ struct spacing_count * spc_new(int (*eq)(int, int))
 void spc_free(struct spacing_count * spc)
 {
     if (spc == NULL)
-	return;
+        return;
     osux_list_each(spc->l, free);
     osux_list_free(spc->l);
     free(spc);
@@ -53,11 +53,11 @@ void spc_add(struct spacing_count * spc, int rest, double val)
 {
     unsigned int len = osux_list_size(spc->l);
     for (unsigned int i = 1; i <= len; i++) {
-	struct spacing * sp = osux_list_get(spc->l, i);
-	if (spc->eq(sp->rest, rest)) {
-	    sp->nb += val;
-	    return;
-	}
+        struct spacing * sp = osux_list_get(spc->l, i);
+        if (spc->eq(sp->rest, rest)) {
+            sp->nb += val;
+            return;
+        }
     }
 
     struct spacing * sp = malloc(sizeof(*sp));
@@ -82,8 +82,8 @@ double spc_get_total(const struct spacing_count * spc)
     double res = 0;
     unsigned int len = osux_list_size(spc->l);
     for (unsigned int i = 1; i <= len; i++) {
-	struct spacing * sp = osux_list_get(spc->l, i);
-	res += sp->nb;
+        struct spacing * sp = osux_list_get(spc->l, i);
+        res += sp->nb;
     }
     return res;
 }
@@ -92,9 +92,9 @@ double spc_get_nb(const struct spacing_count * spc, int rest)
 {
     unsigned int len = osux_list_size(spc->l);
     for (unsigned int i = 1; i <= len; i++) {
-	struct spacing * sp = osux_list_get(spc->l, i);
-	if (spc->eq(sp->rest, rest))
-	    return sp->nb;
+        struct spacing * sp = osux_list_get(spc->l, i);
+        if (spc->eq(sp->rest, rest))
+            return sp->nb;
     }
     return 0;
 }

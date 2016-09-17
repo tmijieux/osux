@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -63,7 +62,7 @@ void tr_global_config_print(const struct tr_global_config *conf)
 
     fprintf(OUTPUT_INFO, "print_tro:    %d\n", conf->print_tro);
     fprintf(OUTPUT_INFO, "print_yaml:   %d\n", conf->print_yaml);
-    fprintf(OUTPUT_INFO, "print_filter: %d\n", conf->print_filter); // not readable...
+    // print filter is not readable
 
     fprintf(OUTPUT_INFO, "print_order:  %s\n", conf->print_order);
 
@@ -124,11 +123,11 @@ void local_config_set_tr_main(enum tr_main i)
 {
     switch (i) {
     case MAIN_SCORE:
-	LOCAL_CONFIG->tr_main = trs_main;
-	break;
+        LOCAL_CONFIG->tr_main = trs_main;
+        break;
     default:
-	LOCAL_CONFIG->tr_main = trm_main;
-	break;
+        LOCAL_CONFIG->tr_main = trm_main;
+        break;
     }
 }
 
@@ -136,11 +135,11 @@ void local_config_set_score_method(enum score_method i)
 {
     switch (i) {
     case SCORE_INPUT_INFLUENCE:
-	LOCAL_CONFIG->trm_method_get_tro = trm_best_influence_tro;
-	break;
+        LOCAL_CONFIG->trm_method_get_tro = trm_best_influence_tro;
+        break;
     default:
-	LOCAL_CONFIG->trm_method_get_tro = trm_hardest_tro;
-	break;
+        LOCAL_CONFIG->trm_method_get_tro = trm_hardest_tro;
+        break;
     }
 }
 
@@ -159,9 +158,9 @@ static void local_config_score(void)
 
 //-----------------------------------------------------
 
-#define CASE_FILTER(C, FILTER)			\
-    case C:					\
-    GLOBAL_CONFIG->print_filter |= FILTER;	\
+#define CASE_FILTER(C, FILTER)                  \
+    case C:                                     \
+    GLOBAL_CONFIG->print_filter |= FILTER;      \
     break
 
 void global_config_set_filter(const char * filter)
@@ -169,58 +168,58 @@ void global_config_set_filter(const char * filter)
     GLOBAL_CONFIG->print_filter = 0;
     int i = 0;
     while (filter[i] != 0) {
-	switch (filter[i]) {
-	    CASE_FILTER('b', FILTER_BASIC);
-	    CASE_FILTER('B', FILTER_BASIC_PLUS);
-	    CASE_FILTER('+', FILTER_ADDITIONNAL);
-	    CASE_FILTER('d', FILTER_DENSITY);
-	    CASE_FILTER('r', FILTER_READING);
-	    CASE_FILTER('R', FILTER_READING_PLUS);
-	    CASE_FILTER('p', FILTER_PATTERN);
-	    CASE_FILTER('a', FILTER_ACCURACY);
-	    CASE_FILTER('*', FILTER_STAR);
-	default:
-	    break;
-	}
-	i++;
+        switch (filter[i]) {
+            CASE_FILTER('b', FILTER_BASIC);
+            CASE_FILTER('B', FILTER_BASIC_PLUS);
+            CASE_FILTER('+', FILTER_ADDITIONNAL);
+            CASE_FILTER('d', FILTER_DENSITY);
+            CASE_FILTER('r', FILTER_READING);
+            CASE_FILTER('R', FILTER_READING_PLUS);
+            CASE_FILTER('p', FILTER_PATTERN);
+            CASE_FILTER('a', FILTER_ACCURACY);
+            CASE_FILTER('*', FILTER_STAR);
+        default:
+            break;
+        }
+        i++;
     }
 }
 
 //-----------------------------------------------------
 
-#define IF_MOD_SET(STR, MOD, i)				\
-    if (strncmp(STR, &mods[i], MOD_STR_LENGTH) == 0) {	\
-	LOCAL_CONFIG->mods |= MOD;			\
-	continue;					\
+#define IF_MOD_SET(STR, MOD, i)                         \
+    if (strncmp(STR, &mods[i], MOD_STR_LENGTH) == 0) {  \
+        LOCAL_CONFIG->mods |= MOD;                      \
+        continue;                                       \
     }
 
 void local_config_set_mods(const char * mods)
 {
     LOCAL_CONFIG->mods = MODS_NONE;
     for (int i = 0; mods[i]; i += MOD_STR_LENGTH) {
-	IF_MOD_SET("EZ", MODS_EZ, i);
-	IF_MOD_SET("HR", MODS_HR, i);
-	IF_MOD_SET("HT", MODS_HT, i);
-	IF_MOD_SET("DT", MODS_DT, i);
-	IF_MOD_SET("HD", MODS_HD, i);
-	IF_MOD_SET("FL", MODS_FL, i);
-	IF_MOD_SET("__", MODS_NONE, i);
-	for (int k = 1; k < MOD_STR_LENGTH; k++) {
-	    if (mods[i+k] == 0) {
-		tr_error("Wrong mod length.");
-		goto break2;
-	    }
-	}
-	tr_error("Unknown mod used.");
+        IF_MOD_SET("EZ", MODS_EZ, i);
+        IF_MOD_SET("HR", MODS_HR, i);
+        IF_MOD_SET("HT", MODS_HT, i);
+        IF_MOD_SET("DT", MODS_DT, i);
+        IF_MOD_SET("HD", MODS_HD, i);
+        IF_MOD_SET("FL", MODS_FL, i);
+        IF_MOD_SET("__", MODS_NONE, i);
+        for (int k = 1; k < MOD_STR_LENGTH; k++) {
+            if (mods[i+k] == 0) {
+                tr_error("Wrong mod length.");
+                goto break2;
+            }
+        }
+        tr_error("Unknown mod used.");
     }
  break2:
 
     if ((LOCAL_CONFIG->mods & MODS_EZ) &&
-	(LOCAL_CONFIG->mods & MODS_HR))
-	tr_error("Incompatible mods EZ and HR");
+        (LOCAL_CONFIG->mods & MODS_HR))
+        tr_error("Incompatible mods EZ and HR");
     if ((LOCAL_CONFIG->mods & MODS_HT) &&
-	(LOCAL_CONFIG->mods & MODS_DT))
-	tr_error("Incompatible mods HT and DT");
+        (LOCAL_CONFIG->mods & MODS_DT))
+        tr_error("Incompatible mods HT and DT");
 }
 
 //-----------------------------------------------------
@@ -239,8 +238,8 @@ void tr_config_initialize(void)
     yw = cst_get_yw(CONFIG_FILE);
     ht_conf = yw_extract_ht(yw);
     if (ht_conf == NULL) {
-	tr_error("Unable to run without config.");
-	exit(EXIT_FAILURE);
+        tr_error("Unable to run without config.");
+        exit(EXIT_FAILURE);
     }
     config_init();
     atexit(config_exit);
@@ -249,8 +248,8 @@ void tr_config_initialize(void)
 void init_enabled(void)
 {
     if (GLOBAL_CONFIG->db_enable)
-	tr_db_init();
+        tr_db_init();
     if (GLOBAL_CONFIG->beatmap_db_enable)
-	osux_beatmap_db_init(&GLOBAL_CONFIG->beatmap_db,
+        osux_beatmap_db_init(&GLOBAL_CONFIG->beatmap_db,
                              GLOBAL_CONFIG->beatmap_db_path, ".", false);
 }

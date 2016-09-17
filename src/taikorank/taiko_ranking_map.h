@@ -1,8 +1,5 @@
-#ifndef TRM_H
-#define TRM_H
-
 /*
- *  Copyright (©) 2015-2016 Lucas Maugère, Thomas Mijieux
+ *  Copyright (Â©) 2015-2016 Lucas MaugÃ¨re, Thomas Mijieux
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,6 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+#ifndef TRM_H
+#define TRM_H
 
 struct tr_object;
 enum played_state;

@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 #ifndef TREATMENT_H
 #define TREATMENT_H
 
@@ -22,7 +21,7 @@
  */
 void tro_set_length(struct tr_object * obj);
 
-/* Use: 
+/* Use:
    - ps
    - d/k/D/K/s/r/R
 */

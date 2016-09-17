@@ -13,9 +13,18 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-#ifndef COMPUTE_STARS_H
-#define COMPUTE_STARS_H
+#ifndef STATS_H
+#define STATS_H
 
-void trm_compute_stars(struct tr_map * map);
+#define TRM_SORT_HEADER(FIELD)                                  \
+    void tro_sort_##FIELD (struct tr_object * o, int nb);       \
+    void trm_sort_##FIELD (struct tr_map * map)
 
-#endif //COMPUTE_STARS_H
+TRM_SORT_HEADER(offset);
+TRM_SORT_HEADER(pattern_star);
+TRM_SORT_HEADER(density_star);
+TRM_SORT_HEADER(reading_star);
+TRM_SORT_HEADER(accuracy_star);
+TRM_SORT_HEADER(final_star);
+
+#endif //STATS_H

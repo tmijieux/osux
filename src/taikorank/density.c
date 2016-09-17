@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 #include <math.h>
 #include <stdio.h>
 
@@ -21,7 +20,6 @@
 
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"
-#include "stats.h"
 #include "cst_yaml.h"
 #include "linear_fun.h"
 #include "print.h"
@@ -31,13 +29,13 @@ static struct yaml_wrap * yw_dst;
 static osux_hashtable * ht_cst_dst;
 
 static inline int tro_true(const struct tr_object *o1 UNUSED,
-			   const struct tr_object *o2 UNUSED);
+                           const struct tr_object *o2 UNUSED);
 static inline int tro_are_same_density(const struct tr_object *o1,
-				       const struct tr_object *o2);
+                                       const struct tr_object *o2);
 
 static double tro_get_coeff_density(const struct tr_object * obj);
 static double tro_density(const struct tr_object * obj1,
-			  const struct tr_object * obj2);
+                          const struct tr_object * obj2);
 
 static void trm_set_density_raw(struct tr_map * map);
 static void trm_set_density_color(struct tr_map * map);
@@ -98,7 +96,7 @@ void tr_density_initialize(void)
     yw_dst = cst_get_yw(DENSITY_FILE);
     ht_cst_dst = yw_extract_ht(yw_dst);
     if (ht_cst_dst != NULL)
-	density_global_init(ht_cst_dst);
+        density_global_init(ht_cst_dst);
     atexit(ht_cst_exit_density);
 }
 
@@ -109,21 +107,21 @@ void tr_density_initialize(void)
 static double tro_get_coeff_density(const struct tr_object * o)
 {
     if (tro_is_bonus(o))
-	return DENSITY_BONUS;
+        return DENSITY_BONUS;
     else if (tro_is_big(o))
-	return DENSITY_BIG;
+        return DENSITY_BIG;
     else
-	return DENSITY_NORMAL;
+        return DENSITY_NORMAL;
 }
 
 //-----------------------------------------------------
 
 static double tro_density(const struct tr_object * obj1,
-			  const struct tr_object * obj2)
+                          const struct tr_object * obj2)
 {
     double value  = lf_eval(DENSITY_LF,
-			    ((double) obj2->end_offset - obj1->offset) +
-			    DENSITY_LENGTH * obj1->length);
+                            ((double) obj2->end_offset - obj1->offset) +
+                            DENSITY_LENGTH * obj1->length);
     return tro_get_coeff_density(obj1) * value;
 }
 
@@ -131,47 +129,47 @@ static double tro_density(const struct tr_object * obj1,
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-#define TRO_SET_DENSITY_TYPE(TYPE, TRO_TEST)			\
-    void tro_set_density_##TYPE (struct tr_object * o, int i)	\
-    {								\
-	if (o->ps == MISS) {					\
-	    o->density_##TYPE = 0;				\
-	    return;						\
-	}							\
-								\
-	double sum = 0;						\
-	for (int j = i-1; j >= 0; j--) {				\
-	    if (o->objs[j].ps == MISS)				\
-		continue;					\
-	    if (TRO_TEST(&o->objs[j], o)) {			\
-		/* each object give a density value */		\
-		/* based on the time between the two objects */	\
-		double d = tro_density(&o->objs[j], o);		\
-		if (d == 0)					\
-		    break; /* j-- density won't increase */	\
-		sum += d;					\
-	    }							\
-	}							\
-	sum *= tro_get_coeff_density(o);			\
-	o->density_##TYPE = sum;				\
-    }								\
-    								\
-    static void trm_set_density_##TYPE(struct tr_map * map)	\
-    {								\
-	map->object[0].density_##TYPE = 0;			\
-	for (int i = 1; i < map->nb_object; i++)			\
-	    tro_set_density_##TYPE (&map->object[i], i);	\
+#define TRO_SET_DENSITY_TYPE(TYPE, TRO_TEST)                    \
+    void tro_set_density_##TYPE (struct tr_object * o, int i)   \
+    {                                                           \
+        if (o->ps == MISS) {                                    \
+            o->density_##TYPE = 0;                              \
+            return;                                             \
+        }                                                       \
+                                                                \
+        double sum = 0;                                         \
+        for (int j = i-1; j >= 0; j--) {                        \
+            if (o->objs[j].ps == MISS)                          \
+                continue;                                       \
+            if (TRO_TEST(&o->objs[j], o)) {                     \
+                /* each object give a density value */          \
+                /* based on the time between the two objects */ \
+                double d = tro_density(&o->objs[j], o);         \
+                if (d == 0)                                     \
+                    break; /* j-- density won't increase */     \
+                sum += d;                                       \
+            }                                                   \
+        }                                                       \
+        sum *= tro_get_coeff_density(o);                        \
+        o->density_##TYPE = sum;                                \
+    }                                                           \
+                                                                \
+    static void trm_set_density_##TYPE(struct tr_map * map)     \
+    {                                                           \
+        map->object[0].density_##TYPE = 0;                      \
+        for (int i = 1; i < map->nb_object; i++)                \
+            tro_set_density_##TYPE (&map->object[i], i);        \
     }
 
 static inline int tro_true(const struct tr_object *o1 UNUSED,
-			   const struct tr_object *o2 UNUSED)
+                           const struct tr_object *o2 UNUSED)
 {
     // for hands density, all objects give a density value
     return 1;
 }
 
 static inline int tro_are_same_density(const struct tr_object *o1,
-				       const struct tr_object *o2)
+                                       const struct tr_object *o2)
 {
     // for finger density, only objects played with the same finger
     // give a density value.
@@ -196,9 +194,9 @@ void tro_set_density_star(struct tr_object * obj)
     obj->density_star = lf_eval(
         DENSITY_SCALE_LF, (
             DENSITY_STAR_COEFF_COLOR * obj->density_color +
-	    DENSITY_STAR_COEFF_RAW   * obj->density_raw   +
-	    DENSITY_STAR_COEFF_DK    * min(obj->density_ddkk,
-					   obj->density_kddk)
+            DENSITY_STAR_COEFF_RAW   * obj->density_raw   +
+            DENSITY_STAR_COEFF_DK    * min(obj->density_ddkk,
+                                           obj->density_kddk)
         )
     );
 }
@@ -208,7 +206,7 @@ void tro_set_density_star(struct tr_object * obj)
 static void trm_set_density_star(struct tr_map * map)
 {
     for (int i = 0; i < map->nb_object; i++)
-	tro_set_density_star(&map->object[i]);
+        tro_set_density_star(&map->object[i]);
 }
 
 //-----------------------------------------------------
@@ -218,8 +216,8 @@ static void trm_set_density_star(struct tr_map * map)
 void trm_compute_density(struct tr_map * map)
 {
     if (ht_cst_dst == NULL) {
-	tr_error("Unable to compute density stars.");
-	return;
+        tr_error("Unable to compute density stars.");
+        return;
     }
 
     /*

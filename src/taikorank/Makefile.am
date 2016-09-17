@@ -12,7 +12,7 @@ taiko_ranking_SOURCES = \
 	taiko_ranking_object.c \
 	taiko_ranking_score.c \
 	treatment.c \
-	stats.c \
+	tr_sort.c \
 	tr_db.c \
 	tr_gts.c \
 	config.c \

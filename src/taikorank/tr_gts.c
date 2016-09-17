@@ -1,5 +1,5 @@
 /*
- *  COPYRIGHT (©) 2015-2016 Lucas Maugère, Thomas Mijieux
+ *  Copyright (©) 2015-2016 Lucas Maugère, Thomas Mijieux
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 #include "taiko_ranking_object.h"
 #include "tr_gts.h"
 
@@ -27,5 +26,3 @@ GtsSurface * tr_gts_exclude_2_to_1(GtsSurface * s1, GtsSurface * s2)
     gts_surface_foreach_face(s2, (GtsFunc) gts_triangle_revert, NULL);
     return s;
 }
-
-

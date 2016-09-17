@@ -8,7 +8,7 @@ set(TR_SOURCE
   taiko_ranking_object.c        taiko_ranking_object.h
   taiko_ranking_score.c	        taiko_ranking_score.h
   treatment.c			treatment.h
-  stats.c			stats.h
+  tr_sort.c			tr_sort.h
   tr_db.c			tr_db.h
   tr_gts.c			tr_gts.h
   config.c			config.c

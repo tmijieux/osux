@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -23,7 +22,7 @@
 
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"
-#include "stats.h"
+#include "tr_sort.h"
 #include "cst_yaml.h"
 #include "linear_fun.h"
 #include "print.h"
@@ -33,7 +32,7 @@ static double weight_final_star(int i, double val);
 
 static void tro_apply_influence_coeff(struct tr_object *o, double c);
 static double tro_influence_coeff(const struct tr_object * o1,
-				  const struct tr_object * o2);
+                                  const struct tr_object * o2);
 
 static void trm_set_influence(struct tr_map * map);
 static void trm_set_final_star(struct tr_map * map);
@@ -55,6 +54,28 @@ static double ACC_POW;
 static struct linear_fun * FINAL_INFLU_LF;
 static struct linear_fun * FINAL_SCALE_LF;
 static struct linear_fun * WEIGHT_LF;
+
+#define TRM_WEIGHT_SUM(FIELD)                                   \
+    static double trm_weight_sum_##FIELD (                      \
+        struct tr_map * map, double (*weight)(int,double))      \
+    {                                                           \
+        struct tr_object * copy = tro_copy(map->object,         \
+                                           map->nb_object);     \
+        tro_sort_##FIELD (copy, map->nb_object);                \
+        double sum = 0;                                         \
+        for (int i = 0; i < map->nb_object; i++) {              \
+            double d = weight(map->nb_object-i, copy[i].FIELD); \
+            sum += d;                                           \
+        }                                                       \
+        free(copy);                                             \
+        return sum;                                             \
+    }
+
+TRM_WEIGHT_SUM(density_star)
+TRM_WEIGHT_SUM(reading_star)
+TRM_WEIGHT_SUM(pattern_star)
+TRM_WEIGHT_SUM(accuracy_star)
+TRM_WEIGHT_SUM(final_star)
 
 //-----------------------------------------------------
 
@@ -84,7 +105,7 @@ void tr_final_star_initialize(void)
     yw_fin = cst_get_yw(FINAL_FILE);
     ht_cst_fin = yw_extract_ht(yw_fin);
     if (ht_cst_fin != NULL)
-	final_global_init(ht_cst_fin);
+        final_global_init(ht_cst_fin);
     atexit(ht_cst_exit_final);
 }
 
@@ -97,11 +118,10 @@ static double weight_final_star(int i, double val)
     return lf_eval(WEIGHT_LF, i) * val;
 }
 
-
 //-----------------------------------------------------
 
 static double tro_influence_coeff(const struct tr_object * o1,
-				  const struct tr_object * o2)
+                                  const struct tr_object * o2)
 {
     return lf_eval(FINAL_INFLU_LF, fabs(o1->offset - o2->offset));
 }
@@ -124,19 +144,19 @@ static void tro_apply_influence_coeff(struct tr_object * o, double c)
 void tro_set_final_star(struct tr_object * o)
 {
     if (o->ps != GREAT) {
-	o->density_star  = 0;
-	o->reading_star  = 0;
-	o->pattern_star  = 0;
-	o->accuracy_star = 0;
-	o->final_star    = 0;
-	return;
+        o->density_star  = 0;
+        o->reading_star  = 0;
+        o->pattern_star  = 0;
+        o->accuracy_star = 0;
+        o->final_star    = 0;
+        return;
     }
     o->final_star =
-	lf_eval(FINAL_SCALE_LF,
-		pow(o->density_star,  DST_POW) *
-		pow(o->reading_star,  RDG_POW) *
-		pow(o->pattern_star,  PTR_POW) *
-		pow(o->accuracy_star, ACC_POW));
+        lf_eval(FINAL_SCALE_LF,
+                pow(o->density_star,  DST_POW) *
+                pow(o->reading_star,  RDG_POW) *
+                pow(o->pattern_star,  PTR_POW) *
+                pow(o->accuracy_star, ACC_POW));
 }
 
 //-----------------------------------------------------
@@ -144,19 +164,19 @@ void tro_set_final_star(struct tr_object * o)
 void tro_set_influence(struct tr_object * objs, int i, int nb)
 {
     if (objs[i].ps == GREAT || objs[i].ps == BONUS) {
-	return;
+        return;
     }
     for (int j = i; j >= 0; j--) {
-	double coeff = tro_influence_coeff(&objs[i], &objs[j]);
-	if (coeff == 1)
-	    break; /* influence will remain to 1 */
-	tro_apply_influence_coeff(&objs[j], coeff);
+        double coeff = tro_influence_coeff(&objs[i], &objs[j]);
+        if (coeff == 1)
+            break; /* influence will remain to 1 */
+        tro_apply_influence_coeff(&objs[j], coeff);
     }
     for (int j = i+1; j < nb; j++) {
-	double coeff = tro_influence_coeff(&objs[i], &objs[j]);
-	if (coeff == 1)
-	    break; /* influence will remain to 1 */
-	tro_apply_influence_coeff(&objs[j], coeff);
+        double coeff = tro_influence_coeff(&objs[i], &objs[j]);
+        if (coeff == 1)
+            break; /* influence will remain to 1 */
+        tro_apply_influence_coeff(&objs[j], coeff);
     }
 }
 
@@ -167,7 +187,7 @@ void tro_set_influence(struct tr_object * objs, int i, int nb)
 static void trm_set_final_star(struct tr_map * map)
 {
     for (int i = 0; i < map->nb_object; i++)
-	tro_set_final_star(&map->object[i]);
+        tro_set_final_star(&map->object[i]);
 }
 
 //-----------------------------------------------------
@@ -175,7 +195,7 @@ static void trm_set_final_star(struct tr_map * map)
 static void trm_set_influence(struct tr_map * map)
 {
     for (int i = 0; i < map->nb_object; i++)
-	tro_set_influence(map->object, i, map->nb_object);
+        tro_set_influence(map->object, i, map->nb_object);
 }
 
 //-----------------------------------------------------
@@ -183,15 +203,15 @@ static void trm_set_influence(struct tr_map * map)
 static void trm_set_global_stars(struct tr_map * map)
 {
     map->density_star =
-	trm_weight_sum_density_star(map, weight_final_star);
+        trm_weight_sum_density_star(map, weight_final_star);
     map->reading_star =
-	trm_weight_sum_reading_star(map, weight_final_star);
+        trm_weight_sum_reading_star(map, weight_final_star);
     map->pattern_star =
-	trm_weight_sum_pattern_star(map, weight_final_star);
+        trm_weight_sum_pattern_star(map, weight_final_star);
     map->accuracy_star =
-	trm_weight_sum_accuracy_star(map, weight_final_star);
+        trm_weight_sum_accuracy_star(map, weight_final_star);
     map->final_star =
-	trm_weight_sum_final_star(map, weight_final_star);
+        trm_weight_sum_final_star(map, weight_final_star);
 }
 
 //-----------------------------------------------------
@@ -199,8 +219,8 @@ static void trm_set_global_stars(struct tr_map * map)
 void trm_compute_final_star(struct tr_map * map)
 {
     if (ht_cst_fin == NULL) {
-	tr_error("Unable to compute final stars.");
-	return;
+        tr_error("Unable to compute final stars.");
+        return;
     }
 
     trm_set_influence(map);

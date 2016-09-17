@@ -29,14 +29,13 @@
 #include "density.h"
 #include "final_star.h"
 
-
 static int apply_global_options(int argc, const char ** argv)
 {
     int i;
     for (i = 1; i < argc; i++) {
-	if (argv[i][0] != GLOBAL_OPT_PREFIX[0])
-	    break;
-	i += global_opt_set(argc - i, &argv[i]);
+        if (argv[i][0] != GLOBAL_OPT_PREFIX[0])
+            break;
+        i += global_opt_set(argc - i, &argv[i]);
     }
     init_enabled();
     return i;
@@ -64,27 +63,27 @@ int main(int argc, char *argv[])
     #pragma omp parallel
     #pragma omp single
     for (int i = start; i < argc; i++) {
-	if (argv[i][0] == LOCAL_OPT_PREFIX[0]) {
-	    i += local_opt_set(argc - i, (const char **) &argv[i]);
-	} else {
-	    nb_map++;
-	    struct tr_map * map = trm_new(argv[i]);
-	    if (map == NULL)
-		continue;
+        if (argv[i][0] == LOCAL_OPT_PREFIX[0]) {
+            i += local_opt_set(argc - i, (const char **) &argv[i]);
+        } else {
+            nb_map++;
+            struct tr_map * map = trm_new(argv[i]);
+            if (map == NULL)
+                continue;
 
-	    map->conf = tr_local_config_copy();
+            map->conf = tr_local_config_copy();
             #pragma omp task firstprivate(map)
-	    {
-		map->conf->tr_main(map);
-		tr_local_config_free(map->conf);
-		trm_free(map);
-	    }
-	}
+            {
+                map->conf->tr_main(map);
+                tr_local_config_free(map->conf);
+                trm_free(map);
+            }
+        }
     }
 
     if (nb_map == 0) {
-	tr_error("No osu file D:");
-	print_help();
+        tr_error("No osu file D:");
+        print_help();
     }
 
     return EXIT_SUCCESS;

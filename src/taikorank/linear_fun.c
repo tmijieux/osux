@@ -55,14 +55,14 @@ struct linear_fun * lf_new(struct vector * v)
     lf->len = v->len;
     lf->x = malloc(sizeof(double) * lf->len);
     for (int i = 0; i < lf->len; i++) {
-	lf->x[i] = v->t[i][0];
+        lf->x[i] = v->t[i][0];
     }
     lf->a = malloc(sizeof(double) * lf->len - 1);
     lf->b = malloc(sizeof(double) * lf->len - 1);
     for (int i = 0; i < lf->len - 1; i++) {
-	lf->a[i] = ((v->t[i][1] - v->t[i+1][1]) /
-		    (v->t[i][0] - v->t[i+1][0]));
-	lf->b[i] = v->t[i][1] - lf->a[i] * v->t[i][0];
+        lf->a[i] = ((v->t[i][1] - v->t[i+1][1]) /
+                    (v->t[i][0] - v->t[i+1][0]));
+        lf->b[i] = v->t[i][1] - lf->a[i] * v->t[i][0];
     }
     return lf;
 }
@@ -70,7 +70,7 @@ struct linear_fun * lf_new(struct vector * v)
 void lf_free(struct linear_fun * lf)
 {
     if (lf == NULL)
-	return;
+        return;
     free(lf->x);
     free(lf->a);
     free(lf->b);
@@ -80,31 +80,31 @@ void lf_free(struct linear_fun * lf)
 //--------------------------------------------------
 
 static inline int find_interval_binary(const double * array,
-				       int l, int r, double x)
+                                       int l, int r, double x)
 {
     if (r < l)
-	return -1;
+        return -1;
     int m = (l + r) / 2;
     if (x < array[m])
-	return find_interval_binary(array, l, m-1, x);
+        return find_interval_binary(array, l, m-1, x);
     if (array[m+1] < x)
-	return find_interval_binary(array, m+1, r, x);
+        return find_interval_binary(array, m+1, r, x);
     return m;
 }
 
 static inline int find_interval_linear(const double * array, int len,
-				       double x)
+                                       double x)
 {
     if (x < array[0])
-	return -1;
+        return -1;
     for (int i = 1; i < len; i++)
-	if (x <= array[i])
-	    return i-1;
+        if (x <= array[i])
+            return i-1;
     return -1;
 }
 
 static inline double lf_eval_interval(struct linear_fun * lf,
-				      double x, int i)
+                                      double x, int i)
 {
     return lf->a[i] * x + lf->b[i];
 }
@@ -115,13 +115,13 @@ double lf_eval(struct linear_fun * lf, double x)
     int i = find_interval_linear(lf->x, lf->len, x);
     //int i = find_interval_binary(lf->x, 0, lf->len-1, x);
     if (i < 0) {
-	if (!lf->has_error) {
-	    tr_error("Out of bounds value (%g) for linear_fun (%s)",
-		     x, lf->name);
-	    lf_print(lf);
-	    lf->has_error = 1;
-	}
-	return ERROR_VAL;
+        if (!lf->has_error) {
+            tr_error("Out of bounds value (%g) for linear_fun (%s)",
+                     x, lf->name);
+            lf_print(lf);
+            lf->has_error = 1;
+        }
+        return ERROR_VAL;
     }
     return lf_eval_interval(lf, x, i);
 }
@@ -143,13 +143,13 @@ void lf_print(struct linear_fun * lf)
 {
     fprintf(stderr, "linear_fun: %s\nx:", lf->name);
     for (int i = 0; i < lf->len; i++)
-	fprintf(stderr, "\t%.4g", lf->x[i]);
+        fprintf(stderr, "\t%.4g", lf->x[i]);
     fprintf(stderr, "\na:");
     for (int i = 0; i < lf->len-1; i++)
-	fprintf(stderr, "\t%.4g", lf->a[i]);
+        fprintf(stderr, "\t%.4g", lf->a[i]);
     fprintf(stderr, "\nb:");
     for (int i = 0; i < lf->len-1; i++)
-	fprintf(stderr, "\t%.4g", lf->b[i]);
+        fprintf(stderr, "\t%.4g", lf->b[i]);
     fprintf(stderr, "\n");
 }
 

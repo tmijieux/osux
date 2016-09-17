@@ -1,6 +1,3 @@
-#ifndef CONFIG_H
-#define CONFIG_H
-
 /*
  *  Copyright (©) 2015-2016 Lucas Maugère, Thomas Mijieux
  *
@@ -16,6 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+#ifndef CONFIG_H
+#define CONFIG_H
 
 #include "osux/beatmap_database.h"
 
@@ -36,7 +35,7 @@ enum tr_main {
 
 struct tr_global_config {
     int autoconvert_enable;
-    
+
     int db_enable;
     char * db_ip;
     char * db_login;
