@@ -102,6 +102,7 @@ typedef struct osux_hitobject {
     int x;
     int y;
     int64_t offset;
+    int64_t draw_offset;
     int64_t end_offset;
     uint32_t type;
 
@@ -117,6 +118,8 @@ typedef struct osux_hitobject {
 
     char *details;
     char *errmsg;
+
+    void *data;
 } osux_hitobject;
 
 int MUST_CHECK osux_hitobject_init(

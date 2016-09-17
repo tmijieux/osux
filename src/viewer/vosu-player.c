@@ -122,7 +122,7 @@ vosu_player_dispose(GObject *obj)
     gst_element_set_state(player->pipeline, GST_STATE_NULL);
     g_clear_object(&player->pipeline);
     g_clear_object(&player->bus);
-    g_clear_object(&player->query);
+    g_clear_pointer(&player->query, gst_query_unref);
     G_OBJECT_CLASS(vosu_player_parent_class)->dispose(obj);
 }
 

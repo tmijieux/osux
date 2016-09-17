@@ -128,3 +128,14 @@ void osux_color_move(osux_color *from, osux_color *to)
     *to = *from;
     memset(from, 0, sizeof *from);
 }
+
+
+bool
+osux_color_array_contains_type(osux_color array[], uint32_t size, int type)
+{
+    for (unsigned i = 0; i < size; ++i) {
+        if (array[i].type == type)
+            return true;
+    }
+    return false;
+}

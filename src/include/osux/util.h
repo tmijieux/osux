@@ -21,6 +21,13 @@
         size_var = (size);                                      \
     } while (0)
 
+#define ARRAY_APPEND(array, METHOD, ...)                                \
+    do {                                                                \
+        HANDLE_ARRAY_SIZE(array##s, array##_count, array##_bufsize);    \
+        METHOD(array##s[array##_count], ##__VA_ARGS__);                 \
+        ++ array##_count;                                               \
+    } while(0)
+
 #define ARRAY_DUP(array_var, size)                             \
     (g_memdup((array_var), (size) * sizeof(*(array_var))))
 

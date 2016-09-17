@@ -44,10 +44,11 @@ struct _VosuView
 
 VosuView *vosu_view_new(void);
 void vosu_view_set_beatmap_properties(
-    VosuView *view,
-    uint64_t max_time, double page_range,
-    VosuSequence *hitobjects, double approach_rate,
-    double circle_size, gchar const *music_file);
+    VosuView *self,
+    uint64_t max_time,    double page_range,
+    int64_t game_mode,    VosuSequence *hitobjects,
+    double approach_rate, double circle_size,
+    gchar const *music_file);
 
 void vosu_view_set_replay_properties(
     VosuView *view,

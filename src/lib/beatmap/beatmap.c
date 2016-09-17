@@ -93,7 +93,7 @@ static int parse_osu_version(osux_beatmap *beatmap, GIOChannel *file)
         err = -OSUX_ERR_BAD_OSU_VERSION;
     }
 
- finally:
+finally:
     g_free(line);
     g_match_info_free(info);
     return err;
@@ -195,6 +195,48 @@ static int parse_option_entry(
         beatmap->bpm_avg /= (beatmap)->hitobject_count+1;       \
     } while(0)
 
+static gint sort_color(osux_color *a, osux_color *b)
+{
+    return a->id - b->id;
+}
+
+#define UPDATE_COMBO_COLOURS(beatmap, color)                    \
+    do {                                                        \
+        if ((color)->type == COLOR_COMBO) {                     \
+            GList *l = (beatmap)->combo_colours;                \
+            l = g_list_insert_sorted(l, (color),                \
+                                     (GCompareFunc)sort_color); \
+            (beatmap)->combo_colours = l;                       \
+        }                                                       \
+    } while(0)
+
+#define COLOR_INIT(elem, line, version, beatmap)                \
+    do {                                                        \
+        int r = osux_color_init(&(elem), (line), (version));    \
+        CHECK_COLOR(r, &(elem));                                \
+        UPDATE_COMBO_COLOURS((beatmap), &(elem));               \
+    } while(0)
+
+#define EVENT_INIT(elem, line, version)                         \
+    do {                                                        \
+        int r = osux_event_init(&(elem), (line), (version));    \
+        CHECK_EVENT(r, &(elem));                                \
+    } while(0)
+
+#define HITOBJECT_INIT(elem, line, version, beatmap)                    \
+    do {                                                                \
+        int r = osux_hitobject_init(&(elem), (line), (version));        \
+        CHECK_HIT_OBJECT(r, &(elem));                                   \
+        UPDATE_STAT_HO_COUNT((beatmap), &(elem));                       \
+    } while(0)
+
+#define TIMINGPOINT_INIT(elem, line, version, beatmap)                  \
+    do {                                                                \
+        int r = osux_timingpoint_init(&(elem), (line), (version));      \
+        CHECK_TIMING_POINT(r, &(elem));                                 \
+        UPDATE_STAT_BPM(beatmap, &(elem));                              \
+    } while(0)
+
 static int parse_objects(osux_beatmap *beatmap, GIOChannel *file)
 {
     int err = 0;
@@ -222,60 +264,19 @@ static int parse_objects(osux_beatmap *beatmap, GIOChannel *file)
             osux_hashtable_insert(
                 beatmap->sections, section_name, current_section);
             //printf("section='%s'\n", section_name);
-            continue;
-        }
-
-        if (!strcmp(section_name, "TimingPoints")) {
-            HANDLE_ARRAY_SIZE(beatmap->timingpoints,
-                              beatmap->timingpoint_count,
-                              beatmap->timingpoint_bufsize);
-            int r = osux_timingpoint_init(
-                &beatmap->timingpoints[beatmap->timingpoint_count],
-                line, beatmap->osu_version);
-            CHECK_TIMING_POINT(r, &beatmap->timingpoints[beatmap->timingpoint_count]);
-            UPDATE_STAT_BPM(
-                beatmap, &beatmap->timingpoints[beatmap->timingpoint_count]);
-            ++ beatmap->timingpoint_count;
-            continue;
-        }
-
-        if (!strcmp(section_name, "HitObjects")) {
-            HANDLE_ARRAY_SIZE(beatmap->hitobjects,
-                              beatmap->hitobject_count,
-                              beatmap->hitobject_bufsize);
-            int r = osux_hitobject_init(
-                &beatmap->hitobjects[beatmap->hitobject_count],
-                line, beatmap->osu_version);
-            CHECK_HIT_OBJECT(r, &beatmap->hitobjects[beatmap->hitobject_count]);
-            UPDATE_STAT_HO_COUNT(
-                beatmap, &beatmap->hitobjects[beatmap->hitobject_count]);
-            ++ beatmap->hitobject_count;
-            continue;
-        }
-
-        if (!strcmp(section_name, "Events")) {
-            HANDLE_ARRAY_SIZE(beatmap->events,
-                              beatmap->event_count,
-                              beatmap->event_bufsize);
-            int r = osux_event_init(
-                &beatmap->events[beatmap->event_count],
-                line, beatmap->osu_version);
-            CHECK_EVENT(r, &beatmap->events[beatmap->event_count]);
-            ++ beatmap->event_count;
-            continue;
-        }
-        if (!strcmp(section_name, "Colours")) {
-            HANDLE_ARRAY_SIZE(beatmap->colors,
-                              beatmap->color_count,
-                              beatmap->color_bufsize);
-            int r = osux_color_init(
-                &beatmap->colors[beatmap->color_count], line,
-                beatmap->osu_version);
-            CHECK_COLOR(r, &beatmap->color[beatmap->color_count]);
-            ++ beatmap->color_count;
-            continue;
-        }
-        parse_option_entry(line, current_section);
+        } else if (!strcmp(section_name, "TimingPoints"))
+            ARRAY_APPEND(beatmap->timingpoint, TIMINGPOINT_INIT,
+                         line, beatmap->osu_version, beatmap);
+        else if (!strcmp(section_name, "HitObjects"))
+            ARRAY_APPEND(beatmap->hitobject, HITOBJECT_INIT,
+                         line, beatmap->osu_version, beatmap);
+        else if (!strcmp(section_name, "Events"))
+            ARRAY_APPEND(beatmap->event, EVENT_INIT, line, beatmap->osu_version);
+        else if (!strcmp(section_name, "Colours"))
+            ARRAY_APPEND(beatmap->color, COLOR_INIT,
+                         line, beatmap->osu_version, beatmap);
+        else
+            parse_option_entry(line, current_section);
     }
     g_free(section_name);
     if (err == 1) err = 0;
@@ -364,40 +365,73 @@ static int fetch_variables(osux_beatmap *beatmap)
     return 0;
 }
 
+static void
+prepare_colors(osux_beatmap *beatmap)
+{
+    if (!osux_color_array_contains_type(
+        beatmap->colors, beatmap->color_count, COLOR_COMBO))
+    {
+        osux_color c;
+        osux_color_init(&c, "Combo1 : 255,192,0", 15);
+        osux_beatmap_append_color(beatmap, &c);
+
+        osux_color_init(&c, "Combo2 : 0,202,0", 15);
+        osux_beatmap_append_color(beatmap, &c);
+
+        osux_color_init(&c, "Combo3 : 18,124,255", 15);
+        osux_beatmap_append_color(beatmap, &c);
+
+        osux_color_init(&c, "Combo4 : 242,24,57", 15);
+        osux_beatmap_append_color(beatmap, &c);
+    }
+}
+
+static void
+osux_combo_init(osux_combo *combo, osux_beatmap *beatmap)
+{
+    memset(combo, 0, sizeof *combo);
+    combo->colours = beatmap->combo_colours;
+    combo->current = g_list_last(combo->colours);
+}
+
+static void osux_combo_next(osux_combo *combo, osux_hitobject *ho)
+{
+    if (HIT_OBJECT_IS_NEWCOMBO(ho)) {
+        if (combo->current->next == NULL)
+            combo->current = combo->colours;
+        else
+            combo->current = combo->current->next;
+        ++ combo->id;
+        combo->pos = 1;
+    } else
+        ++ combo->pos;
+}
+
+static osux_color*
+osux_combo_colour(osux_combo *combo)
+{
+    return (osux_color*) combo->current->data;
+}
+
 static int prepare_hitobjects(osux_beatmap *beatmap)
 {
     int err = 0;
     uint32_t current_tp = 0;
-    uint32_t current_combo_id = 0;
-    uint32_t current_combo_pos = 1;
-    osux_color *current_color;
-    if (!beatmap->color_count) {
-        g_free(beatmap->colors);
-        beatmap->colors = NULL;
-    }
-    current_color = beatmap->colors;
+    osux_combo combo;
+    osux_combo_init(&combo, beatmap);
 
     for (uint32_t i = 0; !err && i < beatmap->hitobject_count; ++i) {
 	osux_hitobject *ho = &beatmap->hitobjects[i];
-
         // for each hit object
         // compute timing point applying on this hit object
 	while (current_tp < (beatmap->timingpoint_count-1) &&
 	       beatmap->timingpoints[current_tp + 1].offset <= ho->offset)
 	    current_tp++;
-        if (HIT_OBJECT_IS_NEWCOMBO(ho)) {
-            current_combo_pos = 1;
-            ++ current_combo_id;
-            do {
-                ++ current_color;
-                if (current_color - beatmap->colors > beatmap->color_count)
-                    current_color = beatmap->colors;
-            } while (current_color != NULL && current_color->type != COLOR_COMBO);
-        } else
-            ++ current_combo_pos;
-	err = osux_hitobject_prepare(
-            ho, current_combo_id, current_combo_pos, current_color,
-            &beatmap->timingpoints[current_tp]);
+
+        osux_combo_next(&combo, ho);
+	err = osux_hitobject_prepare(ho, combo.id, combo.pos,
+                                     osux_combo_colour(&combo),
+                                     &beatmap->timingpoints[current_tp]);
     }
     return err;
 }
@@ -412,7 +446,7 @@ int osux_beatmap_prepare(osux_beatmap *beatmap)
                                        &last_non_inherited,
                                        beatmap->SliderMultiplier);
     }
-
+    prepare_colors(beatmap);
     err = prepare_hitobjects(beatmap);
 
     // build the event tree
@@ -498,9 +532,10 @@ void osux_beatmap_append_color(osux_beatmap *beatmap, osux_color *c)
                       beatmap->color_count,
                       beatmap->color_bufsize);
     osux_color_move(c, &beatmap->colors[beatmap->color_count]);
+    c = &beatmap->colors[beatmap->color_count];
+    UPDATE_COMBO_COLOURS(beatmap, c);
     ++ beatmap->color_count;
 }
-
 
 /* return the circle radius in scene pixel */
 int osux_get_circle_size(double circle_size, int mods)

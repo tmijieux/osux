@@ -16,12 +16,13 @@
  *  limitations under the License.
  */
 
+#include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
 
 #include "osux/compiler.h"
 /*
-  timingpint format:
+  timingpoint format:
 
   - absolute timingpoint:
   offset,millisecond_per_beat,time_signature,sample_type,sample_set_index,

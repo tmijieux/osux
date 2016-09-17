@@ -10,6 +10,8 @@ vosu_SOURCES = \
 	vosu-view.c \
 	vosu-replay.c \
 	vosu-sequence.c \
+	vosu-render-taiko.c \
+	vosu-render-std.c \
 	vosu-render.c
 
 nodist_vosu_SOURCES = \

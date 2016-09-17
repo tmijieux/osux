@@ -107,7 +107,7 @@ void vosu_beatmap_configure_view(VosuBeatmap *b, VosuView *view)
         beatlength = pBm->timingpoints[0].millisecond_per_beat;
 
     vosu_view_set_beatmap_properties(
-        view, end_time+2000, beatlength, b->HitObjectsSeq,
+        view, end_time+2000, beatlength, pBm->Mode, b->HitObjectsSeq,
         pBm->ApproachRate, pBm->CircleSize,  b->music_file);
 }
 

@@ -132,7 +132,7 @@ draw(GtkDrawingArea *drawing_area, cairo_t *cr, VosuView *self)
 
     draw_init_cairo(self, cr);
     draw_playfield_limit(self);
-
+    vosu_draw_playfield(&self->renderer);
     draw_objects(self);
 
     if (self->cursor_data != NULL) {
@@ -268,17 +268,19 @@ VosuView *vosu_view_new(void)
 void
 vosu_view_set_beatmap_properties(
     VosuView *self,
-    uint64_t max_time,  double page_range,
-    VosuSequence *hitobjects, double approach_rate,
-    double circle_size,  gchar const *music_file)
+    uint64_t max_time,    double page_range,
+    int64_t game_mode,    VosuSequence *hitobjects,
+    double approach_rate, double circle_size,
+    gchar const *music_file)
 {
     self->hitobjects = vosu_sequence_ref(hitobjects);
     self->hitobjects_mod = vosu_sequence_ref(hitobjects);
 
+    self->renderer.game_mode = game_mode;
     self->renderer.approach_rate = approach_rate;
     self->renderer.approach_time = osux_get_approach_time(approach_rate, 0);
     self->renderer.base_circle_size = circle_size;
-    self->renderer.circle_size = 57 - 4 *  circle_size;
+    self->renderer.circle_size = osux_get_circle_size(circle_size, 0);
 
     self->time_max = max_time;
     gtk_adjustment_set_upper(self->time_adjust, (gdouble) max_time);
