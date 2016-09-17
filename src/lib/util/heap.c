@@ -28,10 +28,10 @@ struct heap *heap_new(unsigned int buffer_size,	 void *buffer,
 		      int (*cmp)(void*, void*))
 {
     struct heap *heap = malloc(sizeof(*heap));
-	
+
     heap->cmp = cmp;
     heap->heap_size = 0;
-	
+
     if (buffer == NULL) {
 	heap->buf = malloc(sizeof(*(heap->buf)) * (buffer_size + 1));
 	heap->free_buf = 1;
@@ -121,5 +121,5 @@ void heap_insert(struct heap *heap, void *k)
 
 size_t heap_size(struct heap *heap)
 {
-    return heap->heap_size;	
+    return heap->heap_size;
 }

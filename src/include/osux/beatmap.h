@@ -137,6 +137,7 @@ struct osux_beatmap {
     uint32_t color_count;
     uint32_t color_bufsize;
     osux_color *colors;
+    GList *combo_colours;
 
     uint32_t event_count;
     uint32_t event_bufsize;
@@ -149,10 +150,11 @@ struct osux_beatmap {
     uint32_t hitobject_count;
     uint32_t hitobject_bufsize;
     osux_hitobject *hitobjects;
-
     osux_hashtable *sections;
-};
 
+    osux_hashtable *h_data;
+    void *data;
+};
 
 #ifdef __cplusplus
 extern "C" {
@@ -184,6 +186,10 @@ void osux_beatmap_append_hitobject(osux_beatmap *beatmap, osux_hitobject *ho);
 void osux_beatmap_append_timingpoint(osux_beatmap *beatmap, osux_timingpoint *tp);
 void osux_beatmap_append_event(osux_beatmap *beatmap, osux_event *ev);
 void osux_beatmap_append_color(osux_beatmap *beatmap, osux_color *c);
+
+/* return the circle radius in scene pixel */
+int osux_get_circle_size(double circle_size, int mods);
+
 
 #ifdef __cplusplus
 }

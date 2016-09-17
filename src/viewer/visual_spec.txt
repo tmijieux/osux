@@ -1,0 +1,11 @@
+center: x=256 y=192
+max   : x=512 y=384
+(4/3 aspect ratio)
+
+gridsize: (pixels)
+1 => 32
+2 => 16
+3 => 8
+4 => 4
+
+

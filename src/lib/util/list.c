@@ -57,11 +57,11 @@ osux_list *osux_list_new(int flags, ...)
 {
     struct osux_list_node *tmp;
     osux_list *list = calloc(sizeof(*list), 1);
-    
+
     node_new(&list->front_sentinel, NULL, SENTINEL_NODE);
     node_new(&tmp, NULL, 1);
     node_set_next(list->front_sentinel, tmp);
-    
+
     list->flags = flags;
     list->cursor = list->front_sentinel;
     list->curpos = 0;

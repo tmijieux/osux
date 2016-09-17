@@ -3,7 +3,6 @@
 
 #include <gtk/gtk.h>
 #include "osux/beatmap.h"
-#include "edosu-adjust.h"
 #include "edosu-view.h"
 #include "edosu-palette.h"
 #include "edosu-inspector.h"
@@ -41,13 +40,13 @@ struct _EdosuBeatmap
     osux_hitobject *hitobjects;
     osux_event *events;
     osux_color *colors;
+    uint32_t color_count;
     osux_timingpoint *timingpoints;
 };
 
 EdosuBeatmap *edosu_beatmap_new(void);
 gboolean edosu_beatmap_load_from_file(EdosuBeatmap *beatmap, gchar const *filepath);
 void edosu_beatmap_save_to_file(EdosuBeatmap *beatmap, gchar const *filepath);
-
 void edosu_beatmap_load_objects(EdosuBeatmap *beatmap, osux_beatmap *osux_bm);
 void edosu_beatmap_save_objects(EdosuBeatmap *beatmap, osux_beatmap *osux_bm);
 void edosu_beatmap_load_and_bind_adjustments(EdosuBeatmap *beatmap,

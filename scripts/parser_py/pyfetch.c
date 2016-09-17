@@ -16,7 +16,7 @@
 
 // include this first because otherwise some warning
 // because of constant defined by Python.h
-#include "./python_internal.h" 
+#include "./python_internal.h"
 
 #include <string.h>
 #include <stdint.h>

@@ -6,16 +6,13 @@ edosu_SOURCES = \
 	edosu-app.c \
 	edosu-win.c \
 	edosu-close-lbl.c \
-	edosu-adjust.c \
 	edosu-beatmap.c \
 	edosu-beatmap-objects.c \
 	edosu-properties.c \
 	edosu-palette.c \
 	edosu-view.c \
 	edosu-inspector.c \
-	glarea-error.c \
-	edosu-circle.c \
-	edosu-gl.c
+	edosu-render.c
 
 nodist_edosu_SOURCES = \
 	resources.c \
@@ -34,12 +31,9 @@ RESOURCES_DEP= \
 	$(srcdir)/ui/EdosuInspector.glade \
 	$(srcdir)/ui/EdosuPalette.glade \
 	$(srcdir)/ui/EdosuProperties.glade \
-	$(srcdir)/ui/EdosuBeatmapAdjustments.glade \
 	$(srcdir)/ui/EdosuCloseLabel.glade \
 	$(srcdir)/ui/EdosuFileFilterMusic.glade \
-	$(srcdir)/ui/EdosuFileFilterOsu.glade \
-	$(srcdir)/fragment.glsl \
-	$(srcdir)/vertex.glsl
+	$(srcdir)/ui/EdosuFileFilterOsu.glade
 
 $(srcdir)/editor.gresources.xml: $(RESOURCES_DEP)
 # technically nothing can be 'rebuilt' here so just update modification time

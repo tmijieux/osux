@@ -43,10 +43,10 @@ int main(int argc, char * argv[])
 
     for (int i = 1; i < argc; i++) {
         osux_beatmap bm;
-        
+
 	if (!load_beatmap(&bm, argv[i]))
 	    continue;
-	
+
 	if (osux_beatmap_taiko_autoconvert(&bm) < 0) {
 	    fprintf(stderr, "Failed to convert beatmap '%s'\n", argv[i]);
 	    goto end;
@@ -54,12 +54,12 @@ int main(int argc, char * argv[])
         char *new_diff_name = g_strdup_printf("%s convert", bm.Version);
 	g_free(bm.Version);
         bm.Version = new_diff_name;
-	
+
 	if (osux_beatmap_save_full(&bm, ".", NULL, true) < 0) {
 	    fprintf(stderr, "Failed to save beatmap '%s'\n", argv[i]);
 	    goto end;
 	}
-	    
+
 	fprintf(stderr, "Successful output for beatmap '%s'\n", argv[i]);
     end:
 	osux_beatmap_free(&bm);

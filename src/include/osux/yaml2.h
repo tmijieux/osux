@@ -25,5 +25,5 @@ struct yaml_wrap {
 int yaml2_parse_file(struct yaml_wrap **yamlw, const char *file_name);
 void yaml2_dump(FILE *out, const struct yaml_wrap *yw);
 void yaml2_free(struct yaml_wrap *yw);
-    
+
 #endif //YAML2_H

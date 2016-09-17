@@ -59,12 +59,12 @@ struct mod_designation md[] = {
 void mod_print(FILE *f, uint32_t mod_bitfield)
 {
     unsigned count = 0;
-    
+
     if (mod_bitfield == 0) {
 	fputs(none.short_, f);
 	return;
     }
-    
+
     for (int i = 0; i < IMOD_MAX; ++i) {
 	if ((mod_bitfield >> i) % 2) {
 	    if (count) fprintf(f, "|");

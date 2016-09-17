@@ -62,7 +62,6 @@ int osux_getline(GIOChannel *chan, char **return_value)
         }                                                       \
     } while(0)
 
-
 GIOChannel *osux_open_text_file_reading(char const *file_path)
 {
     static char utf8[] = { 0xEF, 0xBB, 0xBF };

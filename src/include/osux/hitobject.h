@@ -23,6 +23,7 @@
 
 #include "osux/compiler.h"
 #include "osux/timingpoint.h"
+#include "osux/color.h"
 
 enum hitobject_type {
 
@@ -57,11 +58,13 @@ enum slider_type {
 
 // get rid of the 'new_combo' flag to get the hit object's type more easily
 #define HIT_OBJECT_TYPE(ho_ptr)    ((ho_ptr)->type & HITOBJECT_TYPE_MASK)
+#define HIT_OBJECT_IS_NEWCOMBO(ho_ptr) ((ho_ptr)->type & HITOBJECT_NEWCOMBO)
 
 #define HIT_OBJECT_IS_CIRCLE(x)  (HIT_OBJECT_TYPE(x) == HITOBJECT_CIRCLE)
 #define HIT_OBJECT_IS_SLIDER(x)  (HIT_OBJECT_TYPE(x) == HITOBJECT_SLIDER)
 #define HIT_OBJECT_IS_SPINNER(x) (HIT_OBJECT_TYPE(x) == HITOBJECT_SPINNER)
 #define HIT_OBJECT_IS_HOLD(x) (HIT_OBJECT_TYPE(x) == HITOBJECT_HOLD)
+
 
 typedef struct osux_point_ {
     int x;
@@ -91,16 +94,21 @@ typedef struct osux_slider_ {
     double length;
 
     uint32_t point_count;
-    osux_point *points;
+    osux_point *points; // bézier control points
     osux_edgehitsound *edgehitsounds; // bufsize = 0 or 'repeat'
 } osux_slider;
 
 typedef struct osux_hitobject {
     int x;
     int y;
-    uint32_t offset;
-    uint32_t end_offset;
+    int64_t offset;
+    int64_t draw_offset;
+    int64_t end_offset;
     uint32_t type;
+
+    int combo_id;
+    int combo_position;
+    osux_color *combo_color;
 
     osux_slider slider;
     osux_hitsound hitsound;
@@ -110,14 +118,19 @@ typedef struct osux_hitobject {
 
     char *details;
     char *errmsg;
+
+    void *data;
 } osux_hitobject;
 
 int MUST_CHECK osux_hitobject_init(
     osux_hitobject *ho, char *line, uint32_t osu_version);
-void osux_hitobject_prepare(osux_hitobject *ho, osux_timingpoint const *tp);
+int osux_hitobject_prepare(osux_hitobject *ho,
+                           int combo_id, int combo_pos, osux_color *color,
+                           osux_timingpoint const *tp);
 void osux_hitobject_print(osux_hitobject *ho, int version, FILE *f);
 void osux_hitobject_free(osux_hitobject *ho);
 void osux_hitobject_move(osux_hitobject *ho, osux_hitobject *target);
 void osux_hitobject_copy(osux_hitobject *ho, osux_hitobject *target);
+void osux_hitobject_apply_mods(osux_hitobject *ho, int mods);
 
 #endif //OSUX_HIT_OBJECT_H

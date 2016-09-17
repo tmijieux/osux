@@ -1,13 +1,12 @@
 #include "edosu-beatmap.h"
-#include "edosu-adjust.h"
 #include "osux/hitobject.h"
 
 enum { COL_OFFSET = 0, COL_TYPE, COL_DETAILS, COL_OBJECT, COL_NUM };
 
 static gint
-sort_object_offset(gconstpointer _a, gconstpointer _b, gpointer UNUSED user_data)
+sort_object_end_offset(gconstpointer _a, gconstpointer _b, gpointer UNUSED user_data)
 {
-    return ((osux_hitobject*)_a)->offset - ((osux_hitobject*)_b)->offset;
+    return ((osux_hitobject*)_a)->end_offset - ((osux_hitobject*)_b)->end_offset;
 }
 
 static void
@@ -38,7 +37,7 @@ load_hit_objects(osux_beatmap *beatmap,
                            COL_OBJECT, ho, -1);
         g_sequence_append(ho_seq, ho);
     }
-    g_sequence_sort(ho_seq, &sort_object_offset, NULL);
+    g_sequence_sort(ho_seq, &sort_object_end_offset, NULL);
 }
 
 static void
@@ -139,6 +138,7 @@ edosu_beatmap_steal_objects(EdosuBeatmap *beatmap, osux_beatmap *osux_bm)
     osux_bm->events = NULL;
     osux_bm->event_count = 0;
     osux_bm->colors = NULL;
+    beatmap->color_count = osux_bm->color_count;
     osux_bm->color_count = 0;
     osux_bm->timingpoints = NULL;
     osux_bm->timingpoint_count = 0;

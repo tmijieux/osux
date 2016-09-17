@@ -18,13 +18,18 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
 
-#define COLOR_TYPES(COLOR)                                      \
-    COLOR(COMBO,                   N_("Combo"))                 \
-    COLOR(SLIDER_BORDER,           N_("SliderBorder"))          \
-    COLOR(SLIDER_TRACK_OVERRIDE,   N_("SliderTrackOverride"))   \
-    COLOR(SPINNER_APPROACH_CIRCLE, N_("SpinnerApproachCircle")) \
-    COLOR(STAR_BREAK_ADDITIVE,     N_("StarBreakAdditive")) \
+#define COLOR_TYPES(COLOR)                                              \
+    COLOR(COMBO,                     N_("Combo"))                       \
+    COLOR(MENU_GLOW,                 N_("MenuGlow"))                    \
+    COLOR(SLIDER_BORDER,             N_("SliderBorder"))                \
+    COLOR(SPINNER_APPROACH_CIRCLE,   N_("SpinnerApproachCircle"))       \
+    COLOR(SONG_SELECT_ACTIVE_TEXT,   N_("SongSelectActiveText"))        \
+    COLOR(SONG_SELECT_INACTIVE_TEXT, N_("SongSelectInactiveText"))      \
+    COLOR(STAR_BREAK_ADDITIVE,       N_("StarBreakAdditive"))           \
+    COLOR(SLIDER_TRACK_OVERRIDE,     N_("SliderTrackOverride"))         \
+
 
 #define COLOR_TYPE_TO_ENUM(capital_, pretty_)   \
     COLOR_##capital_,
@@ -34,7 +39,7 @@ enum color_type {
     MAX_COLOR_TYPE,
 };
 
-typedef struct osux_color {
+typedef struct osux_color_ {
     int type;
     uint32_t id;
     int32_t r;
@@ -43,11 +48,22 @@ typedef struct osux_color {
     int32_t a;
 } osux_color;
 
+typedef struct osux_combo_ {
+    uint32_t id;
+    uint32_t pos;
+    GList *colours;
+    GList *current;
+} osux_combo;
+
 int osux_color_init(osux_color *c, char *line, uint32_t osu_version);
 char const *osux_color_type_get_name(int type);
 void osux_color_free(osux_color *c);
 void osux_color_print(FILE *f, osux_color *c);
 void osux_color_copy(osux_color *from, osux_color *to);
 void osux_color_move(osux_color *from, osux_color *to);
+
+
+bool
+osux_color_array_contains_type(osux_color array[], uint32_t size, int type);
 
 #endif // OSUX_COLOR_H

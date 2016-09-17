@@ -21,7 +21,14 @@
         size_var = (size);                                      \
     } while (0)
 
-#define ARRAY_COPY(array_var, size)                             \
+#define ARRAY_APPEND(array, METHOD, ...)                                \
+    do {                                                                \
+        HANDLE_ARRAY_SIZE(array##s, array##_count, array##_bufsize);    \
+        METHOD(array##s[array##_count], ##__VA_ARGS__);                 \
+        ++ array##_count;                                               \
+    } while(0)
+
+#define ARRAY_DUP(array_var, size)                             \
     (g_memdup((array_var), (size) * sizeof(*(array_var))))
 
 #define COPY_ARRAY(array_dst_var, array_src_var, size)                  \
@@ -29,11 +36,12 @@
 
 #define ARRAY_SIZE(array) (sizeof (array) / sizeof((array)[0]))
 #define OFFSET_OF(type, field) ((int)(uintptr_t)(&((type*)0)->field))
+#define SWAP_POINTER(X, Y, TMP) do { (TMP) = (X); (X) = (Y); (Y)=(TMP);}while(0)
 
 #define min(x, y) ((x) < (y) ? (x) : (y))
 #define max(x, y) ((x) < (y) ? (y) : (x))
 
-    int osux_getline(GIOChannel *chan, char **return_value);
+int osux_getline(GIOChannel *chan, char **return_value);
 char *bytearray2hexstr(uint8_t const *bytearray, size_t size);
 char *osux_get_file_hashstr(char const *file_path);
 unsigned strsplit_size(char **split);

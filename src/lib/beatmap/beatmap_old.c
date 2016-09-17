@@ -136,9 +136,9 @@ static int beatmap_print_internal(osux_beatmap const *m, FILE *f)
 int osux_beatmap_print(osux_beatmap const *m, FILE *f)
 {
     SET_THREAD_LOCALE(cloc, "C");
-    
+
     beatmap_print_internal(m, f);
-    
+
     #ifdef _WIN32
     SET_THREAD_LOCALE(cloc, "");
     #elif __linux__

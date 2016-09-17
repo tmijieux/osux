@@ -1,0 +1,4 @@
+*.d
+resources.c
+resources.h
+vosu

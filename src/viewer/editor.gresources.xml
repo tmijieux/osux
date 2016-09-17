@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/org/osux/vosu">
+    <file preprocess="xml-stripblanks">ui/VosuWindow.glade</file>
+    <file preprocess="xml-stripblanks">ui/VosuView.glade</file>
+    <file preprocess="xml-stripblanks">ui/VosuFileFilterMusic.glade</file>
+    <file preprocess="xml-stripblanks">ui/VosuFileFilterOsu.glade</file>
+  </gresource>
+</gresources>

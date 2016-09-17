@@ -25,6 +25,7 @@
 #include "osux/util.h"
 #include "osux/error.h"
 #include "osux/string.h"
+#include "osux/mods.h"
 
 static int check_slider_type(char type)
 {
@@ -39,11 +40,13 @@ static int parse_slider_points(osux_hitobject *ho, char *pointstr)
     char **spl_points = g_strsplit(pointstr, "|", 0);
     unsigned size = strsplit_size(spl_points);
 
-    ho->slider.point_count = size-1;
-    ho->slider.points = g_malloc((size-1) * sizeof*ho->slider.points);
+    ho->slider.point_count = size;
+    ho->slider.points = g_malloc(size * sizeof*ho->slider.points);
 
+    ho->slider.points[0].x = ho->x;
+    ho->slider.points[0].y = ho->y;
     for (unsigned i = 1; i < size; ++i) {
-        osux_point *pt = &ho->slider.points[i-1];
+        osux_point *pt = &ho->slider.points[i];
         if (sscanf(spl_points[i], "%d:%d", &pt->x, &pt->y) != 2) {
             err = -OSUX_ERR_INVALID_HITOBJECT_SLIDER_POINTS;
             g_free(ho->slider.points);
@@ -114,7 +117,9 @@ static inline void compute_slider_end_offset(
     ho->end_offset = ho->offset + length;
 }
 
-void osux_hitobject_prepare(osux_hitobject *ho, osux_timingpoint const *tp)
+int osux_hitobject_prepare(osux_hitobject *ho,
+                           int combo_id, int combo_pos, osux_color *color,
+                           osux_timingpoint const *tp)
 {
     if (HIT_OBJECT_IS_SLIDER(ho))
         compute_slider_end_offset(ho, tp);
@@ -125,6 +130,10 @@ void osux_hitobject_prepare(osux_hitobject *ho, osux_timingpoint const *tp)
         ho->hitsound.sample & SAMPLE_WHISTLE?_("Whistle "):"",
         ho->hitsound.sample & SAMPLE_FINISH?_("Finish "):"",
         ho->hitsound.sample & SAMPLE_CLAP ?_("Clap "):"");
+    ho->combo_color = color;
+    ho->combo_id = combo_id;
+    ho->combo_position = combo_pos;
+    return 0;
 }
 
 static int parse_slider(osux_hitobject *ho, char **split, unsigned size)
@@ -283,7 +292,7 @@ static void osux_slider_print(osux_hitobject *ho, int version, FILE *f)
 {
     (void) version;
     fprintf(f, ",%c", ho->slider.type);
-    for (unsigned i = 0; i < ho->slider.point_count; ++i)
+    for (unsigned i = 1; i < ho->slider.point_count; ++i)
         fprintf(f, "|%d:%d", ho->slider.points[i].x, ho->slider.points[i].y);
     fprintf(f, ",%d,%.15g", ho->slider.repeat, ho->slider.length);
     if (ho->slider.edgehitsounds != NULL) {
@@ -305,7 +314,7 @@ static void osux_slider_print(osux_hitobject *ho, int version, FILE *f)
 
 void osux_hitobject_print(osux_hitobject *ho, int version, FILE *f)
 {
-    fprintf(f, "%d,%d,%d,%d,%d",
+    fprintf(f, "%d,%d,%ld,%d,%d",
 	    ho->x, ho->y, ho->offset, ho->type, ho->hitsound.sample);
     switch ( HIT_OBJECT_TYPE(ho) ) {
     case HITOBJECT_SLIDER:
@@ -313,7 +322,7 @@ void osux_hitobject_print(osux_hitobject *ho, int version, FILE *f)
 	break;
     case HITOBJECT_SPINNER:
     case HITOBJECT_HOLD:
-	fprintf(f, ",%d", ho->end_offset);
+	fprintf(f, ",%ld", ho->end_offset);
 	break;
     default:
         break;
@@ -359,9 +368,24 @@ void osux_hitobject_copy(osux_hitobject *ho, osux_hitobject *cpy)
     cpy->errmsg = g_strdup(ho->errmsg);
 
     if (HIT_OBJECT_IS_SLIDER(ho)) {
-        cpy->slider.points = ARRAY_COPY(ho->slider.points, ho->slider.point_count);
-        cpy->slider.edgehitsounds = ARRAY_COPY(
+        cpy->slider.points = ARRAY_DUP(ho->slider.points, ho->slider.point_count);
+        cpy->slider.edgehitsounds = ARRAY_DUP(
             ho->slider.edgehitsounds, ho->slider.repeat+1);
     }
-    cpy->timingpoint = NULL; // this field has no meaning outside of beatmaps
+
+    // cpy->timingpoint = NULL;
+    // this field has no meaning outside of beatmaps
+}
+
+void osux_hitobject_apply_mods(osux_hitobject *ho, int mods)
+{
+    if (mods & MOD_HARDROCK) {
+        ho->y = 384 - ho->y;
+        if (HIT_OBJECT_IS_SLIDER(ho)) {
+            for (unsigned i = 0; i < ho->slider.point_count; ++i) {
+                int y = ho->slider.points[i].y;
+                ho->slider.points[i].y = 384 - y;
+            }
+        }
+    }
 }

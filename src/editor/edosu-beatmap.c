@@ -2,7 +2,6 @@
 #include <string.h>
 
 #include "edosu-beatmap.h"
-#include "edosu-adjust.h"
 #include "osux/hitobject.h"
 
 G_DEFINE_TYPE(EdosuBeatmap, edosu_beatmap, G_TYPE_OBJECT);
@@ -112,7 +111,10 @@ edosu_beatmap_load_from_file(EdosuBeatmap *beatmap, gchar const *filepath)
     if (!err) {
         set_path(beatmap, filepath);
         int64_t end_time = osux_bm.hitobjects[osux_bm.hitobject_count-1].offset;
-        edosu_view_set_max_time(beatmap->view, end_time + 5000);
+        int64_t beatlength = 1000;
+        if(osux_bm.timingpoint_count > 0)
+            beatlength = osux_bm.timingpoints[0].millisecond_per_beat;
+        edosu_view_set_max_time(beatmap->view, end_time + 5000, beatlength);
         edosu_beatmap_load_objects(beatmap, &osux_bm);
         edosu_view_set_hit_objects(beatmap->view, beatmap->HitObjectsSeq);
         edosu_inspector_set_model(beatmap->inspector,

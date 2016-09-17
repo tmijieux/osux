@@ -35,7 +35,7 @@ struct osux_list_node {
 	n->is_sentinel = (sen);                         \
 	*lnode = n;                                     \
     } while (0)                                         \
-    
+
 #define node_free(no)	       free((no))
 #define node_get_next(no)      (no)->next
 #define node_set_next(no, ne)  (no)->next = (ne)

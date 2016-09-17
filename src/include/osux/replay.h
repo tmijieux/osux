@@ -1,5 +1,5 @@
-#ifndef OSU_REPLAY_H
-#define OSU_REPLAY_H
+#ifndef OSUX_REPLAY_H
+#define OSUX_REPLAY_H
 
 /*
  *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
@@ -23,7 +23,9 @@
 #include <time.h>
 
 typedef struct osux_replay_data_ osux_replay_data;
+typedef struct osux_replay_life_ osux_replay_life;
 typedef struct osux_replay_ osux_replay;
+
 
 #include "osux/beatmap.h"
 #include "osux/hit.h"
@@ -37,7 +39,7 @@ struct osux_replay_data_ {
     uint32_t keys;
 };
 
-struct replay_life {
+struct osux_replay_life_ {
     uint64_t time_offset;
     double life_amount;
 };
@@ -67,7 +69,7 @@ struct osux_replay_ {
        during the play  */
 
     uint32_t life_count;
-    struct replay_life *life;
+    osux_replay_life *life;
 
     /* the date and time of the play  */
     time_t timestamp;
@@ -82,7 +84,7 @@ struct osux_replay_ {
 int osux_replay_init(osux_replay *r, char const *file_path);
 void osux_replay_print(osux_replay const *r, FILE *f);
 void osux_replay_free(osux_replay *r);
-
+void osux_replay_move(osux_replay *src, osux_replay *dst);
 int osux_replay_compute_hit(osux_replay *r, osux_beatmap *b, osux_hit **hits);
 
-#endif // OSU_REPLAY_H
+#endif // OSUX_REPLAY_H

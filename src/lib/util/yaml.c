@@ -49,7 +49,7 @@ void parser_stack_push(struct stack *parser_stack,
 
     if (stack_size(parser_stack) > 0) {
 	struct yaml_wrap *head = stack_peek(parser_stack);
-	
+
 	if (YAML_MAPPING == head->type)
 	    osux_hashtable_insert(head->content.mapping, keyname, newhead);
 	else if (YAML_SEQUENCE == head->type) {
@@ -57,7 +57,7 @@ void parser_stack_push(struct stack *parser_stack,
 	}
     }
     free(keyname);
-    
+
     stack_push(parser_stack, newhead);
 }
 
@@ -75,7 +75,7 @@ int yaml2_parse_file(struct yaml_wrap **yamlw, const char *file_name)
     char *yaml_path = osux_prefix_path("/yaml/", file_name);
     fh = osux_open_config(yaml_path, "r");
     free(yaml_path);
-    
+
     if (!yaml_parser_initialize(&parser)) {
 	return -1;
 	fputs("Failed to initialize yaml parser!\n", stderr);
@@ -84,7 +84,7 @@ int yaml2_parse_file(struct yaml_wrap **yamlw, const char *file_name)
 	fprintf(stderr, "Failed to open file %s!\n", file_name);
 	return -1;
     }
-    
+
     yaml_parser_set_input_file(&parser, fh);
 
     while (!done) {
@@ -101,7 +101,7 @@ int yaml2_parse_file(struct yaml_wrap **yamlw, const char *file_name)
 		*yamlw = stack_pop(parser_stack);
 	    goto end;
 	    break;
-		
+
 	case YAML_SEQUENCE_START_EVENT:
 	    parser_stack_push(parser_stack, YAML_SEQUENCE,
                               osux_list_new(LI_FREE, yaml2_free), keyname);
@@ -114,12 +114,12 @@ int yaml2_parse_file(struct yaml_wrap **yamlw, const char *file_name)
 			      osux_hashtable_new(100), keyname);
 	    keyname = NULL;
 	    break;
-		
+
 	case YAML_MAPPING_END_EVENT:
 	case YAML_SEQUENCE_END_EVENT:
 	    *yamlw = stack_pop(parser_stack);
 	    break;
-        		
+
 	case YAML_SCALAR_EVENT:
 	    if (stack_size(parser_stack) > 0) {
 		struct yaml_wrap *head = stack_peek(parser_stack);
@@ -157,7 +157,7 @@ int yaml2_parse_file(struct yaml_wrap **yamlw, const char *file_name)
 
     yaml_parser_delete(&parser);
     stack_destroy(parser_stack);
-    fclose(fh);    
+    fclose(fh);
     return 0;
 }
 

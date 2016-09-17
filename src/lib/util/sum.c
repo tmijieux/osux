@@ -99,7 +99,7 @@ static double acc_sum_compute (struct heap * heap)
       heap_free(heap);
       return 0;
     }
-  
+
   while (heap_size(heap) > 1)
     {
       double * min1 = heap_extract_max(heap);
@@ -192,7 +192,7 @@ static double weight_sum_compute (struct heap * heap)
   while (heap_size(heap) > 0)
     {
       double * max = heap_extract_max(heap);
-      
+
       if (nb_weighted < MAX_NB_WEIGHTED)
 	{
 	  sum_add(sum, weight(*max, nb_weighted));
@@ -222,7 +222,7 @@ struct sum * sum_new (unsigned int size, enum sum_type type)
 
   if (type == DEFAULT)
     type = PERF;
-  
+
   switch (type)
     {
     case PERF:

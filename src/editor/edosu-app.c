@@ -214,7 +214,7 @@ save_action(GSimpleAction *action, GVariant *parameter, gpointer papp)
     (void) parameter;
     EdosuApplication *app = EDOSU_APPLICATION(papp);
     EdosuBeatmap *beatmap = app->current_beatmap;
-    
+
     if (beatmap == NULL)
         return;
 
@@ -224,12 +224,12 @@ save_action(GSimpleAction *action, GVariant *parameter, gpointer papp)
         _("_Cancel"), GTK_RESPONSE_CANCEL,
         _("_Save"), GTK_RESPONSE_ACCEPT, NULL);
     GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
-    
+
     if (beatmap->dirpath != NULL)
         gtk_file_chooser_set_current_folder(chooser, beatmap->dirpath);
     if (beatmap->filename != NULL)
         gtk_file_chooser_set_current_name(chooser, beatmap->filename);
-    
+
     gint res = gtk_dialog_run(GTK_DIALOG (dialog));
     if (res == GTK_RESPONSE_ACCEPT)
     {
