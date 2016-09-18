@@ -59,6 +59,7 @@ AC_CONFIG_FILES([
 		  Makefile
 		  src/Makefile
 		  src/thirdparty/Makefile
+		  src/include/Makefile
       		  src/lib/Makefile
 		  src/lib/util/Makefile
 		  src/lib/beatmap/Makefile

@@ -2,17 +2,16 @@ include $(top_srcdir)/common.mk
 
 noinst_LTLIBRARIES = libosux_util.la 
 libosux_util_la_SOURCES = \
-	hash_table.c hash_table.h \
-	heap.c heap.h \
-	list.c list.h \
-	split.c split.h \
-	stack.c stack.h \
-	yaml.c yaml2.h \
-	uleb128.c uleb128.h \
-	sum.c sum.h \
-	data.c data.h \
-	md5.c md5.h \
-	str.c string2.h \
+	hash_table.c \
+	heap.c \
+	list.c \
+	split.c \
+	stack.c \
+	yaml.c \
+	uleb128.c \
+	sum.c \
+	md5.c \
+	str.c \
 	error.c
 
 libosux_util_la_CFLAGS = $(CRYPTO_CFLAGS) $(YAML_CFLAGS) $(AM_CFLAGS)

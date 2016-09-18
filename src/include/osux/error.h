@@ -80,6 +80,15 @@ char const *osux_errmsg(int errcode);
         fprintf(stderr, (format_), ##__VA_ARGS__);              \
     } while(0)
 
+#define osux_fatal(format_, ...)                                        \
+    do {                                                                \
+        fprintf(stderr, "FATAL ERROR: %s:%d|%s: ",  __FILENAME__ ,      \
+                __LINE__, __PRETTY_FUNCTION__);                         \
+        fprintf(stderr, (format_), ##__VA_ARGS__);                      \
+        osux_error(format_, ##__VA_ARGS__);                             \
+        exit(EXIT_FAILURE);                                             \
+    } while(0)
+
 #define osux_warning(format_, ...)                              \
     do {                                                        \
         fprintf(stderr, "WARNING: %s:%d|%s: ",  __FILENAME__ ,  \
@@ -100,7 +109,7 @@ char const *osux_errmsg(int errcode);
     } while(0)
 
 #else // DEBUG
-#define osux_debug(format_, ...) ((void) ((format_), ##__VA_ARGS__))
+#define osux_debug(format_, ...) ((void) (format_))
 #endif // DEBUG
 
 G_END_DECLS

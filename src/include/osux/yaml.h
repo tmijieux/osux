@@ -1,6 +1,3 @@
-#ifndef OSUX_YAML2_H
-#define OSUX_YAML2_H
-
 /*
  *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
  *
@@ -17,35 +14,30 @@
  *  limitations under the License.
  */
 
+#ifndef OSUX_YAML_H
+#define OSUX_YAML_H
+
 #include <glib.h>
-#include "osux/list.h"
-#include "osux/hash_table.h"
 
-G_BEGIN_DECLS
+typedef enum osux_yaml_type_ {
+    OSUX_YAML_INVALID = 0,
+    OSUX_YAML_LIST,
+    OSUX_YAML_TABLE,
+    OSUX_YAML_SCALAR,
+} osux_yaml_type;
 
-enum yaml_type {
-    YAML_INVALID = 0,
-    YAML_MAPPING,
-    YAML_SEQUENCE,
-    YAML_SCALAR,
-};
+typedef struct osux_yaml_ {
+    osux_yaml_type type;
+    union {
+        GList *list;
+        GHashTable *table;
+        gchar *scalar;
+        gpointer value;
+    };
+} osux_yaml;
 
-union yaml_content {
-    osux_list *sequence;
-    osux_hashtable *mapping;
-    char *scalar;
-    void *value;
-};
+osux_yaml *osux_yaml_new_from_file(char const *file_name);
+void osux_yaml_dump(FILE *out, osux_yaml const *yaml);
+void osux_yaml_free(osux_yaml *yaml);
 
-struct yaml_wrap {
-    enum yaml_type type;
-    union yaml_content content;
-};
-
-int yaml2_parse_file(struct yaml_wrap **yamlw, char const *file_name);
-void yaml2_dump(FILE *out, const struct yaml_wrap *yw);
-void yaml2_free(struct yaml_wrap *yw);
-
-G_END_DECLS
-
-#endif // OSUX_YAML2_H
+#endif // OSUX_YAML_H
