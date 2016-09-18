@@ -1,9 +1,11 @@
-#ifndef BEATMAP_SET_H
-#define BEATMAP_SET_H
+#ifndef OSUX_BEATMAP_SET_H
+#define OSUX_BEATMAP_SET_H
 
-struct osux_beatmap_set {
-    uint32_t beatmap_set_id;
-    int32_t osu_beatmap_set_id;
+typedef struct osux_beatmap_set_ osux_beatmap_set;
+
+struct osux_beatmap_set_ {
+    uint32_t id;
+    int32_t osu_id;
 
     char *creator;
     char *artist;
@@ -17,4 +19,4 @@ struct osux_beatmap_set {
     int32_t status;
 };
 
-#endif //BEATMAP_SET_H
+#endif // OSUX_BEATMAP_SET_H

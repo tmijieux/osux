@@ -54,6 +54,7 @@ static int parse_slider_points(osux_hitobject *ho, char *pointstr)
             break;
         }
     }
+
     g_strfreev(spl_points);
     return err;
 }
@@ -351,6 +352,8 @@ void osux_hitobject_free(osux_hitobject *ho)
     g_free(ho->hitsound.sfx_filename);
     g_free(ho->details);
     g_free(ho->errmsg);
+    if (ho->free_data != NULL)
+        ho->free_data(ho->data);
     memset(ho, 0, sizeof*ho);
 }
 
@@ -388,4 +391,13 @@ void osux_hitobject_apply_mods(osux_hitobject *ho, int mods)
             }
         }
     }
+}
+
+void osux_hitobject_set_data(osux_hitobject *ho,
+                             gpointer data, GDestroyNotify free_data)
+{
+    if (ho->free_data != NULL)
+        ho->free_data(ho->data);
+    ho->data = data;
+    ho->free_data = free_data;
 }

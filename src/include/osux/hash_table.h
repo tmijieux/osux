@@ -18,10 +18,13 @@
  */
 
 #include <stdlib.h>
+#include <glib.h>
 
 typedef struct osux_hashtable_ osux_hashtable;
 
 #include "osux/list.h"
+
+G_BEGIN_DECLS
 
 osux_hashtable *osux_hashtable_new(size_t size);
 osux_hashtable *osux_hashtable_new_full(size_t size, void(*free)(void*));
@@ -38,5 +41,7 @@ void osux_hashtable_each_r(
     osux_hashtable* ht, void (*fun)(const char *, void*, void*), void *args);
 void osux_hashtable_delete(osux_hashtable *ht);
 osux_list* osux_hashtable_to_list(osux_hashtable *h);
+
+G_END_DECLS
 
 #endif // OSUX_HASH_TABLE_H

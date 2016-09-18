@@ -1,3 +1,6 @@
+#ifndef OSUX_CPARSE_H
+#define OSUX_CPARSE_H
+
 /*
  *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
  *
@@ -14,11 +17,13 @@
  *  limitations under the License.
  */
 
-#ifndef osux_CPARSE_H
-#define osux_CPARSE_H
-
+#include <glib.h>
 #include "osux/hash_table.h"
 
-struct hash_table *cparse_osu_file(FILE *f);
+G_BEGIN_DECLS
+
+osux_hashtable *cparse_osu_file(FILE *f);
+
+G_END_DECLS
 
 #endif //osux_CPARSE_H

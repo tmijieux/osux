@@ -1,7 +1,7 @@
 #ifndef OSUX_EVENT_ENUM_H
 #define OSUX_EVENT_ENUM_H
 
-#ifndef OSUX_EVENT_HEADER_
+#ifndef OSUX_EVENT_HEADER_INSIDE
 #error "Never include this file directly"
 #endif
 

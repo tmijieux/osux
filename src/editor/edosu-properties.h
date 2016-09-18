@@ -7,7 +7,8 @@
 G_BEGIN_DECLS
 
 #define EDOSU_TYPE_PROPERTIES (edosu_properties_get_type())
-G_DECLARE_FINAL_TYPE(EdosuProperties, edosu_properties, EDOSU, PROPERTIES, GtkNotebook);
+G_DECLARE_FINAL_TYPE(EdosuProperties, edosu_properties,
+                     EDOSU, PROPERTIES, GtkNotebook);
 
 struct _EdosuProperties
 {
@@ -52,10 +53,10 @@ struct _EdosuProperties
 };
 
 EdosuProperties *edosu_properties_new(void);
-void
-edosu_properties_load_from_beatmap(EdosuProperties *props, osux_beatmap *beatmap);
-void
-edosu_properties_save_to_beatmap(EdosuProperties *p, osux_beatmap *beatmap);
+void edosu_properties_load_from_beatmap(EdosuProperties *props,
+                                        osux_beatmap *beatmap);
+void edosu_properties_save_to_beatmap(EdosuProperties *p,
+                                      osux_beatmap *beatmap);
 
 G_END_DECLS
 

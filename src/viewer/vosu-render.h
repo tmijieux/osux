@@ -1,12 +1,17 @@
-#ifndef RENDER_H
-#define RENDER_H
+#ifndef VOSU_RENDER_H
+#define VOSU_RENDER_H
 
 #include <stdint.h>
 #include <gtk/gtk.h>
+
+typedef struct vosu_renderer_ vosu_renderer;
+
 #include "osux/hitobject.h"
 #include "osux/replay.h"
 
-typedef struct vosu_renderer_ {
+G_BEGIN_DECLS
+
+struct vosu_renderer_ {
     cairo_t *cr;
     int64_t game_mode;
     int64_t position;
@@ -15,7 +20,7 @@ typedef struct vosu_renderer_ {
     double base_circle_size;
     int circle_size;
     double r, g, b, a;
-} vosu_renderer;
+};
 
 void vosu_draw_object_std(vosu_renderer *r, osux_hitobject *ho);
 void vosu_draw_object_taiko(vosu_renderer const *r, osux_hitobject *ho);
@@ -23,10 +28,9 @@ void vosu_draw_object_taiko(vosu_renderer const *r, osux_hitobject *ho);
 void vosu_draw_object(vosu_renderer *r, osux_hitobject *ho);
 void vosu_draw_cursor(vosu_renderer const *r, osux_replay_data *cursor);
 
-
-
 void vosu_draw_playfield_taiko(vosu_renderer const *r);
-
 void vosu_draw_playfield(vosu_renderer *r);
 
-#endif //RENDER_H
+G_END_DECLS
+
+#endif // VOSU_RENDER_H

@@ -1,5 +1,6 @@
-#ifndef ULEB128_H
-#define ULEB128_H
+#ifndef OSUX_ULEB128_H
+#define OSUX_ULEB128_H
+
 /*
  *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
  *
@@ -18,8 +19,13 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <glib.h>
+
+G_BEGIN_DECLS
 
 uint64_t read_ULEB128(FILE * f);
 void write_ULEB128(uint64_t value, FILE *output, unsigned padding);
+
+G_END_DECLS
 
 #endif //ULEB128_H

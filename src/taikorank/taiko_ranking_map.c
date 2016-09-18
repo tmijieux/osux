@@ -228,7 +228,7 @@ static struct tr_map *trm_from_file(const char *filename)
 
 //---------------------------------------------------------------
 
-static int osux_map_check_mode(struct osux_beatmap *map)
+static int osux_map_check_mode(osux_beatmap *map)
 {
     switch (map->game_mode) {
     case GAME_MODE_STD:

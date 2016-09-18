@@ -6,7 +6,9 @@
 #include <stdbool.h>
 #include <glib/gi18n.h>
 
-#define OSUX_EVENT_HEADER_
+G_BEGIN_DECLS
+
+#define OSUX_EVENT_HEADER_INSIDE
 
 typedef struct osux_event_ osux_event;
 typedef struct osux_event_object_ osux_event_object;
@@ -72,6 +74,7 @@ struct osux_event_object_ {
     int anim_frame_delay;
     int r, g, b;
 };
+
 struct osux_event_command_ {
     int easing;
 
@@ -90,7 +93,7 @@ struct osux_event_command_ {
     int loop_count;
     char *trigger;
 
-    struct osux_event_command_ *next;
+    osux_event_command *next;
 };
 
 struct osux_event_ {
@@ -99,8 +102,10 @@ struct osux_event_ {
     int offset;
     int end_offset;
 
-    osux_event_object object;
-    osux_event_command command;
+    union {
+        osux_event_object object;
+        osux_event_command command;
+    };
 
     uint32_t osu_version;
     osux_event *parent;
@@ -108,11 +113,6 @@ struct osux_event_ {
     uint32_t child_bufsize;
     osux_event **childs;
 };
-
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 int osux_event_init(osux_event *event, char *line, uint32_t osu_version);
 int osux_event_free(osux_event *event);
@@ -132,9 +132,8 @@ char const *osux_event_detail_string(osux_event *ev);
 
 #include "event_string.h"
 
-#ifdef __cplusplus
-}
-#endif
+#undef OSUX_EVENT_HEADER_INSIDE
 
-#undef OSUX_EVENT_HEADER_
+G_END_DECLS
+
 #endif // OSUX_EVENT_H

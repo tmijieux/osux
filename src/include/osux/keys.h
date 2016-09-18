@@ -1,6 +1,10 @@
 #ifndef OSUX_KEYS_H
 #define OSUX_KEYS_H
 
+#include <glib.h>
+
+G_BEGIN_DECLS
+
 enum taiko_keys {
     LEFT_DON    =   1,
     LEFT_KAT    =   2,
@@ -38,5 +42,8 @@ enum mania_keys {
     MANIA_8   =  128,
     MANIA_9   =  256,
 };
+
+
+G_END_DECLS
 
 #endif // OSUX_KEYS_H

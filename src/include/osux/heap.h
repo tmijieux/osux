@@ -1,3 +1,6 @@
+#ifndef OSUX_HEAP_H
+#define OSUX_HEAP_H
+
 /*
  *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
  *
@@ -14,10 +17,10 @@
  *  limitations under the License.
  */
 
-#ifndef HEAP_H
-#define HEAP_H
-
 #include <stdlib.h>
+#include <glib.h>
+
+G_BEGIN_DECLS
 
 struct heap;
 
@@ -30,4 +33,6 @@ void *heap_max(struct heap *heap);
 void heap_insert(struct heap *heap, void *k);
 
 
-#endif //HEAP_H
+G_END_DECLS
+
+#endif // OSUX_HEAP_H

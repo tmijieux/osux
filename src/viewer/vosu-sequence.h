@@ -22,7 +22,6 @@ VosuSequence *vosu_sequence_new(GDestroyNotify data_destroy);
 void vosu_sequence_add_additional_data(
     VosuSequence *seq, gpointer data, GDestroyNotify data_free);
 
-
 #define vosu_sequence_append(seq, data)         \
     g_sequence_append((seq)->gseq, (data))
 

@@ -13,6 +13,8 @@
 #include <stdbool.h>
 #include <glib.h>
 
+G_BEGIN_DECLS
+
 static inline double osux_strtod(char *str) { return g_ascii_strtod(str, NULL); }
 static inline double osux_strtoull(char *str) {
     return g_ascii_strtoull(str, NULL, 10); }
@@ -54,5 +56,7 @@ static inline bool osux_tobool(char *str) { return !!atoi(str); }
     VALUE( Difficulty, SliderTickRate, double, 1., osux_strtod)         \
 
 /* DEFAULT_VALUES(DECLARE_DEFAULT_VALUE); */
+
+G_END_DECLS
 
 #endif // OSUX_BEATMAP_VARIABLE_H

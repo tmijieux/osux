@@ -20,10 +20,13 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <glib.h>
 
 #include "osux/compiler.h"
 #include "osux/timingpoint.h"
 #include "osux/color.h"
+
+G_BEGIN_DECLS
 
 enum hitobject_type {
 
@@ -44,10 +47,10 @@ enum hitobject_type {
 };
 
 enum slider_type {
-    SLIDER_LINE     = 'L',   // two points line
-    SLIDER_P        = 'P',   // three points line
-    SLIDER_BEZIER   = 'B',   // 4 and more points line
-    SLIDER_C        = 'C', // seen on v5, unknown usage
+    SLIDER_LINE     = 'L',   // 2 pts, straight line
+    SLIDER_CIRC     = 'P',   // 3 pts, circular arc
+    SLIDER_BEZIER   = 'B',   // >=4 pts, bezier/bezier set
+    SLIDER_CATMULL  = 'C',   // catmull curve, not used anymore, seen on v5
 };
 
 /*
@@ -98,7 +101,7 @@ typedef struct osux_slider_ {
     osux_edgehitsound *edgehitsounds; // bufsize = 0 or 'repeat'
 } osux_slider;
 
-typedef struct osux_hitobject {
+typedef struct osux_hitobject_ {
     int x;
     int y;
     int64_t offset;
@@ -119,7 +122,8 @@ typedef struct osux_hitobject {
     char *details;
     char *errmsg;
 
-    void *data;
+    gpointer data;
+    GDestroyNotify free_data;
 } osux_hitobject;
 
 int MUST_CHECK osux_hitobject_init(
@@ -132,5 +136,10 @@ void osux_hitobject_free(osux_hitobject *ho);
 void osux_hitobject_move(osux_hitobject *ho, osux_hitobject *target);
 void osux_hitobject_copy(osux_hitobject *ho, osux_hitobject *target);
 void osux_hitobject_apply_mods(osux_hitobject *ho, int mods);
+void osux_hitobject_set_data(osux_hitobject *ho,
+                             gpointer data, GDestroyNotify free_data);
+
+G_END_DECLS
+
 
 #endif //OSUX_HIT_OBJECT_H

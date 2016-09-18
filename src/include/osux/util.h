@@ -6,6 +6,8 @@
 #include <stdint.h>
 #include <glib.h>
 
+G_BEGIN_DECLS
+
 #define HANDLE_ARRAY_SIZE(array, array_size, array_capacity)            \
     do {                                                                \
         if (array_size+1 > array_capacity) {                            \
@@ -46,6 +48,8 @@ char *bytearray2hexstr(uint8_t const *bytearray, size_t size);
 char *osux_get_file_hashstr(char const *file_path);
 unsigned strsplit_size(char **split);
 GIOChannel *osux_open_text_file_reading(char const *file_path);
+
+G_END_DECLS
 
 #endif // OSUX_UTIL_H
 

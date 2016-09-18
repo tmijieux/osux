@@ -13,6 +13,7 @@ vosu_sequence_finalize(GObject *obj)
 {
     VosuSequence *seq = VOSU_SEQUENCE(obj);
     g_clear_pointer(&seq->gseq, g_sequence_free);
+    // order matters, always free data after sequence
     if (seq->free_data != NULL)
         g_clear_pointer(&seq->data, seq->free_data);
     G_OBJECT_CLASS(vosu_sequence_parent_class)->finalize(obj);

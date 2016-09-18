@@ -1,3 +1,6 @@
+#ifndef OSUX_SUM_H
+#define OSUX_SUM_H
+
 /*
  *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
  *
@@ -14,10 +17,10 @@
  *  limitations under the License.
  */
 
-#ifndef SUM_H
-#define SUM_H
+#include <glib.h>
+#include "osux/heap.h"
 
-#include "heap.h"
+G_BEGIN_DECLS
 
 /*
   module for summing double.
@@ -39,4 +42,6 @@ struct sum * sum_new (unsigned int size, enum sum_type type);
 void sum_add (struct sum * s, double x);
 double sum_compute (struct sum * s);
 
-#endif
+G_END_DECLS
+
+#endif // OSUX_SUM_H

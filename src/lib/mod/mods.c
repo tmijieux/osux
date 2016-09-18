@@ -22,38 +22,38 @@ struct mod_designation {
     const char *short_;
 };
 
-struct mod_designation none = { "None",        "None" };
+static struct mod_designation none = { "None",        "None" };
 
-struct mod_designation md[] = {
-    [ IMOD_NOFAIL ]       = { "NoFail",      "NF" },
-    [ IMOD_EASY ]         = { "Easy",        "EZ" },
-    [ IMOD_NOVIDEO ]      = { "NoVideo",     "" },
-    [ IMOD_HIDDEN ]       = { "Hidden",      "HD" },
-    [ IMOD_HARDROCK ]     = { "HardRock",    "HR" },
-    [ IMOD_SUDDENDEATH ]  = { "SuddenDeath", "SD" },
-    [ IMOD_DOUBLETIME ]   = { "DoubleTime",  "DT" },
-    [ IMOD_RELAX ]        = { "Relax",       "Relax" },
-    [ IMOD_HALFTIME ]     = { "HalfTime",    "HT" },
-    [ IMOD_NIGHTCORE ]    = { "NightCore",   "NC" },
-    [ IMOD_FLASHLIGHT ]   = { "FlashLight",  "FL" },
-    [ IMOD_AUTOPLAY ]     = { "Auto",        "Auto" },
-    [ IMOD_SPUNOUT ]      = { "SpunOut",     "SO" },
-    [ IMOD_AUTOPILOT ]    = { "AutoPilot",   "AP" },
-    [ IMOD_PERFECT ]      = { "Perfect",     "PF" },
-    [ IMOD_1K ]           = { "Key1",        "1K" },
-    [ IMOD_2K ]           = { "Key2",        "2K" },
-    [ IMOD_3K ]           = { "Key3",        "3K" },
-    [ IMOD_4K ]           = { "Key4",        "4K" },
-    [ IMOD_5K ]           = { "Key5",        "5K" },
-    [ IMOD_6K ]           = { "Key6",        "6K" },
-    [ IMOD_7K ]           = { "Key7",        "7K" },
-    [ IMOD_8K ]           = { "Key8",        "8K" },
-    [ IMOD_9K ]           = { "Key9",        "9K" },
-    [ IMOD_FADEIN ]       = { "FadeIn",      "FI" },
-    [ IMOD_RANDOM ]       = { "Random",      "RD" },
-    [ IMOD_CINEMA ]       = { "Cinema",      "CN" },
-    [ IMOD_COOP ]         = { "Coop",        "CP" },
-    [ IMOD_TARGETPRACTICE ] = { "TargetPractice", "TP" },
+static struct mod_designation md[] = {
+    [ MOD_ID_NOFAIL ]       = { "NoFail",      "NF" },
+    [ MOD_ID_EASY ]         = { "Easy",        "EZ" },
+    [ MOD_ID_NOVIDEO ]      = { "NoVideo",     "" },
+    [ MOD_ID_HIDDEN ]       = { "Hidden",      "HD" },
+    [ MOD_ID_HARDROCK ]     = { "HardRock",    "HR" },
+    [ MOD_ID_SUDDENDEATH ]  = { "SuddenDeath", "SD" },
+    [ MOD_ID_DOUBLETIME ]   = { "DoubleTime",  "DT" },
+    [ MOD_ID_RELAX ]        = { "Relax",       "Relax" },
+    [ MOD_ID_HALFTIME ]     = { "HalfTime",    "HT" },
+    [ MOD_ID_NIGHTCORE ]    = { "NightCore",   "NC" },
+    [ MOD_ID_FLASHLIGHT ]   = { "FlashLight",  "FL" },
+    [ MOD_ID_AUTOPLAY ]     = { "Auto",        "Auto" },
+    [ MOD_ID_SPUNOUT ]      = { "SpunOut",     "SO" },
+    [ MOD_ID_AUTOPILOT ]    = { "AutoPilot",   "AP" },
+    [ MOD_ID_PERFECT ]      = { "Perfect",     "PF" },
+    [ MOD_ID_1K ]           = { "Key1",        "1K" },
+    [ MOD_ID_2K ]           = { "Key2",        "2K" },
+    [ MOD_ID_3K ]           = { "Key3",        "3K" },
+    [ MOD_ID_4K ]           = { "Key4",        "4K" },
+    [ MOD_ID_5K ]           = { "Key5",        "5K" },
+    [ MOD_ID_6K ]           = { "Key6",        "6K" },
+    [ MOD_ID_7K ]           = { "Key7",        "7K" },
+    [ MOD_ID_8K ]           = { "Key8",        "8K" },
+    [ MOD_ID_9K ]           = { "Key9",        "9K" },
+    [ MOD_ID_FADEIN ]       = { "FadeIn",      "FI" },
+    [ MOD_ID_RANDOM ]       = { "Random",      "RD" },
+    [ MOD_ID_CINEMA ]       = { "Cinema",      "CN" },
+    [ MOD_ID_COOP ]         = { "Coop",        "CP" },
+    [ MOD_ID_TARGETPRACTICE ] = { "TargetPractice", "TP" },
 };
 
 void mod_print(FILE *f, uint32_t mod_bitfield)
@@ -65,7 +65,7 @@ void mod_print(FILE *f, uint32_t mod_bitfield)
 	return;
     }
 
-    for (int i = 0; i < IMOD_MAX; ++i) {
+    for (int i = 0; i < MOD_ID_MAX; ++i) {
 	if ((mod_bitfield >> i) % 2) {
 	    if (count) fprintf(f, "|");
 	    fputs(md[i].short_, f);

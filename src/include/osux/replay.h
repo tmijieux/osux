@@ -20,15 +20,17 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <glib.h>
 #include <time.h>
 
 typedef struct osux_replay_data_ osux_replay_data;
 typedef struct osux_replay_life_ osux_replay_life;
 typedef struct osux_replay_ osux_replay;
 
-
 #include "osux/beatmap.h"
 #include "osux/hit.h"
+
+G_BEGIN_DECLS
 
 struct osux_replay_data_ {
     uint64_t time_offset;
@@ -86,5 +88,7 @@ void osux_replay_print(osux_replay const *r, FILE *f);
 void osux_replay_free(osux_replay *r);
 void osux_replay_move(osux_replay *src, osux_replay *dst);
 int osux_replay_compute_hit(osux_replay *r, osux_beatmap *b, osux_hit **hits);
+
+G_END_DECLS
 
 #endif // OSUX_REPLAY_H

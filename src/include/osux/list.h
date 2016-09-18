@@ -17,11 +17,16 @@
  *  limitations under the License.
  */
 
-typedef struct osux_list_ osux_list;
-
 #include <stdlib.h>
 #include <assert.h>
+#include <glib.h>
+
+typedef struct osux_list_ osux_list;
+
 #include "osux/hash_table.h"
+
+G_BEGIN_DECLS
+
 // FLAGS for list_new():
 #define LI_ELEM  (1 << 1)	// null terminated initializer list
 #define LI_FREE  (1 << 2)	// second argument is a free function for elements
@@ -36,7 +41,6 @@ typedef struct osux_list_ osux_list;
 #define list_addg(typ, li, da)						\
     ({ assert(sizeof typ < sizeof (void*)) ;				\
 	union { typ t; void *v}e; e.t = da; list_push(li, e.v);})
-
 
 #define list_getg(typ, li, i)						\
     ({ assert(sizeof typ < sizeof (void*)) ;				\
@@ -62,5 +66,8 @@ void osux_list_each_r(
 osux_list *osux_list_map(osux_list const *l, void *(*fun)(void*));
 osux_list *osux_list_map_r(
     osux_list const *l, void *(*fun)(void*, void*), void *args);
+
+
+G_END_DECLS
 
 #endif // OSUX_LIST_H

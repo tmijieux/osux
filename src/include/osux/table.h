@@ -1,5 +1,5 @@
-#ifndef TABLE_H
-#define TABLE_H
+#ifndef OSUX_TABLE_H
+#define OSUX_TABLE_H
 
 #include <stdlib.h>
 
@@ -57,4 +57,4 @@ static inline void table_set(struct table * t, int i, const void * o)
     t->t[i] = o;
 }
 
-#endif //TABLE_H
+#endif // OSUX_TABLE_H

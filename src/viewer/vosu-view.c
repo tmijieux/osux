@@ -80,7 +80,7 @@ draw_objects(VosuView *self)
 }
 
 static void
-draw_handle_time_end(VosuView *self)
+display_time(VosuView *self)
 {
     int64_t minutes = self->position/60000;
     int64_t seconds = self->position/1000 - minutes*60;
@@ -141,7 +141,7 @@ draw(GtkDrawingArea *drawing_area, cairo_t *cr, VosuView *self)
         if (cursor != NULL)
             vosu_draw_cursor(&self->renderer, cursor);
     }
-    draw_handle_time_end(self);
+    display_time(self);
 }
 
 static gboolean

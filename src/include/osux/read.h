@@ -1,7 +1,10 @@
-#ifndef READ_H
-#define READ_H
+#ifndef OSUX_READ_H
+#define OSUX_READ_H
 
-#include "./error.h"
+#include <glib.h>
+#include "osux/error.h"
+
+G_BEGIN_DECLS
 
 static inline void xfread(void *buf, size_t size, size_t nmemb, FILE *stream)
 {
@@ -15,4 +18,6 @@ static inline void xfread(void *buf, size_t size, size_t nmemb, FILE *stream)
     }
 }
 
-#endif //READ_H
+G_END_DECLS
+
+#endif // OSUX_READ_H

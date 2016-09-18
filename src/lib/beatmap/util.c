@@ -5,8 +5,6 @@
 #include "osux/error.h"
 #include "osux/md5.h"
 
-#define DEFAULT_LINE_CAPACITY 512
-
 int osux_getline(GIOChannel *chan, char **return_value)
 {
     int err = 0;

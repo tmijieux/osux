@@ -20,6 +20,8 @@
 #include <glib.h>
 #include <glib/gi18n.h>
 
+G_BEGIN_DECLS
+
 enum hitsound_sample {
     SAMPLE_NORMAL  = 0x00,
     SAMPLE_UNK1    = 0x01,
@@ -48,5 +50,7 @@ enum hitsound_sample_type {
     SAMPLE_SETS(SAMPLE_SET_TO_ENUM_)
     MAX_SAMPLE_TYPE,
 };
+
+G_END_DECLS
 
 #endif // OSUX_HITSOUND_H

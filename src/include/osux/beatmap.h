@@ -22,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <openssl/md5.h>
+#include <glib.h>
 
 #include "osux/compiler.h"
 #include "osux/hitobject.h"
@@ -32,10 +33,11 @@
 #include "osux/timingpoint.h"
 #include "osux/event.h"
 
+G_BEGIN_DECLS
 
-typedef struct osux_beatmap osux_beatmap;
+typedef struct osux_beatmap_ osux_beatmap;
 
-struct osux_beatmap {
+struct osux_beatmap_ {
     uint32_t beatmap_id;
     uint32_t beatmap_set_id;
 
@@ -156,13 +158,9 @@ struct osux_beatmap {
     void *data;
 };
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 int MUST_CHECK osux_beatmap_init(osux_beatmap *beatmap, char const *filename);
 int osux_beatmap_free(osux_beatmap *beatmap);
-char *osux_beatmap_default_filename(const osux_beatmap *bm);
+char *osux_beatmap_default_filename(osux_beatmap const *bm);
 int MUST_CHECK osux_beatmap_prepare(osux_beatmap *beatmap);
 int osux_beatmap_print(osux_beatmap const *m, FILE *f);
 int osux_beatmap_save(osux_beatmap const *beatmap, char const *path);
@@ -191,9 +189,7 @@ void osux_beatmap_append_color(osux_beatmap *beatmap, osux_color *c);
 int osux_get_circle_size(double circle_size, int mods);
 
 
-#ifdef __cplusplus
-}
-#endif
+G_END_DECLS
 
 
 #endif // OSUX_BEATMAP_H

@@ -3,7 +3,10 @@
 
 #include <sqlite3.h>
 #include <stdbool.h>
+#include <glib.h>
 #include "osux/list.h"
+
+G_BEGIN_DECLS
 
 typedef struct osux_database_ {
 
@@ -14,8 +17,6 @@ typedef struct osux_database_ {
 
     sqlite3_stmt *prepared_query;
 } osux_database;
-
-
 
 int osux_database_init(osux_database *db, char const *file_path);
 void osux_database_free(osux_database *db);
@@ -30,6 +31,6 @@ int osux_database_bind_double(osux_database *db, char const *name, double d);
 int osux_database_bind_string(osux_database *db, char const *name, char const *str);
 int osux_database_exec_prepared_query(osux_database *db, osux_list *query_result);
 
-
+G_END_DECLS
 
 #endif // OSUX_DATABASE_H

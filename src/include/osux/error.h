@@ -1,11 +1,14 @@
 #ifndef OSUX_ERROR_H
 #define OSUX_ERROR_H
 
+#include <glib.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 #include <errno.h>
+
+G_BEGIN_DECLS
 
 #define OSUX_ERROR_LIST(ERROR)                          \
     ERROR(OSUX_SUCCESS)                                 \
@@ -60,44 +63,46 @@ enum osux_error_code {
     OSUX_ERROR_LIST(OSUX_ERROR_TO_ENUM)
 };
 
-const char *osux_errmsg(int errcode);
+char const *osux_errmsg(int errcode);
 
 #ifndef __GNUC__
-#	define __PRETTY_FUNCTION__    __FUNCDNAME__
+#define __PRETTY_FUNCTION__    __FUNCDNAME__
 #endif
 
 
 #define __FILENAME__ (strrchr(__FILE__, '/') ?                  \
                       strrchr(__FILE__, '/') + 1 : __FILE__)
 
-#define osux_error(format, ...)                                 \
+#define osux_error(format_, ...)                                \
     do {                                                        \
-        fprintf(stderr, "ERROR: %s:%d|%s: ",  __FILENAME__ ,   \
+        fprintf(stderr, "ERROR: %s:%d|%s: ",  __FILENAME__ ,    \
                 __LINE__, __PRETTY_FUNCTION__);                 \
-        fprintf(stderr, format, ##__VA_ARGS__);                 \
+        fprintf(stderr, (format_), ##__VA_ARGS__);              \
     } while(0)
 
-#define osux_warning(format, ...)                               \
+#define osux_warning(format_, ...)                              \
     do {                                                        \
-        fprintf(stderr, "WARNING: %s:%d|%s: ",  __FILENAME__ , \
+        fprintf(stderr, "WARNING: %s:%d|%s: ",  __FILENAME__ ,  \
                 __LINE__, __PRETTY_FUNCTION__);                 \
-        fprintf(stderr, format, ##__VA_ARGS__);                 \
+        fprintf(stderr, (format_), ##__VA_ARGS__);              \
     } while(0)
 
 
-#define osux_malloc(size__) malloc(size__)
-#define osux_free(ptr__) free(ptr__)
+#define osux_malloc(size_) g_malloc0(size_)
+#define osux_free(ptr_) g_free(ptr_)
 
 
 #ifdef DEBUG
-#define osux_debug(format, ...)                                 \
-    do {                                                        \
-    fprintf(stderr, "DEBUG: %s:%d|%s: " format, __FILENAME__ ,  \
-            __LINE__, __PRETTY_FUNCTION__, ##__VA_ARGS__);      \
+#define osux_debug(format_, ...)                                        \
+    do {                                                                \
+        fprintf(stderr, "DEBUG: %s:%d|%s: " format_, __FILENAME__ ,     \
+                __LINE__, __PRETTY_FUNCTION__, ##__VA_ARGS__);          \
     } while(0)
 
 #else // DEBUG
-# define osux_debug(format, ...) ((void) (format))
+#define osux_debug(format_, ...) ((void) ((format_), ##__VA_ARGS__))
 #endif // DEBUG
+
+G_END_DECLS
 
 #endif // OSUX_ERROR_H

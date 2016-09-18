@@ -1,3 +1,6 @@
+#ifndef OSUX_PARSER_CFETCH_H
+#define OSUX_PARSER_CFETCH_H
+
 /*
  *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
  *
@@ -14,9 +17,13 @@
  *  limitations under the License.
  */
 
-#ifndef PARSER_H
-#define PARSER_H
+#include <glib.h>
+#include "osux/beatmap.h"
 
-struct map *osux_c_parse_beatmap(const char *filename);
+G_BEGIN_DECLS
 
-#endif //PARSER_H
+osux_beatmap *osux_c_parse_beatmap(char const *filename);
+
+G_END_DECLS
+
+#endif // OSUX_PARSER_CFETCH_H

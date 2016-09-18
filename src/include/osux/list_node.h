@@ -18,6 +18,9 @@
  */
 
 #include <stdlib.h>
+#include <glib.h>
+
+G_BEGIN_DECLS
 
 struct osux_list_node {
     const void *data;
@@ -43,4 +46,6 @@ struct osux_list_node {
 #define node_set_data(no, da)  (no)->data = (da)
 #define node_is_sentinel(no)   (no)->is_sentinel
 
-#endif //LIST_NODE_H
+G_END_DECLS
+
+#endif // OSUX_LIST_NODE_H

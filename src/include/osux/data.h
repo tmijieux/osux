@@ -1,10 +1,16 @@
-#ifndef DATA_H
-#define DATA_H
+#ifndef OSUX_DATA_H
+#define OSUX_DATA_H
 
-FILE *osux_open_config(const char *path, const char *mode);
-FILE *osux_open_resource(const char *path, const char *mode);
-char *osux_prefix_path(const char *prefix, const char *path);
-void osux_set_song_path(const char *path);
-const char *osux_get_song_path(void);
+#include <glib.h>
 
-#endif //DATA_H
+G_BEGIN_DECLS
+
+FILE *osux_open_config(char const *path, char const *mode);
+FILE *osux_open_resource(char const *path, char const *mode);
+char *osux_prefix_path(char const *prefix, char const *path);
+void osux_set_song_path(char const *path);
+char const *osux_get_song_path(void);
+
+G_END_DECLS
+
+#endif // OSUX_DATA_H

@@ -17,10 +17,16 @@
  *  limitations under the License.
  */
 
+#include <glib.h>
+
+G_BEGIN_DECLS
+
 /*
-  Return 0 on success
-  Return -1 on failure
-*/
+ * return 0 on success
+ * return -1 on failure
+ */
 int osux_beatmap_taiko_autoconvert(osux_beatmap *bm);
+
+G_END_DECLS
 
 #endif // OSUX_TAIKO_AUTOCONVERT_H

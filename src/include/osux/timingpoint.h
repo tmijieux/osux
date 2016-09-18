@@ -19,8 +19,12 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <glib.h>
 
 #include "osux/compiler.h"
+
+G_BEGIN_DECLS
+
 /*
   timingpoint format:
 
@@ -34,7 +38,9 @@
 
 */
 
-typedef struct osux_timingpoint {
+typedef struct osux_timingpoint_ osux_timingpoint;
+
+struct osux_timingpoint_ {
     double offset;
     double millisecond_per_beat;
     double slider_velocity_multiplier;// percentage < 0
@@ -48,12 +54,12 @@ typedef struct osux_timingpoint {
     bool inherited;
     bool kiai;
 
-    struct osux_timingpoint const *last_non_inherited;
+    osux_timingpoint const *last_non_inherited;
     int _osu_version;
 
     char *details;
     char *errmsg;
-} osux_timingpoint;
+};
 
 #define TP_GET_BPM(timingpoint)                                 \
     (60.  * 1000. / (timingpoint)->millisecond_per_beat)
@@ -73,5 +79,8 @@ void osux_timingpoint_copy(osux_timingpoint *from, osux_timingpoint *to);
 
 // free timing point's internal resources
 void osux_timingpoint_free(osux_timingpoint *tp);
+
+
+G_END_DECLS
 
 #endif // OSUX_TIMINGPOINT_H

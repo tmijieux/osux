@@ -183,7 +183,7 @@ int osux_beatmap_save(osux_beatmap const *beatmap, char const *path)
 static char const sp_chr[] = "/";
 static char const replace_chr[] = "_";
 
-gchar *osux_beatmap_default_filename(const osux_beatmap *bm)
+gchar *osux_beatmap_default_filename(osux_beatmap const *bm)
 {
     gchar *name = g_strdup_printf(
         "%s - %s (%s) [%s].osu", bm->Artist, bm->Title, bm->Creator, bm->Version);

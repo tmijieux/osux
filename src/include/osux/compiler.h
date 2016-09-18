@@ -1,5 +1,5 @@
-#ifndef COMPILER_H
-#define COMPILER_H
+#ifndef OSUX_COMPILER_H
+#define OSUX_COMPILER_H
 
 /*
  *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
@@ -33,4 +33,4 @@
 
 #define MARK_USED(x) ((void) (x))
 
-#endif //COMPILER_H
+#endif // OUSX_COMPILER_H

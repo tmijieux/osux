@@ -17,9 +17,15 @@
  *  limitations under the License.
  */
 
-unsigned int string_split(const char *str, const char *delim, char ***buf_addr);
-int string_have_extension(const char *filename, const char *extension);
+#include <glib.h>
+
+G_BEGIN_DECLS
+
+unsigned string_split(char const *str, char const *delim, char ***buf_addr);
+int string_have_extension(char const *filename, char const *extension);
 void read_string_ULEB128(char **buf, FILE *f);
 void write_string_ULEB128(char *buf, FILE *f);
+
+G_END_DECLS
 
 #endif // OSUX_SPLIT_H

@@ -19,6 +19,7 @@ edosu_application_get_beatmap_by_view(EdosuApplication *app, EdosuView *view);
 EdosuBeatmap *
 edosu_application_get_beatmap_by_path(EdosuApplication *app, gchar const *path);
 void edosu_application_close_beatmap(EdosuApplication *app, EdosuBeatmap *beatmap);
+
 G_END_DECLS
 
 #endif // EDOSU_APPLICATION_H

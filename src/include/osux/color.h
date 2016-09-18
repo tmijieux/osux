@@ -19,6 +19,9 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <glib.h>
+
+G_BEGIN_DECLS
 
 #define COLOR_TYPES(COLOR)                                              \
     COLOR(COMBO,                     N_("Combo"))                       \
@@ -55,15 +58,15 @@ typedef struct osux_combo_ {
     GList *current;
 } osux_combo;
 
-int osux_color_init(osux_color *c, char *line, uint32_t osu_version);
 char const *osux_color_type_get_name(int type);
+int osux_color_init(osux_color *c, char *line, uint32_t osu_version);
 void osux_color_free(osux_color *c);
 void osux_color_print(FILE *f, osux_color *c);
 void osux_color_copy(osux_color *from, osux_color *to);
 void osux_color_move(osux_color *from, osux_color *to);
+bool osux_color_array_contains_type(osux_color array[],
+                                    uint32_t size, int type);
 
-
-bool
-osux_color_array_contains_type(osux_color array[], uint32_t size, int type);
+G_END_DECLS
 
 #endif // OSUX_COLOR_H
