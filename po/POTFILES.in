@@ -112,14 +112,11 @@ src/include/osux/util.h
 src/include/osux/error.h
 src/include/osux/string2.h
 src/include/osux/read.h
-src/include/osux/cfetch.h
 src/include/osux/beatmap_set.h
 src/include/osux/data.h
 src/include/osux/beatmap_database.h
 src/include/osux/event.h
 src/include/osux/hash_table.h
-src/include/osux/pyfetch.h
-src/include/osux/cparse.h
 src/include/osux/compiler.h
 src/include/osux/list.h
 src/include/osux/hit.h
