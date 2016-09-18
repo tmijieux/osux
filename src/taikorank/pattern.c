@@ -30,8 +30,8 @@
 
 #define PROBA_SCALE 100.
 
-static struct yaml_wrap * yw_ptr;
-static osux_hashtable * ht_cst_ptr;
+static osux_yaml * yw_ptr;
+static GHashTable * ht_cst_ptr;
 
 struct pattern {
     char * s;
@@ -86,7 +86,7 @@ static int MAX_PATTERN_LENGTH;
 
 //-----------------------------------------------------
 
-static void pattern_global_init(osux_hashtable * ht_cst)
+static void pattern_global_init(GHashTable * ht_cst)
 {
     PATTERN_FREQ_LF = cst_lf(ht_cst, "vect_pattern_freq");
     PATTERN_INFLU_LF = cst_lf(ht_cst, "vect_influence");
@@ -105,7 +105,7 @@ static void pattern_global_init(osux_hashtable * ht_cst)
 
 static void ht_cst_exit_pattern(void)
 {
-    yaml2_free(yw_ptr);
+    osux_yaml_free(yw_ptr);
     lf_free(PATTERN_SCALE_LF);
     lf_free(SINGLETAP_LF);
     lf_free(PATTERN_FREQ_LF);

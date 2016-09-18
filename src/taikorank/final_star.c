@@ -43,8 +43,8 @@ static void trm_set_global_stars(struct tr_map * map);
 
 #define FINAL_FILE "final_cst.yaml"
 
-static struct yaml_wrap * yw_fin;
-static osux_hashtable * ht_cst_fin;
+static osux_yaml * yw_fin;
+static GHashTable * ht_cst_fin;
 
 static double DST_POW;
 static double RDG_POW;
@@ -79,7 +79,7 @@ TRM_WEIGHT_SUM(final_star)
 
 //-----------------------------------------------------
 
-static void final_global_init(osux_hashtable * ht_cst)
+static void final_global_init(GHashTable * ht_cst)
 {
     FINAL_INFLU_LF = cst_lf(ht_cst, "vect_influence");
     WEIGHT_LF = cst_lf(ht_cst, "vect_weight");
@@ -94,7 +94,7 @@ static void final_global_init(osux_hashtable * ht_cst)
 
 static void ht_cst_exit_final(void)
 {
-    yaml2_free(yw_fin);
+    osux_yaml_free(yw_fin);
     lf_free(FINAL_SCALE_LF);
     lf_free(WEIGHT_LF);
     lf_free(FINAL_INFLU_LF);

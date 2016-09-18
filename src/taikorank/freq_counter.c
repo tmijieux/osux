@@ -22,7 +22,7 @@
 typedef void (*ht_fun)(const char*,void*,void*);
 
 struct counter {
-    osux_hashtable * ht;
+    GHashTable * ht;
     double total;
 };
 
@@ -42,7 +42,6 @@ struct inheriter {
 };
 
 static struct counter_entry * cnte_new(const void * d, double nb);
-static void cnte_free(const char *key, struct counter_entry *e);
 static void cnte_print(
     const char *key, struct counter_entry *e, struct inheriter *h);
 static void cnte_inherit(
@@ -54,18 +53,12 @@ static void cnte_add_nb_inherit(
 
 static struct counter_entry * cnte_new(const void * d, double nb)
 {
-    struct counter_entry * e = malloc(sizeof(*e));
+    struct counter_entry * e = g_malloc(sizeof*e);
     e->data = d;
     e->nb = nb;
     return e;
 }
 
-static void cnte_free(const char *key UNUSED, struct counter_entry *e)
-{
-    if (e == NULL)
-        return;
-    free(e);
-}
 
 //--------------------------------------------------
 
@@ -110,8 +103,8 @@ static void cnte_where(const char *key UNUSED,
 
 struct counter * cnt_new(void)
 {
-    struct counter * c = malloc(sizeof(*c));
-    c->ht = osux_hashtable_new(0);
+    struct counter * c = g_malloc(sizeof*c);
+    c->ht = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
     c->total = 0;
     return c;
 }
@@ -120,10 +113,8 @@ void cnt_free(struct counter * c)
 {
     if (c == NULL)
         return;
-    osux_hashtable_each(c->ht,
-                        (void (*)(const char*, void*)) cnte_free);
-    osux_hashtable_delete(c->ht);
-    free(c);
+    g_hash_table_destroy(c->ht);
+    g_free(c);
 }
 
 //--------------------------------------------------
@@ -132,12 +123,12 @@ void cnt_add(struct counter * c, const void * data,
              const char * key, double val)
 {
     struct counter_entry * e = NULL;
-    osux_hashtable_lookup(c->ht, key, &e);
+    e = g_hash_table_lookup(c->ht, key);
     if (e != NULL) {
         e->nb += val;
     } else {
         e = cnte_new(data, val);
-        osux_hashtable_insert(c->ht, key, e);
+        g_hash_table_insert(c->ht, g_strdup(key), e);
     }
     c->total += val;
 }
@@ -148,18 +139,18 @@ double cnt_get_nb_inherit(const struct counter * c,
                           const char * key, inherit_fun inherit)
 {
     struct counter_entry * e = NULL;
-    osux_hashtable_lookup(c->ht, key, &e);
+    e = g_hash_table_lookup(c->ht, key);
     if (e == NULL)
         return 0;
     struct inheriter total = {NULL, e, {inherit}, 0};
-    osux_hashtable_each_r(c->ht, (ht_fun) cnte_inherit, &total);
+    g_hash_table_foreach(c->ht, (GHFunc) cnte_inherit, &total);
     return total.nb;
 }
 
 double cnt_get_nb(const struct counter * c, const char * key)
 {
     struct counter_entry * e = NULL;
-    osux_hashtable_lookup(c->ht, key, &e);
+    e = g_hash_table_lookup(c->ht, key);
     if (e == NULL)
         return 0;
     return e->nb;
@@ -168,7 +159,7 @@ double cnt_get_nb(const struct counter * c, const char * key)
 double cnt_get_nb_where(const struct counter * c, where_fun where)
 {
     struct inheriter h = {c, NULL, {.where = where}, 0};
-    osux_hashtable_each_r(c->ht, (ht_fun) cnte_where, &h);
+    g_hash_table_foreach(c->ht, (GHFunc) cnte_where, &h);
     return h.nb;
 }
 
@@ -180,7 +171,7 @@ double cnt_get_total(const struct counter * c)
 double cnt_get_total_inherit(const struct counter * c, inherit_fun inherit)
 {
     struct inheriter h = {c, NULL, {inherit}, 0};
-    osux_hashtable_each_r(c->ht, (ht_fun) cnte_add_nb_inherit, &h);
+    g_hash_table_foreach(c->ht, (GHFunc) cnte_add_nb_inherit, &h);
     return h.nb;
 }
 
@@ -190,7 +181,7 @@ void cnt_print(const struct counter * c)
 {
     printf("Counter: (%g)\n", c->total);
     printf("Entry:\tkey\tval\tfreq\n");
-    osux_hashtable_each_r(c->ht, (ht_fun) cnte_print, NULL);
+    g_hash_table_foreach(c->ht, (GHFunc) cnte_print, NULL);
 }
 
 void cnt_print_inherit(const struct counter * c, inherit_fun inherit)
@@ -198,5 +189,5 @@ void cnt_print_inherit(const struct counter * c, inherit_fun inherit)
     printf("Counter: (%g)\n", c->total);
     printf("Entry:\tkey\tval\tcompr\tfreq\tfreq cp\n");
     struct inheriter h = {c, NULL, {inherit}, INFINITY};
-    osux_hashtable_each_r(c->ht, (ht_fun) cnte_print, &h);
+    g_hash_table_foreach(c->ht, (GHFunc) cnte_print, &h);
 }

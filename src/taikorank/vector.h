@@ -26,8 +26,8 @@ struct vector {
 struct vector * vect_new(int length, int dim);
 void vect_free(struct vector * v);
 
-struct vector * cst_vect(osux_hashtable * ht, const char * key);
-struct vector * cst_vect_from_decl(osux_hashtable * ht, const char * key);
-struct vector * cst_vect_from_list(osux_hashtable * ht, const char * key);
+struct vector * cst_vect(GHashTable * ht, const char * key);
+struct vector * cst_vect_from_decl(GHashTable * ht, const char * key);
+struct vector * cst_vect_from_list(GHashTable * ht, const char * key);
 
 #endif // TR_VECTOR_H

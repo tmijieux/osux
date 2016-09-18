@@ -40,8 +40,8 @@ struct tr_option
     const char * help;
 };
 
-static osux_hashtable * ht_local_opt;
-static osux_hashtable * ht_global_opt;
+static GHashTable * ht_local_opt;
+static GHashTable * ht_global_opt;
 
 //-----------------------------------------------------
 
@@ -60,10 +60,10 @@ static int tr_option_apply(const struct tr_option * opt,
 //-----------------------------------------------------
 
 static int opt_set(int argc, const char ** argv,
-                   osux_hashtable * ht_opt)
+                   GHashTable * ht_opt)
 {
     struct tr_option * opt = NULL;
-    osux_hashtable_lookup(ht_opt, argv[0], &opt);
+    opt = g_hash_table_lookup(ht_opt, argv[0]);
     if (opt == NULL) {
         tr_error("Unknown option: '%s'", argv[0]);
         return 0;
@@ -200,11 +200,9 @@ static void opt_help(const char ** argv UNUSED)
     fprintf(OUTPUT_INFO, "taiko_ranking [GLOBAL_OPTION] ... "
             "[LOCAL_OPTIONS] [FILE|HASH] ...\n");
     fprintf(OUTPUT_INFO, "Global options:\n");
-    osux_hashtable_each(ht_global_opt, (void (*)(const char*, void*))
-                        tr_option_print);
+    g_hash_table_foreach(ht_global_opt, (GHFunc) tr_option_print, NULL);
     fprintf(OUTPUT_INFO, "Local options:\n");
-    osux_hashtable_each(ht_local_opt, (void (*)(const char*, void*))
-                        tr_option_print);
+    g_hash_table_foreach(ht_local_opt, (GHFunc) tr_option_print, NULL);
     exit(EXIT_SUCCESS);
 }
 
@@ -220,11 +218,11 @@ void print_help(void)
 typedef int (*opt_fun)(int, const char**);
 
 static inline
-void add_opt(osux_hashtable * ht_opt, struct tr_option * opt)
+void add_opt(GHashTable * ht_opt, struct tr_option * opt)
 {
-    osux_hashtable_insert(ht_opt, opt->long_key, opt);
+    g_hash_table_insert(ht_opt, g_strdup(opt->long_key), opt);
     if (opt->short_key != NULL)
-        osux_hashtable_insert(ht_opt, opt->short_key, opt);
+        g_hash_table_insert(ht_opt, g_strdup(opt->short_key), opt);
 }
 
 #define new_tr_local_opt(LG_KEY, NB_ARG, FUNC, HELP)            \
@@ -248,14 +246,14 @@ void add_opt(osux_hashtable * ht_opt, struct tr_option * opt)
 
 static void options_exit(void)
 {
-    osux_hashtable_delete(ht_local_opt);
-    osux_hashtable_delete(ht_global_opt);
+    g_hash_table_destroy(ht_local_opt);
+    g_hash_table_destroy(ht_global_opt);
 }
 
 void tr_options_initialize(void)
 {
     // global options
-    ht_global_opt = osux_hashtable_new(0);
+    ht_global_opt = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
 
     new_tr_global_opt("help", 0, opt_help,
                       "Show this message");
@@ -279,7 +277,7 @@ void tr_options_initialize(void)
                       "Set printed data filter");
 
     // local options
-    ht_local_opt  = osux_hashtable_new(0);
+    ht_local_opt = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
 
     new_tr_local_opt("mods", 1, opt_mods,
                      "Set mods");
