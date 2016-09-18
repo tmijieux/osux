@@ -17,22 +17,26 @@
 #define TR_MODS_H
 
 // --------------- MODS ---------------
-#define MODS_NONE 0
-#define MODS_EZ   (1 << 0)
-#define MODS_HT   (1 << 1)
-#define MODS_HR   (1 << 2)
-#define MODS_DT   (1 << 3)
-#define MODS_HD   (1 << 4)
-#define MODS_FL   (1 << 5)
+
+#define MOD_NM 0
+#define MOD_EZ MOD_EASY
+#define MOD_HT MOD_HALFTIME
+#define MOD_HR MOD_HARDROCK
+#define MOD_DT MOD_DOUBLETIME
+#define MOD_HD MOD_HIDDEN
+#define MOD_FL MOD_FLASHLIGHT
 
 #define RESOLUTION_10
 
 // ----------------------------------------
+
+int trm_has_mods(const struct tr_map * map, int mods);
 
 void trm_apply_mods_FL(struct tr_map * map);
 
 void trm_apply_mods(struct tr_map * map);
 void trm_print_out_mods(const struct tr_map * map);
 char * trm_mods_to_str(const struct tr_map * map);
+int str_to_mods(const char * s);
 
 #endif //TR_MODS_H

@@ -16,11 +16,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "osux.h"
 #include "taiko_ranking_map.h"
 #include "taiko_ranking_object.h"
-
 #include "print.h"
 #include "tr_mods.h"
+
+#define STR_MOD_LENGTH 2
+#define MAX_MOD        4
 
 /*
   _COEFF_MS:  od multiplier related to speed
@@ -99,7 +102,7 @@ static int trm_print_one_mod(const struct tr_map * map, int mods, int * i,
 
 //---------------------------------------------
 
-static int trm_has_mods(const struct tr_map * map, int mods)
+int trm_has_mods(const struct tr_map * map, int mods)
 {
     return (map->mods & mods) != 0;
 }
@@ -156,7 +159,7 @@ static void trm_apply_mods_HT(struct tr_map * map)
 
 static void trm_apply_mods_HD(struct tr_map * map)
 {
-    if (!trm_has_mods(map, MODS_FL))
+    if (!trm_has_mods(map, MOD_FL))
         for (int i = 0; i < map->nb_object; i++)
             map->object[i].obj_app = HD_NB_OBJ_APP;
 
@@ -215,21 +218,21 @@ void trm_apply_mods(struct tr_map * map)
 {
     trm_apply_mods_NM(map);
 
-    if (trm_has_mods(map, MODS_HR) && !trm_has_mods(map, MODS_HD))
+    if (trm_has_mods(map, MOD_HR) && !trm_has_mods(map, MOD_HD))
         trm_apply_mods_HR(map);
-    else if (trm_has_mods(map, MODS_EZ))
+    else if (trm_has_mods(map, MOD_EZ))
         trm_apply_mods_EZ(map);
 
-    if (trm_has_mods(map, MODS_DT))
+    if (trm_has_mods(map, MOD_DT))
         trm_apply_mods_DT(map);
-    else if (trm_has_mods(map, MODS_HT))
+    else if (trm_has_mods(map, MOD_HT))
         trm_apply_mods_HT(map);
 
-    if (trm_has_mods(map, MODS_HD) && !trm_has_mods(map, MODS_HR))
+    if (trm_has_mods(map, MOD_HD) && !trm_has_mods(map, MOD_HR))
         trm_apply_mods_HD(map);
-    if (trm_has_mods(map, MODS_HD) && trm_has_mods(map, MODS_HR))
+    if (trm_has_mods(map, MOD_HD) && trm_has_mods(map, MOD_HR))
         trm_apply_mods_HDHR(map);
-    if (trm_has_mods(map, MODS_FL))
+    if (trm_has_mods(map, MOD_FL))
         trm_apply_mods_FL(map);
 }
 
@@ -240,7 +243,7 @@ static int trm_print_one_mod(const struct tr_map * map, int mods, int * i,
 {
     if ((map->mods & mods) != 0) {
         sprintf(&buffer[*i], string);
-        *i += STR_MODS_LENGTH;
+        *i += STR_MOD_LENGTH + 1;
         return 1;
     }
     return 0;
@@ -251,7 +254,7 @@ static int trm_print_one_mod(const struct tr_map * map, int mods, int * i,
 void trm_print_out_mods(const struct tr_map * map)
 {
     char * buffer = trm_mods_to_str(map);
-    print_string_size(buffer, STR_MODS_LENGTH * MAX_MODS + 1, OUTPUT);
+    print_string_size(buffer, (STR_MOD_LENGTH + 1) * MAX_MOD + 1, OUTPUT);
     free(buffer);
 }
 
@@ -259,17 +262,53 @@ void trm_print_out_mods(const struct tr_map * map)
 
 char * trm_mods_to_str(const struct tr_map * map)
 {
-    char * s = calloc(sizeof(char), STR_MODS_LENGTH * MAX_MODS + 1);
+    char * s = calloc(sizeof(char), (STR_MOD_LENGTH + 1) * MAX_MOD + 1);
     int i = 0;
 
-    if (trm_print_one_mod(map, MODS_HR, &i, s, "HR ") == 0)
-        trm_print_one_mod(map, MODS_EZ, &i, s, "EZ ");
+    if (trm_print_one_mod(map, MOD_HR, &i, s, "HR ") == 0)
+        trm_print_one_mod(map, MOD_EZ, &i, s, "EZ ");
 
-    if (trm_print_one_mod(map, MODS_DT, &i, s, "DT ") == 0)
-        trm_print_one_mod(map, MODS_HT, &i, s, "HT ");
+    if (trm_print_one_mod(map, MOD_DT, &i, s, "DT ") == 0)
+        trm_print_one_mod(map, MOD_HT, &i, s, "HT ");
 
-    trm_print_one_mod(map, MODS_HD, &i, s, "HD ");
-    trm_print_one_mod(map, MODS_FL, &i, s, "FL ");
+    trm_print_one_mod(map, MOD_HD, &i, s, "HD ");
+    trm_print_one_mod(map, MOD_FL, &i, s, "FL ");
 
     return s;
+}
+
+//-------------------------------------------------
+
+#define IF_MOD_SET(STR, MOD, mods, s, i)                \
+    if (strncmp(STR, &s[i], STR_MOD_LENGTH) == 0) {     \
+        mods |= MOD;                                    \
+        continue;                                       \
+    }
+
+int str_to_mods(const char * s)
+{
+    int mods = MOD_NM;
+    for (int i = 0; s[i]; i += STR_MOD_LENGTH) {
+        IF_MOD_SET("EZ", MOD_EZ, mods, s, i);
+        IF_MOD_SET("HR", MOD_HR, mods, s, i);
+        IF_MOD_SET("HT", MOD_HT, mods, s, i);
+        IF_MOD_SET("DT", MOD_DT, mods, s, i);
+        IF_MOD_SET("HD", MOD_HD, mods, s, i);
+        IF_MOD_SET("FL", MOD_FL, mods, s, i);
+        IF_MOD_SET("__", MOD_NM, mods, s, i);
+        for (int k = 1; k < STR_MOD_LENGTH; k++) {
+            if (s[i+k] == 0) {
+                tr_error("Wrong mod length.");
+                goto break2;
+            }
+        }
+        tr_error("Unknown mod used.");
+    }
+ break2:
+
+    if ((mods & MOD_EZ) && (mods & MOD_HR))
+        tr_error("Incompatible mods EZ and HR");
+    if ((mods & MOD_HT) && (mods & MOD_DT))
+        tr_error("Incompatible mods HT and DT");
+    return mods;
 }
