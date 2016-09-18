@@ -44,6 +44,7 @@ src/lib/beatmap/timingpoint.c
 src/lib/beatmap/beatmap_old.c
 src/lib/beatmap/util.c
 src/lib/beatmap/beatmap_variable.c
+src/lib/beatmap/hitsound.c
 src/lib/replay/xz_decomp.c
 src/lib/replay/osux_buffer_reader.c
 src/lib/replay/replay.c

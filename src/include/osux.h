@@ -23,7 +23,7 @@
 #include "./osux/stack.h"
 #include "./osux/heap.h"
 #include "./osux/taiko_autoconvert.h"
-#include "./osux/yaml2.h"
+#include "./osux/yaml.h"
 #include "./osux/xz_decomp.h"
 #include "./osux/sum.h"
 #include "./osux/md5.h"

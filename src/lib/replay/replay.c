@@ -151,8 +151,8 @@ static int parse_life_graph(osux_replay *r, char const *life_graph)
     return err;
 }
 
-#define READ_S(handle, var)  obr_read_string(&(handle), &(var))
-#define READ_V(handle, var)  obr_read(&(handle), &(var), sizeof (var))
+#define READ_S(handle_, var_)  obr_read_string(&(handle_), &(var_))
+#define READ_V(handle_, var_)  obr_read(&(handle_), &(var_), sizeof (var_))
 
 int osux_replay_init(osux_replay *r, char const *filepath)
 {

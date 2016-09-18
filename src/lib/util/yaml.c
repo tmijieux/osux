@@ -1,190 +1,217 @@
+/*
+ *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 #include <stdio.h>
 #include <yaml.h>
-#include <assert.h>
+#include <stdbool.h>
+#include <glib.h>
+#include <glib/gstdio.h>
+#include <glib/gi18n.h>
 
-#include "osux/compiler.h"
-#include "osux/yaml2.h"
-#include "osux/hash_table.h"
-#include "osux/list.h"
+#include "osux/error.h"
+#include "osux/yaml.h"
 #include "osux/stack.h"
-#include "osux/data.h"
+#include "osux/compiler.h"
 
-static void mapping_dump(const char *name, void *data, void *args)
+static void
+hashtable_dump_cb(gpointer key_name, gpointer field, gpointer out_stream)
 {
-    fprintf(args, "%s: ", name);
-    yaml2_dump(args, data);
+    fprintf(out_stream, "%s: ", (char*)key_name);
+    osux_yaml_dump((FILE*) out_stream, (osux_yaml*) field);
 }
 
-void yaml2_dump(FILE *out, const struct yaml_wrap *yw)
+void osux_yaml_dump(FILE *out, osux_yaml const *yaml)
 {
-    switch (yw->type) {
-    case YAML_SEQUENCE:
-	fprintf(out, "yaml sequence start:\n");
-	unsigned si = osux_list_size(yw->content.sequence);
-	for (unsigned i = 1; i <= si; ++i) {
-	    fprintf(out, "- ");
-	    yaml2_dump(out, osux_list_get(yw->content.sequence, i));
+    switch (yaml->type) {
+    case OSUX_YAML_LIST:
+	fprintf(out, _("yaml list start:\n"));
+        GList *l = yaml->list;
+        while (l != NULL) {
+	    osux_yaml_dump(out, (osux_yaml*) l->data);
+            l = l->next;
 	}
-	fprintf(out, "yaml sequence end\n");
+	fprintf(out, _("yaml list end\n"));
 	break;
-
-    case YAML_MAPPING:
-	fprintf(out, "yaml mapping start:\n");
-	osux_hashtable_each_r(yw->content.mapping, mapping_dump, out);
-	fprintf(out, "yaml mapping end\n");
+    case OSUX_YAML_TABLE:
+	fprintf(out, _("yaml table start:\n"));
+	g_hash_table_foreach(yaml->table, hashtable_dump_cb, out);
+	fprintf(out, _("yaml table end\n"));
 	break;
-
-    case YAML_SCALAR:
-	fprintf(out, "%s\n", yw->content.scalar);
+    case OSUX_YAML_SCALAR:
+	fprintf(out, "%s\n", yaml->scalar);
 	break;
+    default:
+    case OSUX_YAML_INVALID:
+        osux_warning(_("invalid yaml type encountered"));
+        break;
     }
 }
 
-void parser_stack_push(struct stack *parser_stack,
-		       enum yaml_type yt, void *value, char *keyname)
+static void
+insert_in_container(osux_yaml *cont, char const *keyname, osux_yaml *yaml)
 {
-    struct yaml_wrap *newhead = calloc(sizeof*newhead, 1);
-    newhead->type = yt;
-    newhead->content.value = value;
-
-    if (stack_size(parser_stack) > 0) {
-	struct yaml_wrap *head = stack_peek(parser_stack);
-
-	if (YAML_MAPPING == head->type)
-	    osux_hashtable_insert(head->content.mapping, keyname, newhead);
-	else if (YAML_SEQUENCE == head->type) {
-	    osux_list_append(head->content.sequence, newhead);
-	}
+    switch (cont->type) {
+    case OSUX_YAML_TABLE:
+        g_hash_table_insert(cont->table, g_strdup(keyname), yaml);
+        break;
+    case OSUX_YAML_LIST:
+        cont->list = g_list_prepend(cont->list, yaml);
+        break;
+    default:
+        osux_fatal(_("invalid container\n"));
+        break;
     }
-    free(keyname);
-
-    stack_push(parser_stack, newhead);
 }
 
-int yaml2_parse_file(struct yaml_wrap **yamlw, const char *file_name)
+static osux_yaml*
+wrap(osux_yaml_type type, gpointer value)
 {
-    FILE *fh;
+    osux_yaml *yaml = g_malloc(sizeof*yaml);
+    yaml->type = type;
+    yaml->value = value;
+    return yaml;
+}
+
+static void
+push_container(osux_stack *s, osux_yaml_type type,
+               char const *keyname, void *value)
+{
+    osux_yaml *yaml = wrap(type, value);
+    if (osux_stack_size(s) > 0) {
+        osux_yaml *cont = osux_stack_head(s);
+        insert_in_container(cont, keyname, yaml);
+    }
+    osux_stack_push(s, yaml);
+}
+
+#define CLEAR_STRING(s) do { g_clear_pointer(&(s), g_free); } while(0)
+
+osux_yaml*
+osux_yaml_new_from_file(char const *filepath)
+{
+    FILE *f;
     yaml_parser_t parser;
-    yaml_event_t  event;
-    int done = 0, key = 0;
-    struct stack *parser_stack = stack_create(100);
-    char *keyname = NULL;
+    osux_yaml *yaml = NULL, *tmp;
+    osux_stack *container_stack;
 
-    assert( NULL != yamlw );
-
-    char *yaml_path = osux_prefix_path("/yaml/", file_name);
-    fh = osux_open_config(yaml_path, "r");
-    free(yaml_path);
-
+    f = g_fopen(filepath, "r");
+    if (f == NULL) {
+	osux_error("%s: %s\n", filepath, strerror(errno));
+	return NULL;
+    }
+    memset(&parser, 0, sizeof parser);
     if (!yaml_parser_initialize(&parser)) {
-	return -1;
-	fputs("Failed to initialize yaml parser!\n", stderr);
+        fclose(f);
+        osux_error(_("Failed to initialize yaml parser!\n"));
+        yaml_parser_delete(&parser);
+	return NULL;
     }
-    if (NULL == fh) {
-	fprintf(stderr, "Failed to open file %s!\n", file_name);
-	return -1;
-    }
+    yaml_parser_set_input_file(&parser, f);
+    container_stack = osux_stack_new();
 
-    yaml_parser_set_input_file(&parser, fh);
-
+    bool done = false;
+    char *keyname = NULL;
     while (!done) {
+        GHashTable *table;
+        yaml_event_t event;
+
+        memset(&event, 0, sizeof event);
 	if (!yaml_parser_parse(&parser, &event)) {
-	    printf("Yaml parser error %d\n", parser.error);
-	    yaml_parser_delete(&parser);
-	    return -1;
+	    fprintf(stderr, _("Yaml parser error %d\n"), parser.error);
+            yaml_event_delete(&event);
+            break;
 	}
 
 	switch (event.type) {
 	case YAML_DOCUMENT_END_EVENT:
-	    done = 1;
-	    if (stack_size(parser_stack) > 0)
-		*yamlw = stack_pop(parser_stack);
-	    goto end;
-	    break;
-
-	case YAML_SEQUENCE_START_EVENT:
-	    parser_stack_push(parser_stack, YAML_SEQUENCE,
-                              osux_list_new(LI_FREE, yaml2_free), keyname);
-	    keyname = NULL;
-	    break;
-
-	case YAML_MAPPING_START_EVENT:
-	    key = 0;
-	    parser_stack_push(parser_stack, YAML_MAPPING,
-			      osux_hashtable_new(100), keyname);
-	    keyname = NULL;
-	    break;
-
-	case YAML_MAPPING_END_EVENT:
+        case YAML_STREAM_END_EVENT:
+            done = true;
+            break;
+        case YAML_MAPPING_END_EVENT:
+            if (osux_stack_size(container_stack))
+                yaml = osux_stack_pop(container_stack);
+            CLEAR_STRING(keyname);
+            break;
 	case YAML_SEQUENCE_END_EVENT:
-	    *yamlw = stack_pop(parser_stack);
+            if (osux_stack_size(container_stack)) {
+                yaml = osux_stack_pop(container_stack);
+                yaml->list = g_list_reverse(yaml->list);
+            }
+            CLEAR_STRING(keyname);
 	    break;
-
-	case YAML_SCALAR_EVENT:
-	    if (stack_size(parser_stack) > 0) {
-		struct yaml_wrap *head = stack_peek(parser_stack);
-		if (head->type == YAML_MAPPING) {
-		    if (!key)  {
-			keyname = strdup((char*) event.data.scalar.value);
-			key = 1;
-		    } else {
-			parser_stack_push(parser_stack, YAML_SCALAR,
-					  strdup((char*) event.data.scalar.value),
-                                          keyname);
-			keyname = NULL;
-			stack_pop(parser_stack);
-			key = 0;
-		    }
-		} else { // head is list
-		    assert(head->type == YAML_SEQUENCE);
-		    parser_stack_push(parser_stack, YAML_SCALAR,
-				      strdup((char*) event.data.scalar.value),
-                                      keyname);
-		    stack_pop(parser_stack);
-		}
-	    } else { // the whole document is a sole scalar:
-		parser_stack_push(parser_stack, YAML_SCALAR,
-				  strdup((char*) event.data.scalar.value), NULL);
-	    }
+	case YAML_SEQUENCE_START_EVENT:
+	    push_container(container_stack, OSUX_YAML_LIST, keyname, NULL);
+            CLEAR_STRING(keyname);
 	    break;
+	case YAML_MAPPING_START_EVENT:
+            table = g_hash_table_new_full(g_str_hash, g_str_equal, g_free,
+                                          (GDestroyNotify)osux_yaml_free);
+	    push_container(container_stack, OSUX_YAML_TABLE, keyname, table);
+            CLEAR_STRING(keyname);
+	    break;
+	case YAML_SCALAR_EVENT: {
+            char *value = g_strdup((char*) event.data.scalar.value);
+            if (osux_stack_size(container_stack) > 0) {
+                osux_yaml *head = osux_stack_head(container_stack);
+                if (head->type == OSUX_YAML_TABLE && keyname == NULL)
+                    keyname = value;
+                else {
+                    tmp = wrap(OSUX_YAML_SCALAR, value);
+                    insert_in_container(head, keyname, tmp);
+                    CLEAR_STRING(keyname);
+                }
+	    } else { // the whole document IS a scalar:
+                yaml = wrap(OSUX_YAML_SCALAR, value);
+                CLEAR_STRING(keyname);
+            }
+	    break;
+        }
 	default:
 	    break;
 	}
-	done =  (event.type == YAML_STREAM_END_EVENT);
-      end:
 	yaml_event_delete(&event);
     }
 
     yaml_parser_delete(&parser);
-    stack_destroy(parser_stack);
-    fclose(fh);
-    return 0;
+    while (osux_stack_size(container_stack))
+        yaml = osux_stack_pop(container_stack);
+    osux_stack_delete(container_stack);
+    fclose(f);
+    return yaml;
 }
 
-static void mapping_free(const char *key UNUSED,
-                         void *value,
-                         void *args UNUSED)
+void osux_yaml_free(osux_yaml *yaml)
 {
-    yaml2_free(value);
-}
-
-void yaml2_free(struct yaml_wrap *yw)
-{
-    if (NULL == yw)
+    if (yaml == NULL)
         return;
-    switch (yw->type) {
-    case YAML_MAPPING:
-        osux_hashtable_each_r(yw->content.mapping, &mapping_free, NULL);
-        osux_hashtable_delete(yw->content.mapping);
-        break;
 
-    case YAML_SEQUENCE:
-        osux_list_free(yw->content.sequence);
+    switch (yaml->type) {
+    case OSUX_YAML_TABLE:
+        g_hash_table_destroy(yaml->table);
         break;
-
-    case YAML_SCALAR:
-        free(yw->content.scalar);
+    case OSUX_YAML_LIST:
+        g_list_free_full(yaml->list, (GDestroyNotify) osux_yaml_free);
+        break;
+    case OSUX_YAML_SCALAR:
+        g_free(yaml->scalar);
+        break;
+    default:
+    case OSUX_YAML_INVALID:
+        osux_warning(_("invalid yaml type encountered"));
         break;
     }
-    free(yw);
+    g_free(yaml);
 }
