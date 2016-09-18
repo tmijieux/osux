@@ -18,6 +18,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "osux.h"
+
 #include "taiko_ranking_object.h"
 #include "taiko_ranking_map.h"
 #include "treatment.h"
@@ -54,10 +56,8 @@ static void trm_compute_separated(struct tr_map * map)
 
 void trm_compute_stars(struct tr_map * map)
 {
-    if ((map->mods & MODS_FL) != 0)
+    if (trm_has_mods(map, MOD_FL))
         trm_apply_mods_FL(map);
 
     trm_compute_separated(map);
 }
-
-//--------------------------------------------------

@@ -29,8 +29,6 @@
 
 #define CONFIG_FILE "config.yaml"
 
-#define MOD_STR_LENGTH 2
-
 struct tr_global_config * GLOBAL_CONFIG;
 struct tr_local_config * LOCAL_CONFIG;
 
@@ -187,39 +185,9 @@ void global_config_set_filter(const char * filter)
 
 //-----------------------------------------------------
 
-#define IF_MOD_SET(STR, MOD, i)                         \
-    if (strncmp(STR, &mods[i], MOD_STR_LENGTH) == 0) {  \
-        LOCAL_CONFIG->mods |= MOD;                      \
-        continue;                                       \
-    }
-
 void local_config_set_mods(const char * mods)
 {
-    LOCAL_CONFIG->mods = MODS_NONE;
-    for (int i = 0; mods[i]; i += MOD_STR_LENGTH) {
-        IF_MOD_SET("EZ", MODS_EZ, i);
-        IF_MOD_SET("HR", MODS_HR, i);
-        IF_MOD_SET("HT", MODS_HT, i);
-        IF_MOD_SET("DT", MODS_DT, i);
-        IF_MOD_SET("HD", MODS_HD, i);
-        IF_MOD_SET("FL", MODS_FL, i);
-        IF_MOD_SET("__", MODS_NONE, i);
-        for (int k = 1; k < MOD_STR_LENGTH; k++) {
-            if (mods[i+k] == 0) {
-                tr_error("Wrong mod length.");
-                goto break2;
-            }
-        }
-        tr_error("Unknown mod used.");
-    }
- break2:
-
-    if ((LOCAL_CONFIG->mods & MODS_EZ) &&
-        (LOCAL_CONFIG->mods & MODS_HR))
-        tr_error("Incompatible mods EZ and HR");
-    if ((LOCAL_CONFIG->mods & MODS_HT) &&
-        (LOCAL_CONFIG->mods & MODS_DT))
-        tr_error("Incompatible mods HT and DT");
+    LOCAL_CONFIG->mods = str_to_mods(mods);
 }
 
 //-----------------------------------------------------

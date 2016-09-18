@@ -30,9 +30,6 @@
 #define FILTER_ACCURACY     (1 << 7)
 #define FILTER_STAR         (1 << 8)
 
-#define STR_MODS_LENGTH 3
-#define MAX_MODS        4
-
 enum print_level {
     NONE    = -1,
     ERROR   = 0,
