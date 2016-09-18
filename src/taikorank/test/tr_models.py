@@ -118,10 +118,15 @@ class TR_Map_List(list):
         key = lambda map: (k1(map), k2(map))
         return TR_Map_List(sorted(self, key=key, reverse=reverse))
     #
+    def filter_lt(self, field, value):
+        k = self.get_lambda_eval(field)
+        return TR_Map_List([map for map in self if k(map) < value])
     def filter_le(self, field, value):
         k = self.get_lambda_eval(field)
         return TR_Map_List([map for map in self if k(map) <= value])
-    #
+    def filter_gt(self, field, value):
+        k = self.get_lambda_eval(field)
+        return TR_Map_List([map for map in self if k(map) > value])
     def filter_ge(self, field, value):
         k = self.get_lambda_eval(field)
         return TR_Map_List([map for map in self if k(map) >= value])
@@ -141,10 +146,10 @@ class TR_Map_List(list):
             res += str(map) + '\n'
         return res
     #
-    def str_full(self, field, with_mods):
+    def str_full(self, field, with_mods, prefix = ""):
         res = ""
         for map in self:
-            res += map.str_full(field, with_mods) +'\n' 
+            res += prefix + map.str_full(field, with_mods) +'\n'
         return res
     #
     @classmethod
@@ -179,7 +184,7 @@ class TR_Map_With_Objects(TR_Map):
         s = ""
         for i in range(0, len(self.objects)):
             if i != 0:
-                space = (self.objects[i].offset - 
+                space = (self.objects[i].offset -
                          self.objects[i-1].offset) / unit
                 s += "_" * (int(space) - 1)
             s += self.objects[i].type

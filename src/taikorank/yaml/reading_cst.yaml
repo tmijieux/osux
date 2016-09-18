@@ -35,25 +35,25 @@ vect_interest_y4: 0.
 vect_interest_x5: 3600000.
 vect_interest_y5: 0.
 
-### Seen 
+### Seen
 ## Brief:
-# Integrate the interest of the object based on the visible part of 
+# Integrate the interest of the object based on the visible part of
 # the object and its time on screen.
 ## Variable:
-# x is in ms * px^2 * interset, the "volume" representing how well it 
+# x is in ms * px^2 * interset, the "volume" representing how well it
 #   is seen.
 # y the seen value
 vect_seen_length: 6
 vect_seen_x1: 0.    # don't give much more
-vect_seen_y1: 2.1
+vect_seen_y1: 1.8
 vect_seen_x2: 21    # 600bpma
-vect_seen_y2: 2.
+vect_seen_y2: 1.7
 vect_seen_x3: 47    # 400bpma
-vect_seen_y3: 1.8
+vect_seen_y3: 1.6
 vect_seen_x4: 184   # 200bpma
-vect_seen_y4: 1.5
+vect_seen_y4: 1.4
 vect_seen_x4: 317   # 140bpma
-vect_seen_y4: 1.1
+vect_seen_y4: 1.2
 vect_seen_x5: 400   # 100bpma
 vect_seen_y5: 1.
 vect_seen_x6: 1e5   # make sure high enough
@@ -61,9 +61,8 @@ vect_seen_y6: 1.
 
 ### Parameters coeff
 ## Brief:
-# Enable or disable a parameter of the star rating by modifying its 
+# Enable or disable a parameter of the star rating by modifying its
 # multiplier coefficient.
 ## Variable:
 # Multiplier in [0, 1]
 star_seen: 1.
-

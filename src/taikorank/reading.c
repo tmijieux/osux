@@ -31,7 +31,20 @@
 #include "tr_gts.h"
 #include "reading.h"
 
-// Pretty much the location in my head...
+/*
+  The mesh built looks like a snake with a rectangular shape.
+  It starts with an edge or a vertex and ends with an edge or a vertex.
+  struct edge_rect represent one "ring" of the mesh.
+  struct edge_2_rect represent a "section" of the mesh.
+  View from the top:
+    _________________________
+   /|      |        |   |   |\
+  / |      |        |   |   | \
+  \ |      |        |   |   | /
+   \|______|________|___|___|/
+        ^           ^
+        |section    |ring
+ */
 struct edge_rect {
     GtsEdge *e_bot;
     GtsEdge *e_top;
@@ -528,7 +541,7 @@ static struct edge_rect *tro_open_mesh(struct tr_object *o)
     GtsFace *f_top = tr_gts_face_new(
         r->new->e_top, r->e_front_top, r->e_back_top);
     GtsFace *f_bot = tr_gts_face_new(
-        r->new->e_bot, r->e_back_bot,  r->e_front_bot);
+        r->new->e_bot, r->e_back_bot, r->e_front_bot);
     gts_surface_add_face(o->mesh, f_top);
     gts_surface_add_face(o->mesh, f_bot);
 

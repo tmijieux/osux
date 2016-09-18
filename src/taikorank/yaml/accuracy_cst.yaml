@@ -42,7 +42,7 @@ vect_spacing_influence_y3: 0
 
 ## Spacing frequency
 ## Brief:
-# The more frequent a spacing is present the easier it is. Based on 
+# The more frequent a spacing is present the easier it is. Based on
 # spacing influence.
 ## Variable:
 # x is in [0, 1], the frequency

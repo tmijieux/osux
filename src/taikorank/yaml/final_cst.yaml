@@ -1,6 +1,6 @@
 ### Influence
 ## Brief:
-# When an object is a miss or a good it decreases the difficulty of 
+# When an object is a miss or a good it decreases the difficulty of
 # the others object.
 ## Variable:
 # x is in ms,  the time between the two object
@@ -39,10 +39,10 @@ accuracy_pow: 1
 
 ### Weight
 ## Brief:
-# Function to transform the star rating on each object to a star 
+# Function to transform the star rating on each object to a star
 # rating on the map. Every object give its stars multiplied by y.
 ## Variable:
-# x is the number of the object sorted by star rating, 0 is the 
+# x is the number of the object sorted by star rating, 0 is the
 #   highest star rating
 # y in [0, 1], the difficulty multiplier
 vect_weight_length: 5
@@ -56,4 +56,3 @@ vect_weight_x4: 2048
 vect_weight_y4: 0.
 vect_weight_x5: 50000
 vect_weight_y5: 0.
-

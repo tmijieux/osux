@@ -21,16 +21,23 @@ from tr_models import TR_Map_List
 
 class Pool:
     def __init__(self, path, dir, field):
-        self.name = dir
-        self.path = path + dir
+        self.name = str(dir)
+        if not self.name.endswith('/'):
+            self.name += '/'
+        self.path = path + self.name
         self.cmd  = self.path + "*.osu"
         self.field = field
+    #
+    def exists(self):
+        return len(self.res) > 0
     #
     def compute(self):
         logging.info("Computing " + self.path)
         yaml = TR_Exec.compute(self.cmd)
         res = TR_Map_List.from_yaml(yaml)
         self.res = res.sort_by(self.field)
+        if not self.exists():
+            return
         l = self.res.get_lambda_eval(self.field)
         self.min = l(self.res[-1])
         self.max = l(self.res[0])
@@ -50,9 +57,15 @@ class TR_Test_Pool(TR_Test):
             self.pools.append(Pool(self.path, dir, self.field))
     #
     def compute(self):
+        pools = []
         for pool in self.pools:
             pool.compute()
+            if pool.exists():
+                pools.append(pool)
+        self.pools = pools
     #
+    OK = Colors.green("OK") + " - "
+    FAIL = Colors.fail("<>") + " - "
     def compare(self):
         total = 0
         for pool in self.pools:
@@ -63,12 +76,17 @@ class TR_Test_Pool(TR_Test):
             p1 = self.pools[i+1]
             min = p0.min
             max = p1.max
-            ge = p0.res.filter_le(self.field, max)
-            le = p1.res.filter_ge(self.field, min)
-            errors += len(ge) + len(le)
-            logging.warning(Colors.blue("Maps between %s and %s" % (str(p0), str(p1))))
-            logging.warning(ge.str_full(self.field, False))
-            logging.warning(le.str_full(self.field, False))
+            p0_good = p0.res.filter_gt(self.field, max)
+            p0_bad  = p0.res.filter_le(self.field, max)
+            p1_bad  = p1.res.filter_ge(self.field, min)
+            p1_good = p1.res.filter_lt(self.field, min)
+            errors += len(p0_bad) + len(p1_bad)
+            logging.warning(Colors.blue("Maps for %s and %s" % (str(p0), str(p1))))
+            logging.warning(p0_good.str_full(self.field, False, self.OK))
+            if len(p0_bad) + len(p1_bad) > 0:
+                logging.warning(p0_bad.str_full(self.field, False, self.FAIL))
+                logging.warning(p1_bad.str_full(self.field, False, self.FAIL))
+            logging.warning(p1_good.str_full(self.field, False, self.OK))
         return (errors, total)
 
 ########################################################

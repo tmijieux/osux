@@ -83,6 +83,7 @@ static void accuracy_global_init(osux_hashtable *ht_cst)
 }
 
 //-----------------------------------------------------
+
 static void ht_cst_exit_accuracy(void)
 {
     yaml2_free(yw_acc);

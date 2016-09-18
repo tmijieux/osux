@@ -4,13 +4,11 @@
 ## Variable:
 # x is the sum of all parameters for pattern stars
 # y is the pattern star rating
-vect_pattern_scale_length: 3
+vect_pattern_scale_length: 2
 vect_pattern_scale_x1: 0.
-vect_pattern_scale_y1: 3.5
-vect_pattern_scale_x2: 0.6
-vect_pattern_scale_y2: 2.
-vect_pattern_scale_x3: 1.01
-vect_pattern_scale_y3: 1.
+vect_pattern_scale_y1: 4.
+vect_pattern_scale_x2: 1.01
+vect_pattern_scale_y2: 1.
 
 ### Pattern influence
 ## Brief:
@@ -36,7 +34,7 @@ vect_influence_y4: 0.
 # x is in [0, 1], the frequency
 # y the pattern difficulty
 ## Note:
-# As there is only one parameter the function is transfered to the 
+# As there is only one parameter the function is transfered to the
 # scaling.
 # As double are used the value is a little above 1: 1.01
 vect_pattern_freq_length: 2
@@ -72,7 +70,7 @@ vect_singletap_y5: 1.
 
 ### Pattern length
 ## Brief:
-# The maximum pattern length considered. 
+# The maximum pattern length considered.
 ## Variable:
 # number of object.
 max_pattern_length: 8
@@ -87,7 +85,7 @@ proba_end:   100
 
 ### Parameters coeff
 ## Brief:
-# Enable or disable a parameter of the star rating by modifying its 
+# Enable or disable a parameter of the star rating by modifying its
 # multiplier coefficient.
 ## Variable:
 # Multiplier in [0, 1]

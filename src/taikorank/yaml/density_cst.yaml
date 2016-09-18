@@ -14,7 +14,7 @@ vect_density_scale_y3: 6
 
 ### Density
 ## Brief:
-# Each object before another give some density. All the density are 
+# Each object before another give some density. All the density are
 # sumed into a density value for the object.
 ## Variable:
 # x is in ms,    the time between the two object
@@ -58,12 +58,12 @@ density_bonus:  0.33
 # Density multiplier used for spinner or slider, the object length is
 # multiplied by this
 ## Variable:
-# Multiplier 
+# Multiplier
 density_length: 0.2
 
 ### Parameters coeff
 ## Brief:
-# Enable or disable a parameter of the star rating by modifying its 
+# Enable or disable a parameter of the star rating by modifying its
 # multiplier coefficient.
 ## Variable:
 # Multiplier in [0, 1]
