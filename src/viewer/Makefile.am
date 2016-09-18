@@ -3,16 +3,16 @@ include $(top_srcdir)/common.mk
 bin_PROGRAMS = vosu
 vosu_SOURCES = \
 	main.c \
-	vosu-app.c \
-	vosu-win.c \
-	vosu-beatmap.c \
-	vosu-player.c \
-	vosu-view.c \
-	vosu-replay.c \
-	vosu-sequence.c \
+	vosu-app.c vosu-app.h \
+	vosu-win.c vosu-win.h \
+	vosu-beatmap.c vosu-beatmap.h \
+	vosu-player.c vosu-player.h \
+	vosu-view.c vosu-view.h \
+	vosu-replay.c vosu-replay.h \
+	vosu-sequence.c vosu-sequence.h \
+	vosu-render.c vosu-render.h \
 	vosu-render-taiko.c \
-	vosu-render-std.c \
-	vosu-render.c
+	vosu-render-std.c
 
 nodist_vosu_SOURCES = \
 	resources.c \
