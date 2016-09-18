@@ -25,28 +25,28 @@
 #include "print.h"
 #include "density.h"
 
-static struct yaml_wrap * yw_dst;
-static osux_hashtable * ht_cst_dst;
+static struct yaml_wrap *yw_dst;
+static osux_hashtable *ht_cst_dst;
 
 static inline int tro_true(const struct tr_object *o1 UNUSED,
                            const struct tr_object *o2 UNUSED);
 static inline int tro_are_same_density(const struct tr_object *o1,
                                        const struct tr_object *o2);
 
-static double tro_get_coeff_density(const struct tr_object * obj);
-static double tro_density(const struct tr_object * obj1,
-                          const struct tr_object * obj2);
+static double tro_get_coeff_density(const struct tr_object *obj);
+static double tro_density(const struct tr_object *obj1,
+                          const struct tr_object *obj2);
 
-static void trm_set_density_raw(struct tr_map * map);
-static void trm_set_density_color(struct tr_map * map);
-static void trm_set_density_star(struct tr_map * map);
+static void trm_set_density_raw(struct tr_map *map);
+static void trm_set_density_color(struct tr_map *map);
+static void trm_set_density_star(struct tr_map *map);
 
 //--------------------------------------------------
 
 #define DENSITY_FILE  "density_cst.yaml"
 
 // coeff for density
-static struct linear_fun * DENSITY_LF;
+static struct linear_fun *DENSITY_LF;
 
 // coefficient for object type, 1 is the maximum
 static double DENSITY_NORMAL;
@@ -60,13 +60,13 @@ static double DENSITY_LENGTH;
 static double DENSITY_STAR_COEFF_COLOR;
 static double DENSITY_STAR_COEFF_RAW;
 static double DENSITY_STAR_COEFF_DK;
-static struct linear_fun * DENSITY_SCALE_LF;
+static struct linear_fun *DENSITY_SCALE_LF;
 
 //-----------------------------------------------------
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static void density_global_init(osux_hashtable * ht_cst)
+static void density_global_init(osux_hashtable *ht_cst)
 {
     DENSITY_LF       = cst_lf(ht_cst, "vect_density");
     DENSITY_SCALE_LF = cst_lf(ht_cst, "vect_density_scale");
@@ -104,7 +104,7 @@ void tr_density_initialize(void)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static double tro_get_coeff_density(const struct tr_object * o)
+static double tro_get_coeff_density(const struct tr_object *o)
 {
     if (tro_is_bonus(o))
         return DENSITY_BONUS;
@@ -116,8 +116,8 @@ static double tro_get_coeff_density(const struct tr_object * o)
 
 //-----------------------------------------------------
 
-static double tro_density(const struct tr_object * obj1,
-                          const struct tr_object * obj2)
+static double tro_density(const struct tr_object *obj1,
+                          const struct tr_object *obj2)
 {
     double value  = lf_eval(DENSITY_LF,
                             ((double) obj2->end_offset - obj1->offset) +
@@ -130,7 +130,7 @@ static double tro_density(const struct tr_object * obj1,
 //-----------------------------------------------------
 
 #define TRO_SET_DENSITY_TYPE(TYPE, TRO_TEST)                    \
-    void tro_set_density_##TYPE (struct tr_object * o, int i)   \
+    void tro_set_density_##TYPE (struct tr_object *o, int i)    \
     {                                                           \
         if (o->ps == MISS) {                                    \
             o->density_##TYPE = 0;                              \
@@ -154,7 +154,7 @@ static double tro_density(const struct tr_object * obj1,
         o->density_##TYPE = sum;                                \
     }                                                           \
                                                                 \
-    static void trm_set_density_##TYPE(struct tr_map * map)     \
+    static void trm_set_density_##TYPE(struct tr_map *map)      \
     {                                                           \
         map->object[0].density_##TYPE = 0;                      \
         for (int i = 1; i < map->nb_object; i++)                \
@@ -185,7 +185,7 @@ TRO_SET_DENSITY_TYPE(ddkk,  tro_are_same_type)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-void tro_set_density_star(struct tr_object * obj)
+void tro_set_density_star(struct tr_object *obj)
 {
     /*
       Using minimum between ddkk and kddk asuming the user is using
@@ -203,7 +203,7 @@ void tro_set_density_star(struct tr_object * obj)
 
 //-----------------------------------------------------
 
-static void trm_set_density_star(struct tr_map * map)
+static void trm_set_density_star(struct tr_map *map)
 {
     for (int i = 0; i < map->nb_object; i++)
         tro_set_density_star(&map->object[i]);
@@ -213,7 +213,7 @@ static void trm_set_density_star(struct tr_map * map)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-void trm_compute_density(struct tr_map * map)
+void trm_compute_density(struct tr_map *map)
 {
     if (ht_cst_dst == NULL) {
         tr_error("Unable to compute density stars.");

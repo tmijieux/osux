@@ -19,15 +19,15 @@
 struct vector;
 struct linear_fun;
 
-struct linear_fun * lf_new(struct vector * v);
-void lf_free(struct linear_fun * lf);
+struct linear_fun *lf_new(struct vector *v);
+void lf_free(struct linear_fun *lf);
 
 // Values must be sorted
-struct linear_fun * cst_lf(osux_hashtable * ht, const char * key);
+struct linear_fun *cst_lf(osux_hashtable *ht, const char *key);
 
-double lf_eval(struct linear_fun * lf, double x);
+double lf_eval(struct linear_fun *lf, double x);
 
-void lf_print(struct linear_fun * lf);
-void lf_dump(struct linear_fun * lf);
+void lf_print(struct linear_fun *lf);
+void lf_dump(struct linear_fun *lf);
 
 #endif // TR_LINEAR_FUN_H

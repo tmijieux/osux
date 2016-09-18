@@ -39,9 +39,9 @@ enum print_level {
 
 void tr_set_print_level(enum print_level level);
 
-void tr_error(const char * s, ...);
-void tr_warning(const char * s, ...);
+void tr_error(const char *s, ...);
+void tr_warning(const char *s, ...);
 
-void print_string_size(const char * s, int max, FILE * output);
+void print_string_size(const char *s, int max, FILE *output);
 
 #endif

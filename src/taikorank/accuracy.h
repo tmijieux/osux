@@ -22,35 +22,35 @@ void tr_accuracy_initialize(void);
    - od_mult
    Pointer is allocated with malloc.
 */
-double * trm_get_ggm_val(const struct tr_map * map);
+double *trm_get_ggm_val(const struct tr_map *map);
 
 /* Use:
    - ps
    - ggm_val
 */
-void tro_set_hit_window(struct tr_object * o, const double * ggm_val);
+void tro_set_hit_window(struct tr_object *o, const double *ggm_val);
 
 /* Use:
    - ps
    - bpm_app
 */
-void tro_set_slow(struct tr_object * o);
+void tro_set_slow(struct tr_object *o);
 
 /* Use:
    - ps
    - rest
    - offset
 */
-void tro_set_spacing(struct tr_object * o, int i);
+void tro_set_spacing(struct tr_object *o, int i);
 
 /* Use:
    - slow
    - spacing
    - hit_window
 */
-void tro_set_accuracy_star(struct tr_object * o);
+void tro_set_accuracy_star(struct tr_object *o);
 
 // all
-void trm_compute_accuracy(struct tr_map * map);
+void trm_compute_accuracy(struct tr_map *map);
 
 #endif //ACCURACY_H

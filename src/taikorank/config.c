@@ -29,17 +29,17 @@
 
 #define CONFIG_FILE "config.yaml"
 
-struct tr_global_config * GLOBAL_CONFIG;
-struct tr_local_config * LOCAL_CONFIG;
+struct tr_global_config *GLOBAL_CONFIG;
+struct tr_local_config *LOCAL_CONFIG;
 
-static struct yaml_wrap * yw;
-static osux_hashtable * ht_conf;
+static struct yaml_wrap *yw;
+static osux_hashtable *ht_conf;
 
 static void local_config_score(void);
 
 //-----------------------------------------------------
 
-static struct tr_global_config * tr_global_config_new(void)
+static struct tr_global_config *tr_global_config_new(void)
 {
     return g_malloc0(sizeof(struct tr_global_config));
 }
@@ -70,7 +70,7 @@ void tr_global_config_print(const struct tr_global_config *conf)
 
 //-----------------------------------------------------
 
-static struct tr_local_config * tr_local_config_new(void)
+static struct tr_local_config *tr_local_config_new(void)
 {
     return g_malloc0(sizeof(struct tr_local_config));
 }
@@ -80,9 +80,9 @@ void tr_local_config_free(struct tr_local_config *conf)
     g_free(conf);
 }
 
-struct tr_local_config * tr_local_config_copy(void)
+struct tr_local_config *tr_local_config_copy(void)
 {
-    struct tr_local_config * copy = tr_local_config_new();
+    struct tr_local_config *copy = tr_local_config_new();
     memcpy(copy, LOCAL_CONFIG, sizeof(*LOCAL_CONFIG));
     return copy;
 }
@@ -161,7 +161,7 @@ static void local_config_score(void)
     GLOBAL_CONFIG->print_filter |= FILTER;      \
     break
 
-void global_config_set_filter(const char * filter)
+void global_config_set_filter(const char *filter)
 {
     GLOBAL_CONFIG->print_filter = 0;
     int i = 0;
@@ -185,7 +185,7 @@ void global_config_set_filter(const char * filter)
 
 //-----------------------------------------------------
 
-void local_config_set_mods(const char * mods)
+void local_config_set_mods(const char *mods)
 {
     LOCAL_CONFIG->mods = str_to_mods(mods);
 }

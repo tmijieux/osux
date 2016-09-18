@@ -21,7 +21,7 @@ struct tr_map;
 struct tr_score
 {
     // if need to restart
-    const struct tr_map * origin; // map 100% acc
+    const struct tr_map *origin; // map 100% acc
 
     // values to get at the end
     double acc; // acc
@@ -33,14 +33,14 @@ struct tr_score
     double step;
 
     // working:
-    struct tr_map * map; // current map
+    struct tr_map *map; // current map
 
     void (*trs_prepare)(struct tr_score *);
     int (*trs_has_reached_step)(struct tr_score *);
 };
 
-void trs_main(const struct tr_map * map);
-void trs_main_replay(char * replay_file_name, struct tr_map * map);
-void trs_print(const struct tr_score * score);
+void trs_main(const struct tr_map *map);
+void trs_main_replay(char *replay_file_name, struct tr_map *map);
+void trs_print(const struct tr_score *score);
 
 #endif //TAIKO_RANKING_SCORE_H

@@ -44,21 +44,21 @@ void tr_set_print_level(enum print_level level)
 
 //-------------------------------------------------
 
-void tr_error(const char * s, ...)
+void tr_error(const char *s, ...)
 {
     tr_print("\033[91mError: \033[0m", ERROR);
 }
 
-void tr_warning(const char * s, ...)
+void tr_warning(const char *s, ...)
 {
     tr_print("\033[93mWarning: \033[0m", WARNING);
 }
 
 //-------------------------------------------------
 
-void print_string_size(const char *src, int max, FILE * output)
+void print_string_size(const char *src, int max, FILE *output)
 {
-    char * s = strdup(src);
+    char *s = strdup(src);
     int length = strlen(s);
     if (length >= max) {
         s[max-1] = '\0';

@@ -31,13 +31,13 @@
 
 //--------------------------------------------------
 
-struct vector * vect_new(int length, int dim)
+struct vector *vect_new(int length, int dim)
 {
     if (length < 0)
         length = 0;
-    struct vector * v = malloc(sizeof(*v));
+    struct vector *v = malloc(sizeof(*v));
     v->len = length;
-    v->t = malloc(sizeof(double *) * v->len);
+    v->t = malloc(sizeof(double *) *v->len);
     for (int i = 0; i < v->len; i++)
         v->t[i] = malloc(sizeof(double) * dim);
     return v;
@@ -45,7 +45,7 @@ struct vector * vect_new(int length, int dim)
 
 //--------------------------------------------------
 
-void vect_free(struct vector * v)
+void vect_free(struct vector *v)
 {
     if (v == NULL)
         return;
@@ -57,14 +57,14 @@ void vect_free(struct vector * v)
 
 //--------------------------------------------------
 
-struct vector * cst_vect_from_list(osux_hashtable * ht, const char * key)
+struct vector *cst_vect_from_list(osux_hashtable *ht, const char *key)
 {
-    osux_list * l = cst_list(ht, key);
+    osux_list *l = cst_list(ht, key);
     if (l == NULL)
         return NULL;
-    struct vector * v = vect_new(osux_list_size(l), CST_VECT_DIM);
+    struct vector *v = vect_new(osux_list_size(l), CST_VECT_DIM);
     for (int i = 0; i < v->len; i++) {
-        osux_list * l2 = yw_extract_list(osux_list_get(l, i+1));
+        osux_list *l2 = yw_extract_list(osux_list_get(l, i+1));
         if (l2 == NULL)
             return NULL;
         for (int j = 0; j < CST_VECT_DIM; j++)
@@ -73,10 +73,10 @@ struct vector * cst_vect_from_list(osux_hashtable * ht, const char * key)
     return v;
 }
 
-struct vector * cst_vect_from_decl(osux_hashtable * ht, const char * key)
+struct vector *cst_vect_from_decl(osux_hashtable *ht, const char *key)
 {
     char *s = g_strdup_printf("%s_length", key);
-    struct vector * v = vect_new(cst_i(ht, s), CST_VECT_DIM);
+    struct vector *v = vect_new(cst_i(ht, s), CST_VECT_DIM);
     g_free(s);
     v->max_index = 0;
     v->min_index = 0;
@@ -96,15 +96,15 @@ struct vector * cst_vect_from_decl(osux_hashtable * ht, const char * key)
 
 //--------------------------------------------------
 
-struct vector * cst_vect(osux_hashtable * ht, const char * key)
+struct vector *cst_vect(osux_hashtable *ht, const char *key)
 {
-    typedef struct vector* (*cst_vect_f)(osux_hashtable*, const char*);
+    typedef struct vector *(*cst_vect_f)(osux_hashtable*, const char*);
     static cst_vect_f funs[] = {
         cst_vect_from_decl,
         cst_vect_from_list,
     };
     tr_set_print_level(NONE);
-    struct vector * v = NULL;
+    struct vector *v = NULL;
     for (unsigned int i = 0; i < ARRAY_LENGTH(funs); i++) {
         v = funs[i](ht, key);
         if (v != NULL)

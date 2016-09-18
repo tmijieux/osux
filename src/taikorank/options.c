@@ -32,21 +32,21 @@ enum tr_option_type
 
 struct tr_option
 {
-    const char * short_key;
-    const char * long_key;
+    const char *short_key;
+    const char *long_key;
     int nb_arg;
     enum tr_option_type type;
     tr_option_fun fun;
-    const char * help;
+    const char *help;
 };
 
-static osux_hashtable * ht_local_opt;
-static osux_hashtable * ht_global_opt;
+static osux_hashtable *ht_local_opt;
+static osux_hashtable *ht_global_opt;
 
 //-----------------------------------------------------
 
-static int tr_option_apply(const struct tr_option * opt,
-                           int argc, const char ** argv)
+static int tr_option_apply(const struct tr_option *opt,
+                           int argc, const char **argv)
 {
     if (argc < opt->nb_arg) {
         tr_error("Option '%s' need %d arguments.",
@@ -59,10 +59,10 @@ static int tr_option_apply(const struct tr_option * opt,
 
 //-----------------------------------------------------
 
-static int opt_set(int argc, const char ** argv,
-                   osux_hashtable * ht_opt)
+static int opt_set(int argc, const char **argv,
+                   osux_hashtable *ht_opt)
 {
-    struct tr_option * opt = NULL;
+    struct tr_option *opt = NULL;
     osux_hashtable_lookup(ht_opt, argv[0], &opt);
     if (opt == NULL) {
         tr_error("Unknown option: '%s'", argv[0]);
@@ -71,63 +71,63 @@ static int opt_set(int argc, const char ** argv,
     return tr_option_apply(opt, argc-1, (const char **) &argv[1]);
 }
 
-int local_opt_set(int argc, const char ** argv)
+int local_opt_set(int argc, const char **argv)
 {
     return opt_set(argc, argv, ht_local_opt);
 }
 
-int global_opt_set(int argc, const char ** argv)
+int global_opt_set(int argc, const char **argv)
 {
     return opt_set(argc, argv, ht_global_opt);
 }
 
 //-----------------------------------------------------
 
-static void opt_db(const char ** argv)
+static void opt_db(const char **argv)
 {
     GLOBAL_CONFIG->db_enable = atoi(argv[0]);
 }
 
 //-----------------------------------------------------
 
-static void opt_autoconvert(const char ** argv)
+static void opt_autoconvert(const char **argv)
 {
     GLOBAL_CONFIG->autoconvert_enable = atoi(argv[0]);
 }
 
 //-----------------------------------------------------
 
-static void opt_score(const char ** argv)
+static void opt_score(const char **argv)
 {
     local_config_set_tr_main(atoi(argv[0]));
 }
 
-static void opt_score_quick(const char ** argv)
+static void opt_score_quick(const char **argv)
 {
     local_config_set_tr_main(MAIN_SCORE);
     LOCAL_CONFIG->quick = atoi(argv[0]);
 }
 
-static void opt_score_step(const char ** argv)
+static void opt_score_step(const char **argv)
 {
     local_config_set_tr_main(MAIN_SCORE);
     LOCAL_CONFIG->step = atof(argv[0]);
 }
 
-static void opt_score_input(const char ** argv)
+static void opt_score_input(const char **argv)
 {
     local_config_set_tr_main(MAIN_SCORE);
     LOCAL_CONFIG->input = atoi(argv[0]);
 }
 
-static void opt_score_acc(const char ** argv)
+static void opt_score_acc(const char **argv)
 {
     local_config_set_tr_main(MAIN_SCORE);
     LOCAL_CONFIG->acc   = atof(argv[0]);
     LOCAL_CONFIG->input = SCORE_INPUT_ACC;
 }
 
-static void opt_score_ggm(const char ** argv)
+static void opt_score_ggm(const char **argv)
 {
     local_config_set_tr_main(MAIN_SCORE);
     LOCAL_CONFIG->good  = atoi(argv[0]);
@@ -137,64 +137,64 @@ static void opt_score_ggm(const char ** argv)
 
 //-----------------------------------------------------
 
-static void opt_print_tro(const char ** argv)
+static void opt_print_tro(const char **argv)
 {
     GLOBAL_CONFIG->print_tro = atoi(argv[0]);
 }
 
-static void opt_print_yaml(const char ** argv)
+static void opt_print_yaml(const char **argv)
 {
     GLOBAL_CONFIG->print_yaml = atoi(argv[0]);
 }
 
-static void opt_print_filter(const char ** argv)
+static void opt_print_filter(const char **argv)
 {
     global_config_set_filter(argv[0]);
 }
 
-static void opt_print_order(const char ** argv)
+static void opt_print_order(const char **argv)
 {
     GLOBAL_CONFIG->print_order = (char *) argv[0];
 }
 
 //-----------------------------------------------------
 
-static void opt_mods(const char ** argv)
+static void opt_mods(const char **argv)
 {
     local_config_set_mods(argv[0]);
 }
 
-static void opt_no_bonus(const char ** argv)
+static void opt_no_bonus(const char **argv)
 {
     LOCAL_CONFIG->no_bonus = atoi(argv[0]);
 }
 
-static void opt_flat(const char ** argv)
+static void opt_flat(const char **argv)
 {
     LOCAL_CONFIG->flat = atoi(argv[0]);
 }
 
 //-----------------------------------------------------
 
-static void opt_bdb(const char ** argv)
+static void opt_bdb(const char **argv)
 {
     GLOBAL_CONFIG->beatmap_db_enable = atoi(argv[0]);
 }
 
-static void opt_bdb_path(const char ** argv)
+static void opt_bdb_path(const char **argv)
 {
     GLOBAL_CONFIG->beatmap_db_path = (char*) argv[0];
 }
 
 //-----------------------------------------------------
 
-static void tr_option_print(const char * key UNUSED,
-                            struct tr_option * opt)
+static void tr_option_print(const char *key UNUSED,
+                            struct tr_option *opt)
 {
     fprintf(OUTPUT_INFO, "\t%s\t%s\n", opt->long_key, opt->help);
 }
 
-static void opt_help(const char ** argv UNUSED)
+static void opt_help(const char **argv UNUSED)
 {
     fprintf(OUTPUT_INFO, "Usage:\n");
     fprintf(OUTPUT_INFO, "taiko_ranking [GLOBAL_OPTION] ... "
@@ -220,7 +220,7 @@ void print_help(void)
 typedef int (*opt_fun)(int, const char**);
 
 static inline
-void add_opt(osux_hashtable * ht_opt, struct tr_option * opt)
+void add_opt(osux_hashtable *ht_opt, struct tr_option *opt)
 {
     osux_hashtable_insert(ht_opt, opt->long_key, opt);
     if (opt->short_key != NULL)

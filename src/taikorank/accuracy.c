@@ -28,23 +28,23 @@
 
 #define TIME_EQUAL_MS 12
 
-static struct yaml_wrap * yw_acc;
-static osux_hashtable * ht_cst_acc;
+static struct yaml_wrap *yw_acc;
+static osux_hashtable *ht_cst_acc;
 
 static int equal_i(int x, int y);
 
-static double tro_slow(const struct tr_object * o);
-static double tro_spacing_influence(const struct tr_object * o1,
-                                    const struct tr_object * o2);
+static double tro_slow(const struct tr_object *o);
+static double tro_spacing_influence(const struct tr_object *o1,
+                                    const struct tr_object *o2);
 static struct spacing_count *
-tro_spacing_init(const struct tr_object * objs, int i);
-static double tro_spacing(const struct tr_object * o,
-                          const struct spacing_count * spc);
+tro_spacing_init(const struct tr_object *objs, int i);
+static double tro_spacing(const struct tr_object *o,
+                          const struct spacing_count *spc);
 
-static void trm_set_slow(struct tr_map * map);
-static void trm_set_hit_window(struct tr_map * map);
-static void trm_set_spacing(struct tr_map * map);
-static void trm_set_accuracy_star(struct tr_map * map);
+static void trm_set_slow(struct tr_map *map);
+static void trm_set_hit_window(struct tr_map *map);
+static void trm_set_spacing(struct tr_map *map);
+static void trm_set_accuracy_star(struct tr_map *map);
 
 //-----------------------------------------------------
 
@@ -57,19 +57,19 @@ static void trm_set_accuracy_star(struct tr_map * map);
 #define MS_MISS        500 // arbitrary
 #define MS_COEFF_MISS  0   // arbitrary
 
-static struct linear_fun * SLOW_LF;
-static struct linear_fun * HIT_WINDOW_LF;
-static struct linear_fun * SPC_FREQ_LF;
-static struct linear_fun * SPC_INFLU_LF;
+static struct linear_fun *SLOW_LF;
+static struct linear_fun *HIT_WINDOW_LF;
+static struct linear_fun *SPC_FREQ_LF;
+static struct linear_fun *SPC_INFLU_LF;
 
 static double ACCURACY_STAR_SLOW_POW;
 static double ACCURACY_STAR_SPACING_POW;
 static double ACCURACY_STAR_HIT_WINDOW_POW;
-static struct linear_fun * ACCURACY_SCALE_LF;
+static struct linear_fun *ACCURACY_SCALE_LF;
 
 //-----------------------------------------------------
 
-static void accuracy_global_init(osux_hashtable * ht_cst)
+static void accuracy_global_init(osux_hashtable *ht_cst)
 {
     SLOW_LF       = cst_lf(ht_cst, "vect_slow");
     HIT_WINDOW_LF = cst_lf(ht_cst, "vect_hit_window");
@@ -113,7 +113,7 @@ static int equal_i(int x, int y)
 
 //-----------------------------------------------------
 
-double * trm_get_ggm_val(const struct tr_map * map)
+double *trm_get_ggm_val(const struct tr_map *map)
 {
     double ggm_ms[3];
     ggm_ms[0] = (map->od_hit_window_mult *
@@ -122,7 +122,7 @@ double * trm_get_ggm_val(const struct tr_map * map)
                  (MS_GOOD  - (MS_COEFF_GOOD  * map->od)));
     ggm_ms[2] = (map->od_hit_window_mult *
                  (MS_MISS  - (MS_COEFF_MISS  * map->od)));
-    double * ggm_val = malloc(sizeof(double) * 3);
+    double *ggm_val = malloc(sizeof(double) * 3);
     for (int i = 0; i < 3; i++)
         ggm_val[i] = lf_eval(HIT_WINDOW_LF, ggm_ms[i]);
     return ggm_val;
@@ -132,15 +132,15 @@ double * trm_get_ggm_val(const struct tr_map * map)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static double tro_slow(const struct tr_object * o)
+static double tro_slow(const struct tr_object *o)
 {
     return lf_eval(SLOW_LF, o->bpm_app);
 }
 
 //-----------------------------------------------------
 
-static double tro_spacing_influence(const struct tr_object * o1,
-                                    const struct tr_object * o2)
+static double tro_spacing_influence(const struct tr_object *o1,
+                                    const struct tr_object *o2)
 {
     int diff = o2->offset - o1->offset;
     return lf_eval(SPC_INFLU_LF, diff);
@@ -149,9 +149,9 @@ static double tro_spacing_influence(const struct tr_object * o1,
 //-----------------------------------------------------
 
 static struct spacing_count *
-tro_spacing_init(const struct tr_object * objs, int i)
+tro_spacing_init(const struct tr_object *objs, int i)
 {
-    struct spacing_count * spc = spc_new(equal_i);
+    struct spacing_count *spc = spc_new(equal_i);
     for (int j = i; j >= 0; j--) {
         if (objs[j].ps == MISS)
             continue;
@@ -165,8 +165,8 @@ tro_spacing_init(const struct tr_object * objs, int i)
 
 //-----------------------------------------------------
 
-static double tro_spacing(const struct tr_object * o,
-                          const struct spacing_count * spc)
+static double tro_spacing(const struct tr_object *o,
+                          const struct spacing_count *spc)
 {
     double total = spc_get_total(spc);
     double nb = spc_get_nb(spc, o->rest);
@@ -180,7 +180,7 @@ static double tro_spacing(const struct tr_object * o,
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-void tro_set_hit_window(struct tr_object * o, const double * ggm_val)
+void tro_set_hit_window(struct tr_object *o, const double *ggm_val)
 {
     switch (o->ps) {
     case GREAT:
@@ -197,7 +197,7 @@ void tro_set_hit_window(struct tr_object * o, const double * ggm_val)
 
 //-----------------------------------------------------
 
-void tro_set_slow(struct tr_object * o)
+void tro_set_slow(struct tr_object *o)
 {
     if (o->ps == MISS) {
         o->slow = 1;
@@ -208,16 +208,16 @@ void tro_set_slow(struct tr_object * o)
 
 //-----------------------------------------------------
 
-void tro_set_spacing(struct tr_object * o, int i)
+void tro_set_spacing(struct tr_object *o, int i)
 {
-    struct spacing_count * spc = tro_spacing_init(o->objs, i);
+    struct spacing_count *spc = tro_spacing_init(o->objs, i);
     o->spacing = tro_spacing(o, spc);
     spc_free(spc);
 }
 
 //-----------------------------------------------------
 
-void tro_set_accuracy_star(struct tr_object * o)
+void tro_set_accuracy_star(struct tr_object *o)
 {
     o->accuracy_star = lf_eval
         (ACCURACY_SCALE_LF,
@@ -230,7 +230,7 @@ void tro_set_accuracy_star(struct tr_object * o)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static void trm_set_slow(struct tr_map * map)
+static void trm_set_slow(struct tr_map *map)
 {
     for (int i = 0; i < map->nb_object; i++)
         tro_set_slow(&map->object[i]);
@@ -238,9 +238,9 @@ static void trm_set_slow(struct tr_map * map)
 
 //-----------------------------------------------------
 
-static void trm_set_hit_window(struct tr_map * map)
+static void trm_set_hit_window(struct tr_map *map)
 {
-    double * ggm_val = trm_get_ggm_val(map);
+    double *ggm_val = trm_get_ggm_val(map);
     for (int i = 0; i < map->nb_object; i++)
         tro_set_hit_window(&map->object[i], ggm_val);
     free(ggm_val);
@@ -248,7 +248,7 @@ static void trm_set_hit_window(struct tr_map * map)
 
 //-----------------------------------------------------
 
-static void trm_set_spacing(struct tr_map * map)
+static void trm_set_spacing(struct tr_map *map)
 {
     for (int i = 0; i < map->nb_object; i++)
         tro_set_spacing(&map->object[i], i);
@@ -256,7 +256,7 @@ static void trm_set_spacing(struct tr_map * map)
 
 //-----------------------------------------------------
 
-static void trm_set_accuracy_star(struct tr_map * map)
+static void trm_set_accuracy_star(struct tr_map *map)
 {
     for (int i = 0; i < map->nb_object; i++)
         tro_set_accuracy_star(&map->object[i]);
@@ -266,7 +266,7 @@ static void trm_set_accuracy_star(struct tr_map * map)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-void trm_compute_accuracy(struct tr_map * map)
+void trm_compute_accuracy(struct tr_map *map)
 {
     if (ht_cst_acc == NULL) {
         tr_error("Unable to compute accuracy stars.");

@@ -22,38 +22,38 @@ void tr_pattern_initialize(void);
    - d/k/D/K/s/r/R
    - offset
 */
-void tro_set_pattern_proba(struct tr_object * o, int i);
+void tro_set_pattern_proba(struct tr_object *o, int i);
 
 /* Use:
    - ps
    - d/k/D/K/s/r/R
 */
-void tro_set_type(struct tr_object * o);
+void tro_set_type(struct tr_object *o);
 
 /* Use:
    - proba
    - type
 */
-void tro_set_patterns(struct tr_object * o, int i, int nb);
+void tro_set_patterns(struct tr_object *o, int i, int nb);
 
 /* Use:
    - patterns
    - offset
 */
-void tro_set_pattern_freq(struct tr_object * o, int i);
+void tro_set_pattern_freq(struct tr_object *o, int i);
 
 /* Use:
    - pattern_freq
 */
-void tro_set_pattern_star(struct tr_object * o);
+void tro_set_pattern_star(struct tr_object *o);
 
 /* Must be done after pattern_freq
    Use:
    - patterns
 */
-void tro_free_patterns(struct tr_object * o);
+void tro_free_patterns(struct tr_object *o);
 
 // all
-void trm_compute_pattern (struct tr_map * map);
+void trm_compute_pattern (struct tr_map *map);
 
 #endif //PATTERN_H

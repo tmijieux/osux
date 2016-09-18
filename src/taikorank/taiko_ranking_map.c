@@ -37,21 +37,21 @@
 // this get rid of the 'new_combo' flag to get the hit object's type
 // more easily
 
-static int get_tro_type_from_osux_ho(osux_hitobject * ho);
-static double get_bpm_app_from_osux_tp(osux_timingpoint * tp,
+static int get_tro_type_from_osux_ho(osux_hitobject *ho);
+static double get_bpm_app_from_osux_tp(osux_timingpoint *tp,
                                        double sv);
-static void trm_add_to_ps(struct tr_map * map,
+static void trm_add_to_ps(struct tr_map *map,
                           enum played_state ps, int i);
 
-static void trm_acc(struct tr_map * map);
-static struct tr_map * trm_from_osux_map(osux_beatmap * map);
-static struct tr_map * trm_from_file(const char * filename);
+static void trm_acc(struct tr_map *map);
+static struct tr_map *trm_from_osux_map(osux_beatmap *map);
+static struct tr_map *trm_from_file(const char *filename);
 
 //--------------------------------------------------
 
-void trm_main(const struct tr_map * map)
+void trm_main(const struct tr_map *map)
 {
-    struct tr_map * map_copy = trm_copy(map);
+    struct tr_map *map_copy = trm_copy(map);
     trm_set_mods(map_copy, map->conf->mods);
 
     trm_add_modifier(map_copy);
@@ -70,7 +70,7 @@ void trm_main(const struct tr_map * map)
 
 //--------------------------------------------------
 
-void trm_set_read_only_objects(struct tr_map * map)
+void trm_set_read_only_objects(struct tr_map *map)
 {
     for (int i = 0; i < map->nb_object; i++)
         map->object[i].objs = map->object;
@@ -78,7 +78,7 @@ void trm_set_read_only_objects(struct tr_map * map)
 
 //--------------------------------------------------
 
-void trm_add_modifier(struct tr_map * map)
+void trm_add_modifier(struct tr_map *map)
 {
     if (map->conf->flat)
         trm_flat_big(map);
@@ -88,16 +88,16 @@ void trm_add_modifier(struct tr_map * map)
 
 //--------------------------------------------------
 
-void trm_set_mods(struct tr_map * map, int mods)
+void trm_set_mods(struct tr_map *map, int mods)
 {
     map->mods = mods;
 }
 
 //--------------------------------------------------
 
-struct tr_map * trm_copy(const struct tr_map * map)
+struct tr_map *trm_copy(const struct tr_map *map)
 {
-    struct tr_map * copy = calloc(sizeof(*copy), 1);
+    struct tr_map *copy = calloc(sizeof(*copy), 1);
     memcpy(copy, map, sizeof(*map));
 
     copy->object = tro_copy(map->object, map->nb_object);
@@ -117,7 +117,7 @@ struct tr_map * trm_copy(const struct tr_map * map)
 
 //-----------------------------------------------------
 
-void trm_free(struct tr_map * map)
+void trm_free(struct tr_map *map)
 {
     if (map == NULL)
         return;
@@ -173,7 +173,7 @@ struct tr_map *trm_new(const char *filename)
 //---------------------------------------------------------------
 //---------------------------------------------------------------
 
-static int get_tro_type_from_osux_ho(osux_hitobject * ho)
+static int get_tro_type_from_osux_ho(osux_hitobject *ho)
 {
     int bits = 0;
     int sample = ho->hitsound.sample;
@@ -189,7 +189,6 @@ static int get_tro_type_from_osux_ho(osux_hitobject * ho)
             bits |= TRO_D;
     }
     if ((sample & SAMPLE_FINISH) != 0)
-
         return bits | TRO_BIG;
     else
         return bits;
@@ -197,7 +196,7 @@ static int get_tro_type_from_osux_ho(osux_hitobject * ho)
 
 //---------------------------------------------------------------
 
-static double get_bpm_app_from_osux_tp(osux_timingpoint * tp, double sv)
+static double get_bpm_app_from_osux_tp(osux_timingpoint *tp, double sv)
 {
     double sv_multiplication;
 
@@ -255,26 +254,23 @@ static int osux_map_check_mode(osux_beatmap *map)
 
 //---------------------------------------------------------------
 
-static struct tr_map * trm_from_osux_map(osux_beatmap *map)
+static void trm_from_osux_map_objects(struct tr_map *tr_map,
+                                      const osux_beatmap *map)
 {
-    if (osux_map_check_mode(map) < 0)
-        return NULL;
-    struct tr_map * tr_map = calloc(sizeof(struct tr_map), 1);
     tr_map->nb_object = map->hitobject_count;
     tr_map->object = calloc(sizeof(struct tr_object), map->hitobject_count);
 
-    // set objects
     unsigned current_tp = 0;
     tr_map->max_combo = 0;
     for (unsigned i = 0; i < map->hitobject_count; i++) {
         while (current_tp < (map->timingpoint_count - 1) &&
-              map->timingpoints[current_tp + 1].offset
-              <= map->hitobjects[i].offset)
+               map->timingpoints[current_tp + 1].offset
+               <= map->hitobjects[i].offset)
             current_tp++;
 
-        struct tr_object * o  = &tr_map->object[i];
-        osux_hitobject * ho   = &map->hitobjects[i];
-        osux_timingpoint * tp = &map->timingpoints[current_tp];
+        struct tr_object *o  = &tr_map->object[i];
+        osux_hitobject *ho   = &map->hitobjects[i];
+        osux_timingpoint *tp = &map->timingpoints[current_tp];
 
         o->offset  = (int) ho->offset;
         o->bf      = get_tro_type_from_osux_ho(ho);
@@ -289,10 +285,13 @@ static struct tr_map * trm_from_osux_map(osux_beatmap *map)
         }
         o->objs = NULL;
     }
+}
 
-    // get other data
+static void trm_from_osux_map_meta(struct tr_map *tr_map,
+                                   const osux_beatmap *map)
+{
     tr_map->hash = strdup(map->md5_hash);
-    tr_map->od =    map->OverallDifficulty;
+    tr_map->od   = map->OverallDifficulty;
     tr_map->title      = strdup(map->Title);
     tr_map->artist     = strdup(map->Artist);
     tr_map->source     = strdup(map->Source);
@@ -308,6 +307,10 @@ static struct tr_map * trm_from_osux_map(osux_beatmap *map)
         tr_map->artist_uni = strdup(tr_map->artist);
     else
         tr_map->artist_uni = strdup(map->ArtistUnicode);
+}
+
+static void trm_set_ggm_and_acc(struct tr_map *tr_map)
+{
     tr_map->great = tr_map->max_combo;
     tr_map->good  = 0;
     tr_map->miss  = 0;
@@ -316,7 +319,16 @@ static struct tr_map * trm_from_osux_map(osux_beatmap *map)
         tr_map->acc = MAX_ACC;
     else
         tr_map->acc = 0;
+}
 
+static struct tr_map *trm_from_osux_map(osux_beatmap *map)
+{
+    if (osux_map_check_mode(map) < 0)
+        return NULL;
+    struct tr_map *tr_map = calloc(sizeof(struct tr_map), 1);
+    trm_from_osux_map_objects(tr_map, map);
+    trm_from_osux_map_meta(tr_map, map);
+    trm_set_ggm_and_acc(tr_map);
     return tr_map;
 }
 
@@ -349,7 +361,7 @@ static void trm_print_out_tro_header(int filter)
     fprintf(OUTPUT_INFO, "\n");
 }
 
-void trm_print_out_tro(const struct tr_map * map, int filter)
+void trm_print_out_tro(const struct tr_map *map, int filter)
 {
     trm_print_out_tro_header(filter);
     for (int i = 0; i < map->nb_object; ++i)
@@ -363,9 +375,9 @@ void trm_print_out_tro(const struct tr_map * map, int filter)
     fprintf(OUTPUT, "%.4g\t", STAR);            \
     break
 
-static void trm_print_out_results(const struct tr_map * map)
+static void trm_print_out_results(const struct tr_map *map)
 {
-    char * order = GLOBAL_CONFIG->print_order;
+    char *order = GLOBAL_CONFIG->print_order;
     int i = 0;
     while (order[i]) {
         switch (order[i]) {
@@ -389,7 +401,7 @@ static void trm_print_out_results(const struct tr_map * map)
 
 //--------------------------------------------------
 
-static char * yaml_prefix = "maps: [";
+static char *yaml_prefix = "maps: [";
 
 void tr_print_yaml_exit(void)
 {
@@ -401,14 +413,14 @@ void tr_print_yaml_exit(void)
     }
 }
 
-static void fprintf_escape_char(FILE * out, const char * s,
-                                char c, const char * escaped)
+static void fprintf_escape_char(FILE *out, const char *s,
+                                char c, const char *escaped)
 {
     if (s == NULL || s[0] == '\0')
         return;
-    char * str = strdup(s);
+    char *str = strdup(s);
     char ch[2] = { c, '\0'};
-    char * token = strtok(str, ch);
+    char *token = strtok(str, ch);
     while (1) {
         fprintf(out, "%s", token);
         token = strtok(NULL, ch);
@@ -423,9 +435,9 @@ static void fprintf_escape_char(FILE * out, const char * s,
 #define fprintf_dquote_escape(out, str) \
     fprintf_escape_char(out, str, '"', "\\\"")
 
-void trm_print_yaml(const struct tr_map * map)
+void trm_print_yaml(const struct tr_map *map)
 {
-    char * mods = trm_mods_to_str(map);
+    char *mods = trm_mods_to_str(map);
 
     fprintf(OUTPUT, "%s{", yaml_prefix);
     fprintf(OUTPUT, "title: \"");
@@ -480,7 +492,7 @@ void trm_print_yaml(const struct tr_map * map)
 
 //--------------------------------------------------
 
-static void trm_print_out(const struct tr_map * map)
+static void trm_print_out(const struct tr_map *map)
 {
     if (GLOBAL_CONFIG->print_tro)
         trm_print_out_tro(map, GLOBAL_CONFIG->print_filter);
@@ -489,7 +501,7 @@ static void trm_print_out(const struct tr_map * map)
 
 //--------------------------------------------------
 
-void trm_print(const struct tr_map * map)
+void trm_print(const struct tr_map *map)
 {
     if (GLOBAL_CONFIG->print_yaml)
         trm_print_yaml(map);
@@ -501,7 +513,7 @@ void trm_print(const struct tr_map * map)
 //--------------------------------------------------
 //--------------------------------------------------
 
-int trm_hardest_tro(struct tr_map * map)
+int trm_hardest_tro(struct tr_map *map)
 {
     int best = 0;
     for (int i = 0; i < map->nb_object; i++)
@@ -513,14 +525,14 @@ int trm_hardest_tro(struct tr_map * map)
 
 //--------------------------------------------------
 
-int trm_best_influence_tro(struct tr_map * map)
+int trm_best_influence_tro(struct tr_map *map)
 {
     int best = -1;
     double star = map->final_star;
     for (int i = 0; i < map->nb_object; i++) {
         if (map->object[i].ps != GREAT)
             continue;
-        struct tr_map * map_copy = trm_copy(map);
+        struct tr_map *map_copy = trm_copy(map);
         trm_set_tro_ps(map_copy, i, MISS);
         trm_compute_stars(map_copy);
         if (star > map_copy->final_star) {
@@ -534,7 +546,7 @@ int trm_best_influence_tro(struct tr_map * map)
 
 //--------------------------------------------------
 
-static void trm_add_to_ps(struct tr_map * map,
+static void trm_add_to_ps(struct tr_map *map,
                           enum played_state ps, int i)
 {
     switch (ps) {
@@ -555,7 +567,7 @@ static void trm_add_to_ps(struct tr_map * map,
 
 //--------------------------------------------------
 
-void trm_set_tro_ps(struct tr_map * map, int x, enum played_state ps)
+void trm_set_tro_ps(struct tr_map *map, int x, enum played_state ps)
 {
     if (map->object[x].ps == ps)
         tr_error("Object is already with the played state wanted.");
@@ -581,28 +593,28 @@ double compute_acc(int great, int good, int miss)
     return (great + good * 0.5) / (great + good + miss) * MAX_ACC;
 }
 
-static void trm_acc(struct tr_map * map)
+static void trm_acc(struct tr_map *map)
 {
     map->acc = compute_acc(map->great, map->good, map->miss);
 }
 
 //--------------------------------------------------
 
-void trm_flat_big(struct tr_map * map)
+void trm_flat_big(struct tr_map *map)
 {
     for (int i = 0; i < map->nb_object; i++) {
         map->object[i].bf &= ~TRO_BIG; // remove big field
     }
 }
 
-void trm_remove_tro(struct tr_map * map, int o)
+void trm_remove_tro(struct tr_map *map, int o)
 {
     for (int i = o; i < map->nb_object - 1; i++)
         map->object[i] = map->object[i+1];
     map->nb_object--;
 }
 
-void trm_remove_bonus(struct tr_map * map)
+void trm_remove_bonus(struct tr_map *map)
 {
     for (int i = 0; i < map->nb_object; i++)
         if (tro_is_bonus(&map->object[i]))

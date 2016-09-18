@@ -33,60 +33,60 @@
 
 // Pretty much the location in my head...
 struct edge_rect {
-    GtsEdge * e_bot;
-    GtsEdge * e_top;
-    GtsEdge * e_back;
-    GtsEdge * e_front;
+    GtsEdge *e_bot;
+    GtsEdge *e_top;
+    GtsEdge *e_back;
+    GtsEdge *e_front;
 
-    GtsVertex * v_back_bot;
-    GtsVertex * v_back_top;
-    GtsVertex * v_front_bot;
-    GtsVertex * v_front_top;
+    GtsVertex *v_back_bot;
+    GtsVertex *v_back_top;
+    GtsVertex *v_front_bot;
+    GtsVertex *v_front_top;
 };
 
 struct edge_2_rect {
-    struct edge_rect * old;
-    struct edge_rect * new;
+    struct edge_rect *old;
+    struct edge_rect *new;
 
-    GtsEdge * e_front_bot;
-    GtsEdge * e_front_top;
-    GtsEdge * e_back_bot;
-    GtsEdge * e_back_top;
+    GtsEdge *e_front_bot;
+    GtsEdge *e_front_top;
+    GtsEdge *e_back_bot;
+    GtsEdge *e_back_top;
 };
 
 //--------------------------------------------------
 
-static struct yaml_wrap * yw_rdg;
-static osux_hashtable * ht_cst_rdg;
+static struct yaml_wrap *yw_rdg;
+static osux_hashtable *ht_cst_rdg;
 
 static double tro_seen(const struct tr_object *o);
 static struct table *
 tro_get_obj_hiding(const struct tr_object *o, int i);
 
-static void trm_set_app_dis_offset(struct tr_map * map);
-static void trm_set_line_coeff(struct tr_map * map);
-static void trm_set_mesh(struct tr_map * map);
-static void trm_set_seen(struct tr_map * map);
-static void trm_free_mesh(struct tr_map * map);
-static void trm_set_obj_hiding(struct tr_map * map);
-static void trm_free_obj_hiding(struct tr_map * map);
-static void trm_set_reading_star(struct tr_map * map);
+static void trm_set_app_dis_offset(struct tr_map *map);
+static void trm_set_line_coeff(struct tr_map *map);
+static void trm_set_mesh(struct tr_map *map);
+static void trm_set_seen(struct tr_map *map);
+static void trm_free_mesh(struct tr_map *map);
+static void trm_set_obj_hiding(struct tr_map *map);
+static void trm_free_obj_hiding(struct tr_map *map);
+static void trm_set_reading_star(struct tr_map *map);
 
 //--------------------------------------------------
 
 #define READING_FILE "reading_cst.yaml"
 
-static struct linear_fun * SEEN_LF;
-static struct linear_fun * INTEREST_LF;
-static struct vector * INTEREST_VECT;
+static struct linear_fun *SEEN_LF;
+static struct linear_fun *INTEREST_LF;
+static struct vector *INTEREST_VECT;
 
 // coeff for star
 static double READING_STAR_COEFF_SEEN;
-static struct linear_fun * READING_SCALE_LF;
+static struct linear_fun *READING_SCALE_LF;
 
 //-----------------------------------------------------
 
-static void reading_global_init(osux_hashtable * ht_cst)
+static void reading_global_init(osux_hashtable *ht_cst)
 {
     INTEREST_VECT = cst_vect(ht_cst, "vect_interest");
     INTEREST_LF = cst_lf(ht_cst, "vect_interest");
@@ -127,12 +127,12 @@ enum done_offset {
     END_OFFSET_DIS = 1 << 3
 };
 
-static inline int tro_is_done(struct tr_object * o, enum done_offset d)
+static inline int tro_is_done(struct tr_object *o, enum done_offset d)
 {
     return o->done & d;
 }
 
-static inline void tro_set_done(struct tr_object * o, enum done_offset d)
+static inline void tro_set_done(struct tr_object *o, enum done_offset d)
 {
     o->done |= d;
 }
@@ -142,7 +142,7 @@ static inline void tro_set_done(struct tr_object * o, enum done_offset d)
 //-----------------------------------------------------
 
 static inline GtsVertex *
-tr_gts_vertex_top_new(int offset, double objs, struct tr_object * o)
+tr_gts_vertex_top_new(int offset, double objs, struct tr_object *o)
 {
     int diff = o->end_offset_dis_2 - offset;
     double z = lf_eval(INTEREST_LF, diff);
@@ -161,7 +161,7 @@ tr_gts_vertex_bot_new(int offset, double objs)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static double tro_eval_obj_front(struct tr_object * o, int offset)
+static double tro_eval_obj_front(struct tr_object *o, int offset)
 {
     if (o->offset_dis <= offset && offset <= o->end_offset_dis)
         return o->obj_dis;
@@ -176,7 +176,7 @@ static double tro_eval_obj_front(struct tr_object * o, int offset)
 
 //-----------------------------------------------------
 
-static double tro_eval_obj_back(struct tr_object * o, int offset)
+static double tro_eval_obj_back(struct tr_object *o, int offset)
 {
     if (o->offset_app <= offset && offset <= o->end_offset_app)
         return o->obj_app;
@@ -193,7 +193,7 @@ static double tro_eval_obj_back(struct tr_object * o, int offset)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static void e2r_link(struct edge_2_rect * r)
+static void e2r_link(struct edge_2_rect *r)
 {
     r->e_front_bot = tr_gts_edge_new(r->old->v_front_bot,
                                      r->new->v_front_bot);
@@ -208,9 +208,9 @@ static void e2r_link(struct edge_2_rect * r)
 //-----------------------------------------------------
 
 static struct edge_2_rect *
-e2r_rect_link_vertex(struct edge_rect * old, GtsVertex * v_new)
+e2r_rect_link_vertex(struct edge_rect *old, GtsVertex *v_new)
 {
-    struct edge_2_rect * r = malloc(sizeof(*r));
+    struct edge_2_rect *r = malloc(sizeof(*r));
     r->old = old;
 
     r->new = malloc(sizeof(*(r->new)));
@@ -231,9 +231,9 @@ e2r_rect_link_vertex(struct edge_rect * old, GtsVertex * v_new)
 //-----------------------------------------------------
 
 static struct edge_2_rect *
-e2r_vertex_link_rect(GtsVertex * v_old, struct edge_rect * new)
+e2r_vertex_link_rect(GtsVertex *v_old, struct edge_rect *new)
 {
-    struct edge_2_rect * r = malloc(sizeof(*r));
+    struct edge_2_rect *r = malloc(sizeof(*r));
     r->new = new;
 
     r->old = malloc(sizeof(*(r->old)));
@@ -254,9 +254,9 @@ e2r_vertex_link_rect(GtsVertex * v_old, struct edge_rect * new)
 //-----------------------------------------------------
 
 static struct edge_2_rect *
-e2r_rect_link_edge(struct edge_rect * old, GtsEdge * e_new)
+e2r_rect_link_edge(struct edge_rect *old, GtsEdge *e_new)
 {
-    struct edge_2_rect * r = malloc(sizeof(*r));
+    struct edge_2_rect *r = malloc(sizeof(*r));
     r->old = old;
 
     r->new = malloc(sizeof(*(r->new)));
@@ -277,9 +277,9 @@ e2r_rect_link_edge(struct edge_rect * old, GtsEdge * e_new)
 //-----------------------------------------------------
 
 static struct edge_2_rect *
-e2r_edge_link_rect(GtsEdge * e_old, struct edge_rect * new)
+e2r_edge_link_rect(GtsEdge *e_old, struct edge_rect *new)
 {
-    struct edge_2_rect * r = malloc(sizeof(*r));
+    struct edge_2_rect *r = malloc(sizeof(*r));
     r->new = new;
 
     r->old = malloc(sizeof(*(r->old)));
@@ -300,9 +300,9 @@ e2r_edge_link_rect(GtsEdge * e_old, struct edge_rect * new)
 //-----------------------------------------------------
 
 static struct edge_2_rect *
-e2r_rect_link_rect(struct edge_rect * old, struct edge_rect * new)
+e2r_rect_link_rect(struct edge_rect *old, struct edge_rect *new)
 {
-    struct edge_2_rect * r = malloc(sizeof(*r));
+    struct edge_2_rect *r = malloc(sizeof(*r));
     r->old = old;
     r->new = new;
 
@@ -314,7 +314,7 @@ e2r_rect_link_rect(struct edge_rect * old, struct edge_rect * new)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static int mesh_has_volume(GtsSurface * mesh)
+static int mesh_has_volume(GtsSurface *mesh)
 {
     int has = 1;
     if (!gts_surface_is_closed(mesh)) {
@@ -336,7 +336,7 @@ static int mesh_has_volume(GtsSurface * mesh)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static void tro_mark_mesh_offset(struct tr_object * o,
+static void tro_mark_mesh_offset(struct tr_object *o,
                                  int offset, int max)
 {
     if (max == offset)
@@ -353,7 +353,7 @@ static void tro_mark_mesh_offset(struct tr_object * o,
 
 //-----------------------------------------------------
 
-static int tro_get_next_mesh_offset(struct tr_object * o)
+static int tro_get_next_mesh_offset(struct tr_object *o)
 {
     // If the interest value is finished mark the object as done and
     // return
@@ -392,9 +392,9 @@ static int tro_get_next_mesh_offset(struct tr_object * o)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static struct edge_rect * tro_get_rect(struct tr_object * o, int offset)
+static struct edge_rect *tro_get_rect(struct tr_object *o, int offset)
 {
-    struct edge_rect * r = malloc(sizeof(*r));
+    struct edge_rect *r = malloc(sizeof(*r));
 
     double objs_front = tro_eval_obj_front(o, offset);
     r->v_front_bot = tr_gts_vertex_bot_new(offset, objs_front);
@@ -416,72 +416,72 @@ static struct edge_rect * tro_get_rect(struct tr_object * o, int offset)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static void tro_add_face_front(struct tr_object * o,
-                               struct edge_2_rect * r)
+static void tro_add_face_front(struct tr_object *o,
+                               struct edge_2_rect *r)
 {
-    GtsEdge * e_diag = tr_gts_edge_new(r->old->v_front_top,
-                                       r->new->v_front_bot);
+    GtsEdge *e_diag = tr_gts_edge_new(r->old->v_front_top,
+                                      r->new->v_front_bot);
 
-    GtsFace * f1 = tr_gts_face_new(r->old->e_front,
-                                   e_diag,
-                                   r->e_front_bot);
-    GtsFace * f2 = tr_gts_face_new(e_diag,
-                                   r->e_front_top,
-                                   r->new->e_front);
+    GtsFace *f1 = tr_gts_face_new(r->old->e_front,
+                                  e_diag,
+                                  r->e_front_bot);
+    GtsFace *f2 = tr_gts_face_new(e_diag,
+                                  r->e_front_top,
+                                  r->new->e_front);
     gts_surface_add_face(o->mesh, f1);
     gts_surface_add_face(o->mesh, f2);
 }
 
 //-----------------------------------------------------
 
-static void tro_add_face_back(struct tr_object * o,
-                              struct edge_2_rect * r)
+static void tro_add_face_back(struct tr_object *o,
+                              struct edge_2_rect *r)
 {
-    GtsEdge * e_diag = tr_gts_edge_new(r->old->v_back_top,
-                                       r->new->v_back_bot);
+    GtsEdge *e_diag = tr_gts_edge_new(r->old->v_back_top,
+                                      r->new->v_back_bot);
 
-    GtsFace * f1 = tr_gts_face_new(r->old->e_back,
-                                   r->e_back_bot,
-                                   e_diag);
-    GtsFace * f2 = tr_gts_face_new(e_diag,
-                                   r->new->e_back,
-                                   r->e_back_top);
+    GtsFace *f1 = tr_gts_face_new(r->old->e_back,
+                                  r->e_back_bot,
+                                  e_diag);
+    GtsFace *f2 = tr_gts_face_new(e_diag,
+                                  r->new->e_back,
+                                  r->e_back_top);
     gts_surface_add_face(o->mesh, f1);
     gts_surface_add_face(o->mesh, f2);
 }
 
 //-----------------------------------------------------
 
-static void tro_add_face_top(struct tr_object * o,
-                             struct edge_2_rect * r)
+static void tro_add_face_top(struct tr_object *o,
+                             struct edge_2_rect *r)
 {
-    GtsEdge * e_diag = tr_gts_edge_new(r->old->v_back_top,
-                                       r->new->v_front_top);
+    GtsEdge *e_diag = tr_gts_edge_new(r->old->v_back_top,
+                                      r->new->v_front_top);
 
-    GtsFace * f1 = tr_gts_face_new(r->old->e_top,
-                                   e_diag,
-                                   r->e_front_top);
-    GtsFace * f2 = tr_gts_face_new(e_diag,
-                                   r->e_back_top,
-                                   r->new->e_top);
+    GtsFace *f1 = tr_gts_face_new(r->old->e_top,
+                                  e_diag,
+                                  r->e_front_top);
+    GtsFace *f2 = tr_gts_face_new(e_diag,
+                                  r->e_back_top,
+                                  r->new->e_top);
     gts_surface_add_face(o->mesh, f1);
     gts_surface_add_face(o->mesh, f2);
 }
 
 //-----------------------------------------------------
 
-static void tro_add_face_bot(struct tr_object * o,
-                             struct edge_2_rect * r)
+static void tro_add_face_bot(struct tr_object *o,
+                             struct edge_2_rect *r)
 {
-    GtsEdge * e_diag = tr_gts_edge_new(r->old->v_back_bot,
-                                       r->new->v_front_bot);
+    GtsEdge *e_diag = tr_gts_edge_new(r->old->v_back_bot,
+                                      r->new->v_front_bot);
 
-    GtsFace * f1 = tr_gts_face_new(r->old->e_bot,
-                                   r->e_front_bot,
-                                   e_diag);
-    GtsFace * f2 = tr_gts_face_new(e_diag,
-                                   r->new->e_bot,
-                                   r->e_back_bot);
+    GtsFace *f1 = tr_gts_face_new(r->old->e_bot,
+                                  r->e_front_bot,
+                                  e_diag);
+    GtsFace *f2 = tr_gts_face_new(e_diag,
+                                  r->new->e_bot,
+                                  r->e_back_bot);
     gts_surface_add_face(o->mesh, f1);
     gts_surface_add_face(o->mesh, f2);
 }
@@ -491,23 +491,23 @@ static void tro_add_face_bot(struct tr_object * o,
 //-----------------------------------------------------
 
 static struct edge_2_rect *
-tro_open_front_back_mesh(struct tr_object * o, int offset)
+tro_open_front_back_mesh(struct tr_object *o, int offset)
 {
-    GtsVertex * v_top = tr_gts_vertex_top_new(o->end_offset_dis, o->obj_dis, o);
-    struct edge_rect * r_new = tro_get_rect(o, offset);
-    struct edge_2_rect * r;
+    GtsVertex *v_top = tr_gts_vertex_top_new(o->end_offset_dis, o->obj_dis, o);
+    struct edge_rect *r_new = tro_get_rect(o, offset);
+    struct edge_2_rect *r;
     if (v_top->p.z == 0) {
         r = e2r_vertex_link_rect(v_top, r_new);
-        GtsFace * f_front = tr_gts_face_new(
+        GtsFace *f_front = tr_gts_face_new(
             r->new->e_front, r->e_front_bot, r->e_front_top);
-        GtsFace * f_back  = tr_gts_face_new(
+        GtsFace *f_back  = tr_gts_face_new(
             r->new->e_back,  r->e_back_top,  r->e_back_bot);
         gts_surface_add_face(o->mesh, f_front);
         gts_surface_add_face(o->mesh, f_back);
     } else {
-        GtsVertex * v_bot = tr_gts_vertex_bot_new(
+        GtsVertex *v_bot = tr_gts_vertex_bot_new(
             o->end_offset_dis, o->obj_dis);
-        GtsEdge * e = tr_gts_edge_new(v_bot, v_top);
+        GtsEdge *e = tr_gts_edge_new(v_bot, v_top);
         r = e2r_edge_link_rect(e, r_new);
         tro_add_face_front(o, r);
         tro_add_face_back(o, r);
@@ -517,22 +517,22 @@ tro_open_front_back_mesh(struct tr_object * o, int offset)
 
 //-----------------------------------------------------
 
-static struct edge_rect * tro_open_mesh(struct tr_object * o)
+static struct edge_rect *tro_open_mesh(struct tr_object *o)
 {
     int offset = tro_get_next_mesh_offset(o);
     if (tro_is_done(o, OFFSET_APP))
         return NULL;
 
-    struct edge_2_rect * r = tro_open_front_back_mesh(o, offset);
+    struct edge_2_rect *r = tro_open_front_back_mesh(o, offset);
 
-    GtsFace * f_top = tr_gts_face_new(
+    GtsFace *f_top = tr_gts_face_new(
         r->new->e_top, r->e_front_top, r->e_back_top);
-    GtsFace * f_bot = tr_gts_face_new(
+    GtsFace *f_bot = tr_gts_face_new(
         r->new->e_bot, r->e_back_bot,  r->e_front_bot);
     gts_surface_add_face(o->mesh, f_top);
     gts_surface_add_face(o->mesh, f_bot);
 
-    struct edge_rect * r_new = r->new;
+    struct edge_rect *r_new = r->new;
     free(r->old);
     free(r);
     return r_new;
@@ -543,21 +543,21 @@ static struct edge_rect * tro_open_mesh(struct tr_object * o)
 //-----------------------------------------------------
 
 static struct edge_2_rect *
-tro_close_front_back_mesh(struct tr_object * o, struct edge_rect * r_old)
+tro_close_front_back_mesh(struct tr_object *o, struct edge_rect *r_old)
 {
-    GtsVertex * v_top = tr_gts_vertex_top_new(o->offset_app, o->obj_app, o);
-    struct edge_2_rect * r;
+    GtsVertex *v_top = tr_gts_vertex_top_new(o->offset_app, o->obj_app, o);
+    struct edge_2_rect *r;
     if (v_top->p.z == 0) {
         r = e2r_rect_link_vertex(r_old, v_top);
-        GtsFace * f_front = tr_gts_face_new(
+        GtsFace *f_front = tr_gts_face_new(
             r->old->e_front, r->e_front_top, r->e_front_bot);
-        GtsFace * f_back  = tr_gts_face_new(
+        GtsFace *f_back  = tr_gts_face_new(
             r->old->e_back,  r->e_back_bot,  r->e_back_top);
         gts_surface_add_face(o->mesh, f_front);
         gts_surface_add_face(o->mesh, f_back);
     } else {
-        GtsVertex * v_bot = tr_gts_vertex_bot_new(o->offset_app, o->obj_app);
-        GtsEdge * e = tr_gts_edge_new(v_bot, v_top);
+        GtsVertex *v_bot = tr_gts_vertex_bot_new(o->offset_app, o->obj_app);
+        GtsEdge *e = tr_gts_edge_new(v_bot, v_top);
         r = e2r_rect_link_edge(r_old, e);
         tro_add_face_front(o, r);
         tro_add_face_back(o, r);
@@ -567,14 +567,14 @@ tro_close_front_back_mesh(struct tr_object * o, struct edge_rect * r_old)
 
 //-----------------------------------------------------
 
-static void tro_close_mesh(struct tr_object * o,
-                           struct edge_rect * r_old)
+static void tro_close_mesh(struct tr_object *o,
+                           struct edge_rect *r_old)
 {
-    struct edge_2_rect * r = tro_close_front_back_mesh(o, r_old);
+    struct edge_2_rect *r = tro_close_front_back_mesh(o, r_old);
 
-    GtsFace * f_top = tr_gts_face_new(
+    GtsFace *f_top = tr_gts_face_new(
         r->old->e_top, r->e_back_top,  r->e_front_top);
-    GtsFace * f_bot = tr_gts_face_new(
+    GtsFace *f_bot = tr_gts_face_new(
         r->old->e_bot, r->e_front_bot, r->e_back_bot);
     gts_surface_add_face(o->mesh, f_top);
     gts_surface_add_face(o->mesh, f_bot);
@@ -589,10 +589,10 @@ static void tro_close_mesh(struct tr_object * o,
 //-----------------------------------------------------
 
 static struct edge_rect *
-tro_adv_mesh_step(struct tr_object * o,int offset, struct edge_rect * r_old)
+tro_adv_mesh_step(struct tr_object *o,int offset, struct edge_rect *r_old)
 {
-    struct edge_rect * r_new = tro_get_rect(o, offset);
-    struct edge_2_rect * r = e2r_rect_link_rect(r_old, r_new);
+    struct edge_rect *r_new = tro_get_rect(o, offset);
+    struct edge_2_rect *r = e2r_rect_link_rect(r_old, r_new);
 
     tro_add_face_front(o, r);
     tro_add_face_back(o, r);
@@ -606,10 +606,10 @@ tro_adv_mesh_step(struct tr_object * o,int offset, struct edge_rect * r_old)
 
 //-----------------------------------------------------
 
-static struct edge_rect * tro_adv_mesh(struct tr_object * o,
-                                       struct edge_rect * rect)
+static struct edge_rect *tro_adv_mesh(struct tr_object *o,
+                                       struct edge_rect *rect)
 {
-    struct edge_rect * r_old = rect;
+    struct edge_rect *r_old = rect;
 
     while (1) {
         int offset = tro_get_next_mesh_offset(o);
@@ -643,10 +643,10 @@ static double tro_seen(const struct tr_object *o)
 //-----------------------------------------------------
 
 static struct table *
-tro_get_obj_hiding(const struct tr_object * o, int i)
+tro_get_obj_hiding(const struct tr_object *o, int i)
 {
     // list object that hide the i-th
-    struct table * obj_h = table_new(i);
+    struct table *obj_h = table_new(i);
 
     for (int j = 0; j < i; j++) {
         if (o->objs[j].ps == MISS)
@@ -662,7 +662,7 @@ tro_get_obj_hiding(const struct tr_object * o, int i)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-void tro_set_line_coeff(struct tr_object * o)
+void tro_set_line_coeff(struct tr_object *o)
 {
     o->line_a = ((o->obj_app    - o->obj_dis) /
                  (o->offset_app - o->offset_dis));
@@ -676,10 +676,10 @@ void tro_set_line_coeff(struct tr_object * o)
  * Change 'o' offset according to same bpm object that are hiding it.
  * And set them to NULL
  */
-void tro_set_app_dis_offset_same_bpm(struct tr_object * o)
+void tro_set_app_dis_offset_same_bpm(struct tr_object *o)
 {
     for (int i = 0; i < table_len(o->obj_h); i++) {
-        const struct tr_object * o2 = table_get(o->obj_h, i);
+        const struct tr_object *o2 = table_get(o->obj_h, i);
         if (equal(o->bpm_app, o2->bpm_app)) {
             if (o->offset_app < o2->offset_dis) {
                 o->offset_app     = o2->offset_dis;
@@ -692,7 +692,7 @@ void tro_set_app_dis_offset_same_bpm(struct tr_object * o)
 
 //-----------------------------------------------------
 
-void tro_set_app_dis_offset(struct tr_object * o)
+void tro_set_app_dis_offset(struct tr_object *o)
 {
     double space_unit = mpb_to_bpm(o->bpm_app) / 4.;
     double radius = tro_get_radius(o);
@@ -727,13 +727,13 @@ void tro_set_app_dis_offset(struct tr_object * o)
  * on its left border and 5 objects positionable without
  * superposition on its right border.
  */
-void tro_set_mesh_base(struct tr_object * o)
+void tro_set_mesh_base(struct tr_object *o)
 {
     o->mesh = tr_gts_surface_new();
     o->count = 0;
     o->done = 0;
 
-    struct edge_rect * rect = tro_open_mesh(o);
+    struct edge_rect *rect = tro_open_mesh(o);
     if (rect == NULL) {
         tr_warning("Can't open mesh...");
         return;
@@ -745,15 +745,15 @@ void tro_set_mesh_base(struct tr_object * o)
 
 //-----------------------------------------------------
 
-void tro_set_mesh_remove_intersection(struct tr_object * o)
+void tro_set_mesh_remove_intersection(struct tr_object *o)
 {
-    GtsSurface * mesh = tr_gts_surface_copy(o->mesh);
+    GtsSurface *mesh = tr_gts_surface_copy(o->mesh);
     /* Not working for now
     for (int i = 0; i < table_len(o->obj_h); i++) {
-        const struct tr_object * o2 = table_get(o->obj_h, i);
+        const struct tr_object *o2 = table_get(o->obj_h, i);
         if (o2 == NULL) // already done with same bpm
             continue;
-        GtsSurface * mesh2 = tr_gts_surface_copy(o2->mesh);
+        GtsSurface *mesh2 = tr_gts_surface_copy(o2->mesh);
         mesh = tr_gts_exclude_2_to_1(mesh, mesh2);
     }
     */
@@ -762,7 +762,7 @@ void tro_set_mesh_remove_intersection(struct tr_object * o)
 
 //-----------------------------------------------------
 
-void tro_free_mesh(struct tr_object * o)
+void tro_free_mesh(struct tr_object *o)
 {
     gts_object_destroy(GTS_OBJECT(o->mesh));
     gts_object_destroy(GTS_OBJECT(o->final_mesh));
@@ -770,7 +770,7 @@ void tro_free_mesh(struct tr_object * o)
 
 //-----------------------------------------------------
 
-void tro_set_seen(struct tr_object * o)
+void tro_set_seen(struct tr_object *o)
 {
     if (o->ps == MISS || o->obj_app <= o->obj_dis) {
         o->seen = lf_eval(SEEN_LF, 0);
@@ -781,14 +781,14 @@ void tro_set_seen(struct tr_object * o)
 
 //-----------------------------------------------------
 
-void tro_set_obj_hiding(struct tr_object * o, int i)
+void tro_set_obj_hiding(struct tr_object *o, int i)
 {
     o->obj_h = tro_get_obj_hiding(o, i);
 }
 
 //-----------------------------------------------------
 
-void tro_free_obj_hiding(struct tr_object * o)
+void tro_free_obj_hiding(struct tr_object *o)
 {
     table_free(o->obj_h);
 }
@@ -797,7 +797,7 @@ void tro_free_obj_hiding(struct tr_object * o)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static void trm_set_line_coeff(struct tr_map * map)
+static void trm_set_line_coeff(struct tr_map *map)
 {
     for (int i = 0; i < map->nb_object; i++)
         tro_set_line_coeff(&map->object[i]);
@@ -805,7 +805,7 @@ static void trm_set_line_coeff(struct tr_map * map)
 
 //-----------------------------------------------------
 
-static void trm_set_app_dis_offset(struct tr_map * map)
+static void trm_set_app_dis_offset(struct tr_map *map)
 {
     for (int i = 0; i < map->nb_object; i++)
         tro_set_app_dis_offset(&map->object[i]);
@@ -813,7 +813,7 @@ static void trm_set_app_dis_offset(struct tr_map * map)
 
 //-----------------------------------------------------
 
-static void trm_set_app_dis_offset_same_bpm(struct tr_map * map)
+static void trm_set_app_dis_offset_same_bpm(struct tr_map *map)
 {
     for (int i = 0; i < map->nb_object; i++)
         tro_set_app_dis_offset_same_bpm(&map->object[i]);
@@ -821,7 +821,7 @@ static void trm_set_app_dis_offset_same_bpm(struct tr_map * map)
 
 //-----------------------------------------------------
 
-static void trm_set_seen(struct tr_map * map)
+static void trm_set_seen(struct tr_map *map)
 {
     for (int i = 0; i < map->nb_object; i++)
         tro_set_seen(&map->object[i]);
@@ -829,7 +829,7 @@ static void trm_set_seen(struct tr_map * map)
 
 //-----------------------------------------------------
 
-static void trm_set_mesh(struct tr_map * map)
+static void trm_set_mesh(struct tr_map *map)
 {
     for (int i = 0; i < map->nb_object; i++)
         tro_set_mesh_base(&map->object[i]);
@@ -839,7 +839,7 @@ static void trm_set_mesh(struct tr_map * map)
 
 //-----------------------------------------------------
 
-static void trm_free_mesh(struct tr_map * map)
+static void trm_free_mesh(struct tr_map *map)
 {
     for (int i = 0; i < map->nb_object; i++)
         tro_free_mesh(&map->object[i]);
@@ -847,7 +847,7 @@ static void trm_free_mesh(struct tr_map * map)
 
 //-----------------------------------------------------
 
-static void trm_set_obj_hiding(struct tr_map * map)
+static void trm_set_obj_hiding(struct tr_map *map)
 {
     for (int i = 0; i < map->nb_object; i++)
         tro_set_obj_hiding(&map->object[i], i);
@@ -855,7 +855,7 @@ static void trm_set_obj_hiding(struct tr_map * map)
 
 //-----------------------------------------------------
 
-static void trm_free_obj_hiding(struct tr_map * map)
+static void trm_free_obj_hiding(struct tr_map *map)
 {
     for (int i = 0; i < map->nb_object; i++)
         tro_free_obj_hiding(&map->object[i]);
@@ -865,7 +865,7 @@ static void trm_free_obj_hiding(struct tr_map * map)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-void tro_set_reading_star(struct tr_object * obj)
+void tro_set_reading_star(struct tr_object *obj)
 {
     obj->reading_star = lf_eval
         (READING_SCALE_LF, READING_STAR_COEFF_SEEN * obj->seen);
@@ -873,7 +873,7 @@ void tro_set_reading_star(struct tr_object * obj)
 
 //-----------------------------------------------------
 
-static void trm_set_reading_star(struct tr_map * map)
+static void trm_set_reading_star(struct tr_map *map)
 {
     for (int i = 0; i < map->nb_object; i++)
         tro_set_reading_star(&map->object[i]);
@@ -883,7 +883,7 @@ static void trm_set_reading_star(struct tr_map * map)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-void trm_compute_reading(struct tr_map * map)
+void trm_compute_reading(struct tr_map *map)
 {
     if (ht_cst_rdg == NULL) {
         tr_error("Unable to compute reading stars.");

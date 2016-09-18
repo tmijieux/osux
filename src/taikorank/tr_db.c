@@ -42,17 +42,17 @@
 #define TR_DB_MOD   "tr_mod"
 #define TR_DB_SCORE "tr_score"
 
-static MYSQL * sql;
+static MYSQL *sql;
 
-static int new_rq(MYSQL * sql, const char * rq, ...);
-static int tr_db_get_id(MYSQL * sql, char * table, char * cond);
-static char * tr_db_escape_str(MYSQL * sql, const char * src);
+static int new_rq(MYSQL *sql, const char *rq, ...);
+static int tr_db_get_id(MYSQL *sql, char *table, char *cond);
+static char *tr_db_escape_str(MYSQL *sql, const char *src);
 
-static int tr_db_insert_user(const struct tr_map * map);
-static int tr_db_insert_bms(const struct tr_map * map, int user_id);
-static int tr_db_insert_diff(const struct tr_map * map, int bms_id);
-static int tr_db_insert_mod(const struct tr_map * map);
-static int tr_db_insert_update_score(const struct tr_map * map,
+static int tr_db_insert_user(const struct tr_map *map);
+static int tr_db_insert_bms(const struct tr_map *map, int user_id);
+static int tr_db_insert_diff(const struct tr_map *map, int bms_id);
+static int tr_db_insert_mod(const struct tr_map *map);
+static int tr_db_insert_update_score(const struct tr_map *map,
                                      int diff_id, int mod_id);
 
 //-------------------------------------------------
@@ -87,11 +87,11 @@ void tr_db_init(void)
 
 //-------------------------------------------------
 
-static int new_rq(MYSQL * sql, const char * rq, ...)
+static int new_rq(MYSQL *sql, const char *rq, ...)
 {
     va_list va;
     va_start(va, rq);
-    char * buf = NULL;
+    char *buf = NULL;
     vasprintf(&buf, rq, va);
     va_end(va);
 
@@ -107,9 +107,9 @@ static int new_rq(MYSQL * sql, const char * rq, ...)
 
 //-------------------------------------------------
 
-static int tr_db_get_id(MYSQL * sql, char * table, char * cond)
+static int tr_db_get_id(MYSQL *sql, char *table, char *cond)
 {
-    MYSQL_RES * result;
+    MYSQL_RES *result;
     MYSQL_ROW row;
     #pragma omp critical
     {
@@ -125,10 +125,10 @@ static int tr_db_get_id(MYSQL * sql, char * table, char * cond)
 
 //-------------------------------------------------
 
-static char * tr_db_escape_str(MYSQL * sql, const char * src)
+static char *tr_db_escape_str(MYSQL *sql, const char *src)
 {
     unsigned int l = strlen(src);
-    char * dst = malloc(sizeof(char) * (2 * l + 1));
+    char *dst = malloc(sizeof(char) * (2 * l + 1));
     mysql_real_escape_string(sql, dst, src, l);
     return dst;
 }
@@ -136,10 +136,10 @@ static char * tr_db_escape_str(MYSQL * sql, const char * src)
 
 //-------------------------------------------------
 
-static int tr_db_insert_user(const struct tr_map * map)
+static int tr_db_insert_user(const struct tr_map *map)
 {
-    char * map_creator = tr_db_escape_str(sql, map->creator);
-    char * cond = NULL;
+    char *map_creator = tr_db_escape_str(sql, map->creator);
+    char *cond = NULL;
     asprintf(&cond, "name = '%s'", map_creator);
 
     int user_id = tr_db_get_id(sql, TR_DB_USER, cond);
@@ -160,14 +160,14 @@ static int tr_db_insert_user(const struct tr_map * map)
 
 //-------------------------------------------------
 
-static int tr_db_insert_bms(const struct tr_map * map, int user_id)
+static int tr_db_insert_bms(const struct tr_map *map, int user_id)
 {
-    char * map_title  = tr_db_escape_str(sql, map->title);
-    char * map_artist = tr_db_escape_str(sql, map->artist);
-    char * map_source = tr_db_escape_str(sql, map->source);
-    char * map_artist_uni = tr_db_escape_str(sql, map->artist_uni);
-    char * map_title_uni  = tr_db_escape_str(sql, map->title_uni);
-    char * cond = NULL;
+    char *map_title  = tr_db_escape_str(sql, map->title);
+    char *map_artist = tr_db_escape_str(sql, map->artist);
+    char *map_source = tr_db_escape_str(sql, map->source);
+    char *map_artist_uni = tr_db_escape_str(sql, map->artist_uni);
+    char *map_title_uni  = tr_db_escape_str(sql, map->title_uni);
+    char *cond = NULL;
     asprintf(&cond, "creator_ID = %d and artist = '%s' and "
              "title = '%s'",
              user_id, map_artist, map_title);
@@ -195,10 +195,10 @@ static int tr_db_insert_bms(const struct tr_map * map, int user_id)
 
 //-------------------------------------------------
 
-static int tr_db_insert_diff(const struct tr_map * map, int bms_id)
+static int tr_db_insert_diff(const struct tr_map *map, int bms_id)
 {
-    char * map_diff = tr_db_escape_str(sql, map->diff);
-    char * cond = NULL;
+    char *map_diff = tr_db_escape_str(sql, map->diff);
+    char *cond = NULL;
     asprintf(&cond, "bms_ID = %d and diff_name = '%s'",
              bms_id, map_diff);
 
@@ -221,10 +221,10 @@ static int tr_db_insert_diff(const struct tr_map * map, int bms_id)
 
 //-------------------------------------------------
 
-static int tr_db_insert_mod(const struct tr_map * map)
+static int tr_db_insert_mod(const struct tr_map *map)
 {
-    char * mod_str = trm_mods_to_str(map);
-    char * cond = NULL;
+    char *mod_str = trm_mods_to_str(map);
+    char *cond = NULL;
     asprintf(&cond, "mod_name = '%s'", mod_str);
 
     int mod_id = tr_db_get_id(sql, TR_DB_MOD, cond);
@@ -243,10 +243,10 @@ static int tr_db_insert_mod(const struct tr_map * map)
 
 //-------------------------------------------------
 
-static int tr_db_insert_update_score(const struct tr_map * map,
+static int tr_db_insert_update_score(const struct tr_map *map,
                                      int diff_id, int mod_id)
 {
-    char * cond = NULL;
+    char *cond = NULL;
     asprintf(&cond, "diff_ID = %d and mod_ID = %d and combo = %d "
              "and great = %d and good = %d and miss = %d",
              diff_id, mod_id, map->combo, map->great, map->good,
@@ -287,7 +287,7 @@ static int tr_db_insert_update_score(const struct tr_map * map,
 
 //-------------------------------------------------
 
-void trm_db_insert(const struct tr_map * map)
+void trm_db_insert(const struct tr_map *map)
 {
     if (sql == NULL) {
         tr_error("Couldn't connect to DB. Data won't be stored.");

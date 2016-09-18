@@ -30,13 +30,13 @@
 
 // ----------------------------------------
 
-int trm_has_mods(const struct tr_map * map, int mods);
+int trm_has_mods(const struct tr_map *map, int mods);
 
-void trm_apply_mods_FL(struct tr_map * map);
+void trm_apply_mods_FL(struct tr_map *map);
 
-void trm_apply_mods(struct tr_map * map);
-void trm_print_out_mods(const struct tr_map * map);
-char * trm_mods_to_str(const struct tr_map * map);
-int str_to_mods(const char * s);
+void trm_apply_mods(struct tr_map *map);
+void trm_print_out_mods(const struct tr_map *map);
+char *trm_mods_to_str(const struct tr_map *map);
+int str_to_mods(const char *s);
 
 #endif //TR_MODS_H

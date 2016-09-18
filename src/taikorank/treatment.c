@@ -19,21 +19,17 @@
 #include "taiko_ranking_object.h"
 #include "treatment.h"
 
-static void tro_set_hand(struct tr_object * obj,
-                         int * d_hand, int * k_hand);
+static void tro_set_hand(struct tr_object *obj,
+                         int *d_hand, int *k_hand);
 
-static void trm_set_length(struct tr_map * map);
+static void trm_set_length(struct tr_map *map);
 
 #define MAX_REST 10000.
 
-// offset app & dis
-#define OFFSET_MIN 10000
-#define OFFSET_MAX (-obj->obj_dis / obj->obj_app * OFFSET_MIN)
-
 //------------------------------------------------
 
-static void tro_set_hand(struct tr_object * o,
-                         int * d_hand, int * k_hand)
+static void tro_set_hand(struct tr_object *o,
+                         int *d_hand, int *k_hand)
 {
     if (o->ps == MISS)
         return;
@@ -58,7 +54,7 @@ static void tro_set_hand(struct tr_object * o,
 
 //------------------------------------------------
 
-void tro_set_length(struct tr_object * obj)
+void tro_set_length(struct tr_object *obj)
 {
     obj->length = obj->end_offset - obj->offset;
 }
@@ -67,7 +63,7 @@ void tro_set_length(struct tr_object * obj)
 //------------------------------------------------
 //------------------------------------------------
 
-void trm_set_hand(struct tr_map * map)
+void trm_set_hand(struct tr_map *map)
 {
     int d_hand = 0;
     int k_hand = 0;
@@ -77,7 +73,7 @@ void trm_set_hand(struct tr_map * map)
 
 //------------------------------------------------
 
-void trm_set_rest(struct tr_map * map)
+void trm_set_rest(struct tr_map *map)
 {
     map->object[0].rest = MAX_REST;
     for (int i = 1; i < map->nb_object; i++) {
@@ -93,7 +89,7 @@ void trm_set_rest(struct tr_map * map)
 
 //-----------------------------------------------------
 
-void trm_set_combo(struct tr_map * map)
+void trm_set_combo(struct tr_map *map)
 {
     int combo = 0;
     map->combo = 0;
@@ -113,7 +109,7 @@ void trm_set_combo(struct tr_map * map)
 
 //-----------------------------------------------------
 
-static void trm_set_length(struct tr_map * map)
+static void trm_set_length(struct tr_map *map)
 {
     for (int i = 0; i < map->nb_object; i++)
         tro_set_length(&map->object[i]);
@@ -123,7 +119,7 @@ static void trm_set_length(struct tr_map * map)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-void trm_treatment(struct tr_map * map)
+void trm_treatment(struct tr_map *map)
 {
     trm_set_length(map);
 

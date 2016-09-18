@@ -23,7 +23,7 @@
 #include "bpm.h"
 #include "taiko_ranking_object.h"
 
-static char tro_char_type(const struct tr_object * o);
+static char tro_char_type(const struct tr_object *o);
 
 // percentage for equal
 #define EPSILON 1.
@@ -32,16 +32,16 @@ static char tro_char_type(const struct tr_object * o);
 #define TRO_SMALL_RADIUS 0.49
 #define TRO_BIG_RADIUS   0.707106781 /* sqrt(2.) / 2. */
 
-struct tr_object * tro_copy(const struct tr_object * o, int nb)
+struct tr_object *tro_copy(const struct tr_object *o, int nb)
 {
-    struct tr_object * copy = calloc(sizeof(struct tr_object), nb);
+    struct tr_object *copy = calloc(sizeof(struct tr_object), nb);
     memcpy(copy, o, sizeof(struct tr_object) * nb);
     return copy;
 }
 
 //--------------------------------------------------
 
-double tro_get_radius(const struct tr_object * obj)
+double tro_get_radius(const struct tr_object *obj)
 {
     if (tro_is_big(obj))
         return TRO_BIG_RADIUS;
@@ -60,7 +60,7 @@ int equal(double x, double y)
 //---------------------------------------------------
 //---------------------------------------------------
 
-char * tro_str_state(const struct tr_object * o)
+char *tro_str_state(const struct tr_object *o)
 {
     switch (o->ps) {
     case GREAT:
@@ -78,7 +78,7 @@ char * tro_str_state(const struct tr_object * o)
 
 //---------------------------------------------------
 
-static char tro_char_type(const struct tr_object * o)
+static char tro_char_type(const struct tr_object *o)
 {
     char c;
     if (tro_is_don(o))
@@ -97,7 +97,7 @@ static char tro_char_type(const struct tr_object * o)
 
 //---------------------------------------------------
 
-void tro_print_yaml(const struct tr_object * o)
+void tro_print_yaml(const struct tr_object *o)
 {
     fprintf(OUTPUT, "{");
     fprintf(OUTPUT, "offset: %d, ", o->offset);
@@ -112,7 +112,7 @@ void tro_print_yaml(const struct tr_object * o)
 
 //---------------------------------------------------
 
-void tro_print(const struct tr_object * obj, int filter)
+void tro_print(const struct tr_object *obj, int filter)
 {
     if ((filter & FILTER_BASIC) != 0)
         fprintf(OUTPUT_INFO, "%d\t%d\t%c\t%.3g\t%s\t",

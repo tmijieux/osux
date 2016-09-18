@@ -19,26 +19,26 @@
 /* Use:
   - offset
  */
-void tro_set_length(struct tr_object * obj);
+void tro_set_length(struct tr_object *obj);
 
 /* Use:
    - ps
    - d/k/D/K/s/r/R
 */
-void trm_set_hand(struct tr_map * map);
+void trm_set_hand(struct tr_map *map);
 
 /* Use:
    - ps
    - offset
 */
-void trm_set_rest(struct tr_map * map);
+void trm_set_rest(struct tr_map *map);
 
 /* Use:
    - ps
 */
-void trm_set_combo(struct tr_map * map);
+void trm_set_combo(struct tr_map *map);
 
 // all
-void trm_treatment(struct tr_map * map);
+void trm_treatment(struct tr_map *map);
 
 #endif //TREATMENT_H

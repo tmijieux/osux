@@ -18,11 +18,11 @@
 
 struct spacing_count;
 
-struct spacing_count * spc_new(int (*eq)(int, int));
-void spc_free(struct spacing_count * spc);
-void spc_add(struct spacing_count * spc, int rest, double val);
-void spc_print(const struct spacing_count * spc);
-double spc_get_total(const struct spacing_count * spc);
-double spc_get_nb(const struct spacing_count * spc, int rest);
+struct spacing_count *spc_new(int (*eq)(int, int));
+void spc_free(struct spacing_count *spc);
+void spc_add(struct spacing_count *spc, int rest, double val);
+void spc_print(const struct spacing_count *spc);
+double spc_get_total(const struct spacing_count *spc);
+double spc_get_nb(const struct spacing_count *spc, int rest);
 
 #endif // TR_SPACING_COUNT_H

@@ -23,7 +23,7 @@ void tr_density_initialize(void);
    - offset
    - length
 */
-void tro_set_density_raw(struct tr_object * o, int i);
+void tro_set_density_raw(struct tr_object *o, int i);
 
 /* Use:
    - ps
@@ -32,7 +32,7 @@ void tro_set_density_raw(struct tr_object * o, int i);
    - offset
    - length
 */
-void tro_set_density_color(struct tr_object * o, int i);
+void tro_set_density_color(struct tr_object *o, int i);
 
 /* Use:
    - ps
@@ -41,7 +41,7 @@ void tro_set_density_color(struct tr_object * o, int i);
    - offset
    - length
 */
-void tro_set_density_ddkk(struct tr_object * o, int i);
+void tro_set_density_ddkk(struct tr_object *o, int i);
 
 /* Use:
    - ps
@@ -50,15 +50,15 @@ void tro_set_density_ddkk(struct tr_object * o, int i);
    - offset
    - length
 */
-void tro_set_density_kddk(struct tr_object * o, int i);
+void tro_set_density_kddk(struct tr_object *o, int i);
 
 /* Use:
    - density_raw
    - density_color
 */
-void tro_set_density_star(struct tr_object * obj);
+void tro_set_density_star(struct tr_object *obj);
 
 // all
-void trm_compute_density(struct tr_map * map);
+void trm_compute_density(struct tr_map *map);
 
 #endif

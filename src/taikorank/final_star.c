@@ -31,36 +31,36 @@
 static double weight_final_star(int i, double val);
 
 static void tro_apply_influence_coeff(struct tr_object *o, double c);
-static double tro_influence_coeff(const struct tr_object * o1,
-                                  const struct tr_object * o2);
+static double tro_influence_coeff(const struct tr_object *o1,
+                                  const struct tr_object *o2);
 
-static void trm_set_influence(struct tr_map * map);
-static void trm_set_final_star(struct tr_map * map);
+static void trm_set_influence(struct tr_map *map);
+static void trm_set_final_star(struct tr_map *map);
 
-static void trm_set_global_stars(struct tr_map * map);
+static void trm_set_global_stars(struct tr_map *map);
 
 //-----------------------------------------------------
 
 #define FINAL_FILE "final_cst.yaml"
 
-static struct yaml_wrap * yw_fin;
-static osux_hashtable * ht_cst_fin;
+static struct yaml_wrap *yw_fin;
+static osux_hashtable *ht_cst_fin;
 
 static double DST_POW;
 static double RDG_POW;
 static double PTR_POW;
 static double ACC_POW;
 
-static struct linear_fun * FINAL_INFLU_LF;
-static struct linear_fun * FINAL_SCALE_LF;
-static struct linear_fun * WEIGHT_LF;
+static struct linear_fun *FINAL_INFLU_LF;
+static struct linear_fun *FINAL_SCALE_LF;
+static struct linear_fun *WEIGHT_LF;
 
 #define TRM_WEIGHT_SUM(FIELD)                                   \
     static double trm_weight_sum_##FIELD (                      \
-        struct tr_map * map, double (*weight)(int,double))      \
+        struct tr_map *map, double (*weight)(int,double))       \
     {                                                           \
-        struct tr_object * copy = tro_copy(map->object,         \
-                                           map->nb_object);     \
+        struct tr_object *copy = tro_copy(map->object,          \
+                                          map->nb_object);      \
         tro_sort_##FIELD (copy, map->nb_object);                \
         double sum = 0;                                         \
         for (int i = 0; i < map->nb_object; i++) {              \
@@ -79,7 +79,7 @@ TRM_WEIGHT_SUM(final_star)
 
 //-----------------------------------------------------
 
-static void final_global_init(osux_hashtable * ht_cst)
+static void final_global_init(osux_hashtable *ht_cst)
 {
     FINAL_INFLU_LF = cst_lf(ht_cst, "vect_influence");
     WEIGHT_LF = cst_lf(ht_cst, "vect_weight");
@@ -120,15 +120,15 @@ static double weight_final_star(int i, double val)
 
 //-----------------------------------------------------
 
-static double tro_influence_coeff(const struct tr_object * o1,
-                                  const struct tr_object * o2)
+static double tro_influence_coeff(const struct tr_object *o1,
+                                  const struct tr_object *o2)
 {
     return lf_eval(FINAL_INFLU_LF, fabs(o1->offset - o2->offset));
 }
 
 //-----------------------------------------------------
 
-static void tro_apply_influence_coeff(struct tr_object * o, double c)
+static void tro_apply_influence_coeff(struct tr_object *o, double c)
 {
     o->density_star  *= c;
     o->reading_star  *= c;
@@ -141,7 +141,7 @@ static void tro_apply_influence_coeff(struct tr_object * o, double c)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-void tro_set_final_star(struct tr_object * o)
+void tro_set_final_star(struct tr_object *o)
 {
     if (o->ps != GREAT) {
         o->density_star  = 0;
@@ -161,7 +161,7 @@ void tro_set_final_star(struct tr_object * o)
 
 //-----------------------------------------------------
 
-void tro_set_influence(struct tr_object * objs, int i, int nb)
+void tro_set_influence(struct tr_object *objs, int i, int nb)
 {
     if (objs[i].ps == GREAT || objs[i].ps == BONUS) {
         return;
@@ -184,7 +184,7 @@ void tro_set_influence(struct tr_object * objs, int i, int nb)
 //-----------------------------------------------------
 //-----------------------------------------------------
 
-static void trm_set_final_star(struct tr_map * map)
+static void trm_set_final_star(struct tr_map *map)
 {
     for (int i = 0; i < map->nb_object; i++)
         tro_set_final_star(&map->object[i]);
@@ -192,7 +192,7 @@ static void trm_set_final_star(struct tr_map * map)
 
 //-----------------------------------------------------
 
-static void trm_set_influence(struct tr_map * map)
+static void trm_set_influence(struct tr_map *map)
 {
     for (int i = 0; i < map->nb_object; i++)
         tro_set_influence(map->object, i, map->nb_object);
@@ -200,7 +200,7 @@ static void trm_set_influence(struct tr_map * map)
 
 //-----------------------------------------------------
 
-static void trm_set_global_stars(struct tr_map * map)
+static void trm_set_global_stars(struct tr_map *map)
 {
     map->density_star =
         trm_weight_sum_density_star(map, weight_final_star);
@@ -216,7 +216,7 @@ static void trm_set_global_stars(struct tr_map * map)
 
 //-----------------------------------------------------
 
-void trm_compute_final_star(struct tr_map * map)
+void trm_compute_final_star(struct tr_map *map)
 {
     if (ht_cst_fin == NULL) {
         tr_error("Unable to compute final stars.");

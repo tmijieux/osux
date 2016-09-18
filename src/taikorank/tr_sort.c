@@ -22,22 +22,22 @@
 #include "tr_sort.h"
 
 #define TRO_COMPARE(FIELD)                              \
-    static int tro_compare_##FIELD(const void * o1,     \
-                                   const void * o2)     \
+    static int tro_compare_##FIELD(const void *o1,      \
+                                   const void *o2)      \
     {                                                   \
-        const struct tr_object * obj1 = o1;             \
-        const struct tr_object * obj2 = o2;             \
+        const struct tr_object *obj1 = o1;              \
+        const struct tr_object *obj2 = o2;              \
         double f = obj1->FIELD - obj2->FIELD;           \
         return f < 0 ? -1 : (f > 0 ? 1 : 0);            \
     }
 
 #define TRM_SORT(FIELD)                                         \
-    void tro_sort_##FIELD (struct tr_object * o, int nb)        \
+    void tro_sort_##FIELD (struct tr_object *o, int nb)         \
     {                                                           \
         qsort(o, nb, sizeof(struct tr_object),                  \
               tro_compare_##FIELD);                             \
     }                                                           \
-    void trm_sort_##FIELD (struct tr_map * map)                 \
+    void trm_sort_##FIELD (struct tr_map *map)                  \
     {                                                           \
         tro_sort_##FIELD (map->object, map->nb_object);         \
     }

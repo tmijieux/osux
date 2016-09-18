@@ -28,17 +28,17 @@
 #include "tr_db.h"
 #include "tr_mods.h"
 
-static void trs_print_and_db(const struct tr_score * score);
-static void trs_compute(struct tr_score * score);
+static void trs_print_and_db(const struct tr_score *score);
+static void trs_compute(struct tr_score *score);
 
-static struct tr_score * trs_new(const struct tr_map * map);
-static void trs_free(struct tr_score * score);
+static struct tr_score *trs_new(const struct tr_map *map);
+static void trs_free(struct tr_score *score);
 
 //--------------------------------------------------
 
-void trs_main(const struct tr_map * map)
+void trs_main(const struct tr_map *map)
 {
-    struct tr_score * score = trs_new(map);
+    struct tr_score *score = trs_new(map);
     score->map = trm_copy(score->origin);
     trm_set_read_only_objects(score->map);
     trm_set_mods(score->map, map->conf->mods);
@@ -53,7 +53,7 @@ void trs_main(const struct tr_map * map)
 
 //--------------------------------------------------
 
-static void trs_prepare_ggm(struct tr_score * sc)
+static void trs_prepare_ggm(struct tr_score *sc)
 {
     int good = sc->origin->conf->good;
     int miss = sc->origin->conf->miss;
@@ -76,7 +76,7 @@ static void trs_prepare_ggm(struct tr_score * sc)
     sc->acc   = compute_acc(sc->great, sc->good, sc->miss);
 }
 
-static void trs_prepare_acc(struct tr_score * sc)
+static void trs_prepare_acc(struct tr_score *sc)
 {
     double acc = sc->origin->conf->acc;
     if (acc < 0)
@@ -104,7 +104,7 @@ static void trs_prepare_acc(struct tr_score * sc)
 
 //--------------------------------------------------
 
-static int trs_has_reached_step_ggm(struct tr_score * score)
+static int trs_has_reached_step_ggm(struct tr_score *score)
 {
     int total = score->map->good + score->map->miss;
     if (score->last_point + score->step <= total) {
@@ -114,7 +114,7 @@ static int trs_has_reached_step_ggm(struct tr_score * score)
     return 0;
 }
 
-static int trs_has_reached_step_acc(struct tr_score * score)
+static int trs_has_reached_step_acc(struct tr_score *score)
 {
     if (score->map->acc + score->step <= score->last_point) {
         score->last_point = score->map->acc;
@@ -125,9 +125,9 @@ static int trs_has_reached_step_acc(struct tr_score * score)
 
 //--------------------------------------------------
 
-static struct tr_score * trs_new(const struct tr_map * map)
+static struct tr_score *trs_new(const struct tr_map *map)
 {
-    struct tr_score * sc = malloc(sizeof(*sc));
+    struct tr_score *sc = malloc(sizeof(*sc));
     sc->origin = map;
     if (map->conf->step < 0)
         sc->step = INFINITY;
@@ -153,7 +153,7 @@ static struct tr_score * trs_new(const struct tr_map * map)
 
 //--------------------------------------------------
 
-static void trs_free(struct tr_score * score)
+static void trs_free(struct tr_score *score)
 {
     if (score == NULL)
         return;
@@ -163,7 +163,7 @@ static void trs_free(struct tr_score * score)
 
 //--------------------------------------------------
 
-static void trs_print_and_db(const struct tr_score * score)
+static void trs_print_and_db(const struct tr_score *score)
 {
     #pragma omp critical
     trs_print(score);
@@ -174,7 +174,7 @@ static void trs_print_and_db(const struct tr_score * score)
 
 //--------------------------------------------------
 
-static int trs_is_finished(const struct tr_score * score)
+static int trs_is_finished(const struct tr_score *score)
 {
     return ((score->great == score->map->great) &&
             (score->good  == score->map->good) &&
@@ -183,7 +183,7 @@ static int trs_is_finished(const struct tr_score * score)
 
 //--------------------------------------------------
 
-static int trs_change_one_object(struct tr_score * score)
+static int trs_change_one_object(struct tr_score *score)
 {
     int i = score->map->conf->trm_method_get_tro(score->map);
     if (score->miss != score->map->miss)
@@ -193,7 +193,7 @@ static int trs_change_one_object(struct tr_score * score)
     return i;
 }
 
-static int trs_compute_if_needed(struct tr_score * score, int i)
+static int trs_compute_if_needed(struct tr_score *score, int i)
 {
     /*
      * Without quick the map is recomputed everytime
@@ -210,7 +210,7 @@ static int trs_compute_if_needed(struct tr_score * score, int i)
     return 0;
 }
 
-static void trs_print_and_db_if_needed(struct tr_score * score, int computed)
+static void trs_print_and_db_if_needed(struct tr_score *score, int computed)
 {
     if (score->trs_has_reached_step(score) || trs_is_finished(score)) {
         /*
@@ -218,7 +218,7 @@ static void trs_print_and_db_if_needed(struct tr_score * score, int computed)
          * the star rating won't change depending on the step when the quick
          * computation is used.
          */
-        struct tr_map * saved = score->map;
+        struct tr_map *saved = score->map;
         if (!computed) {
             score->map = trm_copy(score->map);
             trm_compute_stars(score->map);
@@ -230,7 +230,7 @@ static void trs_print_and_db_if_needed(struct tr_score * score, int computed)
 
 //--------------------------------------------------
 
-static void trs_compute(struct tr_score * score)
+static void trs_compute(struct tr_score *score)
 {
     trm_apply_mods(score->map);
     trm_compute_stars(score->map);
@@ -246,7 +246,7 @@ static void trs_compute(struct tr_score * score)
 
 //--------------------------------------------------
 
-static void trs_print_out(const struct tr_score * score)
+static void trs_print_out(const struct tr_score *score)
 {
     fprintf(OUTPUT_INFO, "Score: %.5g%% \t(aim: %.4g%%) [%d|%d|%d] (%d/%d)\n",
             score->map->acc, score->acc,
@@ -255,7 +255,7 @@ static void trs_print_out(const struct tr_score * score)
     trm_print(score->map);
 }
 
-void trs_print(const struct tr_score * score)
+void trs_print(const struct tr_score *score)
 {
     if (GLOBAL_CONFIG->print_yaml)
         trm_print_yaml(score->map);

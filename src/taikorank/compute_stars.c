@@ -34,7 +34,7 @@
 
 //--------------------------------------------------
 
-static void trm_compute_separated(struct tr_map * map)
+static void trm_compute_separated(struct tr_map *map)
 {
     trm_treatment(map);
     {
@@ -54,7 +54,7 @@ static void trm_compute_separated(struct tr_map * map)
 
 //--------------------------------------------------
 
-void trm_compute_stars(struct tr_map * map)
+void trm_compute_stars(struct tr_map *map)
 {
     if (trm_has_mods(map, MOD_FL))
         trm_apply_mods_FL(map);

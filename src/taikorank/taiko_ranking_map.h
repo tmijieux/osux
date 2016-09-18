@@ -23,20 +23,20 @@ enum played_state;
 
 struct tr_map
 {
-    struct tr_local_config * conf;
+    struct tr_local_config *conf;
 
     // Name info
-    char * title;
-    char * artist;
-    char * source;
-    char * creator;
-    char * diff;
+    char *title;
+    char *artist;
+    char *source;
+    char *creator;
+    char *diff;
 
-    char * title_uni;
-    char * artist_uni;
+    char *title_uni;
+    char *artist_uni;
     unsigned int bms_osu_ID;
     unsigned int diff_osu_ID;
-    char * hash;
+    char *hash;
 
     // Song Info
     int mods;
@@ -45,7 +45,7 @@ struct tr_map
 
     // Taiko objects
     int nb_object;
-    struct tr_object * object;
+    struct tr_object *object;
 
     // stars *-*
     double density_star;
@@ -67,29 +67,29 @@ struct tr_map
 
 //----------------------------------------
 
-struct tr_map * trm_new(const char * filename);
-struct tr_map * trm_copy(const struct tr_map * map);
-void trm_free(struct tr_map * map);
+struct tr_map *trm_new(const char *filename);
+struct tr_map *trm_copy(const struct tr_map *map);
+void trm_free(struct tr_map *map);
 
-int trm_hardest_tro(struct tr_map * map);
-int trm_best_influence_tro(struct tr_map * map);
+int trm_hardest_tro(struct tr_map *map);
+int trm_best_influence_tro(struct tr_map *map);
 
-void trm_set_tro_ps(struct tr_map * map, int x, enum played_state ps);
+void trm_set_tro_ps(struct tr_map *map, int x, enum played_state ps);
 double compute_acc(int great, int good, int miss);
 
-void trm_set_read_only_objects(struct tr_map * map);
-void trm_set_mods(struct tr_map * map, int mods);
-void trm_add_modifier(struct tr_map * map);
+void trm_set_read_only_objects(struct tr_map *map);
+void trm_set_mods(struct tr_map *map, int mods);
+void trm_add_modifier(struct tr_map *map);
 
-void trm_main(const struct tr_map * map);
+void trm_main(const struct tr_map *map);
 
-void trm_print_out_tro(const struct tr_map * map, int filter);
-void trm_print_yaml(const struct tr_map * map);
-void trm_print(const struct tr_map * map);
+void trm_print_out_tro(const struct tr_map *map, int filter);
+void trm_print_yaml(const struct tr_map *map);
+void trm_print(const struct tr_map *map);
 void tr_print_yaml_exit(void);
 
-void trm_remove_tro(struct tr_map * map, int o);
-void trm_remove_bonus(struct tr_map * map);
-void trm_flat_big(struct tr_map * map);
+void trm_remove_tro(struct tr_map *map, int o);
+void trm_remove_bonus(struct tr_map *map);
+void trm_flat_big(struct tr_map *map);
 
 #endif

@@ -17,8 +17,8 @@
 #define STATS_H
 
 #define TRM_SORT_HEADER(FIELD)                                  \
-    void tro_sort_##FIELD (struct tr_object * o, int nb);       \
-    void trm_sort_##FIELD (struct tr_map * map)
+    void tro_sort_##FIELD (struct tr_object *o, int nb);        \
+    void trm_sort_##FIELD (struct tr_map *map)
 
 TRM_SORT_HEADER(offset);
 TRM_SORT_HEADER(pattern_star);

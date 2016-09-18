@@ -20,21 +20,21 @@ struct counter;
 typedef double (*inherit_fun)(const void*, const void*);
 typedef double (*where_fun)(const void*);
 
-struct counter * cnt_new(void);
-void cnt_free(struct counter * c);
+struct counter *cnt_new(void);
+void cnt_free(struct counter *c);
 
-void cnt_add(struct counter * c, const void * data, const char * key,
+void cnt_add(struct counter *c, const void *data, const char *key,
              double val);
 
-double cnt_get_total(const struct counter * c);
-double cnt_get_total_inherit(const struct counter * c, inherit_fun inherit);
+double cnt_get_total(const struct counter *c);
+double cnt_get_total_inherit(const struct counter *c, inherit_fun inherit);
 
-double cnt_get_nb(const struct counter * c, const char * key);
-double cnt_get_nb_inherit(const struct counter * c,
-                          const char * key, inherit_fun inherit);
-double cnt_get_nb_where(const struct counter * c, where_fun where);
+double cnt_get_nb(const struct counter *c, const char *key);
+double cnt_get_nb_inherit(const struct counter *c,
+                          const char *key, inherit_fun inherit);
+double cnt_get_nb_where(const struct counter *c, where_fun where);
 
-void cnt_print(const struct counter * c);
-void cnt_print_inherit(const struct counter * c, inherit_fun inherit);
+void cnt_print(const struct counter *c);
+void cnt_print_inherit(const struct counter *c, inherit_fun inherit);
 
 #endif //FREQ_COUNTER_H

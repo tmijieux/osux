@@ -16,10 +16,10 @@
 #include "taiko_ranking_object.h"
 #include "tr_gts.h"
 
-GtsSurface * tr_gts_exclude_2_to_1(GtsSurface * s1, GtsSurface * s2)
+GtsSurface *tr_gts_exclude_2_to_1(GtsSurface *s1, GtsSurface *s2)
 {
-    GtsSurfaceInter * si = tr_gts_surface_inter_new(s1, s2);
-    GtsSurface * s = tr_gts_surface_new();
+    GtsSurfaceInter *si = tr_gts_surface_inter_new(s1, s2);
+    GtsSurface *s = tr_gts_surface_new();
     gts_surface_inter_boolean(si, s, GTS_1_OUT_2);
     gts_surface_inter_boolean(si, s, GTS_2_IN_1);
     gts_surface_foreach_face(si->s2, (GtsFunc) gts_triangle_revert, NULL);

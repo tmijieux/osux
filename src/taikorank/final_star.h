@@ -27,7 +27,7 @@ void tr_final_star_initialize(void);
    - pattern_star
    - accuracy_star
 */
-void tro_set_influence(struct tr_object * objs, int i, int nb);
+void tro_set_influence(struct tr_object *objs, int i, int nb);
 
 /* Use:
    - ps
@@ -36,9 +36,9 @@ void tro_set_influence(struct tr_object * objs, int i, int nb);
    - pattern_star
    - accuracy_star
 */
-void tro_set_final_star(struct tr_object * o);
+void tro_set_final_star(struct tr_object *o);
 
 // all
-void trm_compute_final_star(struct tr_map * map);
+void trm_compute_final_star(struct tr_map *map);
 
 #endif //FINAL_STAR_H

@@ -88,28 +88,28 @@
 #elif defined RESOLUTION_18
 #endif
 
-static void trm_apply_mods_EZ(struct tr_map * map);
-static void trm_apply_mods_HT(struct tr_map * map);
-static void trm_apply_mods_HR(struct tr_map * map);
-static void trm_apply_mods_DT(struct tr_map * map);
-static void trm_apply_mods_HD(struct tr_map * map);
-static void trm_apply_mods_HDHR(struct tr_map * map);
+static void trm_apply_mods_EZ(struct tr_map *map);
+static void trm_apply_mods_HT(struct tr_map *map);
+static void trm_apply_mods_HR(struct tr_map *map);
+static void trm_apply_mods_DT(struct tr_map *map);
+static void trm_apply_mods_HD(struct tr_map *map);
+static void trm_apply_mods_HDHR(struct tr_map *map);
 
-static void trm_apply_mods_NM(struct tr_map * map);
+static void trm_apply_mods_NM(struct tr_map *map);
 
-static int trm_print_one_mod(const struct tr_map * map, int mods, int * i,
-                             char * buffer, char * string);
+static int trm_print_one_mod(const struct tr_map *map, int mods, int *i,
+                             char *buffer, char *string);
 
 //---------------------------------------------
 
-int trm_has_mods(const struct tr_map * map, int mods)
+int trm_has_mods(const struct tr_map *map, int mods)
 {
     return (map->mods & mods) != 0;
 }
 
 //---------------------------------------------
 
-static void trm_apply_mods_HR(struct tr_map * map)
+static void trm_apply_mods_HR(struct tr_map *map)
 {
     map->od *= HR_COEFF_OD;
     if (map->od > MAX_OD)
@@ -121,7 +121,7 @@ static void trm_apply_mods_HR(struct tr_map * map)
 
 //---------------------------------------------
 
-static void trm_apply_mods_EZ(struct tr_map * map)
+static void trm_apply_mods_EZ(struct tr_map *map)
 {
     map->od *= EZ_COEFF_OD;
 
@@ -131,7 +131,7 @@ static void trm_apply_mods_EZ(struct tr_map * map)
 
 //---------------------------------------------
 
-static void trm_apply_mods_DT(struct tr_map * map)
+static void trm_apply_mods_DT(struct tr_map *map)
 {
     map->od_hit_window_mult = DT_COEFF_MS;
 
@@ -144,7 +144,7 @@ static void trm_apply_mods_DT(struct tr_map * map)
 
 //---------------------------------------------
 
-static void trm_apply_mods_HT(struct tr_map * map)
+static void trm_apply_mods_HT(struct tr_map *map)
 {
     map->od_hit_window_mult = HT_COEFF_MS;
 
@@ -157,7 +157,7 @@ static void trm_apply_mods_HT(struct tr_map * map)
 
 //---------------------------------------------
 
-static void trm_apply_mods_HD(struct tr_map * map)
+static void trm_apply_mods_HD(struct tr_map *map)
 {
     if (!trm_has_mods(map, MOD_FL))
         for (int i = 0; i < map->nb_object; i++)
@@ -170,7 +170,7 @@ static void trm_apply_mods_HD(struct tr_map * map)
 
 //---------------------------------------------
 
-static void trm_apply_mods_HDHR(struct tr_map * map)
+static void trm_apply_mods_HDHR(struct tr_map *map)
 {
     for (int i = 0; i < map->nb_object; i++) {
         map->object[i].bpm_app *= HDHR_COEFF_SPEED;
@@ -181,7 +181,7 @@ static void trm_apply_mods_HDHR(struct tr_map * map)
 
 //---------------------------------------------
 
-void trm_apply_mods_FL(struct tr_map * map)
+void trm_apply_mods_FL(struct tr_map *map)
 {
     int combo = 0;
     for (int i = 0; i < map->nb_object; i++) {
@@ -201,7 +201,7 @@ void trm_apply_mods_FL(struct tr_map * map)
 
 //---------------------------------------------
 
-static void trm_apply_mods_NM(struct tr_map * map)
+static void trm_apply_mods_NM(struct tr_map *map)
 {
     map->od_hit_window_mult = NM_COEFF_MS;
     for (int i = 0; i < map->nb_object; i++) {
@@ -214,7 +214,7 @@ static void trm_apply_mods_NM(struct tr_map * map)
 //---------------------------------------------
 //---------------------------------------------
 
-void trm_apply_mods(struct tr_map * map)
+void trm_apply_mods(struct tr_map *map)
 {
     trm_apply_mods_NM(map);
 
@@ -238,8 +238,8 @@ void trm_apply_mods(struct tr_map * map)
 
 //-------------------------------------------------
 
-static int trm_print_one_mod(const struct tr_map * map, int mods, int * i,
-                             char * buffer, char * string)
+static int trm_print_one_mod(const struct tr_map *map, int mods, int *i,
+                             char *buffer, char *string)
 {
     if ((map->mods & mods) != 0) {
         sprintf(&buffer[*i], string);
@@ -251,18 +251,18 @@ static int trm_print_one_mod(const struct tr_map * map, int mods, int * i,
 
 //-------------------------------------------------
 
-void trm_print_out_mods(const struct tr_map * map)
+void trm_print_out_mods(const struct tr_map *map)
 {
-    char * buffer = trm_mods_to_str(map);
+    char *buffer = trm_mods_to_str(map);
     print_string_size(buffer, (STR_MOD_LENGTH + 1) * MAX_MOD + 1, OUTPUT);
     free(buffer);
 }
 
 //-------------------------------------------------
 
-char * trm_mods_to_str(const struct tr_map * map)
+char *trm_mods_to_str(const struct tr_map *map)
 {
-    char * s = calloc(sizeof(char), (STR_MOD_LENGTH + 1) * MAX_MOD + 1);
+    char *s = calloc(sizeof(char), (STR_MOD_LENGTH + 1) * MAX_MOD + 1);
     int i = 0;
 
     if (trm_print_one_mod(map, MOD_HR, &i, s, "HR ") == 0)
@@ -285,7 +285,7 @@ char * trm_mods_to_str(const struct tr_map * map)
         continue;                                       \
     }
 
-int str_to_mods(const char * s)
+int str_to_mods(const char *s)
 {
     int mods = MOD_NM;
     for (int i = 0; s[i]; i += STR_MOD_LENGTH) {

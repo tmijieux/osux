@@ -29,7 +29,7 @@
 #include "density.h"
 #include "final_star.h"
 
-static int apply_global_options(int argc, const char ** argv)
+static int apply_global_options(int argc, const char **argv)
 {
     int i;
     for (i = 1; i < argc; i++) {
@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
             i += local_opt_set(argc - i, (const char **) &argv[i]);
         } else {
             nb_map++;
-            struct tr_map * map = trm_new(argv[i]);
+            struct tr_map *map = trm_new(argv[i]);
             if (map == NULL)
                 continue;
 

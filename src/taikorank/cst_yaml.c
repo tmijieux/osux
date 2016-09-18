@@ -27,9 +27,9 @@
 
 //--------------------------------------------------
 
-struct yaml_wrap * cst_get_yw(const char * file_name)
+struct yaml_wrap *cst_get_yw(const char *file_name)
 {
-    struct yaml_wrap * yw = NULL;
+    struct yaml_wrap *yw = NULL;
     if (0 != yaml2_parse_file(&yw, file_name))
         tr_error("Unable to parse yaml file '%s'.", file_name);
     if (yw == NULL)
@@ -39,7 +39,7 @@ struct yaml_wrap * cst_get_yw(const char * file_name)
 
 //--------------------------------------------------
 
-osux_hashtable * yw_extract_ht(struct yaml_wrap * yw)
+osux_hashtable *yw_extract_ht(struct yaml_wrap *yw)
 {
     if (yw->type != YAML_MAPPING) {
         tr_error("Constant is not a hash table.");
@@ -48,7 +48,7 @@ osux_hashtable * yw_extract_ht(struct yaml_wrap * yw)
     return yw->content.mapping;
 }
 
-osux_list * yw_extract_list(struct yaml_wrap * yw)
+osux_list *yw_extract_list(struct yaml_wrap *yw)
 {
     if (yw->type != YAML_SEQUENCE) {
         tr_error("Constant is not a list.");
@@ -57,7 +57,7 @@ osux_list * yw_extract_list(struct yaml_wrap * yw)
     return yw->content.sequence;
 }
 
-char * yw_extract_scalar(struct yaml_wrap * yw)
+char *yw_extract_scalar(struct yaml_wrap *yw)
 {
     if (yw->type != YAML_SCALAR) {
         tr_error("Constant is not a scalar.");
@@ -68,9 +68,9 @@ char * yw_extract_scalar(struct yaml_wrap * yw)
 
 //--------------------------------------------------
 
-osux_list * cst_list(osux_hashtable * ht, const char * key)
+osux_list *cst_list(osux_hashtable *ht, const char *key)
 {
-    struct yaml_wrap * yw = NULL;
+    struct yaml_wrap *yw = NULL;
     osux_hashtable_lookup(ht, key, &yw);
     if (yw == NULL) {
         tr_error("List '%s' not found.", key);
@@ -79,9 +79,9 @@ osux_list * cst_list(osux_hashtable * ht, const char * key)
     return yw_extract_list(yw);
 }
 
-char * cst_str(osux_hashtable * ht, const char * key)
+char *cst_str(osux_hashtable *ht, const char *key)
 {
-    struct yaml_wrap * yw = NULL;
+    struct yaml_wrap *yw = NULL;
     osux_hashtable_lookup(ht, key, &yw);
     if (yw == NULL) {
         tr_error("Scalar '%s' not found.", key);
@@ -90,12 +90,12 @@ char * cst_str(osux_hashtable * ht, const char * key)
     return yw_extract_scalar(yw);
 }
 
-double cst_f(osux_hashtable * ht, const char * key)
+double cst_f(osux_hashtable *ht, const char *key)
 {
     return atof(cst_str(ht, key));
 }
 
-int cst_i(osux_hashtable * ht, const char * key)
+int cst_i(osux_hashtable *ht, const char *key)
 {
     return atoi(cst_str(ht, key));
 }

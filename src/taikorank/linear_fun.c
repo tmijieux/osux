@@ -31,11 +31,11 @@
 // piecewise linear function
 // f(x) = a*x+b
 struct linear_fun {
-    char * name;
+    char *name;
     int len;
-    double * x; // len
-    double * a; // len - 1
-    double * b; // len - 1
+    double *x; // len
+    double *a; // len - 1
+    double *b; // len - 1
 
     int has_error;
 };
@@ -48,9 +48,9 @@ struct linear_fun {
 
 //--------------------------------------------------
 
-struct linear_fun * lf_new(struct vector * v)
+struct linear_fun *lf_new(struct vector *v)
 {
-    struct linear_fun * lf = malloc(sizeof(*lf));
+    struct linear_fun *lf = malloc(sizeof(*lf));
     lf->has_error = 0;
     lf->len = v->len;
     lf->x = malloc(sizeof(double) * lf->len);
@@ -67,7 +67,7 @@ struct linear_fun * lf_new(struct vector * v)
     return lf;
 }
 
-void lf_free(struct linear_fun * lf)
+void lf_free(struct linear_fun *lf)
 {
     if (lf == NULL)
         return;
@@ -79,7 +79,7 @@ void lf_free(struct linear_fun * lf)
 
 //--------------------------------------------------
 
-static inline int find_interval_binary(const double * array,
+static inline int find_interval_binary(const double *array,
                                        int l, int r, double x)
 {
     if (r < l)
@@ -92,7 +92,7 @@ static inline int find_interval_binary(const double * array,
     return m;
 }
 
-static inline int find_interval_linear(const double * array, int len,
+static inline int find_interval_linear(const double *array, int len,
                                        double x)
 {
     if (x < array[0])
@@ -103,13 +103,13 @@ static inline int find_interval_linear(const double * array, int len,
     return -1;
 }
 
-static inline double lf_eval_interval(struct linear_fun * lf,
+static inline double lf_eval_interval(struct linear_fun *lf,
                                       double x, int i)
 {
     return lf->a[i] * x + lf->b[i];
 }
 
-double lf_eval(struct linear_fun * lf, double x)
+double lf_eval(struct linear_fun *lf, double x)
 {
     // As array are small, binary search is not really faster
     int i = find_interval_linear(lf->x, lf->len, x);
@@ -128,10 +128,10 @@ double lf_eval(struct linear_fun * lf, double x)
 
 //--------------------------------------------------
 
-struct linear_fun * cst_lf(osux_hashtable * ht, const char * key)
+struct linear_fun *cst_lf(osux_hashtable *ht, const char *key)
 {
-    struct vector * v = cst_vect(ht, key);
-    struct linear_fun * lf = lf_new(v);
+    struct vector *v = cst_vect(ht, key);
+    struct linear_fun *lf = lf_new(v);
     vect_free(v);
     lf->name = (char*) key;
     return lf;
@@ -139,7 +139,7 @@ struct linear_fun * cst_lf(osux_hashtable * ht, const char * key)
 
 //--------------------------------------------------
 
-void lf_print(struct linear_fun * lf)
+void lf_print(struct linear_fun *lf)
 {
     fprintf(stderr, "linear_fun: %s\nx:", lf->name);
     for (int i = 0; i < lf->len; i++)
@@ -181,16 +181,16 @@ static char *lf_array_to_str(double *t, int len, char const *var)
     return array_str;
 }
 
-void lf_dump(struct linear_fun * lf)
+void lf_dump(struct linear_fun *lf)
 {
-    char * x_name = g_strdup_printf("%s_x", lf->name);
-    char * x = lf_array_to_str(lf->x, lf->len,   x_name);
+    char *x_name = g_strdup_printf("%s_x", lf->name);
+    char *x = lf_array_to_str(lf->x, lf->len,   x_name);
 
-    char * a_name = g_strdup_printf("%s_a", lf->name);
-    char * a = lf_array_to_str(lf->a, lf->len-1, a_name);
+    char *a_name = g_strdup_printf("%s_a", lf->name);
+    char *a = lf_array_to_str(lf->a, lf->len-1, a_name);
 
-    char * b_name = g_strdup_printf("%s_b", lf->name);
-    char * b = lf_array_to_str(lf->b, lf->len-1, b_name);
+    char *b_name = g_strdup_printf("%s_b", lf->name);
+    char *b = lf_array_to_str(lf->b, lf->len-1, b_name);
 
     char *var, *all;
     var = g_strdup_printf(
