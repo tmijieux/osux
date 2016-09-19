@@ -11,13 +11,10 @@ nobase_include_HEADERS = \
 	osux/beatmap_database.h \
 	osux/error.h \
 	osux/string.h \
-	osux/read.h \
 	osux/beatmap_set.h \
 	osux/data.h \
 	osux/hash_table.h \
 	osux/list.h \
-	osux/split.h \
-	osux/uleb128.h \
 	osux/list_node.h \
 	osux/stack.h \
 	osux/heap.h \

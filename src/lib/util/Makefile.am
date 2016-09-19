@@ -5,13 +5,11 @@ libosux_util_la_SOURCES = \
 	hash_table.c \
 	heap.c \
 	list.c \
-	split.c \
 	stack.c \
 	yaml.c \
-	uleb128.c \
 	sum.c \
 	md5.c \
-	str.c \
+	string.c \
 	error.c
 
 libosux_util_la_CFLAGS = $(CRYPTO_CFLAGS) $(YAML_CFLAGS) $(AM_CFLAGS)

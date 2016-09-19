@@ -48,15 +48,6 @@ G_BEGIN_DECLS
     ERROR(OSUX_ERR_GAME_MODE_NOT_SUPPORTED)             \
 
 
-#define CHECK_ERROR(expr, finally)              \
-    do {                                        \
-        int err_macro_;                         \
-        if ((err_macro_ = (expr)) < 0) {        \
-            finally;                            \
-            return err_macro_;                  \
-        }                                       \
-    } while (0)
-
 #define OSUX_ERROR_TO_ENUM(error) error,
 
 enum osux_error_code {

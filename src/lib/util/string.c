@@ -1,6 +1,3 @@
-#ifndef OSUX_ULEB128_H
-#define OSUX_ULEB128_H
-
 /*
  *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
  *
@@ -17,15 +14,19 @@
  *  limitations under the License.
  */
 
-#include <stdio.h>
-#include <stdint.h>
-#include <glib.h>
+#include <string.h>
+#include "osux/string.h"
 
-G_BEGIN_DECLS
+bool string_contains(char const *str, char c)
+{
+    return strchr(str, c) != NULL;
+}
 
-uint64_t read_ULEB128(FILE * f);
-void write_ULEB128(uint64_t value, FILE *output, unsigned padding);
-
-G_END_DECLS
-
-#endif //ULEB128_H
+bool string_have_extension(char const *filename, char const *extension)
+{
+    size_t l = strlen(filename);
+    size_t e = strlen(extension);
+    if (l < e)
+        return 0;
+    return (strcmp(extension, filename + l - e) == 0);
+}

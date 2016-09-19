@@ -51,14 +51,12 @@ src/editor/edosu-close-lbl.h
 src/editor/edosu-properties.c
 src/editor/edosu-palette.c
 src/lib/util/stack.c
-src/lib/util/split.c
 src/lib/util/yaml.c
 src/lib/util/error.c
 src/lib/util/heap.c
-src/lib/util/uleb128.c
 src/lib/util/list.c
 src/lib/util/uthash.h
-src/lib/util/str.c
+src/lib/util/string.c
 src/lib/util/md5.c
 src/lib/util/sum.c
 src/lib/util/hash_table.c
@@ -75,7 +73,7 @@ src/lib/beatmap/beatmap_old.c
 src/lib/beatmap/util.c
 src/lib/beatmap/beatmap_variable.c
 src/lib/replay/xz_decomp.c
-src/lib/replay/osux_buffer_reader.c
+src/lib/replay/buffer_reader.c
 src/lib/replay/replay.c
 src/lib/replay/hit.c
 src/lib/mod/mods.c
@@ -142,7 +140,6 @@ src/include/osux/string.h
 src/include/osux/beatmap.h
 src/include/osux/util.h
 src/include/osux/error.h
-src/include/osux/read.h
 src/include/osux/event_string.h
 src/include/osux/beatmap_set.h
 src/include/osux/data.h
@@ -154,8 +151,6 @@ src/include/osux/compiler.h
 src/include/osux/list.h
 src/include/osux/hit.h
 src/include/osux/event_enum.h
-src/include/osux/split.h
-src/include/osux/uleb128.h
 src/include/osux/list_node.h
 src/include/osux/stack.h
 src/include/osux/heap.h

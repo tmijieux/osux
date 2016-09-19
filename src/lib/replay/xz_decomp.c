@@ -20,7 +20,6 @@
 #include <sys/stat.h>
 #include <gio/gio.h>
 
-#include "osux/read.h"
 #include "osux/xz_decomp.h"
 
 /* read/write buffer sizes */
@@ -51,7 +50,6 @@ static void lzma_error(lzma_ret error_code)
                 " data decompression:\nlzma code error %d\n\n", error_code);
                 break;
     }
-
 }
 
 /* note: in_file and out_file must be open already */
@@ -132,9 +130,12 @@ static int lzma_legacy_decompress(GInputStream *in_file, GOutputStream *out_file
 void lzma_decompress(uint8_t *in_buf, size_t in_size,
                      uint8_t **out_buf, size_t *out_len)
 {
-    GInputStream *is = g_memory_input_stream_new_from_data(
-        in_buf, in_size, NULL);
-    GOutputStream *os = g_memory_output_stream_new(NULL, 0, g_realloc, NULL);
+    GInputStream *is;
+    GOutputStream *os;
+
+    is = g_memory_input_stream_new_from_data(in_buf, in_size, NULL);
+    os = g_memory_output_stream_new(NULL, 0, g_realloc, NULL);
+
     if (lzma_legacy_decompress(is, os) != 0) {
         *out_len = 0;
         *out_buf = NULL;
