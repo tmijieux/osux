@@ -58,7 +58,7 @@ struct tr_local_config {
 
     int quick;
     void (*tr_main)(const struct tr_map *);
-    int (*trm_method_get_tro)(struct tr_map *);
+    int (*trm_method_get_tro)(const struct tr_map *);
 
     enum score_input input;
     double acc;

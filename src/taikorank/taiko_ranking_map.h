@@ -34,7 +34,7 @@ struct tr_map
 
     char *title_uni;
     char *artist_uni;
-    unsigned int bms_osu_ID;
+    unsigned int mapset_osu_ID;
     unsigned int diff_osu_ID;
     char *hash;
 
@@ -71,8 +71,8 @@ struct tr_map *trm_new(const char *filename);
 struct tr_map *trm_copy(const struct tr_map *map);
 void trm_free(struct tr_map *map);
 
-int trm_hardest_tro(struct tr_map *map);
-int trm_best_influence_tro(struct tr_map *map);
+int trm_get_hardest_tro(const struct tr_map *map);
+int trm_get_best_influence_tro(const struct tr_map *map);
 
 void trm_set_tro_ps(struct tr_map *map, int x, enum played_state ps);
 double compute_acc(int great, int good, int miss);
