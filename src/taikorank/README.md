@@ -17,7 +17,7 @@ A final value is then computed giving global star rating for the map.
 
 ##### Optional
 * openmp, use `-fopenmp` in CFLAGS to enable
-* mysqlclient, use `-lmysqlclient` in LDFLAGS and `-DMYSQL_TR_DB` to enable
+* mysqlclient, use `-lmysqlclient` in LDFLAGS and `-DUSE_TR_MYSQL_DB` to enable
 
 ## Usage
 `taiko_ranking [GLOBAL_OPTION] ... [LOCAL_OPTIONS] [FILE|HASH] ... [LOCAL_OPTION] ... [FILE|HASH] ... `

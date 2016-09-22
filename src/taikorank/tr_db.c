@@ -32,7 +32,7 @@
 #include "tr_mods.h"
 #include "print.h"
 
-#ifdef USE_MYSQL_DB
+#ifdef USE_TR_MYSQL_DB
 
 #define TR_DB_NAME   "taiko_rank"
 #define TR_DB_USER   "tr_user"
@@ -71,9 +71,9 @@ void tr_db_init(void)
         return;
     }
 
-    if (NULL == mysql_real_connect(sql, TR_DB_IP, TR_DB_LOGIN,
-                                   TR_DB_PASSWD,
-                                   NULL, 0, NULL, 0)) {
+    if (NULL == mysql_real_connect(
+            sql, GLOBAL_CONFIG->db_ip, GLOBAL_CONFIG->db_login,
+            GLOBAL_CONFIG->db_passwd, NULL, 0, NULL, 0)) {
         tr_error("%s", mysql_error(sql));
         mysql_close(sql);
         sql = NULL;
@@ -174,7 +174,7 @@ static int tr_db_insert_mapset(const struct tr_map *map, int user_id)
     if (mapset_id < 0) {
         #pragma omp critical
         new_rq(sql, "INSERT INTO %s(artist, title, source, "
-               "creator_ID, artist_uni, title_uni, osu_map_ID)"
+               "creator_ID, artist_uni, title_uni, osu_mapset_ID)"
                "VALUES('%s', '%s', '%s', %d, '%s', '%s', %d);",
                TR_DB_MAPSET, map_artist, map_title, map_source, user_id,
                map_artist_uni, map_title_uni, map->mapset_osu_ID);
@@ -247,8 +247,7 @@ static int tr_db_insert_update_score(const struct tr_map *map,
     char *cond = NULL;
     asprintf(&cond, "diff_ID = %d and mod_ID = %d and great = %d"
              " and good = %d and miss = %d",
-             diff_id, mod_id, map->combo, map->great, map->good,
-             map->miss);
+             diff_id, mod_id, map->great, map->good, map->miss);
 
     int score_id = tr_db_get_id(sql, TR_DB_SCORE, cond);
     if (score_id < 0) {
@@ -303,7 +302,7 @@ void trm_db_insert(const struct tr_map *map)
 //-------------------------------------------------
 //-------------------------------------------------
 
-#else // USE_MYSQL_DB
+#else // USE_TR_MYSQL_DB
 
 #include "taiko_ranking_map.h"
 
@@ -314,7 +313,7 @@ void tr_db_init(void)
 
 void trm_db_insert(const struct tr_map *map UNUSED)
 {
-    tr_error("Database is disabled!");
+    tr_error("Database was not compiled!");
 }
 
-#endif // USE_MYSQL_DB
+#endif // USE_TR_MYSQL_DB
