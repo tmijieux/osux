@@ -133,10 +133,10 @@ void local_config_set_score_method(enum score_method i)
 {
     switch (i) {
     case SCORE_INPUT_INFLUENCE:
-        LOCAL_CONFIG->trm_method_get_tro = trm_best_influence_tro;
+        LOCAL_CONFIG->trm_method_get_tro = trm_get_best_influence_tro;
         break;
     default:
-        LOCAL_CONFIG->trm_method_get_tro = trm_hardest_tro;
+        LOCAL_CONFIG->trm_method_get_tro = trm_get_hardest_tro;
         break;
     }
 }

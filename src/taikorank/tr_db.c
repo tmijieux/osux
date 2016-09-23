@@ -27,20 +27,19 @@
 #include "taiko_ranking_score.h"
 #include "taiko_ranking_object.h"
 
+#include "tr_db.h"
 #include "config.h"
 #include "tr_mods.h"
 #include "print.h"
 
-#ifdef USE_MYSQL_DB
+#ifdef USE_TR_MYSQL_DB
 
-#include "tr_db.h"
-
-#define TR_DB_NAME  "taiko_rank"
-#define TR_DB_USER  "tr_user"
-#define TR_DB_BMS   "tr_beatmap_set"
-#define TR_DB_DIFF  "tr_diff"
-#define TR_DB_MOD   "tr_mod"
-#define TR_DB_SCORE "tr_score"
+#define TR_DB_NAME   "taiko_rank"
+#define TR_DB_USER   "tr_user"
+#define TR_DB_MAPSET "tr_mapset"
+#define TR_DB_DIFF   "tr_diff"
+#define TR_DB_MOD    "tr_mod"
+#define TR_DB_SCORE  "tr_score"
 
 static MYSQL *sql;
 
@@ -49,8 +48,8 @@ static int tr_db_get_id(MYSQL *sql, char *table, char *cond);
 static char *tr_db_escape_str(MYSQL *sql, const char *src);
 
 static int tr_db_insert_user(const struct tr_map *map);
-static int tr_db_insert_bms(const struct tr_map *map, int user_id);
-static int tr_db_insert_diff(const struct tr_map *map, int bms_id);
+static int tr_db_insert_mapset(const struct tr_map *map, int user_id);
+static int tr_db_insert_diff(const struct tr_map *map, int mapset_id);
 static int tr_db_insert_mod(const struct tr_map *map);
 static int tr_db_insert_update_score(const struct tr_map *map,
                                      int diff_id, int mod_id);
@@ -72,9 +71,9 @@ void tr_db_init(void)
         return;
     }
 
-    if (NULL == mysql_real_connect(sql, TR_DB_IP, TR_DB_LOGIN,
-                                   TR_DB_PASSWD,
-                                   NULL, 0, NULL, 0)) {
+    if (NULL == mysql_real_connect(
+            sql, GLOBAL_CONFIG->db_ip, GLOBAL_CONFIG->db_login,
+            GLOBAL_CONFIG->db_passwd, NULL, 0, NULL, 0)) {
         tr_error("%s", mysql_error(sql));
         mysql_close(sql);
         sql = NULL;
@@ -133,7 +132,6 @@ static char *tr_db_escape_str(MYSQL *sql, const char *src)
     return dst;
 }
 
-
 //-------------------------------------------------
 
 static int tr_db_insert_user(const struct tr_map *map)
@@ -160,7 +158,7 @@ static int tr_db_insert_user(const struct tr_map *map)
 
 //-------------------------------------------------
 
-static int tr_db_insert_bms(const struct tr_map *map, int user_id)
+static int tr_db_insert_mapset(const struct tr_map *map, int user_id)
 {
     char *map_title  = tr_db_escape_str(sql, map->title);
     char *map_artist = tr_db_escape_str(sql, map->artist);
@@ -172,17 +170,17 @@ static int tr_db_insert_bms(const struct tr_map *map, int user_id)
              "title = '%s'",
              user_id, map_artist, map_title);
 
-    int bms_id = tr_db_get_id(sql, TR_DB_BMS, cond);
-    if (bms_id < 0) {
+    int mapset_id = tr_db_get_id(sql, TR_DB_MAPSET, cond);
+    if (mapset_id < 0) {
         #pragma omp critical
         new_rq(sql, "INSERT INTO %s(artist, title, source, "
-               "creator_ID, artist_uni, title_uni, osu_map_ID)"
+               "creator_ID, artist_uni, title_uni, osu_mapset_ID)"
                "VALUES('%s', '%s', '%s', %d, '%s', '%s', %d);",
-               TR_DB_BMS, map_artist, map_title, map_source, user_id,
-               map_artist_uni, map_title_uni, map->bms_osu_ID);
-        bms_id = tr_db_get_id(sql, TR_DB_BMS, cond);
-        fprintf(OUTPUT_INFO, "New beatmap: %s - %s ID: %d\n",
-                map_artist, map_title, bms_id);
+               TR_DB_MAPSET, map_artist, map_title, map_source, user_id,
+               map_artist_uni, map_title_uni, map->mapset_osu_ID);
+        mapset_id = tr_db_get_id(sql, TR_DB_MAPSET, cond);
+        fprintf(OUTPUT_INFO, "New mapset: %s - %s ID: %d\n",
+                map_artist, map_title, mapset_id);
     }
     free(cond);
     free(map_title);
@@ -190,25 +188,25 @@ static int tr_db_insert_bms(const struct tr_map *map, int user_id)
     free(map_source);
     free(map_artist_uni);
     free(map_title_uni);
-    return bms_id;
+    return mapset_id;
 }
 
 //-------------------------------------------------
 
-static int tr_db_insert_diff(const struct tr_map *map, int bms_id)
+static int tr_db_insert_diff(const struct tr_map *map, int mapset_id)
 {
     char *map_diff = tr_db_escape_str(sql, map->diff);
     char *cond = NULL;
-    asprintf(&cond, "bms_ID = %d and diff_name = '%s'",
-             bms_id, map_diff);
+    asprintf(&cond, "mapset_ID = %d and diff_name = '%s'",
+             mapset_id, map_diff);
 
     int diff_id = tr_db_get_id(sql, TR_DB_DIFF, cond);
     if (diff_id < 0) {
         #pragma omp critical
-        new_rq(sql, "INSERT INTO %s(diff_name, bms_ID, osu_diff_ID,"
+        new_rq(sql, "INSERT INTO %s(diff_name, mapset_ID, osu_diff_ID,"
                "max_combo, bonus, hash)"
                "VALUES('%s', %d, %d, %d, %d, '%s');",
-               TR_DB_DIFF, map_diff, bms_id, map->diff_osu_ID,
+               TR_DB_DIFF, map_diff, mapset_id, map->diff_osu_ID,
                map->max_combo, map->bonus, map->hash);
         diff_id = tr_db_get_id(sql, TR_DB_DIFF, cond);
         fprintf(OUTPUT_INFO, "New diff: %s ID: %d\n",
@@ -247,10 +245,9 @@ static int tr_db_insert_update_score(const struct tr_map *map,
                                      int diff_id, int mod_id)
 {
     char *cond = NULL;
-    asprintf(&cond, "diff_ID = %d and mod_ID = %d and combo = %d "
-             "and great = %d and good = %d and miss = %d",
-             diff_id, mod_id, map->combo, map->great, map->good,
-             map->miss);
+    asprintf(&cond, "diff_ID = %d and mod_ID = %d and great = %d"
+             " and good = %d and miss = %d",
+             diff_id, mod_id, map->great, map->good, map->miss);
 
     int score_id = tr_db_get_id(sql, TR_DB_SCORE, cond);
     if (score_id < 0) {
@@ -296,8 +293,8 @@ void trm_db_insert(const struct tr_map *map)
 
     int user_id = tr_db_insert_user(map);
     int mod_id = tr_db_insert_mod(map);
-    int bms_id = tr_db_insert_bms(map, user_id);
-    int diff_id = tr_db_insert_diff(map, bms_id);
+    int mapset_id = tr_db_insert_mapset(map, user_id);
+    int diff_id = tr_db_insert_diff(map, mapset_id);
     tr_db_insert_update_score(map, diff_id, mod_id);
 }
 
@@ -305,7 +302,7 @@ void trm_db_insert(const struct tr_map *map)
 //-------------------------------------------------
 //-------------------------------------------------
 
-#else // USE_MYSQL_DB
+#else // USE_TR_MYSQL_DB
 
 #include "taiko_ranking_map.h"
 
@@ -316,7 +313,7 @@ void tr_db_init(void)
 
 void trm_db_insert(const struct tr_map *map UNUSED)
 {
-    tr_error("Database is disabled!");
+    tr_error("Database was not compiled!");
 }
 
-#endif  // USE_MYSQL_DB
+#endif // USE_TR_MYSQL_DB

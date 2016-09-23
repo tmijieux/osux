@@ -32,7 +32,7 @@ taiko_ranking_SOURCES = \
 taiko_ranking_LDADD = ../lib/libosux.la
 
 taiko_ranking_CFLAGS = \
-	$(MYSQL_CFLAGS) -DMYSQL_TR_DB \
+	$(MYSQL_CFLAGS) -DUSE_TR_MYSQL_DB \
 	-fopenmp $(GTS_CFLAGS) $(AM_CFLAGS)
 	-rpath $(pkglibdir)
 

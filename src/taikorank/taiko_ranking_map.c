@@ -43,7 +43,7 @@ static double get_bpm_app_from_osux_tp(osux_timingpoint *tp,
 static void trm_add_to_ps(struct tr_map *map,
                           enum played_state ps, int i);
 
-static void trm_acc(struct tr_map *map);
+static void trm_recompute_acc(struct tr_map *map);
 static struct tr_map *trm_from_osux_map(osux_beatmap *map);
 static struct tr_map *trm_from_file(const char *filename);
 
@@ -297,7 +297,7 @@ static void trm_from_osux_map_meta(struct tr_map *tr_map,
     tr_map->source     = strdup(map->Source);
     tr_map->creator    = strdup(map->Creator);
     tr_map->diff       = strdup(map->Version);
-    tr_map->bms_osu_ID  = map->BeatmapSetID;
+    tr_map->mapset_osu_ID = map->BeatmapSetID;
     tr_map->diff_osu_ID = map->BeatmapID;
     if (map->TitleUnicode == NULL)
         tr_map->title_uni = strdup(tr_map->title);
@@ -513,19 +513,19 @@ void trm_print(const struct tr_map *map)
 //--------------------------------------------------
 //--------------------------------------------------
 
-int trm_hardest_tro(struct tr_map *map)
+int trm_get_hardest_tro(const struct tr_map *map)
 {
     int best = 0;
     for (int i = 0; i < map->nb_object; i++)
         if (map->object[i].final_star >= map->object[best].final_star &&
-           map->object[i].ps == GREAT)
+            map->object[i].ps == GREAT)
             best = i;
     return best;
 }
 
 //--------------------------------------------------
 
-int trm_best_influence_tro(struct tr_map *map)
+int trm_get_best_influence_tro(const struct tr_map *map)
 {
     int best = -1;
     double star = map->final_star;
@@ -574,7 +574,7 @@ void trm_set_tro_ps(struct tr_map *map, int x, enum played_state ps)
     trm_add_to_ps(map, map->object[x].ps, -1);
     trm_add_to_ps(map, ps, 1);
     map->object[x].ps = ps;
-    trm_acc(map);
+    trm_recompute_acc(map);
     if (ps == GOOD) {
         map->object[x].density_star = 0;
         map->object[x].reading_star = 0;
@@ -593,7 +593,7 @@ double compute_acc(int great, int good, int miss)
     return (great + good * 0.5) / (great + good + miss) * MAX_ACC;
 }
 
-static void trm_acc(struct tr_map *map)
+static void trm_recompute_acc(struct tr_map *map)
 {
     map->acc = compute_acc(map->great, map->good, map->miss);
 }
