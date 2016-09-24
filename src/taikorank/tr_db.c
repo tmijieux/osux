@@ -257,7 +257,7 @@ static int tr_db_insert_update_score(const struct tr_map *map,
                "density_star, pattern_star, reading_star, "
                "accuracy_star, final_star)"
                "VALUES(%d, %d, %.4g, %d, %d, %d, %d, "
-               "%.3g, %.3g, %.3g, %.3g, %.3g);",
+               "%.4g, %.4g, %.4g, %.4g, %.4g);",
                TR_DB_SCORE, diff_id, mod_id, map->acc,
                map->combo, map->great, map->good, map->miss,
                map->density_star, map->pattern_star,
@@ -268,12 +268,12 @@ static int tr_db_insert_update_score(const struct tr_map *map,
                 map->acc, score_id);
     } else {
         #pragma omp critical
-        new_rq(sql, "UPDATE %s SET density_star = %.3g, "
-               "reading_star = %.3g, pattern_star = %.3g,"
-               "accuracy_star = %.3g, final_star = %.3g "
+        new_rq(sql, "UPDATE %s SET combo = %d, density_star = %.4g, "
+               "reading_star = %.4g, pattern_star = %.4g,"
+               "accuracy_star = %.4g, final_star = %.4g "
                "WHERE ID = %d;",
-               TR_DB_SCORE, map->density_star, map->reading_star,
-               map->pattern_star, map->accuracy_star,
+               TR_DB_SCORE, map->combo, map->density_star,
+               map->reading_star, map->pattern_star, map->accuracy_star,
                map->final_star, score_id);
         fprintf(OUTPUT_INFO, "Updated score: (%g%%) ID: %d\n",
                 map->acc, score_id);
