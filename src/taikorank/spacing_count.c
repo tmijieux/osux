@@ -50,40 +50,19 @@ void spc_free(struct spacing_count *spc)
 
 void spc_add(struct spacing_count *spc, int rest, double val)
 {
-    GList *it /*, *last = NULL */;
+    GList *it;
     for (it = spc->l; it != NULL; it = it->next) {
         struct spacing *sp = it->data;
         if (spc->eq(sp->rest, rest)) {
             sp->nb += val;
             return;
         }
-        /*
-        if (it->next == NULL)
-            last = it;
-        */
     }
 
     struct spacing *sp = g_malloc(sizeof(*sp));
     sp->rest = rest;
     sp->nb = val;
-
-    // TODO  si les performances sont importantes ici et que les listes
-    // peuvent être trés grosses il faudra apporter des modifications dans
-    // cette fonction (g_list_append traverse la liste)
-    // si l'ordre n'est pas important remplace 'g_list_append' par
-    // 'g_list_prepend'
-    // les parties commentées sont une suggestion de modification.
-
-    /*
-    if (last != NULL) {
-        GList *n = g_list_alloc();
-        n->prev = last;
-        n->next = NULL;
-        n->data = sp;
-        last->next = n;
-    } else
-    */
-        spc->l = g_list_append(spc->l, sp);
+    spc->l = g_list_prepend(spc->l, sp);
 }
 
 static void sp_print(const struct spacing *sp)
