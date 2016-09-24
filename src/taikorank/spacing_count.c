@@ -18,6 +18,10 @@
 #include "spacing_count.h"
 #include "osux.h"
 
+/*
+  Most of the time the list is short: 3 or 4 elements.
+  Using a sorted list might increase a little performances.
+ */
 struct spacing_count {
     GList *l;
     int (*eq)(int, int);

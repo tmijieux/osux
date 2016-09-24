@@ -62,24 +62,24 @@ struct vector *cst_vect_from_list(GHashTable *ht, const char *key)
     GList *l = cst_list(ht, key);
     if (l == NULL)
         return NULL;
-    // TODO vérifie si 'g_list_length' est genant (traverse la liste)
     struct vector * v = vect_new(g_list_length(l), CST_VECT_DIM);
 
     GList *it;
     int i = 0, j = 0;
     for (it = l; it != NULL; it = it->next) {
         GList *l2 = yw_extract_list((osux_yaml*) it->data);
-        if (l2 == NULL)
-            return NULL; // FIXME pas de free? c'est une fuite ça non?
+        if (l2 == NULL) {
+            vect_free(v);
+            return NULL;
+        }
 
-        // TODO idem ici
         g_assert(g_list_length(l2) == CST_VECT_DIM);
         GList *it2;
         for (it2 = l2; it2 != NULL; it2 = it2->next) {
-            v->t[i][j] = atof(yw_extract_scalar((osux_yaml*)it2->data));
-            ++ j;
+            v->t[i][j] = atof(yw_extract_scalar((osux_yaml*) it2->data));
+            j++;
         }
-        ++ i;
+        i++;
     }
     return v;
 }
