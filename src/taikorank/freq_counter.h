@@ -13,8 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-#ifndef FREQ_COUNTER_H
-#define FREQ_COUNTER_H
+#ifndef TR_FREQ_COUNTER_H
+#define TR_FREQ_COUNTER_H
 
 struct counter;
 typedef double (*inherit_fun)(const void*, const void*);
@@ -37,4 +37,4 @@ double cnt_get_nb_where(const struct counter *c, where_fun where);
 void cnt_print(const struct counter *c);
 void cnt_print_inherit(const struct counter *c, inherit_fun inherit);
 
-#endif //FREQ_COUNTER_H
+#endif // TR_FREQ_COUNTER_H

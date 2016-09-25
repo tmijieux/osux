@@ -13,8 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-#ifndef READING_H
-#define READING_H
+#ifndef TR_READING_H
+#define TR_READING_H
 
 void tr_reading_initialize(void);
 /* Use:
@@ -84,4 +84,4 @@ void tro_set_reading_star(struct tr_object *o);
 // all
 void trm_compute_reading (struct tr_map *map);
 
-#endif
+#endif // TR_READING_H

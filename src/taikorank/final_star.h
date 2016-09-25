@@ -13,8 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-#ifndef FINAL_STAR_H
-#define FINAL_STAR_H
+#ifndef TR_FINAL_STAR_H
+#define TR_FINAL_STAR_H
 
 void tr_final_star_initialize(void);
 
@@ -41,4 +41,4 @@ void tro_set_final_star(struct tr_object *o);
 // all
 void trm_compute_final_star(struct tr_map *map);
 
-#endif //FINAL_STAR_H
+#endif // TR_FINAL_STAR_H

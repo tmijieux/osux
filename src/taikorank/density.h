@@ -13,8 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-#ifndef DENSITY_H
-#define DENSITY_H
+#ifndef TR_DENSITY_H
+#define TR_DENSITY_H
 
 void tr_density_initialize(void);
 /* Use:
@@ -61,4 +61,4 @@ void tro_set_density_star(struct tr_object *obj);
 // all
 void trm_compute_density(struct tr_map *map);
 
-#endif
+#endif // TR_DENSITY_H

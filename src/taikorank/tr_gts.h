@@ -60,4 +60,4 @@ tr_gts_surface_inter_new(GtsSurface *s1, GtsSurface *s2)
 
 GtsSurface *tr_gts_exclude_2_to_1(GtsSurface *s1, GtsSurface *s2);
 
-#endif //TR_GTS_H
+#endif // TR_GTS_H

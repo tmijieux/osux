@@ -13,8 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-#ifndef CST_YAML_H
-#define CST_YAML_H
+#ifndef TR_CST_YAML_H
+#define TR_CST_YAML_H
 
 #include "osux.h"
 
@@ -27,4 +27,4 @@ double cst_f(GHashTable *ht, const char *key);
 int cst_i(GHashTable *ht, const char *key);
 char *cst_str(GHashTable *ht, const char *key);
 
-#endif //CST_YAML_H
+#endif // TR_CST_YAML_H

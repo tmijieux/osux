@@ -13,8 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-#ifndef PRINT_H
-#define PRINT_H
+#ifndef TR_PRINT_H
+#define TR_PRINT_H
 
 #define OUTPUT      stdout
 #define OUTPUT_INFO stderr
@@ -44,4 +44,4 @@ void tr_warning(const char *s, ...);
 
 void print_string_size(const char *s, int max, FILE *output);
 
-#endif
+#endif // TR_PRINT_H

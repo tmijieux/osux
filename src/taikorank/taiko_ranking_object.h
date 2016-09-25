@@ -13,8 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-#ifndef TRO_H
-#define TRO_H
+#ifndef TR_OBJECT_H
+#define TR_OBJECT_H
 
 #include <gts.h>
 #include "osux/table.h"
@@ -165,4 +165,4 @@ static inline int tro_are_same_type(const struct tr_object *o1,
     return (TRO_DK & o1->bf & o2->bf);
 }
 
-#endif
+#endif // TR_OBJECT_H

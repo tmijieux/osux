@@ -13,8 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-#ifndef TRM_H
-#define TRM_H
+#ifndef TR_MAP_H
+#define TR_MAP_H
 
 struct tr_object;
 enum played_state;
@@ -92,4 +92,4 @@ void trm_remove_tro(struct tr_map *map, int o);
 void trm_remove_bonus(struct tr_map *map);
 void trm_flat_big(struct tr_map *map);
 
-#endif
+#endif // TR_MAP_H

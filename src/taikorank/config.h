@@ -13,8 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef TR_CONFIG_H
+#define TR_CONFIG_H
 
 #include "osux/beatmap_database.h"
 
@@ -85,4 +85,4 @@ void local_config_set_tr_main(enum tr_main i);
 void init_enabled(void);
 void ht_conf_db_init(void);
 
-#endif //CONFIG_H
+#endif // TR_CONFIG_H

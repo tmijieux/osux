@@ -13,8 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-#ifndef TREATMENT_H
-#define TREATMENT_H
+#ifndef TR_TREATMENT_H
+#define TR_TREATMENT_H
 
 /* Use:
   - offset
@@ -41,4 +41,4 @@ void trm_set_combo(struct tr_map *map);
 // all
 void trm_treatment(struct tr_map *map);
 
-#endif //TREATMENT_H
+#endif // TR_TREATMENT_H

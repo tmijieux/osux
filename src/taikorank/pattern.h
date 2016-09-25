@@ -13,8 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-#ifndef PATTERN_H
-#define PATTERN_H
+#ifndef TR_PATTERN_H
+#define TR_PATTERN_H
 
 void tr_pattern_initialize(void);
 
@@ -56,4 +56,4 @@ void tro_free_patterns(struct tr_object *o);
 // all
 void trm_compute_pattern (struct tr_map *map);
 
-#endif //PATTERN_H
+#endif // TR_PATTERN_H

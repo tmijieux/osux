@@ -13,8 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-#ifndef ACCURACY_H
-#define ACCURACY_H
+#ifndef TR_ACCURACY_H
+#define TR_ACCURACY_H
 
 void tr_accuracy_initialize(void);
 /* Use:
@@ -53,4 +53,4 @@ void tro_set_accuracy_star(struct tr_object *o);
 // all
 void trm_compute_accuracy(struct tr_map *map);
 
-#endif //ACCURACY_H
+#endif // TR_ACCURACY_H

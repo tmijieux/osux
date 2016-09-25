@@ -13,8 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-#ifndef OPTIONS_H
-#define OPTIONS_H
+#ifndef TR_OPTIONS_H
+#define TR_OPTIONS_H
 
 #define LOCAL_OPT_PREFIX  "-"
 #define GLOBAL_OPT_PREFIX "+"
@@ -25,4 +25,4 @@ int global_opt_set(int argc, const char **argv);
 
 void print_help(void);
 
-#endif //OPTIONS_H
+#endif // TR_OPTIONS_H

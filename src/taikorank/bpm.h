@@ -13,8 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-#ifndef BPM_H
-#define BPM_H
+#ifndef TR_BPM_H
+#define TR_BPM_H
 
 #define MSEC_IN_MINUTE 60000.
 
@@ -28,4 +28,4 @@ static inline double bpm_to_mpb(double bpm)
     return MSEC_IN_MINUTE / bpm;
 }
 
-#endif //BPM_H
+#endif // TR_BPM_H

@@ -13,8 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-#ifndef TAIKO_RANKING_SCORE_H
-#define TAIKO_RANKING_SCORE_H
+#ifndef TR_SCORE_H
+#define TR_SCORE_H
 
 struct tr_map;
 
@@ -43,4 +43,4 @@ void trs_main(const struct tr_map *map);
 void trs_main_replay(char *replay_file_name, struct tr_map *map);
 void trs_print(const struct tr_score *score);
 
-#endif //TAIKO_RANKING_SCORE_H
+#endif // TR_SCORE_H

@@ -18,7 +18,7 @@
 
 // --------------- MODS ---------------
 
-#define MOD_NM 0
+#define MOD_NM MOD_NOMOD
 #define MOD_EZ MOD_EASY
 #define MOD_HT MOD_HALFTIME
 #define MOD_HR MOD_HARDROCK
@@ -39,4 +39,4 @@ void trm_print_out_mods(const struct tr_map *map);
 char *trm_mods_to_str(const struct tr_map *map);
 int str_to_mods(const char *s);
 
-#endif //TR_MODS_H
+#endif // TR_MODS_H

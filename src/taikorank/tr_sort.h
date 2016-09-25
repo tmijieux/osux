@@ -13,8 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-#ifndef STATS_H
-#define STATS_H
+#ifndef TR_SORT_H
+#define TR_SORT_H
 
 #define TRM_SORT_HEADER(FIELD)                                  \
     void tro_sort_##FIELD (struct tr_object *o, int nb);        \
@@ -27,4 +27,4 @@ TRM_SORT_HEADER(reading_star);
 TRM_SORT_HEADER(accuracy_star);
 TRM_SORT_HEADER(final_star);
 
-#endif //STATS_H
+#endif // TR_SORT_H

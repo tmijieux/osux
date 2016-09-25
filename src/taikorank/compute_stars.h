@@ -13,9 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-#ifndef COMPUTE_STARS_H
-#define COMPUTE_STARS_H
+#ifndef TR_COMPUTE_STARS_H
+#define TR_COMPUTE_STARS_H
 
 void trm_compute_stars(struct tr_map *map);
 
-#endif //COMPUTE_STARS_H
+#endif // TR_COMPUTE_STARS_H

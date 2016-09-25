@@ -94,8 +94,7 @@ void trm_set_combo(struct tr_map *map)
     int combo = 0;
     map->combo = 0;
     for (int i = 0; i < map->nb_object; i++) {
-        if (map->object[i].ps == GREAT ||
-           map->object[i].ps == GOOD)
+        if (map->object[i].ps == GREAT || map->object[i].ps == GOOD)
             combo++;
         else if (map->object[i].ps == MISS) {
             if (combo > map->combo)
@@ -122,7 +121,6 @@ static void trm_set_length(struct tr_map *map)
 void trm_treatment(struct tr_map *map)
 {
     trm_set_length(map);
-
     trm_set_hand(map);
     trm_set_rest(map);
     trm_set_combo(map);
