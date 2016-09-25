@@ -48,15 +48,6 @@ G_BEGIN_DECLS
     ERROR(OSUX_ERR_GAME_MODE_NOT_SUPPORTED)             \
 
 
-#define CHECK_ERROR(expr, finally)              \
-    do {                                        \
-        int err_macro_;                         \
-        if ((err_macro_ = (expr)) < 0) {        \
-            finally;                            \
-            return err_macro_;                  \
-        }                                       \
-    } while (0)
-
 #define OSUX_ERROR_TO_ENUM(error) error,
 
 enum osux_error_code {
@@ -80,6 +71,15 @@ char const *osux_errmsg(int errcode);
         fprintf(stderr, (format_), ##__VA_ARGS__);              \
     } while(0)
 
+#define osux_fatal(format_, ...)                                        \
+    do {                                                                \
+        fprintf(stderr, "FATAL ERROR: %s:%d|%s: ",  __FILENAME__ ,      \
+                __LINE__, __PRETTY_FUNCTION__);                         \
+        fprintf(stderr, (format_), ##__VA_ARGS__);                      \
+        osux_error(format_, ##__VA_ARGS__);                             \
+        exit(EXIT_FAILURE);                                             \
+    } while(0)
+
 #define osux_warning(format_, ...)                              \
     do {                                                        \
         fprintf(stderr, "WARNING: %s:%d|%s: ",  __FILENAME__ ,  \
@@ -100,7 +100,7 @@ char const *osux_errmsg(int errcode);
     } while(0)
 
 #else // DEBUG
-#define osux_debug(format_, ...) ((void) ((format_), ##__VA_ARGS__))
+#define osux_debug(format_, ...) ((void) (format_))
 #endif // DEBUG
 
 G_END_DECLS

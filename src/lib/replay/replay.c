@@ -25,11 +25,11 @@
 #include "osux/game_mode.h"
 #include "osux/util.h"
 #include "osux/list.h"
-#include "osux/read.h"
 #include "osux/mods.h"
 #include "osux/replay.h"
 #include "osux/buffer_reader.h"
 #include "osux/keys.h"
+#include "osux/error.h"
 
 #define read_string(buf_ptr_, file_) read_string_ULEB128(buf_ptr_, file_)
 
@@ -151,8 +151,10 @@ static int parse_life_graph(osux_replay *r, char const *life_graph)
     return err;
 }
 
-#define READ_S(handle, var)  obr_read_string(&(handle), &(var))
-#define READ_V(handle, var)  obr_read(&(handle), &(var), sizeof (var))
+#define READ_S(handle_, var_) \
+    osux_buffer_reader_read_string(&(handle_), &(var_))
+#define READ_V(handle_, var_) \
+    osux_buffer_reader_read(&(handle_), &(var_), sizeof (var_))
 
 int osux_replay_init(osux_replay *r, char const *filepath)
 {
@@ -200,7 +202,7 @@ int osux_replay_init(osux_replay *r, char const *filepath)
 
     READ_V(br, r->replay_length);
     char *data = NULL;
-    obr_read_lzma(&br, &data, r->replay_length);
+    osux_buffer_reader_read_lzma(&br, &data, r->replay_length);
     if ((err = parse_replay_data(r, data)) < 0) {
         osux_replay_free(r);
         osux_buffer_reader_free(&br);

@@ -32,8 +32,8 @@
 struct tr_global_config *GLOBAL_CONFIG;
 struct tr_local_config *LOCAL_CONFIG;
 
-static struct yaml_wrap *yw;
-static osux_hashtable *ht_conf;
+static osux_yaml *yw;
+static GHashTable *ht_conf;
 
 static void local_config_score(void);
 
@@ -198,7 +198,7 @@ static void config_exit(void)
     tr_print_yaml_exit();
     tr_global_config_free(GLOBAL_CONFIG);
     tr_local_config_free(LOCAL_CONFIG);
-    yaml2_free(yw);
+    osux_yaml_free(yw);
 }
 
 void tr_config_initialize(void)

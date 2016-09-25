@@ -1,6 +1,3 @@
-#ifndef OSUX_ULEB128_H
-#define OSUX_ULEB128_H
-
 /*
  *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
  *
@@ -17,15 +14,30 @@
  *  limitations under the License.
  */
 
-#include <stdio.h>
-#include <stdint.h>
+#ifndef OSUX_YAML_H
+#define OSUX_YAML_H
+
 #include <glib.h>
 
-G_BEGIN_DECLS
+typedef enum osux_yaml_type_ {
+    OSUX_YAML_INVALID = 0,
+    OSUX_YAML_LIST,
+    OSUX_YAML_TABLE,
+    OSUX_YAML_SCALAR,
+} osux_yaml_type;
 
-uint64_t read_ULEB128(FILE * f);
-void write_ULEB128(uint64_t value, FILE *output, unsigned padding);
+typedef struct osux_yaml_ {
+    osux_yaml_type type;
+    union {
+        GList *list;
+        GHashTable *table;
+        gchar *scalar;
+        gpointer value;
+    };
+} osux_yaml;
 
-G_END_DECLS
+osux_yaml *osux_yaml_new_from_file(char const *file_name);
+void osux_yaml_dump(FILE *out, osux_yaml const *yaml);
+void osux_yaml_free(osux_yaml *yaml);
 
-#endif //ULEB128_H
+#endif // OSUX_YAML_H

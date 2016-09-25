@@ -23,7 +23,7 @@ struct linear_fun *lf_new(struct vector *v);
 void lf_free(struct linear_fun *lf);
 
 // Values must be sorted
-struct linear_fun *cst_lf(osux_hashtable *ht, const char *key);
+struct linear_fun *cst_lf(GHashTable *ht, const char *key);
 
 double lf_eval(struct linear_fun *lf, double x);
 

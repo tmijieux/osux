@@ -1,5 +1,4 @@
 pkgconfdir=$(sysconfdir)/$(PACKAGE)
-yamldir = $(pkgconfdir)/yaml
 pythondir = $(pkglibdir)
 AM_CFLAGS = \
 	-Wall -Wextra \

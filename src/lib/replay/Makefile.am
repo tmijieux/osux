@@ -4,7 +4,7 @@ libosux_replay_la_SOURCES = \
 	replay.c \
 	xz_decomp.c \
 	hit.c \
-	osux_buffer_reader.c
+	buffer_reader.c
 
 libosux_replay_la_CFLAGS = $(AM_CFLAGS) $(LZMA_CFLAGS)
 libosux_replay_la_LDFLAGS = $(AM_LDFLAGS) $(LZMA_LIBS)

@@ -1,7 +1,7 @@
 #include <glib.h>
 #include "osux/beatmap.h"
 #include "osux/error.h"
-#include "osux/split.h"
+#include "osux/string.h"
 #include "osux/beatmap_database.h"
 #include "beatmap_db.sql.h"
 

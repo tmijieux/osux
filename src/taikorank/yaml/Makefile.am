@@ -1,6 +1,6 @@
 include $(top_srcdir)/common.mk
 
-dist_yaml_DATA = \
+dist_pkgconf_DATA = \
 	accuracy_cst.yaml \
 	config.yaml \
 	density_cst.yaml \

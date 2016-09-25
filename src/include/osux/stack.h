@@ -1,6 +1,3 @@
-#ifndef OSUX_STACK_H
-#define OSUX_STACK_H
-
 /*
  *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
  *
@@ -17,28 +14,23 @@
  *  limitations under the License.
  */
 
-#include <stdlib.h>
+#ifndef OSUX_STACK_H
+#define OSUX_STACK_H
+
 #include <glib.h>
+#include <stdbool.h>
 
 G_BEGIN_DECLS
 
-#ifndef STACK_TYPE
-#define STACK_TYPE void*
-#define STACK_TYPE_INITIALIZER NULL
-#endif
+typedef struct osux_stack_ osux_stack;
 
-
-struct stack;
-
-struct stack *stack_create(size_t buf_size);
-void stack_destroy(struct stack *stack);
-
-void stack_push(struct stack *s, STACK_TYPE element);
-STACK_TYPE stack_pop(struct stack *s);
-STACK_TYPE stack_peek(const struct stack *s);
-int stack_is_empty(const struct stack *s);
-int stack_is_full(const struct stack *s);
-size_t stack_size(const struct stack *s);
+osux_stack *osux_stack_new(void);
+unsigned osux_stack_size(osux_stack const *s);
+void osux_stack_push(osux_stack *s, void *data);
+gpointer osux_stack_head(osux_stack const *s);
+gpointer osux_stack_pop(osux_stack *s);
+bool osux_stack_is_empty(osux_stack const *s);
+void osux_stack_delete(osux_stack *s);
 
 G_END_DECLS
 

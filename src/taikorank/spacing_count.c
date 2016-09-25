@@ -18,8 +18,12 @@
 #include "spacing_count.h"
 #include "osux.h"
 
+/*
+  Most of the time the list is short: 3 or 4 elements.
+  Using a sorted list might increase a little performances.
+ */
 struct spacing_count {
-    osux_list *l;
+    GList *l;
     int (*eq)(int, int);
 };
 
@@ -34,8 +38,8 @@ static void sp_print(const struct spacing *sp);
 
 struct spacing_count *spc_new(int (*eq)(int, int))
 {
-    struct spacing_count *spc = malloc(sizeof(*spc));
-    spc->l = osux_list_new(0);
+    struct spacing_count *spc = g_malloc(sizeof*spc);
+    spc->l = NULL;
     spc->eq = eq;
     return spc;
 }
@@ -44,26 +48,25 @@ void spc_free(struct spacing_count *spc)
 {
     if (spc == NULL)
         return;
-    osux_list_each(spc->l, free);
-    osux_list_free(spc->l);
-    free(spc);
+    g_list_free_full(spc->l, g_free);
+    g_free(spc);
 }
 
 void spc_add(struct spacing_count *spc, int rest, double val)
 {
-    unsigned int len = osux_list_size(spc->l);
-    for (unsigned int i = 1; i <= len; i++) {
-        struct spacing *sp = osux_list_get(spc->l, i);
+    GList *it;
+    for (it = spc->l; it != NULL; it = it->next) {
+        struct spacing *sp = it->data;
         if (spc->eq(sp->rest, rest)) {
             sp->nb += val;
             return;
         }
     }
 
-    struct spacing *sp = malloc(sizeof(*sp));
+    struct spacing *sp = g_malloc(sizeof(*sp));
     sp->rest = rest;
     sp->nb = val;
-    osux_list_append(spc->l, sp);
+    spc->l = g_list_prepend(spc->l, sp);
 }
 
 static void sp_print(const struct spacing *sp)
@@ -74,15 +77,15 @@ static void sp_print(const struct spacing *sp)
 void spc_print(const struct spacing_count *spc)
 {
     printf("spacing\n");
-    osux_list_each(spc->l, (void (*)(void *))sp_print);
+    g_list_foreach(spc->l, (GFunc) sp_print, NULL);
 }
 
 double spc_get_total(const struct spacing_count *spc)
 {
     double res = 0;
-    unsigned int len = osux_list_size(spc->l);
-    for (unsigned int i = 1; i <= len; i++) {
-        struct spacing *sp = osux_list_get(spc->l, i);
+    GList *it;
+    for (it = spc->l; it != NULL; it = it->next) {
+        struct spacing *sp = it->data;
         res += sp->nb;
     }
     return res;
@@ -90,9 +93,9 @@ double spc_get_total(const struct spacing_count *spc)
 
 double spc_get_nb(const struct spacing_count *spc, int rest)
 {
-    unsigned int len = osux_list_size(spc->l);
-    for (unsigned int i = 1; i <= len; i++) {
-        struct spacing *sp = osux_list_get(spc->l, i);
+    GList *it;
+    for (it = spc->l; it != NULL; it = it->next) {
+        struct spacing *sp = it->data;
         if (spc->eq(sp->rest, rest))
             return sp->nb;
     }

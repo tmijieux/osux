@@ -1,6 +1,3 @@
-#ifndef OSUX_YAML2_H
-#define OSUX_YAML2_H
-
 /*
  *  Copyright (©) 2015 Lucas Maugère, Thomas Mijieux
  *
@@ -17,35 +14,19 @@
  *  limitations under the License.
  */
 
-#include <glib.h>
-#include "osux/list.h"
-#include "osux/hash_table.h"
+#include <string.h>
+#include "osux/string.h"
 
-G_BEGIN_DECLS
+bool string_contains(char const *str, char c)
+{
+    return strchr(str, c) != NULL;
+}
 
-enum yaml_type {
-    YAML_INVALID = 0,
-    YAML_MAPPING,
-    YAML_SEQUENCE,
-    YAML_SCALAR,
-};
-
-union yaml_content {
-    osux_list *sequence;
-    osux_hashtable *mapping;
-    char *scalar;
-    void *value;
-};
-
-struct yaml_wrap {
-    enum yaml_type type;
-    union yaml_content content;
-};
-
-int yaml2_parse_file(struct yaml_wrap **yamlw, char const *file_name);
-void yaml2_dump(FILE *out, const struct yaml_wrap *yw);
-void yaml2_free(struct yaml_wrap *yw);
-
-G_END_DECLS
-
-#endif // OSUX_YAML2_H
+bool string_have_extension(char const *filename, char const *extension)
+{
+    size_t l = strlen(filename);
+    size_t e = strlen(extension);
+    if (l < e)
+        return 0;
+    return (strcmp(extension, filename + l - e) == 0);
+}

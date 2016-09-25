@@ -2,7 +2,6 @@
 #include "osux/md5.h"
 #include "osux/error.h"
 
-
 int osux_md5_init(osux_md5 *md5)
 {
     MD5_Init(&md5->ctx);

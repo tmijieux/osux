@@ -28,8 +28,8 @@
 
 #define TIME_EQUAL_MS 12
 
-static struct yaml_wrap *yw_acc;
-static osux_hashtable *ht_cst_acc;
+static osux_yaml *yw_acc;
+static GHashTable *ht_cst_acc;
 
 static int equal_i(int x, int y);
 
@@ -69,7 +69,7 @@ static struct linear_fun *ACCURACY_SCALE_LF;
 
 //-----------------------------------------------------
 
-static void accuracy_global_init(osux_hashtable *ht_cst)
+static void accuracy_global_init(GHashTable *ht_cst)
 {
     SLOW_LF       = cst_lf(ht_cst, "vect_slow");
     HIT_WINDOW_LF = cst_lf(ht_cst, "vect_hit_window");
@@ -86,7 +86,7 @@ static void accuracy_global_init(osux_hashtable *ht_cst)
 
 static void ht_cst_exit_accuracy(void)
 {
-    yaml2_free(yw_acc);
+    osux_yaml_free(yw_acc);
     lf_free(SLOW_LF);
     lf_free(SPC_FREQ_LF);
     lf_free(SPC_INFLU_LF);

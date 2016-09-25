@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: osux 0.1\n"
 "Report-Msgid-Bugs-To: tmijieux@hotmail.fr, lmaugere@ipb.fr\n"
-"POT-Creation-Date: 2016-08-19 22:10+0200\n"
+"POT-Creation-Date: 2016-09-18 21:01+0200\n"
 "PO-Revision-Date: 2016-08-19 22:12+0200\n"
 "Last-Translator: tmijieux@ipb.fr\n"
 "Language-Team: French\n"
@@ -18,435 +18,652 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Poedit 1.8.8\n"
 
-#: src/editor/app.c:122
-msgid "Open File"
-msgstr "Ouvrir un fichier"
+#: src/viewer/vosu-render.c:11
+msgid "This game mode is currently unsupported, sorry."
+msgstr ""
 
-#: src/editor/app.c:122 src/editor/app.c:160
+#: src/viewer/vosu-app.c:62
+msgid "Replay"
+msgstr ""
+
+#: src/viewer/vosu-app.c:63
+msgid "Cannot open a replay without a beatmap!"
+msgstr ""
+
+#: src/viewer/vosu-app.c:72
+msgid "Error loading replay"
+msgstr ""
+
+#: src/viewer/vosu-app.c:82
+msgid "Replay error."
+msgstr ""
+
+#: src/viewer/vosu-app.c:83
+msgid "the replay is not for this beatmap"
+msgstr ""
+
+#: src/viewer/vosu-app.c:88
+#, c-format
+msgid "replay file set to '%s'\n"
+msgstr ""
+
+#: src/viewer/vosu-app.c:142 src/editor/edosu-app.c:103
+msgid "Error loading beatmap"
+msgstr ""
+
+#: src/viewer/vosu-app.c:207 src/editor/edosu-app.c:170
+#, fuzzy
+msgid "Open Beatmap"
+msgstr "Sauvegarder la difficulté"
+
+#: src/viewer/vosu-app.c:208 src/editor/edosu-app.c:171
+#: src/editor/edosu-app.c:224
 msgid "_Cancel"
 msgstr "_Annuler"
 
-#: src/editor/app.c:123
+#: src/viewer/vosu-app.c:209 src/editor/edosu-app.c:172
 msgid "_Open"
 msgstr "_Ouvrir"
 
-#: src/editor/app.c:160
-msgid "Save beatmap"
-msgstr "Sauvegarder la difficulté"
-
-#: src/editor/app.c:161
-msgid "_Save"
-msgstr "_Sauvegarder"
-
-#: src/editor/beatmap.c:84 src/editor/ui/OsuxEditorWindow.ui:406
-msgid "Circle"
-msgstr "Cercle"
-
-#: src/editor/beatmap.c:85 src/editor/ui/OsuxEditorWindow.ui:425
-msgid "Slider"
-msgstr "Glisseur"
-
-#: src/editor/beatmap.c:86 src/editor/ui/OsuxEditorWindow.ui:414
-msgid "Spinner"
-msgstr "Vrille"
-
-#: src/editor/beatmap.c:87 src/editor/ui/OsuxEditorWindow.ui:436
-msgid "Hold"
-msgstr "Note tenu"
-
-#: src/editor/beatmap.c:88
-msgid "Invalid type"
-msgstr "Type invalide"
-
-#: src/editor/beatmap.c:110
-msgid "Inherited"
-msgstr "Hérité"
-
-#: src/editor/beatmap.c:112
-msgid "Absolute"
-msgstr "Absolu"
-
-#: src/editor/beatmap.c:174
-msgid "Bookmark"
-msgstr "Marque-page"
-
-#: src/editor/beatmap.c:186
-msgid "TimingPoints"
-msgstr "Points temporels"
-
-#: src/editor/beatmap.c:191 src/editor/ui/OsuxEditorWindow.ui:401
-msgid "HitObjects"
-msgstr "Notes"
-
-#: src/editor/beatmap.c:196
-msgid "Bookmarks"
-msgstr "Marque-pages"
-
-#: src/editor/beatmap.c:201
-msgid "Events"
-msgstr "Événements"
-
-#: src/editor/beatmap.c:206
-msgid "Colors"
-msgstr "Couleurs"
-
-#: src/editor/beatmap.c:325
-#, c-format
-msgid "invalid beatmap: %s\n"
-msgstr "Difficulté invalide: %s\n"
-
-#: src/editor/beatmap.c:329
-#, c-format
-msgid "valid beatmap: %s\n"
-msgstr "Difficulté valide: %s\n"
-
-#: src/include/osux/event.h:10
-msgid "BackgroundImage"
-msgstr "Fond d'écran"
-
-#: src/include/osux/event.h:11
-msgid "Video"
-msgstr "Vidéo"
-
-#: src/include/osux/event.h:12
-msgid "BreakPeriod"
-msgstr "Pause"
-
-#: src/include/osux/event.h:13
-msgid "BackgroundColour"
-msgstr "Couleur de fond"
-
-#: src/include/osux/event.h:14
-msgid "Sprite"
-msgstr "Image"
-
-#: src/include/osux/event.h:15 src/editor/ui/OsuxEditorWindow.ui:493
-msgid "Sample"
-msgstr "Son"
-
-#: src/include/osux/event.h:16
-msgid "Animation"
-msgstr "Animation"
-
-#: src/include/osux/event.h:19
-msgid "Fade"
-msgstr "Fondu"
-
-#: src/include/osux/event.h:20
-msgid "Move"
-msgstr "Déplacement"
-
-#: src/include/osux/event.h:21
-msgid "MoveX"
-msgstr "DéplacementX"
-
-#: src/include/osux/event.h:22
-msgid "MoveY"
-msgstr "DéplacementY"
-
-#: src/include/osux/event.h:23 src/editor/ui/OsuxEditorWindow.ui:466
-msgid "Scale"
-msgstr "Échelle"
-
-#: src/include/osux/event.h:24
-msgid "VectorScale"
-msgstr "Échelle vectorielle"
-
-#: src/include/osux/event.h:25
-msgid "Rotate"
-msgstr "Rotation"
-
-#: src/include/osux/event.h:26
-msgid "Color"
-msgstr "Couleur"
-
-#: src/include/osux/event.h:27
-msgid "Parameter"
-msgstr "Paramètre"
-
-#: src/include/osux/event.h:28
-msgid "Loop"
-msgstr "Boucle"
-
-#: src/include/osux/event.h:29
-msgid "Trigger"
-msgstr "Condition"
-
-#: src/include/osux/color.h:23
-msgid "Combo"
-msgstr "Combo"
-
-#: src/include/osux/color.h:24
-msgid "SliderBorder"
-msgstr "Bord des glisseurs"
-
-#: src/include/osux/color.h:25
-msgid "SliderTrackOverride"
-msgstr ""
-
-#: src/include/osux/color.h:26
-msgid "SpinnerApproachCircle"
-msgstr "Cercle d'approches des vrilles."
-
-#: src/include/osux/color.h:27
-msgid "StarBreakAdditive"
-msgstr ""
-
-#: src/editor/ui/OsuxEditorWindow.ui:14
+#: src/editor/edosu-win.c:114 src/editor/ui/EdosuWindow.glade:14
 msgid "osux Editor"
 msgstr "Éditeur osux"
 
-#: src/editor/ui/OsuxEditorWindow.ui:54
-msgid "_File"
-msgstr "_Fichier"
+#: src/editor/edosu-app.c:98
+#, fuzzy
+msgid "cannot create beatmap"
+msgstr "Sauvegarder la difficulté"
 
-#: src/editor/ui/OsuxEditorWindow.ui:135
-msgid "E_dit"
-msgstr "É_dition"
+#: src/editor/edosu-app.c:223
+msgid "Save beatmap"
+msgstr "Sauvegarder la difficulté"
 
-#: src/editor/ui/OsuxEditorWindow.ui:185
-msgid "_View"
-msgstr "_Affichage"
+#: src/editor/edosu-app.c:225
+msgid "_Save"
+msgstr "_Sauvegarder"
 
-#: src/editor/ui/OsuxEditorWindow.ui:193
-msgid "_Help"
-msgstr "A_ide"
+#: src/editor/edosu-beatmap-objects.c:24 src/editor/ui/EdosuPalette.glade:24
+msgid "Circle"
+msgstr "Cercle"
 
-#: src/editor/ui/OsuxEditorWindow.ui:452
-msgid "Transformation"
-msgstr "Transformation"
+#: src/editor/edosu-beatmap-objects.c:25 src/editor/ui/EdosuPalette.glade:43
+msgid "Slider"
+msgstr "Glisseur"
 
-#: src/editor/ui/OsuxEditorWindow.ui:458
-msgid "Symmetry"
-msgstr "Symétrie"
+#: src/editor/edosu-beatmap-objects.c:26 src/editor/ui/EdosuPalette.glade:32
+msgid "Spinner"
+msgstr "Vrille"
 
-#: src/editor/ui/OsuxEditorWindow.ui:477
-msgid "Rotation"
-msgstr "Rotation"
+#: src/editor/edosu-beatmap-objects.c:27 src/editor/ui/EdosuPalette.glade:54
+msgid "Hold"
+msgstr "Note tenu"
 
-#: src/editor/ui/OsuxEditorWindow.ui:499 src/editor/ui/OsuxEditorWindow.ui:559
-#: src/editor/ui/OsuxEditorWindow.ui:842
-msgid "Normal"
-msgstr "Normal"
+#: src/editor/edosu-beatmap-objects.c:28
+msgid "Invalid type"
+msgstr "Type invalide"
 
-#: src/editor/ui/OsuxEditorWindow.ui:507
-msgid "Whistle"
+#: src/editor/edosu-beatmap-objects.c:53
+msgid "Inherited"
+msgstr "Hérité"
+
+#: src/editor/edosu-beatmap-objects.c:55
+msgid "Absolute"
+msgstr "Absolu"
+
+#: src/editor/edosu-beatmap-objects.c:122
+msgid "Bookmark"
+msgstr "Marque-page"
+
+#: src/editor/edosu-beatmap-objects.c:155
+msgid "TimingPoints"
+msgstr "Points temporels"
+
+#: src/editor/edosu-beatmap-objects.c:160 src/editor/ui/EdosuPalette.glade:19
+msgid "HitObjects"
+msgstr "Notes"
+
+#: src/editor/edosu-beatmap-objects.c:165
+msgid "Bookmarks"
+msgstr "Marque-pages"
+
+#: src/editor/edosu-beatmap-objects.c:170
+msgid "Events"
+msgstr "Événements"
+
+#: src/editor/edosu-beatmap-objects.c:175
+msgid "Colors"
+msgstr "Couleurs"
+
+#: src/editor/edosu-beatmap.c:20
+#, fuzzy, c-format
+msgid "unsaved beatmap %d"
+msgstr "Sauvegarder la difficulté"
+
+#: src/lib/util/yaml.c:40
+#, c-format
+msgid "yaml list start:\n"
+msgstr ""
+
+#: src/lib/util/yaml.c:46
+#, c-format
+msgid "yaml list end\n"
+msgstr ""
+
+#: src/lib/util/yaml.c:49
+#, c-format
+msgid "yaml table start:\n"
+msgstr ""
+
+#: src/lib/util/yaml.c:51
+#, c-format
+msgid "yaml table end\n"
+msgstr ""
+
+#: src/lib/util/yaml.c:58 src/lib/util/yaml.c:213
+msgid "invalid yaml type encountered"
+msgstr ""
+
+#: src/lib/util/yaml.c:74
+#, fuzzy
+msgid "invalid container\n"
+msgstr "Type invalide"
+
+#: src/lib/util/yaml.c:118
+msgid "Failed to initialize yaml parser!\n"
+msgstr ""
+
+#: src/lib/util/yaml.c:133
+#, c-format
+msgid "Yaml parser error %d\n"
+msgstr ""
+
+#: src/lib/beatmap/hitobject.c:131
+#, fuzzy
+msgid "Whistle "
 msgstr "Sifflet"
 
-#: src/editor/ui/OsuxEditorWindow.ui:518
-msgid "Finish"
+#: src/lib/beatmap/hitobject.c:132
+#, fuzzy
+msgid "Finish "
 msgstr "Cymbales"
 
-#: src/editor/ui/OsuxEditorWindow.ui:529
-msgid "Clap"
+#: src/lib/beatmap/hitobject.c:133
+#, fuzzy
+msgid "Clap "
 msgstr "Applaudit"
 
-#: src/editor/ui/OsuxEditorWindow.ui:545
-msgid "SampleType"
-msgstr "Type de son"
+#: src/include/osux/event.h:21
+msgid "BackgroundImage"
+msgstr "Fond d'écran"
 
-#: src/editor/ui/OsuxEditorWindow.ui:551
+#: src/include/osux/event.h:22
+msgid "Video"
+msgstr "Vidéo"
+
+#: src/include/osux/event.h:23
+msgid "BreakPeriod"
+msgstr "Pause"
+
+#: src/include/osux/event.h:24
+msgid "BackgroundColour"
+msgstr "Couleur de fond"
+
+#: src/include/osux/event.h:25 src/editor/ui/EdosuPalette.glade:128
+msgid "Sprite"
+msgstr "Image"
+
+#: src/include/osux/event.h:26 src/editor/ui/EdosuPalette.glade:70
+msgid "Sample"
+msgstr "Son"
+
+#: src/include/osux/event.h:27 src/editor/ui/EdosuPalette.glade:136
+msgid "Animation"
+msgstr "Animation"
+
+#: src/include/osux/event.h:30 src/editor/ui/EdosuPalette.glade:147
+msgid "Fade"
+msgstr "Fondu"
+
+#: src/include/osux/event.h:31 src/editor/ui/EdosuPalette.glade:158
+msgid "Move"
+msgstr "Déplacement"
+
+#: src/include/osux/event.h:32 src/editor/ui/EdosuPalette.glade:169
+msgid "MoveX"
+msgstr "DéplacementX"
+
+#: src/include/osux/event.h:33 src/editor/ui/EdosuPalette.glade:180
+msgid "MoveY"
+msgstr "DéplacementY"
+
+#: src/include/osux/event.h:34 src/editor/ui/EdosuPalette.glade:191
+#: src/editor/ui/EdosuPalette.glade:317
+msgid "Scale"
+msgstr "Échelle"
+
+#: src/include/osux/event.h:35 src/editor/ui/EdosuPalette.glade:202
+msgid "VectorScale"
+msgstr "Échelle vectorielle"
+
+#: src/include/osux/event.h:36
+msgid "Rotate"
+msgstr "Rotation"
+
+#: src/include/osux/event.h:37
+msgid "Color"
+msgstr "Couleur"
+
+#: src/include/osux/event.h:38 src/editor/ui/EdosuPalette.glade:213
+msgid "Parameter"
+msgstr "Paramètre"
+
+#: src/include/osux/event.h:39 src/editor/ui/EdosuPalette.glade:224
+msgid "Loop"
+msgstr "Boucle"
+
+#: src/include/osux/event.h:40 src/editor/ui/EdosuPalette.glade:235
+msgid "Trigger"
+msgstr "Condition"
+
+#: src/include/osux/event.h:43
+#, fuzzy
+msgid "Background"
+msgstr "Fond d'écran"
+
+#: src/include/osux/event.h:44
+msgid "Fail"
+msgstr ""
+
+#: src/include/osux/event.h:45
+msgid "Pass"
+msgstr ""
+
+#: src/include/osux/event.h:46
+msgid "Foreground"
+msgstr ""
+
+#: src/include/osux/event.h:49
+#, fuzzy
+msgid "LoopOnce"
+msgstr "Boucle"
+
+#: src/include/osux/event.h:50
+msgid "LoopForever"
+msgstr ""
+
+#: src/include/osux/event.h:53
+msgid "TopLeft"
+msgstr ""
+
+#: src/include/osux/event.h:54
+msgid "TopCentre"
+msgstr ""
+
+#: src/include/osux/event.h:55
+msgid "TopRight"
+msgstr ""
+
+#: src/include/osux/event.h:56
+msgid "CentreLeft"
+msgstr ""
+
+#: src/include/osux/event.h:57
+msgid "Centre"
+msgstr ""
+
+#: src/include/osux/event.h:58
+msgid "CentreRight"
+msgstr ""
+
+#: src/include/osux/event.h:59
+msgid "BottomLeft"
+msgstr ""
+
+#: src/include/osux/event.h:60
+msgid "BottomCentre"
+msgstr ""
+
+#: src/include/osux/event.h:61
+msgid "BottomRight"
+msgstr ""
+
+#: src/include/osux/hitsound.h:38 src/editor/ui/EdosuPalette.glade:257
+#: src/editor/ui/EdosuProperties.glade:219
 msgid "Default"
 msgstr "Par défaut"
 
-#: src/editor/ui/OsuxEditorWindow.ui:570 src/editor/ui/OsuxEditorWindow.ui:843
+#: src/include/osux/hitsound.h:39 src/editor/ui/EdosuPalette.glade:76
+#: src/editor/ui/EdosuPalette.glade:265 src/editor/ui/EdosuProperties.glade:220
+msgid "Normal"
+msgstr "Normal"
+
+#: src/include/osux/hitsound.h:40 src/editor/ui/EdosuPalette.glade:276
+#: src/editor/ui/EdosuProperties.glade:221
 msgid "Soft"
 msgstr "Doux"
 
-#: src/editor/ui/OsuxEditorWindow.ui:581 src/editor/ui/OsuxEditorWindow.ui:844
+#: src/include/osux/hitsound.h:41 src/editor/ui/EdosuPalette.glade:287
+#: src/editor/ui/EdosuProperties.glade:222
 msgid "Drum"
 msgstr "Tambour"
 
-#: src/editor/ui/OsuxEditorWindow.ui:663
-msgid "Offset"
-msgstr "Décalage"
+#: src/include/osux/color.h:27
+msgid "Combo"
+msgstr "Combo"
 
-#: src/editor/ui/OsuxEditorWindow.ui:674
-msgid "Type"
-msgstr "Type"
+#: src/include/osux/color.h:28
+msgid "MenuGlow"
+msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:685
-msgid "Details"
-msgstr "Détails"
+#: src/include/osux/color.h:29
+msgid "SliderBorder"
+msgstr "Bord des glisseurs"
 
-#: src/editor/ui/OsuxEditorWindow.ui:745
-msgid "Audio File"
-msgstr "Fichier audio"
+#: src/include/osux/color.h:30
+msgid "SpinnerApproachCircle"
+msgstr "Cercle d'approches des vrilles."
 
-#: src/editor/ui/OsuxEditorWindow.ui:760
-msgid "Open Audio File"
-msgstr "Ouvrir un fichier audio"
+#: src/include/osux/color.h:31
+msgid "SongSelectActiveText"
+msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:784
-msgid "Game Mode"
-msgstr "Mode de jeu"
+#: src/include/osux/color.h:32
+msgid "SongSelectInactiveText"
+msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:799
-msgid "Standard"
-msgstr "Standard"
+#: src/include/osux/color.h:33
+msgid "StarBreakAdditive"
+msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:800
-msgid "Taiko"
-msgstr "Taiko"
+#: src/include/osux/color.h:34
+msgid "SliderTrackOverride"
+msgstr ""
 
-#: src/editor/ui/OsuxEditorWindow.ui:801
-msgid "Catch The beat"
-msgstr "Attraper les fruits"
+#: src/viewer/ui/VosuWindow.glade:19
+#, fuzzy
+msgid "osux viewer"
+msgstr "Éditeur osux"
 
-#: src/editor/ui/OsuxEditorWindow.ui:802
-msgid "Mania"
-msgstr "Mania"
+#: src/viewer/ui/VosuWindow.glade:58 src/editor/ui/EdosuWindow.glade:53
+msgid "_File"
+msgstr "_Fichier"
 
-#: src/editor/ui/OsuxEditorWindow.ui:827
-msgid "SampleSet"
-msgstr "Ensemble de son"
+#: src/viewer/ui/VosuWindow.glade:139 src/editor/ui/EdosuWindow.glade:134
+msgid "E_dit"
+msgstr "É_dition"
 
-#: src/editor/ui/OsuxEditorWindow.ui:869
-msgid "Stack Leniency"
-msgstr "Tolérance d'empilage"
+#: src/viewer/ui/VosuWindow.glade:189 src/editor/ui/EdosuWindow.glade:184
+msgid "_View"
+msgstr "_Affichage"
 
-#: src/editor/ui/OsuxEditorWindow.ui:883 src/editor/ui/OsuxEditorWindow.ui:922
-#: src/editor/ui/OsuxEditorWindow.ui:960 src/editor/ui/OsuxEditorWindow.ui:1438
-#: src/editor/ui/OsuxEditorWindow.ui:1476
-#: src/editor/ui/OsuxEditorWindow.ui:1560
-#: src/editor/ui/OsuxEditorWindow.ui:1599
-#: src/editor/ui/OsuxEditorWindow.ui:1638
-#: src/editor/ui/OsuxEditorWindow.ui:1677
-#: src/editor/ui/OsuxEditorWindow.ui:1964
-msgid "0"
-msgstr "0"
+#: src/viewer/ui/VosuWindow.glade:197 src/editor/ui/EdosuWindow.glade:192
+msgid "_Help"
+msgstr "A_ide"
 
-#: src/editor/ui/OsuxEditorWindow.ui:908
-msgid "Preview Time"
-msgstr "Date de prévisualisation"
+#: src/viewer/ui/VosuWindow.glade:278
+#, fuzzy
+msgid "Open Replay File"
+msgstr "Ouvrir un fichier"
 
-#: src/editor/ui/OsuxEditorWindow.ui:946
-msgid "Audio LeadIn"
-msgstr "Date de démarrage"
-
-#: src/editor/ui/OsuxEditorWindow.ui:984
-msgid "CountDown"
-msgstr "Compte à rebours"
-
-#: src/editor/ui/OsuxEditorWindow.ui:1020
-msgid "Letter Box in breaks"
-msgstr "Lettres pendant les pauses"
-
-#: src/editor/ui/OsuxEditorWindow.ui:1056
-msgid "WideScreen"
-msgstr "Écran large"
-
-#: src/editor/ui/OsuxEditorWindow.ui:1099
-msgid "General"
-msgstr "Général"
-
-#: src/editor/ui/OsuxEditorWindow.ui:1136
-msgid "Title"
-msgstr "Titre"
-
-#: src/editor/ui/OsuxEditorWindow.ui:1172
-msgid "Romanized Title"
-msgstr "Titre romanisé"
-
-#: src/editor/ui/OsuxEditorWindow.ui:1208
-msgid "Artist"
-msgstr "Artiste"
-
-#: src/editor/ui/OsuxEditorWindow.ui:1244
-msgid "Romanized Artist"
-msgstr "Artiste romanisé(e)"
-
-#: src/editor/ui/OsuxEditorWindow.ui:1280
-msgid "Creator"
-msgstr "Créateur"
-
-#: src/editor/ui/OsuxEditorWindow.ui:1316
-msgid "Difficulty Name"
-msgstr "Nom de le difficulté"
-
-#: src/editor/ui/OsuxEditorWindow.ui:1352
-msgid "Source"
-msgstr "Source"
-
-#: src/editor/ui/OsuxEditorWindow.ui:1388
-msgid "Tags"
-msgstr "Mots clés"
-
-#: src/editor/ui/OsuxEditorWindow.ui:1424
-msgid "Beatmap ID"
-msgstr "ID de la difficulté"
-
-#: src/editor/ui/OsuxEditorWindow.ui:1462
-msgid "Beatmap Set ID"
-msgstr "ID du groupe de difficultés"
-
-#: src/editor/ui/OsuxEditorWindow.ui:1508
-msgid "Metadata"
-msgstr "Métadonnées"
-
-#: src/editor/ui/OsuxEditorWindow.ui:1546
-msgid "DistanceSpacing"
-msgstr "Espacement"
-
-#: src/editor/ui/OsuxEditorWindow.ui:1585
-msgid "BeatDivisor"
-msgstr "Indication de mesure"
-
-#: src/editor/ui/OsuxEditorWindow.ui:1624
-msgid "Grid Size"
-msgstr "Taille de la grille"
-
-#: src/editor/ui/OsuxEditorWindow.ui:1663
-msgid "Timeline Zoom"
-msgstr "Zoom sur la frise"
-
-#: src/editor/ui/OsuxEditorWindow.ui:1695
-msgid "Add Bookmark at current time"
-msgstr "Ajouter un marque-page à l'instant présent"
-
-#: src/editor/ui/OsuxEditorWindow.ui:1724
-msgid "Editor"
-msgstr "Éditeur"
-
-#: src/editor/ui/OsuxEditorWindow.ui:1762
-msgid "HP Drain Rate"
-msgstr "Drain de vie"
-
-#: src/editor/ui/OsuxEditorWindow.ui:1799
-msgid "Circle Size"
-msgstr "Taille des cercles"
-
-#: src/editor/ui/OsuxEditorWindow.ui:1836
-msgid "Overall Difficulty"
-msgstr "Difficulté générale"
-
-#: src/editor/ui/OsuxEditorWindow.ui:1873
-msgid "Approach Rate"
-msgstr "Vitesse d'approche"
-
-#: src/editor/ui/OsuxEditorWindow.ui:1910
-msgid "Slider Multiplier"
-msgstr "Multiplicateur des glisseurs"
-
-#: src/editor/ui/OsuxEditorWindow.ui:1924
-msgid "1"
-msgstr "1"
-
-#: src/editor/ui/OsuxEditorWindow.ui:1950
-msgid "Slider Tick Rate"
-msgstr "Taux de tics des glisseurs"
-
-#: src/editor/ui/OsuxEditorWindow.ui:1995
-msgid "Difficulty"
-msgstr "Difficulté"
-
-#: src/editor/ui/OsuxEditorPopover.ui:21
+#: src/editor/ui/EdosuEditorPopover.glade:21
 msgid "start typing..."
 msgstr "commencez à taper..."
 
-#: src/editor/ui/OsuxEditorPopover.ui:33
+#: src/editor/ui/EdosuEditorPopover.glade:33
 msgid "Hi !"
 msgstr "Salut !"
+
+#: src/editor/ui/EdosuInspector.glade:38 src/editor/ui/EdosuInspector.glade:49
+#: src/editor/ui/EdosuInspector.glade:60
+msgid "column"
+msgstr ""
+
+#: src/editor/ui/EdosuWindow.glade:370
+msgid "Composing"
+msgstr ""
+
+#: src/editor/ui/EdosuWindow.glade:371
+msgid "Storyboarding"
+msgstr ""
+
+#: src/editor/ui/EdosuWindow.glade:372
+#, fuzzy
+msgid "Timing"
+msgstr "Points temporels"
+
+#: src/editor/ui/EdosuWindow.glade:373
+msgid "Modding"
+msgstr ""
+
+#: src/editor/ui/EdosuWindow.glade:374
+msgid "Debugging"
+msgstr ""
+
+#: src/editor/ui/EdosuPalette.glade:84
+#, fuzzy
+msgid "Whistle"
+msgstr "Sifflet"
+
+#: src/editor/ui/EdosuPalette.glade:95
+#, fuzzy
+msgid "Finish"
+msgstr "Cymbales"
+
+#: src/editor/ui/EdosuPalette.glade:106
+#, fuzzy
+msgid "Clap"
+msgstr "Applaudit"
+
+#: src/editor/ui/EdosuPalette.glade:122
+msgid "Storyboard"
+msgstr ""
+
+#: src/editor/ui/EdosuPalette.glade:251
+msgid "SampleType"
+msgstr "Type de son"
+
+#: src/editor/ui/EdosuPalette.glade:303
+msgid "Transformation"
+msgstr "Transformation"
+
+#: src/editor/ui/EdosuPalette.glade:309
+msgid "Symmetry"
+msgstr "Symétrie"
+
+#: src/editor/ui/EdosuPalette.glade:328
+msgid "Rotation"
+msgstr "Rotation"
+
+#: src/editor/ui/EdosuProperties.glade:125
+msgid "Audio File"
+msgstr "Fichier audio"
+
+#: src/editor/ui/EdosuProperties.glade:139
+msgid "Open Audio File"
+msgstr "Ouvrir un fichier audio"
+
+#: src/editor/ui/EdosuProperties.glade:163
+msgid "Game Mode"
+msgstr "Mode de jeu"
+
+#: src/editor/ui/EdosuProperties.glade:177
+msgid "Standard"
+msgstr "Standard"
+
+#: src/editor/ui/EdosuProperties.glade:178
+msgid "Taiko"
+msgstr "Taiko"
+
+#: src/editor/ui/EdosuProperties.glade:179
+msgid "Catch The beat"
+msgstr "Attraper les fruits"
+
+#: src/editor/ui/EdosuProperties.glade:180
+msgid "Mania"
+msgstr "Mania"
+
+#: src/editor/ui/EdosuProperties.glade:205
+msgid "SampleSet"
+msgstr "Ensemble de son"
+
+#: src/editor/ui/EdosuProperties.glade:247
+msgid "Stack Leniency"
+msgstr "Tolérance d'empilage"
+
+#: src/editor/ui/EdosuProperties.glade:261
+#: src/editor/ui/EdosuProperties.glade:927
+#: src/editor/ui/EdosuProperties.glade:967
+#: src/editor/ui/EdosuProperties.glade:1007
+#: src/editor/ui/EdosuProperties.glade:1047
+#: src/editor/ui/EdosuProperties.glade:1296
+msgid "0,0"
+msgstr ""
+
+#: src/editor/ui/EdosuProperties.glade:287
+msgid "Preview Time"
+msgstr "Date de prévisualisation"
+
+#: src/editor/ui/EdosuProperties.glade:301
+#: src/editor/ui/EdosuProperties.glade:340
+#: src/editor/ui/EdosuProperties.glade:806
+#: src/editor/ui/EdosuProperties.glade:845
+#: src/editor/ui/EdosuProperties.glade:1336
+msgid "0"
+msgstr "0"
+
+#: src/editor/ui/EdosuProperties.glade:326
+msgid "Audio LeadIn"
+msgstr "Date de démarrage"
+
+#: src/editor/ui/EdosuProperties.glade:365
+msgid "CountDown"
+msgstr "Compte à rebours"
+
+#: src/editor/ui/EdosuProperties.glade:400
+msgid "Letter Box in breaks"
+msgstr "Lettres pendant les pauses"
+
+#: src/editor/ui/EdosuProperties.glade:435
+msgid "WideScreen"
+msgstr "Écran large"
+
+#: src/editor/ui/EdosuProperties.glade:477
+msgid "General"
+msgstr "Général"
+
+#: src/editor/ui/EdosuProperties.glade:512
+msgid "Title"
+msgstr "Titre"
+
+#: src/editor/ui/EdosuProperties.glade:547
+msgid "Romanized Title"
+msgstr "Titre romanisé"
+
+#: src/editor/ui/EdosuProperties.glade:582
+msgid "Artist"
+msgstr "Artiste"
+
+#: src/editor/ui/EdosuProperties.glade:617
+msgid "Romanized Artist"
+msgstr "Artiste romanisé(e)"
+
+#: src/editor/ui/EdosuProperties.glade:652
+msgid "Creator"
+msgstr "Créateur"
+
+#: src/editor/ui/EdosuProperties.glade:687
+msgid "Difficulty Name"
+msgstr "Nom de le difficulté"
+
+#: src/editor/ui/EdosuProperties.glade:722
+msgid "Source"
+msgstr "Source"
+
+#: src/editor/ui/EdosuProperties.glade:757
+msgid "Tags"
+msgstr "Mots clés"
+
+#: src/editor/ui/EdosuProperties.glade:792
+msgid "Beatmap ID"
+msgstr "ID de la difficulté"
+
+#: src/editor/ui/EdosuProperties.glade:831
+msgid "Beatmap Set ID"
+msgstr "ID du groupe de difficultés"
+
+#: src/editor/ui/EdosuProperties.glade:877
+msgid "Metadata"
+msgstr "Métadonnées"
+
+#: src/editor/ui/EdosuProperties.glade:913
+msgid "DistanceSpacing"
+msgstr "Espacement"
+
+#: src/editor/ui/EdosuProperties.glade:953
+msgid "BeatDivisor"
+msgstr "Indication de mesure"
+
+#: src/editor/ui/EdosuProperties.glade:993
+msgid "Grid Size"
+msgstr "Taille de la grille"
+
+#: src/editor/ui/EdosuProperties.glade:1033
+msgid "Timeline Zoom"
+msgstr "Zoom sur la frise"
+
+#: src/editor/ui/EdosuProperties.glade:1066
+msgid "Add Bookmark at current time"
+msgstr "Ajouter un marque-page à l'instant présent"
+
+#: src/editor/ui/EdosuProperties.glade:1094
+msgid "Editor"
+msgstr "Éditeur"
+
+#: src/editor/ui/EdosuProperties.glade:1130
+msgid "HP Drain Rate"
+msgstr "Drain de vie"
+
+#: src/editor/ui/EdosuProperties.glade:1168
+msgid "Circle Size"
+msgstr "Taille des cercles"
+
+#: src/editor/ui/EdosuProperties.glade:1206
+msgid "Overall Difficulty"
+msgstr "Difficulté générale"
+
+#: src/editor/ui/EdosuProperties.glade:1244
+msgid "Approach Rate"
+msgstr "Vitesse d'approche"
+
+#: src/editor/ui/EdosuProperties.glade:1282
+msgid "Slider Multiplier"
+msgstr "Multiplicateur des glisseurs"
+
+#: src/editor/ui/EdosuProperties.glade:1322
+msgid "Slider Tick Rate"
+msgstr "Taux de tics des glisseurs"
+
+#: src/editor/ui/EdosuProperties.glade:1368
+msgid "Difficulty"
+msgstr "Difficulté"
+
+#~ msgid "invalid beatmap: %s\n"
+#~ msgstr "Difficulté invalide: %s\n"
+
+#~ msgid "valid beatmap: %s\n"
+#~ msgstr "Difficulté valide: %s\n"
+
+#~ msgid "Offset"
+#~ msgstr "Décalage"
+
+#~ msgid "Type"
+#~ msgstr "Type"
+
+#~ msgid "Details"
+#~ msgstr "Détails"
+
+#~ msgid "1"
+#~ msgstr "1"
 
 #~ msgid "Hitsound"
 #~ msgstr "Son"

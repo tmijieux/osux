@@ -1,4 +1,5 @@
 #include "osux/error.h"
+
 #define OSUX_ERROR_TO_STRING(error) [error] = #error,
 
 static char const *osux_errmsg_[] = {

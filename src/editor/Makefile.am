@@ -3,16 +3,16 @@ include $(top_srcdir)/common.mk
 bin_PROGRAMS = edosu
 edosu_SOURCES = \
 	main.c \
-	edosu-app.c \
-	edosu-win.c \
-	edosu-close-lbl.c \
-	edosu-beatmap.c \
+	edosu-app.c edosu-app.h \
+	edosu-win.c edosu-win.h \
+	edosu-close-lbl.c edosu-close-lbl.h \
+	edosu-beatmap.c edosu-beatmap.h \
 	edosu-beatmap-objects.c \
-	edosu-properties.c \
-	edosu-palette.c \
-	edosu-view.c \
-	edosu-inspector.c \
-	edosu-render.c
+	edosu-properties.c edosu-properties.h \
+	edosu-palette.c edosu-palette.h \
+	edosu-view.c edosu-view.h \
+	edosu-inspector.c edosu-inspector.h \
+	edosu-render.c edosu-render.h
 
 nodist_edosu_SOURCES = \
 	resources.c \
